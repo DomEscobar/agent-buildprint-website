@@ -1,78 +1,74 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildprints } from '@/lib/buildprints';
-const featured = buildprints.slice(0, 3);
+import { buildprints, liveBuildprints } from '@/lib/buildprints';
+const featured = liveBuildprints.filter((bp) => bp.featured).slice(0, 4);
+const sections = [
+  { title: 'Product OS', items: buildprints.filter((bp) => bp.category === 'Product OS').slice(0, 5) },
+  { title: 'Features & Extensions', items: buildprints.filter((bp) => bp.category === 'Feature / Extension').slice(0, 5) },
+  { title: 'Framework Blueprints', items: buildprints.filter((bp) => bp.category === 'Framework / Architecture').slice(0, 5) },
+  { title: 'Workflow OS', items: buildprints.filter((bp) => bp.category === 'Workflow OS').slice(0, 5) },
+];
 ---
-<BaseLayout title="Agent Buildprint — agent-readable construction plans" description="A registry and package format for coding-agent-ready Buildprints: architecture contracts, specs, phase plans, tests, and machine-readable endpoints.">
+<BaseLayout title="Agent Buildprint — build plans agents can follow" description="Agent-readable Buildprints for frameworks, products, features, workflows, and mapped repositories.">
   <main>
-    <section class="container hero blueprint-hero">
-      <span class="pill">agent-buildprint.com · agentic-first registry</span>
-      <h1>Buildprints your coding agent can actually fetch, read, and follow.</h1>
-      <p class="lead">Agent Buildprint is a registry and package format for software construction plans: architecture contracts, behavior specs, tiny phase plans, interfaces, tests, and validation rails.</p>
-      <div class="actions">
-        <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
-        <a class="btn" href="/llms.txt">Open llms.txt</a>
-        <a class="btn" href="/buildprints/index.json">Registry JSON</a>
+    <section class="container hero clean-hero">
+      <div class="hero-copy">
+        <span class="pill">agent-readable registry</span>
+        <h1>Build plans agents can follow.</h1>
+        <p class="lead">Buildprints package architecture, specs, phase plans, contracts, and tests into implementation plans coding agents can fetch, snapshot, continue, and validate.</p>
+        <div class="actions">
+          <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
+          <a class="btn" href="/llms.txt">Agent endpoints</a>
+        </div>
       </div>
-      <div class="agent-console" aria-label="Agent navigation example">
-        <div class="console-bar"><span></span><span></span><span></span><strong>agent route</strong></div>
-        <pre>fetch /llms.txt
-fetch /buildprints/index.json
-fetch /buildprints/ai-influencer-os/agent.md
-fetch /buildprints/ai-influencer-os/package.json</pre>
-      </div>
-    </section>
-
-    <section class="container section split">
-      <div>
-        <span class="eyebrow">New mental model</span>
-        <h2>Not one blueprint type. A registry for many build shapes.</h2>
-      </div>
-      <div class="grid type-grid">
-        <div class="panel compact"><b>Framework / Architecture</b><p>Patterns like vanilla agent contracts or framework-light runtime shapes.</p></div>
-        <div class="panel compact"><b>Product OS</b><p>Full systems with specs, phase plans, contracts, and validation.</p></div>
-        <div class="panel compact"><b>Feature / Extension</b><p>Capabilities like billing, auth, admin, webhooks, or integrations.</p></div>
-        <div class="panel compact"><b>Workflow OS</b><p>Operational systems for content, research, QA, or internal processes.</p></div>
-        <div class="panel compact"><b>Mapped Project</b><p>Existing repos converted into observed/inferred/unknown Buildprint packages.</p></div>
+      <div class="blueprint-panel" aria-label="Buildprint package flow">
+        <svg viewBox="0 0 420 320" role="img" aria-label="Buildprint files flow">
+          <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8z" /></marker></defs>
+          <rect x="28" y="28" width="364" height="264" rx="18" class="sheet" />
+          <path d="M58 78h304M58 130h304M58 182h304M58 234h304" class="guide" />
+          <g class="node"><rect x="72" y="55" width="132" height="44" rx="10"/><text x="92" y="82">BUILDPRINT.md</text></g>
+          <g class="node"><rect x="216" y="107" width="104" height="44" rx="10"/><text x="240" y="134">SPEC.md</text></g>
+          <g class="node"><rect x="72" y="159" width="102" height="44" rx="10"/><text x="100" y="186">PLAN.md</text></g>
+          <g class="node"><rect x="208" y="211" width="140" height="44" rx="10"/><text x="230" y="238">TEST_MATRIX</text></g>
+          <path d="M204 77C248 77 248 129 216 129M216 181C176 181 176 181 174 181M174 181C220 181 218 233 208 233" class="wire" marker-end="url(#arrow)" />
+        </svg>
       </div>
     </section>
 
-    <section class="container section tiers">
-      <span class="eyebrow">Package tiers</span>
-      <h2>From lightweight prompt pack to agent-grade construction contract.</h2>
-      <div class="grid cards">
-        <article class="panel tier"><span class="stamp">Basic</span><h3>BUILDPRINT + checks</h3><p>Good for small features and simple extensions.</p></article>
-        <article class="panel tier"><span class="stamp">Strong</span><h3>Spec + plan + contracts</h3><p>For serious features where behavior and interfaces matter.</p></article>
-        <article class="panel tier hot"><span class="stamp">Agent-grade</span><h3>Phase plans + validation</h3><p>For multi-module systems where coding-agent drift is the real risk.</p></article>
-      </div>
-    </section>
-
-    <section class="container section map-flow">
-      <span class="eyebrow">Blueprint Mapper</span>
-      <h2>Existing repo → facts → unknowns → Buildprint package.</h2>
-      <div class="flowline">
-        <span>repo</span><i></i><span>facts.json</span><i></i><span>observed / inferred / unknown</span><i></i><span>agent-ready package</span>
-      </div>
-      <p>Mapper output is designed for safe continuation: deterministic facts first, low-confidence behavior as questions, and no secret values copied.</p>
+    <section class="container agent-strip">
+      <div><b>Agent path</b><span>Fetch endpoints instead of scraping cards.</span></div>
+      <code>/llms.txt</code><code>/buildprints/index.json</code><code>/agent.md</code><code>/package.json</code><code>agb start …</code>
     </section>
 
     <section class="container section">
-      <div class="section-head">
-        <div><span class="eyebrow">Featured</span><h2>Buildprints now in the registry</h2></div>
-        <a class="btn" href="/buildprints/">View all</a>
+      <div class="section-head simple"><div><span class="eyebrow">Featured</span><h2>Start from a Buildprint</h2></div><a class="link" href="/buildprints/">View registry →</a></div>
+      <div class="grid cards featured-grid">
+        {featured.map((bp) => <article class="mini-card">
+          <div class="mini-head"><h3>{bp.title}</h3><span>{bp.tier}</span></div>
+          <p>{bp.summary}</p>
+          <div class="meta-row"><span>{bp.category}</span><span>{bp.runtime.join(', ')}</span><span>{bp.status}</span></div>
+          <div class="actions small"><a class="btn primary" href={`/buildprints/${bp.slug}/`}>Open</a><a class="btn" href={`/buildprints/${bp.slug}/agent.md`}>Agent</a><a class="btn" href={`/buildprints/${bp.slug}/package.json`}>JSON</a></div>
+        </article>)}
       </div>
-      <div class="grid cards">
-        {featured.map((bp) => (
-          <article class="card blueprint-card">
-            <div class="card-body">
-              <div class="tags"><span class="tag hot">{bp.category}</span><span class="tag">{bp.tier}</span><span class="tag">{bp.status}</span></div>
-              <h3>{bp.title}</h3>
-              <p>{bp.summary}</p>
-              <div class="actions"><a class="btn primary" href={`/buildprints/${bp.slug}/`}>Human view</a><a class="btn" href={`/buildprints/${bp.slug}/agent.md`}>Agent view</a></div>
-            </div>
-          </article>
-        ))}
-      </div>
+    </section>
+
+    <section class="container section rows">
+      {sections.map((section) => <div class="catalog-row">
+        <div class="row-head"><h2>{section.title}</h2><a class="link" href="/buildprints/">Explore →</a></div>
+        <div class="row-scroll">
+          {section.items.map((bp) => <a class={`row-card ${bp.planned ? 'muted-card' : ''}`} href={bp.planned ? '/buildprints/' : `/buildprints/${bp.slug}/`}>
+            <span>{bp.category}</span>
+            <b>{bp.title}</b>
+            <p>{bp.summary}</p>
+            <small>{bp.tier} · {bp.status}</small>
+          </a>)}
+        </div>
+      </div>)}
+    </section>
+
+    <section class="container section two-col">
+      <div class="panel quiet"><span class="eyebrow">Mapper</span><h2>Have a repo already?</h2><p>Generate an observed Buildprint package from an existing project. Facts first, unknowns as questions, no secret values copied.</p><pre>agb map ./my-project</pre></div>
+      <div class="panel quiet"><span class="eyebrow">Bootstrap</span><h2>Start with continuity.</h2><p><code>agb start</code> downloads exact Buildprint snapshots and creates <code>.buildprint/next-agent.md</code> so another agent can continue after interruption.</p><pre>agb start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json</pre></div>
     </section>
   </main>
 </BaseLayout>
