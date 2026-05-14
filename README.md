@@ -28,3 +28,7 @@ npm run build
 ```
 
 The static raw Buildprint files under `public/buildprint-files/` are copied from the Agent Buildprint repo before deployment.
+
+## Agent bootstrap UX
+
+Every Buildprint prompt should start with `agb start <package-manifest-url>`. This creates `.buildprint/`, downloads exact snapshot files, and writes continuation state before implementation begins.

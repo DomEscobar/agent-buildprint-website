@@ -83,7 +83,7 @@ export const buildprints: Buildprint[] = [
     checks: ['OpenClaw shape exists', 'Wavespeed is production image path', 'Tests use mock image mode without external APIs', 'User memory and self-state are separate', 'Publishing is mock/manual-gated by default'],
     githubUrl: `${repoUrl}/tree/main/buildprints/ai-influencer-os`,
     rawBaseUrl: rawFor('ai-influencer-os'),
-    copyPrompt: 'Use the AI Influencer OS Buildprint. Fetch /buildprints/ai-influencer-os/agent.md, then the package manifest. Read files in order. Ask configuration questions unless a default preset is explicitly selected. Build the OpenClaw architecture with Wavespeed image path, tests, and validation. Do not auto-publish by default.',
+    copyPrompt: 'Use the AI Influencer OS Buildprint. First bootstrap exact snapshots: agb start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json . If agb is not installed, clone https://github.com/DomEscobar/agent-buildprint and run node bin/agb.js start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json . Then read .buildprint/next-agent.md and continue. Do not write Buildprint snapshots manually. Do not auto-publish by default.',
   },
   {
     slug: 'ai-editorial-os',
@@ -103,7 +103,7 @@ export const buildprints: Buildprint[] = [
     checks: ['Sources are attached', 'Post includes workflow/prompt value', 'SEO metadata and build pass', 'Manual approval before publish'],
     githubUrl: `${repoUrl}/tree/main/buildprints/ai-editorial-os`,
     rawBaseUrl: rawFor('ai-editorial-os'),
-    copyPrompt: 'Use the AI Editorial OS Buildprint. Build a content workflow that scans sources, scores ideas, drafts visual posts, tracks sources, requires human approval, and runs SEO/build checks before publish. Avoid generic AI slop and do not auto-publish without approval.',
+    copyPrompt: 'Use the AI Editorial OS Buildprint. First run agb start https://agent-buildprint.com/buildprints/ai-editorial-os/package.json or clone the Agent Buildprint repo and run node bin/agb.js start with that manifest URL. Then read .buildprint/next-agent.md and continue. Build a content workflow with sources, scoring, approval, and SEO/build checks before publish.',
   },
   {
     slug: 'stripe-billing-extension',
@@ -123,7 +123,7 @@ export const buildprints: Buildprint[] = [
     checks: ['Webhook signatures verified', 'Premium access uses server-side subscription state', 'Portal requires authenticated customer', 'Failed/canceled/trialing states handled'],
     githubUrl: `${repoUrl}/tree/main/buildprints/stripe-billing-extension`,
     rawBaseUrl: rawFor('stripe-billing-extension'),
-    copyPrompt: 'Use the Stripe Billing Extension Buildprint. Implement SaaS billing with Checkout, subscriptions/trials, customer portal, verified webhooks, server-side subscription state, entitlement guards, and tests. Never trust frontend state for paid access.',
+    copyPrompt: 'Use the Stripe Billing Extension Buildprint. First run agb start https://agent-buildprint.com/buildprints/stripe-billing-extension/package.json or clone the Agent Buildprint repo and run node bin/agb.js start with that manifest URL. Then read .buildprint/next-agent.md and continue. Implement billing with verified webhooks, server-side subscription state, entitlements, and tests.',
   },
 ];
 
@@ -165,6 +165,13 @@ export function packageManifest(bp: Buildprint) {
       rawUrl: `${bp.rawBaseUrl}/${file.path}`,
       siteUrl: `/buildprint-files/${bp.slug}/${file.path}`,
     })),
+    bootstrap: {
+      command: `agb start https://agent-buildprint.com/buildprints/${bp.slug}/package.json`,
+      fallbackCommand: `git clone https://github.com/DomEscobar/agent-buildprint && node agent-buildprint/bin/agb.js start https://agent-buildprint.com/buildprints/${bp.slug}/package.json`,
+      stateDir: '.buildprint',
+      snapshotMode: 'download_exact',
+      rule: 'Do not write, summarize, or regenerate snapshot files manually. Use agb start to download exact files from this manifest.'
+    },
     instructions: {
       readOrder: ['BUILDPRINT.md', 'SPEC.md', 'PLAN.md', ...bp.files.filter((file) => file.path.startsWith('plans/')).map((file) => file.path), 'CONTRACTS.md', 'DEFAULT_PRESET.md', 'TEST_MATRIX.md', 'VALIDATION_TEMPLATE.md', 'questions.md'].filter((path) => bp.files.some((file) => file.path === path)),
       rule: 'Do not scrape human cards. Use this manifest, agent.md, and raw files.',
