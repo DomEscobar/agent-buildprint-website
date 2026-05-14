@@ -1,0 +1,56 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { buildprints, getBuildprint, packageManifest } from '@/lib/buildprints';
+export function getStaticPaths() { return buildprints.map((bp) => ({ params: { slug: bp.slug } })); }
+const bp = getBuildprint(Astro.params.slug ?? '');
+if (!bp) return Astro.redirect('/buildprints/');
+const manifest = packageManifest(bp);
+---
+<BaseLayout title={`${bp.title} — Agent Buildprint`} description={bp.summary}>
+  <main>
+    <section class="container hero detail-hero">
+      <a class="pill" href="/buildprints/">← Registry</a>
+      <h1>{bp.title}</h1>
+      <p class="lead">{bp.promise}</p>
+      <div class="tags"><span class="tag hot">{bp.category}</span><span class="tag">{bp.tier}</span><span class="tag">{bp.status}</span>{bp.runtime.map((x) => <span class="tag">{x}</span>)}</div>
+      <div class="actions"><button id="copy" class="btn primary">Copy build prompt</button><a class="btn" href={`/buildprints/${bp.slug}/agent.md`}>Agent guide</a><a class="btn" href={`/buildprints/${bp.slug}/package.json`}>Manifest JSON</a><a class="btn" href={bp.githubUrl}>GitHub</a></div>
+    </section>
+
+    <section class="container section agent-box">
+      <div class="panel terminal-panel">
+        <span class="eyebrow">Agent access</span>
+        <h2>Fetch this Buildprint without scraping the UI.</h2>
+        <pre>{`fetch /buildprints/${bp.slug}/agent.md
+fetch /buildprints/${bp.slug}/package.json
+fetch /buildprints/${bp.slug}/prompt.txt`}</pre>
+      </div>
+    </section>
+
+    <section class="container section grid columns">
+      <div class="panel"><h2>Includes</h2><ul>{bp.includes.map((x) => <li>{x}</li>)}</ul></div>
+      <div class="panel"><h2>Checks</h2><ul>{bp.checks.map((x) => <li>{x}</li>)}</ul></div>
+      <div class="panel"><h2>Risks covered</h2><ul>{bp.risks.map((x) => <li>{x}</li>)}</ul></div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head"><div><span class="eyebrow">Package anatomy</span><h2>Files and agent purposes</h2></div><a class="btn" href={manifest.entrypoints.manifest}>Open manifest</a></div>
+      <div class="file-table">
+        {bp.files.map((file) => (
+          <div class="file-row">
+            <code>{file.path}</code>
+            <span>{file.purpose}</span>
+            <a href={`${bp.rawBaseUrl}/${file.path.replace('plans/*.md', 'PLAN.md')}`}>raw</a>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="container section grid columns two">
+      <div class="panel"><h2>Copyable agent prompt</h2><pre>{bp.copyPrompt}</pre></div>
+      <div class="panel"><h2>Manifest preview</h2><pre>{JSON.stringify({ slug: bp.slug, tier: bp.tier, category: bp.category, agent: manifest.entrypoints.agent, manifest: manifest.entrypoints.manifest }, null, 2)}</pre></div>
+    </section>
+  </main>
+  <script define:vars={{ prompt: bp.copyPrompt }}>
+    document.querySelector('#copy')?.addEventListener('click', async (e) => { await navigator.clipboard.writeText(prompt); e.currentTarget.textContent = 'Copied'; });
+  </script>
+</BaseLayout>

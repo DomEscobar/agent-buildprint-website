@@ -1,0 +1,26 @@
+{
+  "title": "OpenClaw AI Influencer OS",
+  "slug": "ai-influencer-os",
+  "category": "Product OS",
+  "difficulty": "Advanced",
+  "format": "agent-grade-markdown-first",
+  "primaryFile": "BUILDPRINT.md",
+  "packageTier": "agent-grade",
+  "requiredFiles": [
+    "BUILDPRINT.md",
+    "SPEC.md",
+    "PLAN.md",
+    "CONTRACTS.md",
+    "DEFAULT_PRESET.md",
+    "TEST_MATRIX.md",
+    "VALIDATION_TEMPLATE.md"
+  ],
+  "phasePlans": "plans/*.md",
+  "requiredRuntime": "OpenClaw",
+  "requiredImageProvider": "Wavespeed",
+  "requiredAlignmentInterview": true,
+  "defaultPersonaNameFixed": false,
+  "requiresExternalAPIsForDryRun": false,
+  "requiresExternalAPIsForProduction": true,
+  "validationCommandExpected": "npm test"
+}

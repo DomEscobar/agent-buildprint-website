@@ -1,0 +1,78 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { buildprints } from '@/lib/buildprints';
+const featured = buildprints.slice(0, 3);
+---
+<BaseLayout title="Agent Buildprint — agent-readable construction plans" description="A registry and package format for coding-agent-ready Buildprints: architecture contracts, specs, phase plans, tests, and machine-readable endpoints.">
+  <main>
+    <section class="container hero blueprint-hero">
+      <span class="pill">agent-buildprint.com · agentic-first registry</span>
+      <h1>Buildprints your coding agent can actually fetch, read, and follow.</h1>
+      <p class="lead">Agent Buildprint is a registry and package format for software construction plans: architecture contracts, behavior specs, tiny phase plans, interfaces, tests, and validation rails.</p>
+      <div class="actions">
+        <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
+        <a class="btn" href="/llms.txt">Open llms.txt</a>
+        <a class="btn" href="/buildprints/index.json">Registry JSON</a>
+      </div>
+      <div class="agent-console" aria-label="Agent navigation example">
+        <div class="console-bar"><span></span><span></span><span></span><strong>agent route</strong></div>
+        <pre>fetch /llms.txt
+fetch /buildprints/index.json
+fetch /buildprints/ai-influencer-os/agent.md
+fetch /buildprints/ai-influencer-os/package.json</pre>
+      </div>
+    </section>
+
+    <section class="container section split">
+      <div>
+        <span class="eyebrow">New mental model</span>
+        <h2>Not one blueprint type. A registry for many build shapes.</h2>
+      </div>
+      <div class="grid type-grid">
+        <div class="panel compact"><b>Framework / Architecture</b><p>Patterns like vanilla agent contracts or framework-light runtime shapes.</p></div>
+        <div class="panel compact"><b>Product OS</b><p>Full systems with specs, phase plans, contracts, and validation.</p></div>
+        <div class="panel compact"><b>Feature / Extension</b><p>Capabilities like billing, auth, admin, webhooks, or integrations.</p></div>
+        <div class="panel compact"><b>Workflow OS</b><p>Operational systems for content, research, QA, or internal processes.</p></div>
+        <div class="panel compact"><b>Mapped Project</b><p>Existing repos converted into observed/inferred/unknown Buildprint packages.</p></div>
+      </div>
+    </section>
+
+    <section class="container section tiers">
+      <span class="eyebrow">Package tiers</span>
+      <h2>From lightweight prompt pack to agent-grade construction contract.</h2>
+      <div class="grid cards">
+        <article class="panel tier"><span class="stamp">Basic</span><h3>BUILDPRINT + checks</h3><p>Good for small features and simple extensions.</p></article>
+        <article class="panel tier"><span class="stamp">Strong</span><h3>Spec + plan + contracts</h3><p>For serious features where behavior and interfaces matter.</p></article>
+        <article class="panel tier hot"><span class="stamp">Agent-grade</span><h3>Phase plans + validation</h3><p>For multi-module systems where coding-agent drift is the real risk.</p></article>
+      </div>
+    </section>
+
+    <section class="container section map-flow">
+      <span class="eyebrow">Blueprint Mapper</span>
+      <h2>Existing repo → facts → unknowns → Buildprint package.</h2>
+      <div class="flowline">
+        <span>repo</span><i></i><span>facts.json</span><i></i><span>observed / inferred / unknown</span><i></i><span>agent-ready package</span>
+      </div>
+      <p>Mapper output is designed for safe continuation: deterministic facts first, low-confidence behavior as questions, and no secret values copied.</p>
+    </section>
+
+    <section class="container section">
+      <div class="section-head">
+        <div><span class="eyebrow">Featured</span><h2>Buildprints now in the registry</h2></div>
+        <a class="btn" href="/buildprints/">View all</a>
+      </div>
+      <div class="grid cards">
+        {featured.map((bp) => (
+          <article class="card blueprint-card">
+            <div class="card-body">
+              <div class="tags"><span class="tag hot">{bp.category}</span><span class="tag">{bp.tier}</span><span class="tag">{bp.status}</span></div>
+              <h3>{bp.title}</h3>
+              <p>{bp.summary}</p>
+              <div class="actions"><a class="btn primary" href={`/buildprints/${bp.slug}/`}>Human view</a><a class="btn" href={`/buildprints/${bp.slug}/agent.md`}>Agent view</a></div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  </main>
+</BaseLayout>

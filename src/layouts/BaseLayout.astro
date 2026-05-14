@@ -1,0 +1,30 @@
+---
+import '../styles.css';
+const { title = 'Agent Buildprint', description = 'Construction plans for coding agents.' } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={Astro.url.href} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+  </head>
+  <body>
+    <header class="container nav">
+      <a class="logo" href="/">Agent <span>Buildprint</span></a>
+      <nav class="navlinks">
+        <a href="/buildprints/">Registry</a>
+        <a href="/buildprints/blueprint-mapper/">Mapper</a>
+        <a href="/buildprints/submit/">Submit</a>
+        <a href="https://github.com/DomEscobar/agent-buildprint">GitHub</a>
+      </nav>
+    </header>
+    <slot />
+    <footer class="container footer">Agent Buildprint — architecture contracts, prompts, policies and checks for coding agents.</footer>
+  </body>
+</html>

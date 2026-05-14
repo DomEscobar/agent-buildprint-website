@@ -1,0 +1,23 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+<BaseLayout title="Submit a Buildprint — Agent Buildprint">
+  <main class="container hero">
+    <a class="pill" href="/buildprints/">← Registry</a>
+    <h1>Submit a Buildprint.</h1>
+    <p class="lead">Creators provide a GitHub repo/folder with any useful building plan for coding agents: Markdown specs, prompt packs, examples, diagrams, policies, checks, or optional metadata. MVP submission will become GitHub URL → review/validation → draft listing.</p>
+    <section class="grid columns section">
+      <div class="panel"><h2>Expected folder</h2><pre>my-buildprint/
+  BUILDPRINT.md
+  README.md
+  buildprint.meta.json   # optional
+  buildprint.yaml        # optional
+  card.png
+  prompts/
+  policies/
+  tests/
+  examples/</pre></div>
+      <div class="panel"><h2>Quality badges</h2><ul><li>Structure verified</li><li>Copy prompt included</li><li>Tests/checks included</li><li>Security notes included</li><li>License declared</li></ul></div>
+    </section>
+  </main>
+</BaseLayout>
