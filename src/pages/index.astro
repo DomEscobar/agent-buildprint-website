@@ -9,6 +9,16 @@ const sections = [
   { title: 'Workflow OS', items: buildprints.filter((bp) => bp.category === 'Workflow OS').slice(0, 5) },
 ];
 const iconLabel: Record<string, string> = { typescript: 'TS', openclaw: 'OC', json: '{}', docker: '▣', astro: 'A', md: 'md', stripe: '$' };
+const iconSrc: Record<string, string> = {
+  openclaw: 'https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/openclaw-dark.png',
+  typescript: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg',
+  docker: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg',
+  astro: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/astro/astro-original.svg',
+  stripe: 'https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/stripe.svg'
+};
+const icon = (key: string) => iconSrc[key]
+  ? `<img src="${iconSrc[key]}" alt="${key}" loading="lazy" />`
+  : iconLabel[key] ?? key.slice(0,2);
 ---
 <BaseLayout title="Agent Buildprint — build plans agents can follow" description="Agent-readable Buildprints for frameworks, products, features, workflows, and mapped repositories.">
   <main>
@@ -42,7 +52,7 @@ const iconLabel: Record<string, string> = { typescript: 'TS', openclaw: 'OC', js
       <div class="grid cards featured-grid">
         {featured.map((bp) => <article class="mini-card">
           <div class="mini-head"><h3>{bp.title}</h3><span>{bp.tier}</span></div>
-          <div class="icon-row">{(bp.iconKeys ?? []).map((key) => <span class={`tech-icon ${key}`}>{iconLabel[key] ?? key.slice(0,2)}</span>)}</div>
+          <div class="icon-row">{(bp.iconKeys ?? []).map((key) => <span class={`tech-icon ${key}`} set:html={icon(key)} />)}</div>
           <p>{bp.summary}</p>
           <div class="meta-row"><span>{bp.category}</span><span>{bp.runtime.join(', ')}</span><span>{bp.status}</span></div>
           <div class="actions small"><a class="btn primary" href={`/buildprints/${bp.slug}/`}>Open</a><a class="btn" href={`/buildprints/${bp.slug}/agent.md`}>Agent</a><a class="btn" href={`/buildprints/${bp.slug}/package.json`}>JSON</a></div>
@@ -55,7 +65,7 @@ const iconLabel: Record<string, string> = { typescript: 'TS', openclaw: 'OC', js
         <div class="row-head"><h2>{section.title}</h2><a class="link" href="/buildprints/">Explore →</a></div>
         <div class="row-scroll">
           {section.items.map((bp) => <a class={`row-card ${bp.planned ? 'muted-card' : ''}`} href={bp.planned ? '/buildprints/' : `/buildprints/${bp.slug}/`}>
-            <div class="row-top"><span>{bp.category}</span><div class="icon-row tiny">{(bp.iconKeys ?? []).map((key) => <i class={`tech-icon ${key}`}>{iconLabel[key] ?? key.slice(0,2)}</i>)}</div></div>
+            <div class="row-top"><span>{bp.category}</span><div class="icon-row tiny">{(bp.iconKeys ?? []).map((key) => <i class={`tech-icon ${key}`} set:html={icon(key)} />)}</div></div>
             <b>{bp.title}</b>
             <p>{bp.summary}</p>
             <small>{bp.tier} · {bp.status}</small>

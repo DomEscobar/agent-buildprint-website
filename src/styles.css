@@ -185,3 +185,6 @@ pre { overflow:auto; background:var(--surface-2); border:1px solid var(--border)
 @media (max-width: 640px) {
   .buildprint-card { padding: 16px; }
 }
+.tech-icon img { width: 15px; height: 15px; object-fit: contain; display: block; }
+.tech-icon.stripe img { filter: none; }
+[data-theme="dark"] .tech-icon.openclaw img { filter: none; }
