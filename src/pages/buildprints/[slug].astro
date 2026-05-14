@@ -46,7 +46,7 @@ const endpoints = [
       <div class="section-head"><div><span class="eyebrow"><b>▦</b> Package anatomy</span><h2>Files and agent purposes</h2></div><a class="btn" href={manifest.entrypoints.manifest}>Open manifest</a></div>
       <div class="file-table">
         {bp.files.map((file) => {
-          const fileUrl = `/buildprint-files/${bp.slug}/${file.path}`;
+          const fileUrl = `${bp.rawBaseUrl}/${file.path}`;
           return <div class="file-row">
             <code>{file.path}</code>
             <span>{file.purpose}</span>

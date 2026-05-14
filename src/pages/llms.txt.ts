@@ -14,7 +14,7 @@ export function GET() {
     '- Buildprint agent guide: /buildprints/{slug}/agent.md',
     '- Buildprint package manifest: /buildprints/{slug}/package.json',
     '- Copyable prompt: /buildprints/{slug}/prompt.txt',
-    '- Static raw files: /buildprint-files/{slug}/{path}',
+    '- Static raw files: use each manifest file rawUrl',
     '',
     '## Buildprint types',
     '',

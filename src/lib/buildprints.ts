@@ -82,7 +82,7 @@ export const buildprints: Buildprint[] = [
       { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
       { path: 'questions.md', purpose: canonicalFilePurposes['questions.md'], required: true },
     ],
-    checks: ['OpenClaw shape exists', 'Wavespeed is production image path', 'Tests use mock image mode without external APIs', 'User memory and self-state are separate', 'Publishing is mock/manual-gated by default'],
+    checks: ['OpenClaw runtime command/blocker exists', 'LLM analyzer adapter prevents keyword-only drift', 'Wavespeed real adapter shape exists', 'Tests use mock image mode without external APIs', 'User memory and self-state are separate', 'noVNC handoff service shape exists', 'Publishing is mock/manual-gated by default'],
     githubUrl: `${repoUrl}/tree/main/buildprints/ai-influencer-os`,
     rawBaseUrl: rawFor('ai-influencer-os'),
     copyPrompt: `${localPrompt('ai-influencer-os', 'AI Influencer OS')} Do not auto-publish by default.`,
@@ -171,7 +171,7 @@ export const liveBuildprints = buildprints.filter((bp) => !bp.planned);
 export const plannedBuildprints = buildprints.filter((bp) => bp.planned);
 
 export function buildprintUrls(bp: Buildprint) {
-  return { human: `/buildprints/${bp.slug}/`, agent: `/buildprints/${bp.slug}/agent.md`, manifest: `/buildprints/${bp.slug}/package.json`, prompt: `/buildprints/${bp.slug}/prompt.txt`, files: `/buildprint-files/${bp.slug}/` };
+  return { human: `/buildprints/${bp.slug}/`, agent: `/buildprints/${bp.slug}/agent.md`, manifest: `/buildprints/${bp.slug}/package.json`, prompt: `/buildprints/${bp.slug}/prompt.txt`, files: bp.rawBaseUrl };
 }
 
 export function packageManifest(bp: Buildprint) {
@@ -193,7 +193,7 @@ export function packageManifest(bp: Buildprint) {
       snapshotMode: 'download_exact',
       rule: 'Do not write, summarize, or regenerate snapshot files manually. Use agb start to download exact files from this manifest.'
     },
-    files: bp.files.map((file) => ({ ...file, rawUrl: `${bp.rawBaseUrl}/${file.path}`, siteUrl: `/buildprint-files/${bp.slug}/${file.path}` })),
+    files: bp.files.map((file) => ({ ...file, rawUrl: `${bp.rawBaseUrl}/${file.path}` })),
     instructions: {
       readOrder: ['BUILDPRINT.md', 'SPEC.md', 'PLAN.md', ...bp.files.filter((file) => file.path.startsWith('plans/')).map((file) => file.path), 'CONTRACTS.md', 'DEFAULT_PRESET.md', 'TEST_MATRIX.md', 'VALIDATION_TEMPLATE.md', 'questions.md'].filter((path) => bp.files.some((file) => file.path === path)),
       rule: 'Do not scrape human cards. Use this manifest, agent.md, and raw files.',
