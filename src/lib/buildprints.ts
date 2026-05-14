@@ -28,7 +28,7 @@ export type Buildprint = {
 };
 
 export const repoUrl = 'https://github.com/DomEscobar/agent-buildprint';
-export const rawRepoBase = 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/main';
+export const rawRepoBase = 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/023bd7a';
 export const siteBase = 'https://agent-buildprint.com';
 
 export const canonicalFilePurposes: Record<string, string> = {
