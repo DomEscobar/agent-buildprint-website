@@ -2,22 +2,49 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 ---
 <BaseLayout title="Submit a Buildprint — Agent Buildprint">
-  <main class="container hero">
-    <a class="pill" href="/buildprints/">← Registry</a>
-    <h1>Submit a Buildprint.</h1>
-    <p class="lead">Creators provide a GitHub repo/folder with any useful building plan for coding agents: Markdown specs, prompt packs, examples, diagrams, policies, checks, or optional metadata. MVP submission will become GitHub URL → review/validation → draft listing.</p>
-    <section class="grid columns section">
-      <div class="panel"><h2>Expected folder</h2><pre>my-buildprint/
+  <main>
+    <section class="container hero compact-hero">
+      <a class="pill" href="/buildprints/">← Registry</a>
+      <h1>Submit a Buildprint.</h1>
+      <p class="lead">Creators can submit any useful building plan for coding agents: architecture contracts, specs, prompt packs, phase plans, examples, policies, checks, or optional metadata.</p>
+      <div class="actions"><a class="btn primary" href="https://github.com/DomEscobar/agent-buildprint">Open GitHub</a><a class="btn" href="/buildprints/index.json">Registry JSON</a></div>
+    </section>
+
+    <section class="container section grid columns">
+      <div class="panel code-card">
+        <div class="panel-row"><span class="eyebrow"><b>▦</b> Expected folder</span></div>
+        <code class="code-block-text">my-buildprint/
   BUILDPRINT.md
-  README.md
-  buildprint.meta.json   # optional
-  buildprint.yaml        # optional
-  card.png
+  SPEC.md                # recommended
+  PLAN.md                # recommended
+  CONTRACTS.md           # recommended
+  TEST_MATRIX.md         # recommended
+  VALIDATION_TEMPLATE.md # recommended
   prompts/
   policies/
   tests/
-  examples/</pre></div>
-      <div class="panel"><h2>Quality badges</h2><ul><li>Structure verified</li><li>Copy prompt included</li><li>Tests/checks included</li><li>Security notes included</li><li>License declared</li></ul></div>
+  examples/</code>
+      </div>
+      <div class="panel">
+        <div class="panel-row"><span class="eyebrow"><b>✓</b> Quality signals</span></div>
+        <div class="chip-list check-list">
+          <span><b>✓</b> Architecture contract</span>
+          <span><b>✓</b> Copy prompt</span>
+          <span><b>✓</b> Tests/checks</span>
+          <span><b>✓</b> Security notes</span>
+          <span><b>✓</b> License</span>
+          <span><b>✓</b> Agent endpoints ready</span>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-row"><span class="eyebrow"><b>◆</b> Package tiers</span></div>
+        <div class="chip-list">
+          <span><b>○</b> basic</span>
+          <span><b>◇</b> strong</span>
+          <span><b>◆</b> agent-grade</span>
+        </div>
+        <p>Start simple. Complex products should add specs, contracts, phase plans, and validation templates.</p>
+      </div>
     </section>
   </main>
 </BaseLayout>

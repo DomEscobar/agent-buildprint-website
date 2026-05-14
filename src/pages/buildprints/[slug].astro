@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildprints, getBuildprint, packageManifest, siteBase } from '@/lib/buildprints';
+import { iconHtml as icon, badgeIcon } from '@/lib/icons';
 export function getStaticPaths() { return buildprints.map((bp) => ({ params: { slug: bp.slug } })); }
 const bp = getBuildprint(Astro.params.slug ?? '');
 if (!bp) return Astro.redirect('/buildprints/');
@@ -18,30 +19,31 @@ const endpoints = [
       <a class="pill" href="/buildprints/">← Registry</a>
       <h1>{bp.title}</h1>
       <p class="lead">{bp.promise}</p>
-      <div class="tags"><span class="tag hot">{bp.category}</span><span class="tag">{bp.tier}</span><span class="tag">{bp.status}</span>{bp.runtime.map((x) => <span class="tag">{x}</span>)}</div>
+      <div class="tags"><span class="tag hot"><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="tag"><b>{badgeIcon(bp.tier)}</b>{bp.tier}</span><span class="tag"><b>{badgeIcon(bp.status)}</b>{bp.status}</span>{bp.runtime.map((x) => <span class="tag"><b>⚙</b>{x}</span>)}</div>
+      <div class="icon-row detail-icons">{(bp.iconKeys ?? []).map((key) => <span class={`tech-icon ${key}`} set:html={icon(key)} />)}</div>
       <div class="actions"><button class="btn primary copy-btn" data-copy={bp.copyPrompt}>Copy build prompt</button><a class="btn" href={`/buildprints/${bp.slug}/agent.md`}>Agent guide</a><a class="btn" href={`/buildprints/${bp.slug}/package.json`}>Manifest JSON</a><a class="btn" href={bp.githubUrl}>GitHub</a></div>
     </section>
 
     <section class="container section two-col detail-top">
       <div class="panel command-card">
-        <div class="panel-row"><span class="eyebrow">Start command</span><button class="btn copy-btn" data-copy={startCommand}>Copy</button></div>
+        <div class="panel-row"><span class="eyebrow"><b>◆</b> Start command</span><button class="btn copy-btn" data-copy={startCommand}>Copy</button></div>
         <code class="command-line">{startCommand}</code>
         <p>Creates <code>.buildprint/</code>, downloads exact snapshots, and writes continuation state.</p>
       </div>
       <div class="panel endpoint-card">
-        <div class="panel-row"><span class="eyebrow">Agent endpoints</span></div>
+        <div class="panel-row"><span class="eyebrow"><b>⌁</b> Agent endpoints</span></div>
         {endpoints.map((endpoint) => <div class="endpoint-row"><a href={endpoint.href}>{endpoint.label}</a><code>{endpoint.value.replace(siteBase, '')}</code><button class="copy-inline copy-btn" data-copy={endpoint.value}>Copy</button></div>)}
       </div>
     </section>
 
     <section class="container section grid columns">
-      <div class="panel"><h2>Includes</h2><div class="chip-list">{bp.includes.map((x) => <span>{x}</span>)}</div></div>
-      <div class="panel"><h2>Checks</h2><div class="chip-list check-list">{bp.checks.map((x) => <span>{x}</span>)}</div></div>
-      <div class="panel"><h2>Risks covered</h2><div class="chip-list risk-list">{bp.risks.map((x) => <span>{x}</span>)}</div></div>
+      <div class="panel"><h2>Includes</h2><div class="chip-list">{bp.includes.map((x) => <span><b>＋</b>{x}</span>)}</div></div>
+      <div class="panel"><h2>Checks</h2><div class="chip-list check-list">{bp.checks.map((x) => <span><b>✓</b>{x}</span>)}</div></div>
+      <div class="panel"><h2>Risks covered</h2><div class="chip-list risk-list">{bp.risks.map((x) => <span><b>!</b>{x}</span>)}</div></div>
     </section>
 
     <section class="container section">
-      <div class="section-head"><div><span class="eyebrow">Package anatomy</span><h2>Files and agent purposes</h2></div><a class="btn" href={manifest.entrypoints.manifest}>Open manifest</a></div>
+      <div class="section-head"><div><span class="eyebrow"><b>▦</b> Package anatomy</span><h2>Files and agent purposes</h2></div><a class="btn" href={manifest.entrypoints.manifest}>Open manifest</a></div>
       <div class="file-table">
         {bp.files.map((file) => {
           const fileUrl = `/buildprint-files/${bp.slug}/${file.path}`;

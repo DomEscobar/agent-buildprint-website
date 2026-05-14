@@ -1,11 +1,12 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildprints, categories, tiers } from '@/lib/buildprints';
+import { iconHtml as icon, badgeIcon } from '@/lib/icons';
 ---
 <BaseLayout title="Buildprint Registry — Agent Buildprint" description="Browse agent-readable Buildprints with package tiers, agent endpoints, raw files, prompts, and manifests.">
   <main>
     <section class="container hero compact-hero">
-      <span class="pill">Registry · human and agent navigable</span>
+      <span class="pill"><b>⌁</b> Registry · human and agent navigable</span>
       <h1>Find the right construction plan before your agent writes code.</h1>
       <p class="lead">Filter by Buildprint type, package tier, runtime, and validation status. Agents should use <code>/buildprints/index.json</code> and each package manifest.</p>
       <div class="actions"><a class="btn primary" href="/buildprints/index.json">Open registry JSON</a><a class="btn" href="/llms.txt">Agent navigation</a><a class="btn" href="/buildprints/submit/">Submit</a></div>
@@ -14,19 +15,18 @@ import { buildprints, categories, tiers } from '@/lib/buildprints';
     <section class="container section registry-tools">
       <input id="search" class="searchbar" placeholder="Search OpenClaw, Stripe, workflow, agent-grade..." />
       <div class="filter-row">
-        <div><span class="filter-label">Category</span><div class="tags" id="filters">{categories.map((category) => <button class="tag filter" data-category={category}>{category}</button>)}</div></div>
-        <div><span class="filter-label">Tier</span><div class="tags" id="tierFilters">{tiers.map((tier) => <button class="tag filter" data-tier={tier}>{tier}</button>)}</div></div>
+        <div><span class="filter-label">Category</span><div class="tags" id="filters">{categories.map((category) => <button class="tag filter" data-category={category}><b>{badgeIcon(category)}</b>{category}</button>)}</div></div>
+        <div><span class="filter-label">Tier</span><div class="tags" id="tierFilters">{tiers.map((tier) => <button class="tag filter" data-tier={tier}><b>{badgeIcon(tier)}</b>{tier}</button>)}</div></div>
       </div>
       <div class="grid cards" id="cards">
         {buildprints.map((bp) => (
           <article class="card buildprint-card" data-category={bp.category} data-tier={bp.tier} data-search={`${bp.title} ${bp.creator} ${bp.category} ${bp.tier} ${bp.status} ${bp.runtime.join(' ')} ${bp.stack.join(' ')} ${bp.summary}`.toLowerCase()}>
-            <div class="visual blueprint-visual"><div class="file-stack">{bp.files.slice(0, 6).map((file) => <span>{file.path}</span>)}</div></div>
             <div class="card-body">
-              <div class="tags"><span class="tag hot">{bp.category}</span><span class="tag">{bp.tier}</span><span class="tag">{bp.status}</span></div>
+              <div class="card-topline"><div class="icon-row tiny">{(bp.iconKeys ?? []).map((key) => <span class={`tech-icon ${key}`} set:html={icon(key)} />)}</div><span class="badge"><b>{badgeIcon(bp.tier)}</b>{bp.tier}</span></div>
               <h3>{bp.title}</h3>
               <p>{bp.summary}</p>
-              <div class="meta-line"><b>Runtime:</b> {bp.runtime.join(', ')}</div>
-              <div class="tags">{bp.stack.slice(0,4).map((tag) => <span class="tag">{tag}</span>)}</div>
+              <div class="meta-row"><span><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span><b>⚙</b>{bp.runtime.join(', ')}</span><span><b>{badgeIcon(bp.status)}</b>{bp.status}</span></div>
+              <div class="stack-badges">{bp.stack.slice(0,4).map((tag) => <span><b>•</b>{tag}</span>)}</div>
               <div class="actions"><a class="btn primary" href={`/buildprints/${bp.slug}/`}>Human</a><a class="btn" href={`/buildprints/${bp.slug}/agent.md`}>Agent</a><a class="btn" href={`/buildprints/${bp.slug}/package.json`}>JSON</a><button class="btn copy" data-prompt={bp.copyPrompt}>Copy prompt</button></div>
             </div>
           </article>

@@ -213,3 +213,16 @@ pre { overflow:auto; background:var(--surface-2); border:1px solid var(--border)
   .panel-row { align-items:flex-start; }
   .file-actions { justify-content:flex-start; }
 }
+
+/* Badge system */
+.badge, .meta-row span, .stack-badges span, .pill, .eyebrow, .tag { gap: 6px; }
+.badge b, .meta-row b, .stack-badges b, .pill b, .eyebrow b, .tag b, .chip-list b, .row-top b { color: var(--accent); font-weight: 900; margin-right: 5px; }
+.card-topline { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.stack-badges { display:flex; flex-wrap:wrap; gap:7px; margin-top:13px; }
+.stack-badges span { border:1px solid var(--border); background:var(--surface-2); color:var(--muted); border-radius:999px; padding:5px 8px; font-size:12px; }
+.detail-icons { margin: 16px 0 0; }
+.buildprint-card h3 { margin-top: 6px; }
+@media (max-width:640px) {
+  .card-topline { align-items:flex-start; }
+  .stack-badges span { font-size:11px; }
+}
