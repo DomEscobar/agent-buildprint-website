@@ -12,6 +12,7 @@ export type Buildprint = {
   status: BuildprintStatus;
   runtime: string[];
   stack: string[];
+  iconKeys?: string[];
   difficulty: 'Medium' | 'Advanced';
   summary: string;
   promise: string;
@@ -55,6 +56,7 @@ export const buildprints: Buildprint[] = [
     status: 'dry-run-needed',
     runtime: ['OpenClaw'],
     stack: ['OpenClaw', 'Persona memory', 'Wavespeed', 'Social publishing', 'Docker'],
+    iconKeys: ['openclaw', 'json', 'docker'],
     difficulty: 'Advanced',
     featured: true,
     summary: 'OpenClaw AI creator system with configurable persona, memory, life continuity, Wavespeed images, social drafts, QA, and publishing handoff.',
@@ -94,6 +96,7 @@ export const buildprints: Buildprint[] = [
     status: 'dry-run-needed',
     runtime: ['Astro/MDX'],
     stack: ['Astro/MDX', 'Research workflow', 'SEO checks', 'Visual posts'],
+    iconKeys: ['astro', 'md', 'json'],
     difficulty: 'Medium',
     featured: true,
     summary: 'Editorial workflow that researches ideas, scores them, drafts visual posts, and only publishes after approval and SEO/build checks.',
@@ -115,6 +118,7 @@ export const buildprints: Buildprint[] = [
     status: 'dry-run-needed',
     runtime: ['TypeScript'],
     stack: ['TypeScript', 'Stripe', 'Webhooks', 'SaaS'],
+    iconKeys: ['typescript', 'stripe', 'json'],
     difficulty: 'Medium',
     featured: true,
     summary: 'Add SaaS billing without forgetting checkout, subscriptions, trials, portal, webhooks, entitlement checks, and billing UI.',
@@ -136,6 +140,7 @@ export const buildprints: Buildprint[] = [
     status: 'draft',
     runtime: ['TypeScript'],
     stack: ['Vanilla TypeScript', 'Agent contracts', 'Schemas', 'Policy checks'],
+    iconKeys: ['typescript', 'json', 'md'],
     difficulty: 'Medium',
     featured: true,
     summary: 'Framework-light agent architecture inspired by graph workflows, without locking generated code into a runtime framework.',
@@ -149,13 +154,13 @@ export const buildprints: Buildprint[] = [
     copyPrompt: 'Use the Vanilla TS Agent Contract Buildprint. Keep generated code framework-light, typed, policy-aware, and testable. Do not import LangGraph runtime packages unless explicitly requested.',
   },
   {
-    slug: 'auth-teams-rbac', title: 'Auth + Teams RBAC', creator: 'Agent Buildprint', category: 'Feature / Extension', tier: 'planned', status: 'coming-soon', runtime: ['Next.js', 'TypeScript'], stack: ['Auth', 'Teams', 'RBAC'], difficulty: 'Medium', planned: true, summary: 'Team accounts, roles, invitations, and permission checks agents usually miss.', promise: 'Coming soon.', includes: [], risks: [], files: [], checks: [], githubUrl: repoUrl, rawBaseUrl: rawRepoBase, copyPrompt: 'Coming soon.'
+    slug: 'auth-teams-rbac', title: 'Auth + Teams RBAC', creator: 'Agent Buildprint', category: 'Feature / Extension', tier: 'planned', status: 'coming-soon', runtime: ['Next.js', 'TypeScript'], stack: ['Auth', 'Teams', 'RBAC'], iconKeys: ['typescript', 'json'], difficulty: 'Medium', planned: true, summary: 'Team accounts, roles, invitations, and permission checks agents usually miss.', promise: 'Coming soon.', includes: [], risks: [], files: [], checks: [], githubUrl: repoUrl, rawBaseUrl: rawRepoBase, copyPrompt: 'Coming soon.'
   },
   {
-    slug: 'admin-dashboard', title: 'Admin Dashboard', creator: 'Agent Buildprint', category: 'Feature / Extension', tier: 'planned', status: 'coming-soon', runtime: ['React', 'TypeScript'], stack: ['Tables', 'Filters', 'Actions', 'Audit logs'], difficulty: 'Medium', planned: true, summary: 'A safe admin dashboard with search, filters, guarded actions, and auditability.', promise: 'Coming soon.', includes: [], risks: [], files: [], checks: [], githubUrl: repoUrl, rawBaseUrl: rawRepoBase, copyPrompt: 'Coming soon.'
+    slug: 'admin-dashboard', title: 'Admin Dashboard', creator: 'Agent Buildprint', category: 'Feature / Extension', tier: 'planned', status: 'coming-soon', runtime: ['React', 'TypeScript'], stack: ['Tables', 'Filters', 'Actions', 'Audit logs'], iconKeys: ['typescript', 'json'], difficulty: 'Medium', planned: true, summary: 'A safe admin dashboard with search, filters, guarded actions, and auditability.', promise: 'Coming soon.', includes: [], risks: [], files: [], checks: [], githubUrl: repoUrl, rawBaseUrl: rawRepoBase, copyPrompt: 'Coming soon.'
   },
   {
-    slug: 'ai-support-desk-os', title: 'AI Support Desk OS', creator: 'Agent Buildprint', category: 'Product OS', tier: 'planned', status: 'coming-soon', runtime: ['OpenClaw', 'Helpdesk'], stack: ['Tickets', 'Knowledge base', 'Escalation'], difficulty: 'Advanced', planned: true, summary: 'Support agent system with knowledge retrieval, escalation, QA, and human handoff.', promise: 'Coming soon.', includes: [], risks: [], files: [], checks: [], githubUrl: repoUrl, rawBaseUrl: rawRepoBase, copyPrompt: 'Coming soon.'
+    slug: 'ai-support-desk-os', title: 'AI Support Desk OS', creator: 'Agent Buildprint', category: 'Product OS', tier: 'planned', status: 'coming-soon', runtime: ['OpenClaw', 'Helpdesk'], stack: ['Tickets', 'Knowledge base', 'Escalation'], iconKeys: ['openclaw', 'json', 'md'], difficulty: 'Advanced', planned: true, summary: 'Support agent system with knowledge retrieval, escalation, QA, and human handoff.', promise: 'Coming soon.', includes: [], risks: [], files: [], checks: [], githubUrl: repoUrl, rawBaseUrl: rawRepoBase, copyPrompt: 'Coming soon.'
   }
 ];
 

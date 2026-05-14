@@ -8,6 +8,7 @@ const sections = [
   { title: 'Framework Blueprints', items: buildprints.filter((bp) => bp.category === 'Framework / Architecture').slice(0, 5) },
   { title: 'Workflow OS', items: buildprints.filter((bp) => bp.category === 'Workflow OS').slice(0, 5) },
 ];
+const iconLabel: Record<string, string> = { typescript: 'TS', openclaw: 'OC', json: '{}', docker: '▣', astro: 'A', md: 'md', stripe: '$' };
 ---
 <BaseLayout title="Agent Buildprint — build plans agents can follow" description="Agent-readable Buildprints for frameworks, products, features, workflows, and mapped repositories.">
   <main>
@@ -21,17 +22,13 @@ const sections = [
           <a class="btn" href="/llms.txt">Agent endpoints</a>
         </div>
       </div>
-      <div class="blueprint-panel" aria-label="Buildprint package flow">
-        <svg viewBox="0 0 420 320" role="img" aria-label="Buildprint files flow">
-          <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8z" /></marker></defs>
-          <rect x="28" y="28" width="364" height="264" rx="18" class="sheet" />
-          <path d="M58 78h304M58 130h304M58 182h304M58 234h304" class="guide" />
-          <g class="node"><rect x="72" y="55" width="132" height="44" rx="10"/><text x="92" y="82">BUILDPRINT.md</text></g>
-          <g class="node"><rect x="216" y="107" width="104" height="44" rx="10"/><text x="240" y="134">SPEC.md</text></g>
-          <g class="node"><rect x="72" y="159" width="102" height="44" rx="10"/><text x="100" y="186">PLAN.md</text></g>
-          <g class="node"><rect x="208" y="211" width="140" height="44" rx="10"/><text x="230" y="238">TEST_MATRIX</text></g>
-          <path d="M204 77C248 77 248 129 216 129M216 181C176 181 176 181 174 181M174 181C220 181 218 233 208 233" class="wire" marker-end="url(#arrow)" />
-        </svg>
+      <div class="hero-panel">
+        <div class="panel-title"><span>agent bootstrap</span><b>.buildprint/</b></div>
+        <pre>agb start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json
+
+✓ exact snapshots
+✓ state.json
+✓ next-agent.md</pre>
       </div>
     </section>
 
@@ -45,6 +42,7 @@ const sections = [
       <div class="grid cards featured-grid">
         {featured.map((bp) => <article class="mini-card">
           <div class="mini-head"><h3>{bp.title}</h3><span>{bp.tier}</span></div>
+          <div class="icon-row">{(bp.iconKeys ?? []).map((key) => <span class={`tech-icon ${key}`}>{iconLabel[key] ?? key.slice(0,2)}</span>)}</div>
           <p>{bp.summary}</p>
           <div class="meta-row"><span>{bp.category}</span><span>{bp.runtime.join(', ')}</span><span>{bp.status}</span></div>
           <div class="actions small"><a class="btn primary" href={`/buildprints/${bp.slug}/`}>Open</a><a class="btn" href={`/buildprints/${bp.slug}/agent.md`}>Agent</a><a class="btn" href={`/buildprints/${bp.slug}/package.json`}>JSON</a></div>
@@ -57,7 +55,7 @@ const sections = [
         <div class="row-head"><h2>{section.title}</h2><a class="link" href="/buildprints/">Explore →</a></div>
         <div class="row-scroll">
           {section.items.map((bp) => <a class={`row-card ${bp.planned ? 'muted-card' : ''}`} href={bp.planned ? '/buildprints/' : `/buildprints/${bp.slug}/`}>
-            <span>{bp.category}</span>
+            <div class="row-top"><span>{bp.category}</span><div class="icon-row tiny">{(bp.iconKeys ?? []).map((key) => <i class={`tech-icon ${key}`}>{iconLabel[key] ?? key.slice(0,2)}</i>)}</div></div>
             <b>{bp.title}</b>
             <p>{bp.summary}</p>
             <small>{bp.tier} · {bp.status}</small>
