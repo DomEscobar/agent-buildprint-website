@@ -177,3 +177,11 @@ pre { overflow:auto; background:var(--surface-2); border:1px solid var(--border)
   .agent-strip div { flex: 0 0 150px; width: 150px; }
   .agent-strip code { flex: 0 0 auto; max-width: none; }
 }
+
+/* Registry card spacing fix */
+.buildprint-card { padding: 18px; }
+.buildprint-card .card-body { padding: 0; }
+.buildprint-card .actions { margin-top: 18px; }
+@media (max-width: 640px) {
+  .buildprint-card { padding: 16px; }
+}
