@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildprints, categories, tiers } from '@/lib/buildprints';
-import { badgeIcon } from '@/lib/icons';
+import { badgeIcon, iconHtml as icon } from '@/lib/icons';
 
 const trustLabel = (bp) => {
   if (bp.planned || bp.status === 'coming-soon') return 'PLANNED';
@@ -10,6 +10,14 @@ const trustLabel = (bp) => {
   if (bp.checks.length > 0) return 'CHECKED';
   return 'READY';
 };
+const trustTip = (bp) => {
+  if (bp.planned || bp.status === 'coming-soon') return 'Planned Buildprint; package details are not ready yet.';
+  if (bp.status === 'validated') return 'Validated by snapshot bootstrap, Codex dry-run, local tests, and gated publishing checks.';
+  if (bp.status === 'draft') return 'Draft Buildprint; useful for review but not fully validated.';
+  if (bp.checks.length > 0) return 'Has defined quality checks, but still needs full dry-run validation.';
+  return 'Ready to inspect.';
+};
+const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
 ---
 <BaseLayout title="Buildprint Registry — Agent Buildprint" description="Browse agent-readable Buildprints with package tiers, agent endpoints, raw files, prompts, and manifests.">
   <main>
@@ -30,10 +38,10 @@ const trustLabel = (bp) => {
         {buildprints.map((bp) => (
           <a class="card buildprint-card clickable-card" href={bp.planned ? '/buildprints/' : `/buildprints/${bp.slug}/`} data-category={bp.category} data-tier={bp.tier} data-search={`${bp.title} ${bp.creator} ${bp.category} ${bp.tier} ${bp.status} ${bp.runtime.join(' ')} ${bp.stack.join(' ')} ${bp.summary} ${(bp.trustBadges ?? []).map((badge) => badge.label).join(' ')}`.toLowerCase()}>
             <div class="card-body">
-              <div class="card-topline"><span class="plain-category"><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word">{trustLabel(bp)}</span></div>
+              <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={trustTip(bp)}>{trustLabel(bp)}</span></div>
               <h3>{bp.title}</h3>
               <p>{bp.summary}</p>
-              <div class="stack-line">{bp.stack.slice(0,3).join(' · ')}</div>
+              <div class="stack-row"><span class="stack-line" title={bp.stack.join(' · ')}>{bp.stack.slice(0,3).join(' · ')}</span><span class="stack-icons" aria-label={`Stack icons: ${(bp.iconKeys ?? []).join(', ')}`}>{(bp.iconKeys ?? []).slice(0,3).map((key) => <i class={`tech-icon ${key}`} title={key} set:html={icon(key)} />)}</span></div>
             </div>
           </a>
         ))}

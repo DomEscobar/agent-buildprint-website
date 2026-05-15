@@ -287,3 +287,13 @@ pre { overflow:auto; background:var(--surface-2); border:1px solid var(--border)
 .buildprint-card p, .mini-card p { color:var(--muted); line-height:1.55; }
 .mini-card.clickable-card { gap:0; }
 @media (max-width:640px) { .status-word { font-size:10px; } .buildprint-card h3, .mini-card h3 { margin-top:20px; } }
+
+/* Quiet trust icons on clickable cards */
+.stack-row { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:16px; }
+.stack-row .stack-line { min-width:0; margin-top:0; }
+.stack-icons { display:inline-flex; align-items:center; justify-content:flex-end; gap:6px; flex:0 0 auto; opacity:.62; filter:grayscale(.25); transition:opacity .16s ease, filter .16s ease; }
+.clickable-card:hover .stack-icons { opacity:.95; filter:grayscale(0); }
+.stack-icons .tech-icon { width:18px; height:18px; margin:0; border:1px solid var(--border); background:var(--surface-2); border-radius:6px; padding:3px; display:inline-flex; align-items:center; justify-content:center; font-size:9px; font-style:normal; line-height:1; color:var(--muted); }
+.stack-icons .tech-icon img { width:100%; height:100%; object-fit:contain; }
+.plain-category[title], .status-word[title], .stack-icons .tech-icon[title] { cursor:help; }
+@media (max-width:640px) { .stack-icons { display:none; } }
