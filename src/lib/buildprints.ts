@@ -181,6 +181,7 @@ export const buildprints: Buildprint[] = [
       { path: 'README.md', purpose: 'creator-facing mapper overview', required: false },
       { path: 'policies/safety.md', purpose: 'secret and safety policy', required: true },
       { path: 'policies/quality.md', purpose: 'max-quality precision, edge-case, and proof policy', required: true },
+      { path: 'policies/questions.md', purpose: 'minimal-preflight and dynamic post-discovery question policy', required: true },
       { path: 'templates/QA_PLAN.md', purpose: 'scope-derived QA journey template', required: true },
       { path: 'templates/TRACEABILITY_MATRIX.md', purpose: 'source evidence to requirement/check traceability template', required: true },
       { path: 'templates/CAPABILITY_BASELINE.md', purpose: 'famous-product capability and non-parity boundary template', required: false },
@@ -195,7 +196,7 @@ export const buildprints: Buildprint[] = [
       { path: 'prompts/extract-selected.md', purpose: 'selected Buildprint extraction prompt', required: true },
       { path: 'schemas/candidate.schema.json', purpose: 'candidate record schema', required: false },
     ],
-    checks: ['Large repos produce candidates before final package unless full-system mode is selected', 'Generated files contain no secret values', 'Claims are labeled OBSERVED/INFERRED/QUESTION', 'Scope includes included/excluded paths', 'QA plan is derived from mapped flows', 'Traceability matrix links evidence to requirements and checks', 'Submission checklist reports commands run and known gaps', 'No validation results are invented', 'Golden eval examples include stripe-saas, ai-blog-os, malicious-secrets, admin-dashboard, and large-monorepo'],
+    checks: ['Large repos produce candidates before final package unless full-system mode is selected', 'Generated files contain no secret values', 'Claims are labeled OBSERVED/INFERRED/QUESTION', 'Scope includes included/excluded paths', 'Minimal preflight; smart contextual questions after soft discovery', 'QA plan is derived from mapped flows', 'Traceability matrix links evidence to requirements and checks', 'Submission checklist reports commands run and known gaps', 'No validation results are invented', 'Golden eval examples include stripe-saas, ai-blog-os, malicious-secrets, admin-dashboard, and large-monorepo'],
     trustBadges: [
       { label: 'Submission workflow', detail: 'Defines the official reviewable path from existing repo to scoped Buildprint package.', tone: 'info' },
       { label: 'Safety-first extraction', detail: 'Requires no app-code changes, no secret copying, and explicit unknowns.', tone: 'success' },
