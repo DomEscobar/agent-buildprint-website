@@ -264,3 +264,13 @@ pre { overflow:auto; background:var(--surface-2); border:1px solid var(--border)
 .agent-steps div { display:grid; grid-template-columns:32px 1fr; gap:10px; align-items:start; border:1px solid var(--border); background:var(--surface-2); border-radius:12px; padding:12px; color:var(--muted); }
 .agent-steps b { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:999px; background:var(--text); color:var(--bg); font-size:12px; }
 @media (max-width:640px) { .trust-grid { grid-template-columns:1fr; } }
+
+/* Homepage simplification + how-to */
+.featured-grid .mini-card { gap:12px; }
+.featured-grid .mini-card .card-footer { margin-top:auto; }
+.row-status { color:var(--muted); }
+.how-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.how-grid .panel { position:relative; overflow:hidden; }
+.step-number { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:999px; background:var(--text); color:var(--bg); font-weight:900; font-size:13px; margin-bottom:10px; }
+.how-grid h3 { margin:0 0 10px; }
+.how-grid pre { white-space:pre-wrap; word-break:break-word; font-size:13px; }

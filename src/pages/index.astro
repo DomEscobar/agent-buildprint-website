@@ -1,8 +1,15 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildprints, liveBuildprints } from '@/lib/buildprints';
-import { iconHtml as icon, badgeIcon } from '@/lib/icons';
+import { badgeIcon } from '@/lib/icons';
 const featured = liveBuildprints.filter((bp) => bp.featured).slice(0, 4);
+const trustLabel = (bp) => {
+  if (bp.planned || bp.status === 'coming-soon') return 'Planned';
+  if (bp.status === 'validated') return 'Dry-run passed';
+  if (bp.status === 'draft') return 'Draft';
+  if (bp.checks.length > 0) return 'Has checks';
+  return 'Ready';
+};
 const sections = [
   { title: 'Product OS', items: buildprints.filter((bp) => bp.category === 'Product OS').slice(0, 5) },
   { title: 'Features & Extensions', items: buildprints.filter((bp) => bp.category === 'Feature / Extension').slice(0, 5) },
@@ -41,11 +48,11 @@ const sections = [
       <div class="section-head simple"><div><span class="eyebrow"><b>★</b> Featured</span><h2>Start from a Buildprint</h2></div><a class="link" href="/buildprints/">View registry →</a></div>
       <div class="grid cards featured-grid">
         {featured.map((bp) => <article class="mini-card">
-          <div class="mini-head"><h3>{bp.title}</h3><span class="badge"><b>{badgeIcon(bp.tier)}</b>{bp.tier}</span></div>
-          <div class="icon-row">{(bp.iconKeys ?? []).map((key) => <span class={`tech-icon ${key}`} set:html={icon(key)} />)}</div>
+          <div class="mini-head"><h3>{bp.title}</h3><span class="badge category-badge"><b>{badgeIcon(bp.category)}</b>{bp.category}</span></div>
           <p>{bp.summary}</p>
-          <div class="meta-row"><span><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span><b>⚙</b>{bp.runtime.join(', ')}</span><span><b>{badgeIcon(bp.status)}</b>{bp.status}</span></div>
-          <div class="actions small"><a class="btn primary" href={`/buildprints/${bp.slug}/`}>Open</a><a class="btn" href={`/buildprints/${bp.slug}/agent.md`}>Agent</a><a class="btn" href={`/buildprints/${bp.slug}/package.json`}>JSON</a></div>
+          <div class="stack-badges">{bp.stack.slice(0, 3).map((tag) => <span>{tag}</span>)}</div>
+          {bp.trustBadges?.length ? <div class="trust-mini-row">{bp.trustBadges.slice(0, 3).map((badge) => <span class={`trust-mini ${badge.tone ?? 'info'}`}>{badge.label}</span>)}</div> : null}
+          <div class="card-footer"><span class="trust-badge"><b>{badgeIcon(bp.status)}</b>{trustLabel(bp)}</span><a class="btn primary" href={`/buildprints/${bp.slug}/`}>View Buildprint</a></div>
         </article>)}
       </div>
     </section>
@@ -55,18 +62,27 @@ const sections = [
         <div class="row-head"><h2>{section.title}</h2><a class="link" href="/buildprints/">Explore →</a></div>
         <div class="row-scroll">
           {section.items.map((bp) => <a class={`row-card ${bp.planned ? 'muted-card' : ''}`} href={bp.planned ? '/buildprints/' : `/buildprints/${bp.slug}/`}>
-            <div class="row-top"><span><b>{badgeIcon(bp.category)}</b>{bp.category}</span><div class="icon-row tiny">{(bp.iconKeys ?? []).map((key) => <i class={`tech-icon ${key}`} set:html={icon(key)} />)}</div></div>
+            <div class="row-top"><span><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="row-status"><b>{badgeIcon(bp.status)}</b>{trustLabel(bp)}</span></div>
             <b>{bp.title}</b>
             <p>{bp.summary}</p>
-            <small><b>{badgeIcon(bp.tier)}</b> {bp.tier} · <b>{badgeIcon(bp.status)}</b> {bp.status}</small>
+            <small>{bp.stack.slice(0, 3).join(' · ')}</small>
           </a>)}
         </div>
       </div>)}
     </section>
 
+    <section class="container section how-section">
+      <div class="section-head simple"><div><span class="eyebrow"><b>◆</b> How to use</span><h2>Give Codex, Cursor, or Claude Code a real construction plan.</h2></div></div>
+      <div class="grid how-grid">
+        <div class="panel quiet"><span class="step-number">1</span><h3>Fetch the package</h3><pre>npx --yes github:DomEscobar/agent-buildprint start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json</pre></div>
+        <div class="panel quiet"><span class="step-number">2</span><h3>Or use installed CLI</h3><pre>agb start https://agent-buildprint.com/buildprints/automated-ai-blog-os/package.json</pre></div>
+        <div class="panel quiet"><span class="step-number">3</span><h3>Hand off to your agent</h3><p>Tell Codex, Cursor, or Claude Code: “Read <code>.buildprint/next-agent.md</code> and continue.” Keep snapshots as source-of-truth contracts.</p></div>
+      </div>
+    </section>
+
     <section class="container section two-col">
       <div class="panel quiet"><span class="eyebrow"><b>⌁</b> Mapper</span><h2>Have a repo already?</h2><p>Generate an observed Buildprint package from an existing project. Facts first, unknowns as questions, no secret values copied.</p><pre>agb map ./my-project</pre></div>
-      <div class="panel quiet"><span class="eyebrow"><b>◆</b> Bootstrap</span><h2>Start with continuity.</h2><p><code>agb start</code> downloads exact Buildprint snapshots and creates <code>.buildprint/next-agent.md</code> so another agent can continue after interruption.</p><pre>agb start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json</pre></div>
+      <div class="panel quiet"><span class="eyebrow"><b>✓</b> Validated packages</span><h2>Start with continuity.</h2><p><code>agb start</code> downloads exact Buildprint snapshots and creates <code>.buildprint/next-agent.md</code> so another agent can continue after interruption.</p><pre>agb start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json</pre></div>
     </section>
   </main>
 </BaseLayout>
