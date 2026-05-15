@@ -7,7 +7,7 @@ const bp = getBuildprint(Astro.params.slug ?? '');
 if (!bp) return Astro.redirect('/buildprints/');
 const manifest = packageManifest(bp);
 const startCommand = `agb start ${siteBase}/buildprints/${bp.slug}/package.json`;
-const detailStatus = bp.planned || bp.status === 'coming-soon' ? 'Planned' : bp.status === 'validated' ? 'Verified' : bp.status === 'draft' ? 'Draft' : bp.checks.length ? 'Has checks' : 'Ready';
+const detailStatus = bp.planned || bp.status === 'coming-soon' ? 'Planned' : bp.status === 'validated' ? 'Dry-run passed' : bp.status === 'draft' ? 'Draft' : bp.checks.length ? 'Has checks' : 'Ready';
 const endpoints = [
   { label: 'Agent guide', value: `${siteBase}/buildprints/${bp.slug}/agent.md`, href: `/buildprints/${bp.slug}/agent.md` },
   { label: 'Manifest JSON', value: `${siteBase}/buildprints/${bp.slug}/package.json`, href: `/buildprints/${bp.slug}/package.json` },
@@ -32,6 +32,26 @@ const endpoints = [
       </div>
     </section>
 
+    {bp.trustBadges?.length ? <section class="container section trust-section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>✓</b> Validation</span><h2>Trust signals</h2></div></div>
+      <div class="grid trust-grid">
+        {bp.trustBadges.map((badge) => <div class={`panel trust-card ${badge.tone ?? 'info'}`}><h3>{badge.label}</h3><p>{badge.detail}</p></div>)}
+      </div>
+    </section> : null}
+
+    <section class="container section agent-use-section">
+      <div class="panel">
+        <span class="eyebrow"><b>↳</b> Use with coding agents</span>
+        <h2>Codex, Cursor, Claude Code</h2>
+        <div class="agent-steps">
+          <div><b>1</b><span>Run the CLI command in the repo you want to build in.</span></div>
+          <div><b>2</b><span>Tell your coding agent: “Read <code>.buildprint/next-agent.md</code> and continue.”</span></div>
+          <div><b>3</b><span>Keep generated implementation separate from snapshot files; snapshots are source-of-truth contracts.</span></div>
+        </div>
+        <p>Cursor/Claude Code fallback: copy the agent prompt above. It bootstraps this same package, then hands the agent to <code>.buildprint/next-agent.md</code>.</p>
+      </div>
+    </section>
+
     <section class="container section grid columns detail-readable">
       <div class="panel"><h2>What it gives you</h2>{bp.includes.length ? <ul class="clean-list">{bp.includes.map((x) => <li>{x}</li>)}</ul> : <p>Package details are still being prepared.</p>}</div>
       <div class="panel"><h2>Quality gates</h2>{bp.checks.length ? <ul class="clean-list check-list">{bp.checks.map((x) => <li>{x}</li>)}</ul> : <p>Checks will be added before this Buildprint is publishable.</p>}</div>
@@ -52,10 +72,11 @@ const endpoints = [
           <div class="file-table">
             {bp.files.map((file) => {
               const fileUrl = `${bp.rawBaseUrl}/${file.path}`;
+              const copyUrl = fileUrl.startsWith('http') ? fileUrl : `${siteBase}${fileUrl}`;
               return <div class="file-row">
                 <code>{file.path}</code>
                 <span>{file.purpose}</span>
-                <div class="file-actions"><a href={fileUrl}>Open</a><button class="copy-inline copy-btn" data-copy={`${siteBase}${fileUrl}`}>Copy URL</button></div>
+                <div class="file-actions"><a href={fileUrl}>Open</a><button class="copy-inline copy-btn" data-copy={copyUrl}>Copy URL</button></div>
               </div>;
             })}
           </div>

@@ -3,6 +3,7 @@ export type BuildprintTier = 'basic' | 'strong' | 'agent-grade' | 'planned';
 export type BuildprintStatus = 'draft' | 'publishable-draft' | 'dry-run-needed' | 'validated' | 'coming-soon';
 
 export type BuildprintFile = { path: string; purpose: string; required: boolean };
+export type BuildprintTrustBadge = { label: string; detail: string; tone?: 'success' | 'info' | 'warning' };
 export type Buildprint = {
   slug: string;
   title: string;
@@ -20,6 +21,7 @@ export type Buildprint = {
   risks: string[];
   files: BuildprintFile[];
   checks: string[];
+  trustBadges?: BuildprintTrustBadge[];
   copyPrompt: string;
   githubUrl: string;
   rawBaseUrl: string;
@@ -47,6 +49,12 @@ export const canonicalFilePurposes: Record<string, string> = {
 
 const rawFor = (slug: string) => `${rawRepoBase}/buildprints/${slug}`;
 const localPrompt = (slug: string, title: string) => `Use the ${title} Buildprint. First bootstrap exact snapshots: agb start ${siteBase}/buildprints/${slug}/package.json . If agb is not installed, clone https://github.com/DomEscobar/agent-buildprint and run node agent-buildprint/bin/agb.js start ${siteBase}/buildprints/${slug}/package.json . Then read .buildprint/next-agent.md and continue. Do not write Buildprint snapshots manually.`;
+const agentTrustBadges: BuildprintTrustBadge[] = [
+  { label: 'Snapshot bootstrap passed', detail: 'agb start downloaded exact Markdown snapshots; HTML/parked-domain responses are rejected.', tone: 'success' },
+  { label: 'Codex dry-run passed', detail: 'A fresh Codex run built a fixture-safe implementation from the Buildprint package.', tone: 'success' },
+  { label: 'Tests pass', detail: 'Dry-run implementation completed its local tests/static checks without real credentials.', tone: 'success' },
+  { label: 'Gated publishing', detail: 'Publishing is manual/mock/approval-gated by default, never raw auto-publish.', tone: 'info' },
+];
 
 export const buildprints: Buildprint[] = [
   {
@@ -55,7 +63,7 @@ export const buildprints: Buildprint[] = [
     creator: 'Agent Buildprint',
     category: 'Product OS',
     tier: 'agent-grade',
-    status: 'dry-run-needed',
+    status: 'validated',
     runtime: ['OpenClaw'],
     stack: ['OpenClaw', 'Persona memory', 'Wavespeed', 'Social publishing', 'Docker'],
     iconKeys: ['openclaw', 'json', 'docker'],
@@ -85,6 +93,7 @@ export const buildprints: Buildprint[] = [
       { path: 'questions.md', purpose: canonicalFilePurposes['questions.md'], required: true },
     ],
     checks: ['OpenClaw runtime command/blocker exists', 'LLM analyzer adapter prevents keyword-only drift', 'Wavespeed real adapter shape exists', 'Tests use mock image mode without external APIs', 'User memory and self-state are separate', 'noVNC handoff service shape exists', 'Publishing is mock/manual-gated by default'],
+    trustBadges: agentTrustBadges,
     githubUrl: `${repoUrl}/tree/main/buildprints/ai-influencer-os`,
     rawBaseUrl: rawFor('ai-influencer-os'),
     copyPrompt: `${localPrompt('ai-influencer-os', 'AI Influencer OS')} Do not auto-publish by default.`,
@@ -95,7 +104,7 @@ export const buildprints: Buildprint[] = [
     creator: 'Agent Buildprint',
     category: 'Product OS',
     tier: 'agent-grade',
-    status: 'publishable-draft',
+    status: 'validated',
     runtime: ['Astro/MDX'],
     stack: ['Astro/MDX', 'Research scanner', 'Idea scoring', 'SEO checks', 'Approval queue'],
     iconKeys: ['astro', 'md', 'json'],
@@ -132,6 +141,7 @@ export const buildprints: Buildprint[] = [
       { path: 'README.md', purpose: 'package overview', required: false },
     ],
     checks: ['Sources are captured as records, not invented', 'Ideas use explicit scoring rubric', 'Drafts include source map and claim map', 'Ungrounded factual claims block publishing', 'SEO metadata, structured data, sitemap/RSS/llms, and build are validated', 'Unapproved drafts cannot publish by default', 'Tests run without real network/publishing credentials', 'Manager audit reports stale/weak/blocked items'],
+    trustBadges: agentTrustBadges,
     githubUrl: `${repoUrl}/tree/main/buildprints/automated-ai-blog-os`,
     rawBaseUrl: `${siteBase}/buildprint-files/automated-ai-blog-os`,
     copyPrompt: `${localPrompt('automated-ai-blog-os', 'Automated AI Blog OS')} Build the approval-gated AI blog pipeline with source scanning, idea scoring, draft generation, claim/SEO validation, approval queue, gated publishing/scheduling, manager audit, and tests. Do not auto-publish by default.`,
