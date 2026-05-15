@@ -4,11 +4,11 @@ import { buildprints, liveBuildprints } from '@/lib/buildprints';
 import { badgeIcon } from '@/lib/icons';
 const featured = liveBuildprints.filter((bp) => bp.featured).slice(0, 4);
 const trustLabel = (bp) => {
-  if (bp.planned || bp.status === 'coming-soon') return 'Planned';
-  if (bp.status === 'validated') return 'Dry-run passed';
-  if (bp.status === 'draft') return 'Draft';
-  if (bp.checks.length > 0) return 'Has checks';
-  return 'Ready';
+  if (bp.planned || bp.status === 'coming-soon') return 'PLANNED';
+  if (bp.status === 'validated') return 'PASSED';
+  if (bp.status === 'draft') return 'DRAFT';
+  if (bp.checks.length > 0) return 'CHECKED';
+  return 'READY';
 };
 const sections = [
   { title: 'Product OS', items: buildprints.filter((bp) => bp.category === 'Product OS').slice(0, 5) },
@@ -47,13 +47,12 @@ const sections = [
     <section class="container section">
       <div class="section-head simple"><div><span class="eyebrow"><b>★</b> Featured</span><h2>Start from a Buildprint</h2></div><a class="link" href="/buildprints/">View registry →</a></div>
       <div class="grid cards featured-grid">
-        {featured.map((bp) => <article class="mini-card">
-          <div class="mini-head"><h3>{bp.title}</h3><span class="badge category-badge"><b>{badgeIcon(bp.category)}</b>{bp.category}</span></div>
+        {featured.map((bp) => <a class="mini-card clickable-card" href={`/buildprints/${bp.slug}/`}>
+          <div class="card-topline"><span class="plain-category"><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word">{trustLabel(bp)}</span></div>
+          <h3>{bp.title}</h3>
           <p>{bp.summary}</p>
-          <div class="stack-badges">{bp.stack.slice(0, 3).map((tag) => <span>{tag}</span>)}</div>
-          {bp.trustBadges?.length ? <div class="trust-mini-row">{bp.trustBadges.slice(0, 3).map((badge) => <span class={`trust-mini ${badge.tone ?? 'info'}`}>{badge.label}</span>)}</div> : null}
-          <div class="card-footer"><span class="trust-badge"><b>{badgeIcon(bp.status)}</b>{trustLabel(bp)}</span><a class="btn primary" href={`/buildprints/${bp.slug}/`}>View Buildprint</a></div>
-        </article>)}
+          <div class="stack-line">{bp.stack.slice(0, 3).join(' · ')}</div>
+        </a>)}
       </div>
     </section>
 

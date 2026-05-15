@@ -4,11 +4,11 @@ import { buildprints, categories, tiers } from '@/lib/buildprints';
 import { badgeIcon } from '@/lib/icons';
 
 const trustLabel = (bp) => {
-  if (bp.planned || bp.status === 'coming-soon') return 'Planned';
-  if (bp.status === 'validated') return 'Dry-run passed';
-  if (bp.status === 'draft') return 'Draft';
-  if (bp.checks.length > 0) return 'Has checks';
-  return 'Ready';
+  if (bp.planned || bp.status === 'coming-soon') return 'PLANNED';
+  if (bp.status === 'validated') return 'PASSED';
+  if (bp.status === 'draft') return 'DRAFT';
+  if (bp.checks.length > 0) return 'CHECKED';
+  return 'READY';
 };
 ---
 <BaseLayout title="Buildprint Registry — Agent Buildprint" description="Browse agent-readable Buildprints with package tiers, agent endpoints, raw files, prompts, and manifests.">
@@ -28,16 +28,14 @@ const trustLabel = (bp) => {
       </div>
       <div class="grid cards" id="cards">
         {buildprints.map((bp) => (
-          <article class="card buildprint-card" data-category={bp.category} data-tier={bp.tier} data-search={`${bp.title} ${bp.creator} ${bp.category} ${bp.tier} ${bp.status} ${bp.runtime.join(' ')} ${bp.stack.join(' ')} ${bp.summary} ${(bp.trustBadges ?? []).map((badge) => badge.label).join(' ')}`.toLowerCase()}>
+          <a class="card buildprint-card clickable-card" href={bp.planned ? '/buildprints/' : `/buildprints/${bp.slug}/`} data-category={bp.category} data-tier={bp.tier} data-search={`${bp.title} ${bp.creator} ${bp.category} ${bp.tier} ${bp.status} ${bp.runtime.join(' ')} ${bp.stack.join(' ')} ${bp.summary} ${(bp.trustBadges ?? []).map((badge) => badge.label).join(' ')}`.toLowerCase()}>
             <div class="card-body">
-              <div class="card-topline"><span class="badge category-badge"><b>{badgeIcon(bp.category)}</b>{bp.category}</span></div>
+              <div class="card-topline"><span class="plain-category"><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word">{trustLabel(bp)}</span></div>
               <h3>{bp.title}</h3>
               <p>{bp.summary}</p>
-              <div class="stack-badges">{bp.stack.slice(0,3).map((tag) => <span>{tag}</span>)}</div>
-              {bp.trustBadges?.length ? <div class="trust-mini-row">{bp.trustBadges.slice(0, 3).map((badge) => <span class={`trust-mini ${badge.tone ?? 'info'}`}>{badge.label}</span>)}</div> : null}
-              <div class="card-footer"><span class="trust-badge"><b>{badgeIcon(bp.status)}</b>{trustLabel(bp)}</span><a class="btn primary" href={`/buildprints/${bp.slug}/`}>View Buildprint</a></div>
+              <div class="stack-line">{bp.stack.slice(0,3).join(' · ')}</div>
             </div>
-          </article>
+          </a>
         ))}
       </div>
     </section>
