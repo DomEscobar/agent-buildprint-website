@@ -1,0 +1,59 @@
+{
+  "sourceRepo": "https://github.com/vercel/ai-chatbot",
+  "mappedAt": "2026-05-15",
+  "command": "agb map ./vercel-ai-chatbot --candidate 1 --out ./vercel-ai-chatbot.buildprint",
+  "filesScanned": 180,
+  "frameworks": [
+    "Next.js",
+    "React",
+    "Drizzle ORM",
+    "Vercel AI SDK integration"
+  ],
+  "integrations": [
+    "ai",
+    "auth",
+    "database",
+    "cache"
+  ],
+  "risks": [
+    "AI/tool calls",
+    "auth/session handling",
+    "file upload / storage"
+  ],
+  "routes": 4,
+  "apis": 11,
+  "candidates": [
+    "AI Workflow Buildprint",
+    "Auth / Session Buildprint",
+    "Data Infrastructure Buildprint",
+    "Web App Route/API Buildprint",
+    "app Folder Buildprint"
+  ],
+  "selectedCandidate": "AI Workflow Buildprint",
+  "selectedIncludedPaths": [
+    "app/(chat)/api/chat/[id]/stream/route.ts",
+    "app/(chat)/api/chat/route.ts",
+    "app/(chat)/api/chat/schema.ts",
+    "app/(chat)/chat/[id]/page.tsx",
+    "components/ai-elements/code-block.tsx",
+    "components/ai-elements/conversation.tsx",
+    "components/ai-elements/message.tsx",
+    "components/ai-elements/model-selector.tsx",
+    "components/ai-elements/prompt-input.tsx",
+    "components/ai-elements/reasoning.tsx",
+    "components/ai-elements/shimmer.tsx",
+    "components/ai-elements/suggestion.tsx",
+    "components/ai-elements/tool.tsx",
+    "components/chat/app-sidebar.tsx",
+    "components/chat/artifact-actions.tsx",
+    "components/chat/artifact-close-button.tsx",
+    "components/chat/artifact-messages.tsx",
+    "components/chat/artifact.tsx",
+    "components/chat/auth-form.tsx",
+    "components/chat/chat-header.tsx",
+    "components/chat/code-editor.tsx",
+    "components/chat/console.tsx",
+    "components/chat/create-artifact.tsx",
+    "components/chat/data-stream-handler.tsx"
+  ]
+}

@@ -1,0 +1,384 @@
+{
+  "root": "/tmp/agb-github-map-smoke/repos/vercel__ai-chatbot",
+  "totalFilesScanned": 180,
+  "packageManager": "pnpm",
+  "packageName": "chatbot",
+  "scripts": [
+    "build",
+    "check",
+    "db:check",
+    "db:generate",
+    "db:migrate",
+    "db:pull",
+    "db:push",
+    "db:studio",
+    "db:up",
+    "dev",
+    "fix",
+    "start",
+    "test"
+  ],
+  "dependencies": [
+    "@ai-sdk/provider",
+    "@ai-sdk/react",
+    "@biomejs/biome",
+    "@codemirror/lang-python",
+    "@codemirror/state",
+    "@codemirror/theme-one-dark",
+    "@codemirror/view",
+    "@opentelemetry/api",
+    "@opentelemetry/api-logs",
+    "@playwright/test",
+    "@radix-ui/react-use-controllable-state",
+    "@streamdown/cjk",
+    "@streamdown/code",
+    "@streamdown/math",
+    "@streamdown/mermaid",
+    "@tailwindcss/postcss",
+    "@tailwindcss/typography",
+    "@types/d3-scale",
+    "@types/node",
+    "@types/papaparse",
+    "@types/pdf-parse",
+    "@types/react",
+    "@types/react-dom",
+    "@vercel/analytics",
+    "@vercel/blob",
+    "@vercel/functions",
+    "@vercel/otel",
+    "ai",
+    "babel-plugin-react-compiler",
+    "bcrypt-ts",
+    "botid",
+    "class-variance-authority",
+    "classnames",
+    "clsx",
+    "cmdk",
+    "codemirror",
+    "date-fns",
+    "diff-match-patch",
+    "dotenv",
+    "drizzle-kit",
+    "drizzle-orm",
+    "fast-deep-equal",
+    "framer-motion",
+    "katex",
+    "lucide-react",
+    "motion",
+    "nanoid",
+    "next",
+    "next-auth",
+    "next-themes",
+    "orderedmap",
+    "papaparse",
+    "postcss",
+    "postgres",
+    "prosemirror-example-setup",
+    "prosemirror-inputrules",
+    "prosemirror-markdown",
+    "prosemirror-model",
+    "prosemirror-schema-basic",
+    "prosemirror-schema-list",
+    "prosemirror-state",
+    "prosemirror-view",
+    "radix-ui",
+    "react",
+    "react-data-grid",
+    "react-dom",
+    "redis",
+    "resumable-stream",
+    "server-only",
+    "shiki",
+    "sonner",
+    "streamdown",
+    "swr",
+    "tailwind-merge",
+    "tailwindcss",
+    "tailwindcss-animate",
+    "tsx",
+    "typescript",
+    "ultracite",
+    "use-stick-to-bottom",
+    "usehooks-ts",
+    "zod"
+  ],
+  "frameworks": [
+    "Next.js",
+    "React",
+    "Drizzle ORM",
+    "Vercel AI SDK integration"
+  ],
+  "routes": [
+    "app/(auth)/login/page.tsx",
+    "app/(auth)/register/page.tsx",
+    "app/(chat)/chat/[id]/page.tsx",
+    "app/(chat)/page.tsx"
+  ],
+  "apis": [
+    "app/(auth)/api/auth/[...nextauth]/route.ts",
+    "app/(auth)/api/auth/guest/route.ts",
+    "app/(chat)/api/chat/[id]/stream/route.ts",
+    "app/(chat)/api/chat/route.ts",
+    "app/(chat)/api/document/route.ts",
+    "app/(chat)/api/files/upload/route.ts",
+    "app/(chat)/api/history/route.ts",
+    "app/(chat)/api/messages/route.ts",
+    "app/(chat)/api/models/route.ts",
+    "app/(chat)/api/suggestions/route.ts",
+    "app/(chat)/api/vote/route.ts"
+  ],
+  "tests": [
+    "lib/ai/models.test.ts",
+    "tests/e2e/api.test.ts",
+    "tests/e2e/auth.test.ts",
+    "tests/e2e/chat.test.ts",
+    "tests/e2e/model-selector.test.ts",
+    "tests/fixtures.ts",
+    "tests/helpers.ts",
+    "tests/pages/chat.ts",
+    "tests/prompts/utils.ts"
+  ],
+  "db": [
+    "app/(chat)/api/models/route.ts",
+    "drizzle.config.ts",
+    "lib/ai/models.mock.ts",
+    "lib/ai/models.test.ts",
+    "lib/ai/models.ts",
+    "lib/db/migrations/0000_initial.sql",
+    "lib/db/migrations/meta/_journal.json"
+  ],
+  "deploy": [
+    ".github/workflows/lint.yml",
+    ".github/workflows/playwright.yml",
+    "vercel.json"
+  ],
+  "integrations": [
+    "ai",
+    "auth",
+    "database",
+    "cache"
+  ],
+  "envNames": [
+    "AI_GATEWAY_API_KEY",
+    "AUTH_SECRET",
+    "BLOB_READ_WRITE_TOKEN",
+    "CI",
+    "CI_PLAYWRIGHT",
+    "IS_DEMO",
+    "NEXT_PUBLIC_BASE_PATH",
+    "NODE_ENV",
+    "PLAYWRIGHT",
+    "PLAYWRIGHT_TEST_BASE_URL",
+    "PORT",
+    "POSTGRES_URL",
+    "REDIS_URL"
+  ],
+  "risky": [
+    "AI/tool calls",
+    "auth/session handling",
+    "file upload / storage"
+  ],
+  "subprojects": [
+    {
+      "path": ".",
+      "marker": "package.json",
+      "kind": "package.json",
+      "name": "chatbot"
+    }
+  ],
+  "candidateBuildprints": [
+    {
+      "title": "AI Workflow Buildprint",
+      "scope": "LLM calls, prompts, tools, model adapters, grounding and safety checks",
+      "includedPaths": [
+        "app/(chat)/api/chat/[id]/stream/route.ts",
+        "app/(chat)/api/chat/route.ts",
+        "app/(chat)/api/chat/schema.ts",
+        "app/(chat)/chat/[id]/page.tsx",
+        "components/ai-elements/code-block.tsx",
+        "components/ai-elements/conversation.tsx",
+        "components/ai-elements/message.tsx",
+        "components/ai-elements/model-selector.tsx",
+        "components/ai-elements/prompt-input.tsx",
+        "components/ai-elements/reasoning.tsx",
+        "components/ai-elements/shimmer.tsx",
+        "components/ai-elements/suggestion.tsx",
+        "components/ai-elements/tool.tsx",
+        "components/chat/app-sidebar.tsx",
+        "components/chat/artifact-actions.tsx",
+        "components/chat/artifact-close-button.tsx",
+        "components/chat/artifact-messages.tsx",
+        "components/chat/artifact.tsx",
+        "components/chat/auth-form.tsx",
+        "components/chat/chat-header.tsx",
+        "components/chat/code-editor.tsx",
+        "components/chat/console.tsx",
+        "components/chat/create-artifact.tsx",
+        "components/chat/data-stream-handler.tsx"
+      ],
+      "excludedPaths": [],
+      "whyReusable": "AI workflows need explicit contracts for inputs, outputs, tools, costs, and safety gates.",
+      "estimatedTier": "agent-grade",
+      "risks": [
+        "AI/tool calls",
+        "ungrounded output",
+        "external API dependency"
+      ],
+      "questions": [
+        "Which model/provider behavior is required vs replaceable?"
+      ]
+    },
+    {
+      "title": "Auth / Session Buildprint",
+      "scope": "login, registration, sessions, roles, permission checks",
+      "includedPaths": [
+        "app/(auth)/api/auth/[...nextauth]/route.ts",
+        "app/(auth)/api/auth/guest/route.ts",
+        "app/(auth)/auth.config.ts",
+        "app/(auth)/auth.ts",
+        "app/(auth)/login/page.tsx",
+        "app/(auth)/register/page.tsx",
+        "components/chat/auth-form.tsx",
+        "tests/e2e/auth.test.ts"
+      ],
+      "excludedPaths": [],
+      "whyReusable": "Auth and permission rules are high-risk and reusable across SaaS products.",
+      "estimatedTier": "strong",
+      "risks": [
+        "auth/session handling",
+        "permission drift"
+      ],
+      "questions": [
+        "What roles and permissions are intended?"
+      ]
+    },
+    {
+      "title": "Data Infrastructure Buildprint",
+      "scope": "cache, queues, search, background jobs, and provider lifecycle",
+      "includedPaths": [
+        "vercel-template.json",
+        "vercel.json"
+      ],
+      "excludedPaths": [],
+      "whyReusable": "Infrastructure integrations are reusable but need explicit failure, retry, and local-development contracts.",
+      "estimatedTier": "strong",
+      "risks": [
+        "external infrastructure dependency",
+        "data consistency drift"
+      ],
+      "questions": [
+        "Which provider resources are production-critical vs optional?"
+      ]
+    },
+    {
+      "title": "Web App Route/API Buildprint",
+      "scope": "public pages, API routes, routing contracts, page/data boundaries",
+      "includedPaths": [
+        "app/(auth)/login/page.tsx",
+        "app/(auth)/register/page.tsx",
+        "app/(chat)/chat/[id]/page.tsx",
+        "app/(chat)/page.tsx",
+        "app/(auth)/api/auth/[...nextauth]/route.ts",
+        "app/(auth)/api/auth/guest/route.ts",
+        "app/(chat)/api/chat/[id]/stream/route.ts",
+        "app/(chat)/api/chat/route.ts",
+        "app/(chat)/api/document/route.ts",
+        "app/(chat)/api/files/upload/route.ts",
+        "app/(chat)/api/history/route.ts",
+        "app/(chat)/api/messages/route.ts",
+        "app/(chat)/api/models/route.ts",
+        "app/(chat)/api/suggestions/route.ts",
+        "app/(chat)/api/vote/route.ts"
+      ],
+      "excludedPaths": [],
+      "whyReusable": "Routes and API handlers provide a reusable implementation map for web app structure.",
+      "estimatedTier": "strong",
+      "risks": [
+        "route drift",
+        "API contract drift"
+      ],
+      "questions": [
+        "Which routes are public, authenticated, or internal?"
+      ]
+    },
+    {
+      "title": "app Folder Buildprint",
+      "scope": "Reusable slice under app/",
+      "includedPaths": [
+        "app/(auth)/actions.ts",
+        "app/(auth)/api/auth/[...nextauth]/route.ts",
+        "app/(auth)/api/auth/guest/route.ts",
+        "app/(auth)/auth.config.ts",
+        "app/(auth)/auth.ts",
+        "app/(auth)/layout.tsx",
+        "app/(auth)/login/page.tsx",
+        "app/(auth)/register/page.tsx",
+        "app/(chat)/actions.ts",
+        "app/(chat)/api/chat/[id]/stream/route.ts",
+        "app/(chat)/api/chat/route.ts",
+        "app/(chat)/api/chat/schema.ts",
+        "app/(chat)/api/document/route.ts",
+        "app/(chat)/api/files/upload/route.ts",
+        "app/(chat)/api/history/route.ts",
+        "app/(chat)/api/messages/route.ts",
+        "app/(chat)/api/models/route.ts",
+        "app/(chat)/api/suggestions/route.ts",
+        "app/(chat)/api/vote/route.ts",
+        "app/(chat)/chat/[id]/page.tsx",
+        "app/(chat)/layout.tsx",
+        "app/(chat)/opengraph-image.png",
+        "app/(chat)/page.tsx",
+        "app/(chat)/twitter-image.png"
+      ],
+      "excludedPaths": [],
+      "whyReusable": "This folder appears to define a major implementation slice or example set.",
+      "estimatedTier": "basic",
+      "risks": [],
+      "questions": [
+        "Should this folder be extracted as one Buildprint or split further?"
+      ]
+    }
+  ],
+  "needsScopeSelection": true,
+  "selectedCandidate": {
+    "title": "AI Workflow Buildprint",
+    "scope": "LLM calls, prompts, tools, model adapters, grounding and safety checks",
+    "includedPaths": [
+      "app/(chat)/api/chat/[id]/stream/route.ts",
+      "app/(chat)/api/chat/route.ts",
+      "app/(chat)/api/chat/schema.ts",
+      "app/(chat)/chat/[id]/page.tsx",
+      "components/ai-elements/code-block.tsx",
+      "components/ai-elements/conversation.tsx",
+      "components/ai-elements/message.tsx",
+      "components/ai-elements/model-selector.tsx",
+      "components/ai-elements/prompt-input.tsx",
+      "components/ai-elements/reasoning.tsx",
+      "components/ai-elements/shimmer.tsx",
+      "components/ai-elements/suggestion.tsx",
+      "components/ai-elements/tool.tsx",
+      "components/chat/app-sidebar.tsx",
+      "components/chat/artifact-actions.tsx",
+      "components/chat/artifact-close-button.tsx",
+      "components/chat/artifact-messages.tsx",
+      "components/chat/artifact.tsx",
+      "components/chat/auth-form.tsx",
+      "components/chat/chat-header.tsx",
+      "components/chat/code-editor.tsx",
+      "components/chat/console.tsx",
+      "components/chat/create-artifact.tsx",
+      "components/chat/data-stream-handler.tsx"
+    ],
+    "excludedPaths": [],
+    "whyReusable": "AI workflows need explicit contracts for inputs, outputs, tools, costs, and safety gates.",
+    "estimatedTier": "agent-grade",
+    "risks": [
+      "AI/tool calls",
+      "ungrounded output",
+      "external API dependency"
+    ],
+    "questions": [
+      "Which model/provider behavior is required vs replaceable?"
+    ]
+  }
+}

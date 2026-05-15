@@ -1,0 +1,64 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+const proofBase = '/proofs/vercel-ai-chatbot-mapper';
+const artifacts = [
+  { label: 'SYSTEM_MAP.md', href: `${proofBase}/SYSTEM_MAP.md`, text: 'Observed frameworks, APIs, integrations, risk zones, and human review questions.' },
+  { label: 'BUILDPRINT_CANDIDATES.md', href: `${proofBase}/BUILDPRINT_CANDIDATES.md`, text: 'Five scoped Buildprint candidates found before any final extraction.' },
+  { label: 'SELECTED_CANDIDATE.md', href: `${proofBase}/SELECTED_CANDIDATE.md`, text: 'The chosen AI Workflow Buildprint boundary for agent handoff.' },
+  { label: 'facts.json', href: `${proofBase}/facts.json`, text: 'Deterministic machine-readable mapper facts.' },
+];
+---
+<BaseLayout title="Vercel AI Chatbot mapper proof — Agent Buildprint" description="A public proof showing agb map turning Vercel AI Chatbot into scoped Buildprint candidates and a selected AI Workflow Buildprint.">
+  <main>
+    <section class="container hero detail-hero proof-hero">
+      <a class="pill" href="/buildprints/buildprint-mapper-os/">← Mapper OS</a>
+      <h1>Vercel AI Chatbot → scoped Buildprint candidates.</h1>
+      <p class="lead">A real public repo mapped with <code>agb map</code>. The mapper found a complex Next.js + Vercel AI SDK app, produced candidate Buildprints, then selected the AI Workflow candidate for focused agent handoff.</p>
+      <div class="tags detail-meta"><span class="tag hot">Proof artifact</span><span class="tag">Next.js</span><span class="tag">Vercel AI SDK</span><span class="tag">Auth + DB/cache</span></div>
+      <div class="actions"><a class="btn primary" href={`${proofBase}/BUILDPRINT_CANDIDATES.md`}>Open candidates</a><a class="btn" href="https://github.com/vercel/ai-chatbot">Source repo</a><a class="btn" href="/buildprints/buildprint-mapper-os/">Use Mapper OS</a></div>
+    </section>
+
+    <section class="container section proof-summary-grid">
+      <div class="panel proof-stat"><b>180</b><span>files scanned</span></div>
+      <div class="panel proof-stat"><b>4</b><span>UI routes</span></div>
+      <div class="panel proof-stat"><b>11</b><span>API routes</span></div>
+      <div class="panel proof-stat"><b>5</b><span>candidate Buildprints</span></div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>⌁</b> Selected candidate</span><h2>AI Workflow Buildprint</h2></div></div>
+      <div class="grid columns two proof-two">
+        <div class="panel">
+          <h3>What the mapper selected</h3>
+          <p>LLM calls, prompts, tools, model adapters, grounding and safety checks — the slice most likely to become a reusable agent-grade Buildprint.</p>
+          <ul class="clean-list check-list">
+            <li>Detected Vercel AI SDK integration</li>
+            <li>Separated AI workflow from auth/session and generic route/API candidates</li>
+            <li>Listed included paths before implementation handoff</li>
+            <li>Preserved questions instead of inventing model/provider intent</li>
+          </ul>
+        </div>
+        <div class="panel command-card">
+          <div class="panel-row"><span class="eyebrow"><b>◆</b> Command</span></div>
+          <code class="command-line">agb map ./vercel-ai-chatbot --candidate 1 --out ./vercel-ai-chatbot.buildprint</code>
+          <p>Candidate selection writes <code>SELECTED_CANDIDATE.md</code> and <code>selected-candidate.json</code> so the next coding agent stays inside the selected boundary.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>↳</b> Artifacts</span><h2>Open the proof files</h2></div></div>
+      <div class="grid mapper-output-grid">
+        {artifacts.map((artifact) => <a class="panel mapper-artifact proof-artifact-link" href={artifact.href}><code>{artifact.label}</code><h3>{artifact.label.replace(/\.(md|json)$/,'')}</h3><p>{artifact.text}</p></a>)}
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="panel proof-note">
+        <span class="eyebrow"><b>!</b> Honest boundary</span>
+        <h2>This is mapper proof, not a full app audit.</h2>
+        <p>The mapper produced deterministic facts and scoped candidates. Business intent, provider choices, and final validation still require human review before treating the selected candidate as publishable architecture truth.</p>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
