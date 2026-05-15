@@ -1,0 +1,7 @@
+{
+  "title": "Automated AI Blog OS",
+  "slug": "automated-ai-blog-os",
+  "category": "Product OS",
+  "status": "publishable-draft",
+  "requiredFiles": ["BUILDPRINT.md", "SPEC.md", "PLAN.md", "CONTRACTS.md", "DEFAULT_PRESET.md", "TEST_MATRIX.md", "VALIDATION_TEMPLATE.md", "questions.md"]
+}
