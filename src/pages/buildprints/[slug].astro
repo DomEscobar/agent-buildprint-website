@@ -1,12 +1,13 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildprints, getBuildprint, packageManifest, siteBase } from '@/lib/buildprints';
+import { buildprints, getBuildprint, packageManifest, repoUrl, siteBase } from '@/lib/buildprints';
 import { badgeIcon } from '@/lib/icons';
 export function getStaticPaths() { return buildprints.map((bp) => ({ params: { slug: bp.slug } })); }
 const bp = getBuildprint(Astro.params.slug ?? '');
 if (!bp) return Astro.redirect('/buildprints/');
 const manifest = packageManifest(bp);
 const startCommand = `agb start ${siteBase}/buildprints/${bp.slug}/package.json`;
+const starIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent(`[star] ${bp.title}`)}&body=${encodeURIComponent(`I want to star/use this Buildprint.\n\nBuildprint: ${siteBase}/buildprints/${bp.slug}/\nPackage: ${siteBase}/buildprints/${bp.slug}/package.json\n\nOptional context:\n- What do you want to build with it?\n- Which stack/tool would you use?`)}`;
 const detailStatus = bp.planned || bp.status === 'coming-soon' ? 'Planned' : bp.status === 'validated' ? 'Dry-run passed' : bp.status === 'draft' ? 'Draft' : bp.checks.length ? 'Has checks' : 'Ready';
 const endpoints = [
   { label: 'Agent guide', value: `${siteBase}/buildprints/${bp.slug}/agent.md`, href: `/buildprints/${bp.slug}/agent.md` },
@@ -21,7 +22,7 @@ const endpoints = [
       <h1>{bp.title}</h1>
       <p class="lead">{bp.promise}</p>
       <div class="tags detail-meta"><span class="tag hot"><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="tag"><b>{badgeIcon(bp.status)}</b>{detailStatus}</span>{bp.stack.slice(0,3).map((x) => <span class="tag">{x}</span>)}</div>
-      <div class="actions"><a class="btn primary" href="#cli-start">Start with CLI</a><button class="btn copy-btn" data-copy={bp.copyPrompt}>Copy agent prompt</button><a class="btn" href={bp.githubUrl}>GitHub</a></div>
+      <div class="actions"><a class="btn primary" href="#cli-start">Start with CLI</a><button class="btn copy-btn" data-copy={bp.copyPrompt}>Copy agent prompt</button><a class="btn" href={starIssueUrl}>★ Star / request</a><a class="btn" href={bp.githubUrl}>GitHub</a></div>
     </section>
 
     <section id="cli-start" class="container section detail-start">

@@ -1,49 +1,60 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { repoUrl } from '@/lib/buildprints';
+const submitIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent('[submission] <your buildprint title>')}&body=${encodeURIComponent(`Submit a free Buildprint for review.\n\nRepository URL:\nPackage path, if not repo root:\nCreator name/profile:\nBuildprint title:\nCategory: Product OS / Feature / Extension / Framework / Architecture / Workflow OS\nLicense:\n\nWhat it helps people build:\n\nVerification checklist:\n- [ ] BUILDPRINT.md exists\n- [ ] SPEC.md or equivalent behavior spec exists, if applicable\n- [ ] PLAN.md or phased steps exist\n- [ ] TEST_MATRIX.md or quality checks exist\n- [ ] No secrets, private keys, tokens, or env values are included\n- [ ] Links resolve\n- [ ] License is clear\n\nNotes for reviewer:\n`)}`;
 ---
-<BaseLayout title="Submit a Buildprint — Agent Buildprint">
+<BaseLayout title="Submit a Buildprint — Agent Buildprint" description="Submit a free expert Buildprint for review and validation.">
   <main>
     <section class="container hero compact-hero">
       <a class="pill" href="/buildprints/">← Registry</a>
-      <h1>Submit a Buildprint.</h1>
-      <p class="lead">Creators can submit any useful building plan for coding agents: architecture contracts, specs, prompt packs, phase plans, examples, policies, checks, or optional metadata.</p>
-      <div class="actions"><a class="btn primary" href="https://github.com/DomEscobar/agent-buildprint">Open GitHub</a><a class="btn" href="/buildprints/index.json">Registry JSON</a></div>
+      <h1>Submit a free Buildprint.</h1>
+      <p class="lead">Creators can submit expert blueprints for products, features, architectures, workflows, and integrations. Submissions are verified before they appear in the registry.</p>
+      <div class="actions"><a class="btn primary" href={submitIssueUrl}>Submit for review</a><a class="btn" href="https://github.com/DomEscobar/agent-buildprint">Open GitHub</a></div>
+    </section>
+
+    <section class="container section submission-flow">
+      <div class="section-head simple"><div><span class="eyebrow"><b>✓</b> Verification</span><h2>GitHub is the first identity and review layer.</h2><p>No marketplace auth yet. For now, creator identity comes from the GitHub account/repo that submits the package, and every Buildprint is reviewed before listing.</p></div></div>
+      <div class="grid how-grid">
+        <div class="panel quiet"><span class="step-number">1</span><h3>Submit a repo</h3><p>Open a GitHub issue with the repository URL, package path, creator profile, license, and what the Buildprint helps people build.</p></div>
+        <div class="panel quiet"><span class="step-number">2</span><h3>Automated checks</h3><p>The package should pass structure, link, manifest, required-file, no-secret, and basic safety checks before review.</p></div>
+        <div class="panel quiet"><span class="step-number">3</span><h3>Human review</h3><p>We verify usefulness, clarity, creator/source identity, licensing, and whether the package is basic, strong, or agent-grade.</p></div>
+      </div>
     </section>
 
     <section class="container section grid columns">
       <div class="panel code-card">
         <div class="panel-row"><span class="eyebrow"><b>▦</b> Expected folder</span></div>
         <code class="code-block-text">my-buildprint/
-  BUILDPRINT.md
-  SPEC.md                # recommended
-  PLAN.md                # recommended
-  CONTRACTS.md           # recommended
-  TEST_MATRIX.md         # recommended
-  VALIDATION_TEMPLATE.md # recommended
+  BUILDPRINT.md          # architecture / intent
+  SPEC.md                # behavior, if applicable
+  PLAN.md                # execution plan
+  CONTRACTS.md           # interfaces/data contracts
+  TEST_MATRIX.md         # checks and acceptance gates
+  VALIDATION_TEMPLATE.md # honest completion report
   prompts/
   policies/
   tests/
   examples/</code>
       </div>
       <div class="panel">
-        <div class="panel-row"><span class="eyebrow"><b>✓</b> Quality signals</span></div>
-        <div class="chip-list check-list">
-          <span><b>✓</b> Architecture contract</span>
-          <span><b>✓</b> Copy prompt</span>
-          <span><b>✓</b> Tests/checks</span>
-          <span><b>✓</b> Security notes</span>
-          <span><b>✓</b> License</span>
-          <span><b>✓</b> Agent endpoints ready</span>
-        </div>
+        <div class="panel-row"><span class="eyebrow"><b>✓</b> Review checks</span></div>
+        <ul class="clean-list check-list">
+          <li>Package has a clear build outcome</li>
+          <li>Required files are present for its tier</li>
+          <li>No secrets, tokens, or private data</li>
+          <li>Links and package manifest resolve</li>
+          <li>Quality gates are concrete, not vibes</li>
+          <li>License and creator/source are clear</li>
+        </ul>
       </div>
       <div class="panel">
-        <div class="panel-row"><span class="eyebrow"><b>◆</b> Package tiers</span></div>
+        <div class="panel-row"><span class="eyebrow"><b>★</b> Stars for demand</span></div>
+        <p>Stars and requests use GitHub first. That keeps early demand signals tied to real accounts without building a full auth system yet.</p>
         <div class="chip-list">
-          <span><b>○</b> basic</span>
-          <span><b>◇</b> strong</span>
-          <span><b>◆</b> agent-grade</span>
+          <span><b>★</b> Star/request</span>
+          <span><b>↗</b> GitHub identity</span>
+          <span><b>✓</b> review queue</span>
         </div>
-        <p>Start simple. Complex products should add specs, contracts, phase plans, and validation templates.</p>
       </div>
     </section>
   </main>
