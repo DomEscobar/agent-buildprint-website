@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { repoUrl } from '@/lib/buildprints';
 const submitIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent('[submission] <your buildprint title>')}&body=${encodeURIComponent(`Submit a free Buildprint for review.\n\nRepository URL:\nPackage path, if not repo root:\nCreator name/profile:\nBuildprint title:\nCategory: Product OS / Feature / Extension / Framework / Architecture / Workflow OS\nLicense:\n\nWhat it helps people build:\n\nVerification checklist:\n- [ ] BUILDPRINT.md exists\n- [ ] SPEC.md or equivalent behavior spec exists, if applicable\n- [ ] PLAN.md or phased steps exist\n- [ ] TEST_MATRIX.md or quality checks exist\n- [ ] No secrets, private keys, tokens, or env values are included\n- [ ] Links resolve\n- [ ] License is clear\n\nNotes for reviewer:\n`)}`;
+const creatorPrompt = `You are helping me turn an existing software project into an Agent Buildprint: an expert blueprint that humans can review and AI coding agents can follow.\n\nInspect this repository and create a clean Buildprint package in a new folder named buildprint-submission/. Do not modify application code. Do not copy secrets, tokens, private keys, .env values, credentials, customer data, or private production URLs. If you see env vars, record only the variable names and purpose.\n\nThe Buildprint should explain the reusable architecture/approach behind this project, not just describe files. Separate observed facts from inferred guesses and open questions.\n\nCreate these files where useful:\n- BUILDPRINT.md — architecture, purpose, intended build outcome, non-goals\n- SPEC.md — behavior requirements, must/must-not rules, edge cases\n- PLAN.md — implementation phases another agent could follow\n- CONTRACTS.md — interfaces, data models, APIs, integrations, side effects\n- TEST_MATRIX.md — quality gates, acceptance checks, risks mapped to tests\n- VALIDATION_TEMPLATE.md — honest final report template\n- questions.md — unknowns that require human/creator review\n- README.md — short marketplace-facing overview: what this helps people build, who it is for, stack, license, and usage notes\n\nAlso include optional folders if helpful:\n- plans/ for small phase files\n- policies/ for safety/security/publishing rules\n- examples/ for minimal examples or usage notes\n- prompts/ for implementation/review prompts\n\nOutput rules:\n1. Mark every uncertain claim as UNKNOWN or QUESTION.\n2. Do not invent validation results.\n3. Do not claim tests pass unless you actually ran them.\n4. Prefer concise, practical Markdown over long essays.\n5. Make the Buildprint useful for Codex, Cursor, Claude Code, or other coding agents.\n6. End with a SUBMISSION_CHECKLIST.md containing: files created, known gaps, commands run, secrets check result, and whether the package is basic, strong, or agent-grade.\n\nAfter creating the files, summarize the Buildprint and tell me what still needs human review before submitting to Agent Buildprint.`;
 ---
 <BaseLayout title="Submit a Buildprint — Agent Buildprint" description="Submit a free expert Buildprint for review and validation.">
   <main>
@@ -10,6 +11,14 @@ const submitIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent('[submi
       <h1>Submit a free Buildprint.</h1>
       <p class="lead">Creators can submit expert blueprints for products, features, architectures, workflows, and integrations. Submissions are verified before they appear in the registry.</p>
       <div class="actions"><a class="btn primary" href={submitIssueUrl}>Submit for review</a><a class="btn" href="https://github.com/DomEscobar/agent-buildprint">Open GitHub</a></div>
+    </section>
+
+    <section class="container section submission-prompt-section">
+      <div class="panel code-card prompt-card">
+        <div class="panel-row"><div><span class="eyebrow"><b>✎</b> Creator prompt</span><h2>Turn your existing project into a Buildprint.</h2></div><button class="btn copy-btn" data-copy={creatorPrompt}>Copy prompt</button></div>
+        <p>Paste this into Codex, Cursor, Claude Code, or another coding agent inside your repo. It asks the agent to extract a reusable Buildprint package without touching your app code or copying secrets.</p>
+        <code class="code-block-text">{creatorPrompt}</code>
+      </div>
     </section>
 
     <section class="container section submission-flow">
@@ -58,4 +67,37 @@ const submitIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent('[submi
       </div>
     </section>
   </main>
+  <script>
+    function copyText(value) {
+      if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(value);
+      const textarea = document.createElement('textarea');
+      textarea.value = value;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      textarea.remove();
+      return Promise.resolve();
+    }
+
+    document.querySelectorAll('.copy-btn').forEach((button) => {
+      button.setAttribute('data-label', button.textContent || 'Copy');
+      button.addEventListener('click', () => {
+        const value = button.getAttribute('data-copy') || '';
+        const original = button.getAttribute('data-label') || 'Copy';
+        button.textContent = 'Copied ✓';
+        button.classList.add('copied');
+        button.setAttribute('aria-live', 'polite');
+        copyText(value).catch(() => {
+          button.textContent = 'Copy failed';
+        });
+        setTimeout(() => {
+          button.textContent = original;
+          button.classList.remove('copied');
+        }, 2200);
+      });
+    });
+  </script>
 </BaseLayout>
