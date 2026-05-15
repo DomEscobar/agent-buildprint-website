@@ -19,13 +19,13 @@ const trustTip = (bp) => {
 };
 const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
 ---
-<BaseLayout title="Buildprint Registry — Agent Buildprint" description="Browse agent-readable Buildprints with package tiers, agent endpoints, raw files, prompts, and manifests.">
+<BaseLayout title="Buildprint Registry — Agent Buildprint" description="Browse expert-authored Buildprints for products, features, architectures, workflows, and integrations.">
   <main>
     <section class="container hero compact-hero">
       <span class="pill"><b>⌁</b> Registry · human and agent navigable</span>
-      <h1>Find the right construction plan before your agent writes code.</h1>
-      <p class="lead">Filter by Buildprint type, package tier, runtime, and validation status. Agents should use <code>/buildprints/index.json</code> and each package manifest.</p>
-      <div class="actions"><a class="btn primary" href="/buildprints/index.json">Open registry JSON</a><a class="btn" href="/llms.txt">Agent navigation</a><a class="btn" href="/buildprints/submit/">Submit</a></div>
+      <h1>Find an expert blueprint before your agent writes code.</h1>
+      <p class="lead">Browse reusable build plans with architecture, specs, phases, contracts, and checks — made for humans to inspect and agents to follow.</p>
+      <div class="actions"><a class="btn primary" href="#cards">Browse cards</a><a class="btn" href="/buildprints/submit/">Submit a Buildprint</a><a class="btn" href="/buildprints/index.json">Registry JSON</a></div>
     </section>
 
     <section class="container section registry-tools">

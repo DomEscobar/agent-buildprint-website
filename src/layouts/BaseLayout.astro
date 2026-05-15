@@ -1,6 +1,6 @@
 ---
 import '../styles.css';
-const { title = 'Agent Buildprint', description = 'Build plans agents can follow.' } = Astro.props;
+const { title = 'Agent Buildprint', description = 'Expert blueprints for building software with AI coding agents.' } = Astro.props;
 ---
 <!doctype html>
 <html lang="en">
@@ -27,9 +27,7 @@ const { title = 'Agent Buildprint', description = 'Build plans agents can follow
           <span>Agent Buildprint</span>
         </a>
         <nav class="navlinks">
-          <a href="/buildprints/">Registry</a>
-          <a href="/llms.txt">Agents</a>
-          <a href="/buildprints/index.json">JSON</a>
+          <a href="/buildprints/">Browse</a>
           <a href="/buildprints/submit/">Submit</a>
           <a href="https://github.com/DomEscobar/agent-buildprint">GitHub</a>
           <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">◐</button>
@@ -38,8 +36,8 @@ const { title = 'Agent Buildprint', description = 'Build plans agents can follow
     </header>
     <slot />
     <footer class="container footer">
-      <span>Agent Buildprint — build plans agents can follow.</span>
-      <span class="footer-links"><a href="/llms.txt">llms.txt</a><a href="/buildprints/index.json">registry.json</a></span>
+      <span>Agent Buildprint — expert blueprints for AI coding agents.</span>
+      <span class="footer-links"><a href="/buildprints/">Browse</a><a href="/llms.txt">Agent nav</a><a href="/buildprints/index.json">JSON</a></span>
     </footer>
     <script is:inline>
       document.getElementById('themeToggle')?.addEventListener('click', () => {

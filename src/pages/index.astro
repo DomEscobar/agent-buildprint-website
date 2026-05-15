@@ -25,80 +25,73 @@ const sections = [
   { title: 'Workflow OS', items: buildprints.filter((bp) => bp.category === 'Workflow OS').slice(0, 5) },
 ];
 ---
-<BaseLayout title="Agent Buildprint — build plans agents can follow" description="Agent-readable Buildprints for frameworks, products, features, workflows, and mapped repositories.">
+<BaseLayout title="Agent Buildprint — expert blueprints for AI coding agents" description="Expert-authored blueprints with specs, phases, contracts, and checks for building software with AI coding agents.">
   <main>
-    <section class="container hero clean-hero">
+    <section class="container hero clean-hero platform-hero">
       <div class="hero-copy">
-        <span class="pill"><b>⌁</b> agent-readable registry</span>
-        <h1>Build plans agents can follow.</h1>
-        <p class="lead">Buildprints package architecture, specs, phase plans, contracts, and tests into implementation plans coding agents can fetch, snapshot, continue, and validate.</p>
+        <span class="pill"><b>⌁</b> expert build blueprints</span>
+        <h1>Expert blueprints for building software with AI coding agents.</h1>
+        <p class="lead">Buildprints package architecture, specs, phase plans, contracts, and checks into implementation plans that humans can review and agents can follow.</p>
         <div class="actions">
           <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
-          <a class="btn" href="/llms.txt">Agent endpoints</a>
+          <a class="btn" href="#how-it-works">How it works</a>
         </div>
       </div>
-      <div class="hero-panel">
-        <div class="panel-title"><span>agent bootstrap</span><b>.buildprint/</b></div>
-        <pre>agb start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json
-
-✓ exact snapshots
-✓ state.json
-✓ next-agent.md</pre>
+      <div class="blueprint-hero-card" aria-label="Buildprint concept visual">
+        <div class="blueprint-card-head"><span>Expert Buildprint</span><b>PASSED</b></div>
+        <h3>Automated AI Blog OS</h3>
+        <div class="blueprint-lines">
+          <span>Architecture</span><span>Spec</span><span>Phase plan</span><span>Contracts</span><span>Checks</span>
+        </div>
+        <div class="blueprint-arrow">human goal → expert blueprint → agent build</div>
       </div>
     </section>
 
-    <section class="container agent-strip">
-      <div><b>Agent path</b><span>Fetch endpoints instead of scraping cards.</span></div>
-      <code>/llms.txt</code><code>/buildprints/index.json</code><code>/agent.md</code><code>/package.json</code><code>agb start …</code>
+    <section class="container audience-strip" aria-label="Who Agent Buildprint is for">
+      <div><b>Founders</b><span>start from expert product blueprints</span></div>
+      <div><b>Developers</b><span>avoid drift, missing edges, rewrite chaos</span></div>
+      <div><b>Architects</b><span>package expertise into reusable plans</span></div>
     </section>
 
-    <section class="container section visual-proof-section" aria-labelledby="visual-proof-title">
-      <div class="section-head simple proof-head"><div><span class="eyebrow"><b>↯</b> Why Buildprints</span><h2 id="visual-proof-title">Stop shipping from vibes.</h2><p>Prompting asks the model to invent the plan. Buildprinting gives the agent a contract it can resume, verify, and hand off.</p></div></div>
-      <div class="proof-layout">
-        <div class="proof-compare" aria-label="Prompt versus Buildprint comparison">
-          <div class="proof-card bad">
-            <span class="proof-label">Prompt</span>
-            <code>“Build me an AI blog OS”</code>
-            <ul>
-              <li>agent guesses architecture</li>
-              <li>hidden workflows get skipped</li>
-              <li>context disappears between runs</li>
-              <li>validation is an afterthought</li>
-            </ul>
-          </div>
-          <div class="proof-vs">vs</div>
-          <div class="proof-card good">
-            <span class="proof-label">Buildprint</span>
-            <code>agb start …/package.json</code>
-            <ul>
-              <li>exact snapshots</li>
-              <li>specs, contracts, phase plans</li>
-              <li>resumable <code>next-agent.md</code></li>
-              <li>tests, gates, dry-run proof</li>
-            </ul>
-          </div>
+    <section id="how-it-works" class="container section visual-proof-section" aria-labelledby="visual-proof-title">
+      <div class="section-head simple proof-head"><div><span class="eyebrow"><b>↯</b> Why Buildprints</span><h2 id="visual-proof-title">AI agents are fast, but they guess.</h2><p>Buildprints give agents expert plans before they write code — so the result drifts less and is easier to check.</p></div></div>
+      <div class="blueprint-explainer">
+        <div class="proof-card bad">
+          <span class="proof-label">Vague prompt</span>
+          <code>“Build me an AI blog system”</code>
+          <ul>
+            <li>agent guesses the architecture</li>
+            <li>approval gates get forgotten</li>
+            <li>edge cases appear late</li>
+            <li>hard to verify “done”</li>
+          </ul>
         </div>
-        <div class="proof-folder" aria-label="Buildprint folder tree">
-          <div class="terminal-top"><span></span><span></span><span></span><b>.buildprint/</b></div>
-          <pre><span class="muted">.buildprint/</span>
-├─ snapshots/
-│  ├─ BUILDPRINT.md   <em>architecture</em>
-│  ├─ SPEC.md         <em>behavior</em>
-│  ├─ PLAN.md         <em>execution</em>
-│  └─ TEST_MATRIX.md  <em>failure checks</em>
-├─ source.json        <em>package origin</em>
-├─ state.json         <em>current phase</em>
-├─ progress.md        <em>what changed</em>
-└─ next-agent.md      <em>handoff</em></pre>
+        <div class="blueprint-plan-card">
+          <span class="proof-label">Buildprint</span>
+          <div class="plan-file"><b>BUILDPRINT.md</b><span>what to build</span></div>
+          <div class="plan-file"><b>SPEC.md</b><span>how it behaves</span></div>
+          <div class="plan-file"><b>PLAN.md</b><span>what to do first</span></div>
+          <div class="plan-file"><b>phases/*.md</b><span>small implementation steps</span></div>
+          <div class="plan-file"><b>TEST_MATRIX.md</b><span>how to verify</span></div>
+        </div>
+        <div class="proof-card good">
+          <span class="proof-label">Agent outcome</span>
+          <code>read plan → implement phases → run checks</code>
+          <ul>
+            <li>less architecture drift</li>
+            <li>clearer handoff to Codex/Cursor/Claude</li>
+            <li>checks and acceptance gates included</li>
+            <li>humans can inspect the plan</li>
+          </ul>
         </div>
       </div>
       <div class="proof-flow" aria-label="Buildprint flow">
-        <span>Product intent</span><b>→</b><span>Buildprint package</span><b>→</b><span>Agent bootstrap</span><b>→</b><span>Validated implementation</span>
+        <span>Vague prompt → agent guesses → drift/errors</span><b>vs</b><span>Expert Buildprint → agent follows plan → checked implementation</span>
       </div>
     </section>
 
     <section class="container section">
-      <div class="section-head simple"><div><span class="eyebrow"><b>★</b> Featured</span><h2>Start from a Buildprint</h2></div><a class="link" href="/buildprints/">View registry →</a></div>
+      <div class="section-head simple"><div><span class="eyebrow"><b>★</b> Featured</span><h2>Browse Buildprints for products, features, architectures, workflows, and integrations.</h2></div><a class="link" href="/buildprints/">View registry →</a></div>
       <div class="grid cards featured-grid">
         {featured.map((bp) => <a class="mini-card clickable-card" href={`/buildprints/${bp.slug}/`}>
           <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={trustTip(bp)}>{trustLabel(bp)}</span></div>
@@ -124,17 +117,17 @@ const sections = [
     </section>
 
     <section class="container section how-section">
-      <div class="section-head simple"><div><span class="eyebrow"><b>◆</b> How to use</span><h2>Give Codex, Cursor, or Claude Code a real construction plan.</h2></div></div>
+      <div class="section-head simple"><div><span class="eyebrow"><b>◆</b> Use it</span><h2>Copy the plan, or let the CLI fetch it.</h2></div></div>
       <div class="grid how-grid">
-        <div class="panel quiet"><span class="step-number">1</span><h3>Fetch the package</h3><pre>npx --yes github:DomEscobar/agent-buildprint start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json</pre></div>
-        <div class="panel quiet"><span class="step-number">2</span><h3>Or use installed CLI</h3><pre>agb start https://agent-buildprint.com/buildprints/automated-ai-blog-os/package.json</pre></div>
-        <div class="panel quiet"><span class="step-number">3</span><h3>Hand off to your agent</h3><p>Tell Codex, Cursor, or Claude Code: “Read <code>.buildprint/next-agent.md</code> and continue.” Keep snapshots as source-of-truth contracts.</p></div>
+        <div class="panel quiet"><span class="step-number">1</span><h3>Choose a blueprint</h3><p>Pick a product, feature, architecture, or workflow Buildprint from the registry.</p></div>
+        <div class="panel quiet"><span class="step-number">2</span><h3>Give it to your agent</h3><pre>npx --yes github:DomEscobar/agent-buildprint start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json</pre></div>
+        <div class="panel quiet"><span class="step-number">3</span><h3>Build with checks</h3><p>Tell Codex, Cursor, or Claude Code to follow the plan, implement phases, and run the validation gates.</p></div>
       </div>
     </section>
 
     <section class="container section two-col">
       <div class="panel quiet"><span class="eyebrow"><b>⌁</b> Mapper</span><h2>Have a repo already?</h2><p>Generate an observed Buildprint package from an existing project. Facts first, unknowns as questions, no secret values copied.</p><pre>agb map ./my-project</pre></div>
-      <div class="panel quiet"><span class="eyebrow"><b>✓</b> Validated packages</span><h2>Start with continuity.</h2><p><code>agb start</code> downloads exact Buildprint snapshots and creates <code>.buildprint/next-agent.md</code> so another agent can continue after interruption.</p><pre>agb start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json</pre></div>
+      <div class="panel quiet"><span class="eyebrow"><b>✦</b> Creator angle</span><h2>Architects and expert devs can publish expertise.</h2><p>Package a repeatable architecture, feature, or workflow into a reusable Buildprint others can use with their coding agents.</p><pre>architecture + spec + phases + checks</pre></div>
     </section>
   </main>
 </BaseLayout>
