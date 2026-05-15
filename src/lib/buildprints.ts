@@ -29,7 +29,9 @@ export type Buildprint = {
 
 export const repoUrl = 'https://github.com/DomEscobar/agent-buildprint';
 export const rawRepoBase = 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/23d843e';
-export const siteBase = 'https://agent-buildprint.com';
+// Production DNS for agent-buildprint.com is not yet serving this static site.
+// Keep generated manifests/CLI bootstrap commands on the live preview origin until DNS is cut over.
+export const siteBase = import.meta.env.PUBLIC_SITE_BASE || 'http://152.53.118.78:43117';
 
 export const canonicalFilePurposes: Record<string, string> = {
   'BUILDPRINT.md': 'architecture truth / coding-agent contract',
