@@ -265,6 +265,17 @@ pre { overflow:auto; background:var(--surface-2); border:1px solid var(--border)
 .agent-steps b { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:999px; background:var(--text); color:var(--bg); font-size:12px; }
 @media (max-width:640px) { .trust-grid { grid-template-columns:1fr; } }
 
+/* Mapper detail output */
+.mapper-output-section { padding-top: 22px; }
+.mapper-output-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.mapper-artifact { box-shadow:none; }
+.mapper-artifact code { display:inline-flex; margin-bottom:12px; border:1px solid var(--border); background:var(--surface-2); border-radius:9px; padding:7px 9px; color:var(--accent); font-size:13px; }
+.mapper-artifact h3 { margin-bottom:8px; }
+.mapper-command-card { margin-top:16px; display:grid; grid-template-columns:minmax(0,.7fr) minmax(280px,1fr); gap:16px; align-items:start; box-shadow:none; }
+.mapper-command-card p { margin:6px 0 0; }
+.mapper-command-card pre { margin:0; }
+@media (max-width:720px) { .mapper-command-card { grid-template-columns:1fr; } }
+
 /* Homepage simplification + how-to */
 .featured-grid .mini-card { gap:12px; }
 .featured-grid .mini-card .card-footer { margin-top:auto; }

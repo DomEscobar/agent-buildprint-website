@@ -126,7 +126,9 @@ const sections = [
     </section>
 
     <section class="container section two-col">
-      <div class="panel quiet"><span class="eyebrow"><b>⌁</b> Mapper</span><h2>Have a repo already?</h2><p>Generate an observed Buildprint package from an existing project. Facts first, unknowns as questions, no secret values copied.</p><pre>agb map ./my-project</pre></div>
+      <div class="panel quiet"><span class="eyebrow"><b>⌁</b> Mapper</span><h2>Have a repo already?</h2><p>Turn any repo into <code>SYSTEM_MAP.md</code> and scoped <code>BUILDPRINT_CANDIDATES.md</code>, then extract one candidate or folder without copying secrets.</p><pre>agb map ./my-project
+agb map ./my-project --candidate 1
+agb map ./my-project --scope apps/web</pre></div>
       <div class="panel quiet"><span class="eyebrow"><b>✦</b> Creator angle</span><h2>Architects and expert devs can publish expertise.</h2><p>Package a repeatable architecture, feature, or workflow into a reusable Buildprint others can use with their coding agents.</p><pre>architecture + spec + phases + checks</pre></div>
     </section>
   </main>

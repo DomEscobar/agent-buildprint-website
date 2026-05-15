@@ -14,6 +14,7 @@ const endpoints = [
   { label: 'Manifest JSON', value: `${siteBase}/buildprints/${bp.slug}/package.json`, href: `/buildprints/${bp.slug}/package.json` },
   { label: 'Prompt', value: `${siteBase}/buildprints/${bp.slug}/prompt.txt`, href: `/buildprints/${bp.slug}/prompt.txt` },
 ];
+const isMapper = bp.slug === 'buildprint-mapper-os';
 ---
 <BaseLayout title={`${bp.title} — Agent Buildprint`} description={bp.summary}>
   <main>
@@ -32,6 +33,21 @@ const endpoints = [
         <p>Recommended path: use the CLI to fetch the exact Buildprint into <code>.buildprint/</code>. If you are already inside a coding agent, use <b>Copy agent prompt</b> instead — it tells the agent to bootstrap from this same package.</p>
       </div>
     </section>
+
+    {isMapper ? <section class="container section mapper-output-section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>⌁</b> Mapper output</span><h2>From repo scan to selected Buildprint</h2></div></div>
+      <div class="grid mapper-output-grid">
+        <div class="panel mapper-artifact"><code>SYSTEM_MAP.md</code><h3>Observed architecture zones</h3><p>Frameworks, routes, APIs, data files, integrations, subprojects, risks, and review questions — labeled as observed/inferred/question instead of pretending certainty.</p></div>
+        <div class="panel mapper-artifact"><code>BUILDPRINT_CANDIDATES.md</code><h3>Scoped Buildprint candidates</h3><p>Reusable slices like AI workflow, billing flow, auth/session, data infrastructure, or subproject packages with included paths, risks, and questions.</p></div>
+        <div class="panel mapper-artifact"><code>SELECTED_CANDIDATE.md</code><h3>Focused extraction handoff</h3><p>After human selection, <code>agb map --candidate 1</code> writes a selected candidate file so agents stay inside the intended boundary.</p></div>
+      </div>
+      <div class="panel mapper-command-card">
+        <div><b>Typical flow</b><p>Discover candidates first, then focus by candidate number or folder path.</p></div>
+        <pre>agb map ./repo --out ./.project.buildprint
+agb map ./repo --candidate 1 --out ./candidate.buildprint
+agb map ./repo --scope apps/web --out ./web.buildprint</pre>
+      </div>
+    </section> : null}
 
     {bp.trustBadges?.length ? <section class="container section trust-section">
       <div class="section-head compact"><div><span class="eyebrow"><b>✓</b> Validation</span><h2>Trust signals</h2></div></div>

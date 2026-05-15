@@ -158,9 +158,9 @@ export const buildprints: Buildprint[] = [
     iconKeys: ['md', 'json', 'typescript'],
     difficulty: 'Advanced',
     featured: true,
-    summary: 'Turn an existing repo into scoped Buildprint candidates, a single module Buildprint, or a hierarchical System Buildprint without copying secrets or flattening the project into vague summaries.',
-    promise: 'An official workflow Buildprint for creator submissions: deterministic repo mapping, system decomposition, candidate Buildprints, human scope selection, extraction, and validation checklist.',
-    includes: ['Safety and secrets boundary', 'Repo census', 'System map', 'Candidate Buildprints', 'Human scope decision gate', 'Single Buildprint extraction', 'Hierarchical System Buildprint extraction', 'Submission checklist', 'Golden eval targets'],
+    summary: 'Turn an existing repo into scoped Buildprint candidates, then select one candidate or path for a focused Buildprint instead of flattening the whole project.',
+    promise: 'An official workflow Buildprint for creator submissions: deterministic repo mapping, SYSTEM_MAP.md, BUILDPRINT_CANDIDATES.md, human scope selection, selected-candidate extraction, and validation checklist.',
+    includes: ['Safety and secrets boundary', 'Repo census', 'SYSTEM_MAP.md', 'BUILDPRINT_CANDIDATES.md', 'Human scope decision gate', 'agb map --candidate <n>', 'agb map --scope <path>', 'Single Buildprint extraction', 'Hierarchical System Buildprint extraction', 'Submission checklist', 'Golden eval targets'],
     risks: ['Whole-repo sludge', 'Secret leakage', 'Hallucinated intent', 'Invented validation results', 'Missing scope', 'Vague marketplace submissions', 'Unclear module boundaries'],
     files: [
       { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
@@ -189,11 +189,11 @@ export const buildprints: Buildprint[] = [
     trustBadges: [
       { label: 'Submission workflow', detail: 'Defines the official reviewable path from existing repo to scoped Buildprint package.', tone: 'info' },
       { label: 'Safety-first extraction', detail: 'Requires no app-code changes, no secret copying, and explicit unknowns.', tone: 'success' },
-      { label: 'Golden eval planned', detail: 'Test matrix defines mapper/prompt golden examples before treating extraction as validated.', tone: 'warning' },
+      { label: 'Golden evals running', detail: 'Mapper evals now assert system maps, candidate files, route-group APIs, Fastify handlers, env names only, and no secret values.', tone: 'success' },
     ],
     githubUrl: `${repoUrl}/tree/main/buildprints/buildprint-mapper-os`,
     rawBaseUrl: `${siteBase}/buildprints/buildprint-mapper-os/files`,
-    copyPrompt: `${localPrompt('buildprint-mapper-os', 'Buildprint Mapper OS')} Use it to map this repo into candidate Buildprints first; for large projects, do not flatten the repo into one vague document.`,
+    copyPrompt: `${localPrompt('buildprint-mapper-os', 'Buildprint Mapper OS')} Use it to map this repo into SYSTEM_MAP.md and BUILDPRINT_CANDIDATES.md first. If a candidate is selected, run agb map --candidate <n>; if a folder is selected, run agb map --scope <path>. For large projects, do not flatten the repo into one vague document.`,
   },
   {
     slug: 'stripe-billing-extension',
