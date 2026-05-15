@@ -52,6 +52,51 @@ const sections = [
       <code>/llms.txt</code><code>/buildprints/index.json</code><code>/agent.md</code><code>/package.json</code><code>agb start …</code>
     </section>
 
+    <section class="container section visual-proof-section" aria-labelledby="visual-proof-title">
+      <div class="section-head simple proof-head"><div><span class="eyebrow"><b>↯</b> Why Buildprints</span><h2 id="visual-proof-title">Stop shipping from vibes.</h2><p>Prompting asks the model to invent the plan. Buildprinting gives the agent a contract it can resume, verify, and hand off.</p></div></div>
+      <div class="proof-layout">
+        <div class="proof-compare" aria-label="Prompt versus Buildprint comparison">
+          <div class="proof-card bad">
+            <span class="proof-label">Prompt</span>
+            <code>“Build me an AI blog OS”</code>
+            <ul>
+              <li>agent guesses architecture</li>
+              <li>hidden workflows get skipped</li>
+              <li>context disappears between runs</li>
+              <li>validation is an afterthought</li>
+            </ul>
+          </div>
+          <div class="proof-vs">vs</div>
+          <div class="proof-card good">
+            <span class="proof-label">Buildprint</span>
+            <code>agb start …/package.json</code>
+            <ul>
+              <li>exact snapshots</li>
+              <li>specs, contracts, phase plans</li>
+              <li>resumable <code>next-agent.md</code></li>
+              <li>tests, gates, dry-run proof</li>
+            </ul>
+          </div>
+        </div>
+        <div class="proof-folder" aria-label="Buildprint folder tree">
+          <div class="terminal-top"><span></span><span></span><span></span><b>.buildprint/</b></div>
+          <pre><span class="muted">.buildprint/</span>
+├─ snapshots/
+│  ├─ BUILDPRINT.md   <em>architecture</em>
+│  ├─ SPEC.md         <em>behavior</em>
+│  ├─ PLAN.md         <em>execution</em>
+│  └─ TEST_MATRIX.md  <em>failure checks</em>
+├─ source.json        <em>package origin</em>
+├─ state.json         <em>current phase</em>
+├─ progress.md        <em>what changed</em>
+└─ next-agent.md      <em>handoff</em></pre>
+        </div>
+      </div>
+      <div class="proof-flow" aria-label="Buildprint flow">
+        <span>Product intent</span><b>→</b><span>Buildprint package</span><b>→</b><span>Agent bootstrap</span><b>→</b><span>Validated implementation</span>
+      </div>
+    </section>
+
     <section class="container section">
       <div class="section-head simple"><div><span class="eyebrow"><b>★</b> Featured</span><h2>Start from a Buildprint</h2></div><a class="link" href="/buildprints/">View registry →</a></div>
       <div class="grid cards featured-grid">
