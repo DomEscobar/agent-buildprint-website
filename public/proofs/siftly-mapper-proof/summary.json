@@ -1,0 +1,11 @@
+{
+  "slug": "siftly-mapper-proof",
+  "sourceRepo": "viperrcrypto/Siftly",
+  "filesScanned": 143,
+  "selectedCandidate": "Local Bookmark Knowledge Base Workflow",
+  "selectedDepth": ["workflow-proof", "contract-parity", "mocked-runtime-proof"],
+  "excludedDepths": ["live X parity", "provider-parity", "hosted deployment parity", "account/session parity", "ui-workbench-parity", "full-clone-parity"],
+  "verification": ["npm test", "npm run browser-smoke"],
+  "testCount": 7,
+  "status": "passed"
+}

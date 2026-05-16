@@ -1,0 +1,67 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+const proofBase = '/proofs/siftly-mapper-proof';
+const artifacts = [
+  { label: 'PUBLIC_PROOF_SUMMARY.md', href: `${proofBase}/PUBLIC_PROOF_SUMMARY.md`, text: 'Publishability summary, validation commands, safe claims, and non-claims.' },
+  { label: 'SYSTEM_MAP.md', href: `${proofBase}/SYSTEM_MAP.md`, text: 'Siftly architecture zones, local-first data flow, AI/provider boundaries, and risk areas.' },
+  { label: 'BUILDPRINT_CANDIDATES.md', href: `${proofBase}/BUILDPRINT_CANDIDATES.md`, text: 'Candidate-first discovery before extracting a focused Buildprint.' },
+  { label: 'REVERSAL_REPORT.md', href: `${proofBase}/buildprint-submission/REVERSAL_REPORT.md`, text: 'Clean-room reversal result and intentional omissions.' },
+  { label: 'QA_REPORT.md', href: `${proofBase}/buildprint-submission/QA_REPORT.md`, text: 'Node and Chromium validation results.' },
+  { label: 'MAPPER_FINDINGS.md', href: `${proofBase}/MAPPER_FINDINGS.md`, text: 'Mapper OS lessons from the stronger AI-native proof.' },
+];
+---
+<BaseLayout title="Siftly Mapper OS proof — Agent Buildprint" description="A stronger Mapper OS proof mapping Siftly into a local bookmark knowledge workflow Buildprint with clean-room reversal tests and browser smoke.">
+  <main>
+    <section class="container hero detail-hero proof-hero">
+      <a class="pill" href="/buildprints/buildprint-mapper-os/">← Mapper OS</a>
+      <h1>Siftly → local bookmark knowledge workflow.</h1>
+      <p class="lead">A stronger AI-native public proof. Mapper OS analyzed Siftly, selected a compact local import/analyze/categorize/search/export workflow, extracted a Buildprint, then passed clean-room Node tests and a Chromium browser smoke.</p>
+      <div class="tags detail-meta"><span class="tag hot">Proof passed</span><span class="tag">143 files scanned</span><span class="tag">7/7 tests</span><span class="tag">Chromium smoke</span></div>
+      <div class="actions"><a class="btn primary" href={`${proofBase}/PUBLIC_PROOF_SUMMARY.md`}>Open summary</a><a class="btn" href="https://github.com/viperrcrypto/Siftly">Source repo</a><a class="btn" href="/buildprints/buildprint-mapper-os/">Use Mapper OS</a></div>
+    </section>
+
+    <section class="container section proof-summary-grid">
+      <div class="panel proof-stat"><b>143</b><span>files scanned</span></div>
+      <div class="panel proof-stat"><b>4</b><span>candidates mapped</span></div>
+      <div class="panel proof-stat"><b>7/7</b><span>tests passed</span></div>
+      <div class="panel proof-stat"><b>1</b><span>browser smoke</span></div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>⌁</b> Selected candidate</span><h2>Local Bookmark Knowledge Base Workflow</h2></div></div>
+      <div class="grid columns two proof-two">
+        <div class="panel">
+          <h3>What was validated</h3>
+          <ul class="clean-list check-list">
+            <li>Local JSON bookmark import and normalization.</li>
+            <li>Dedupe/idempotency by tweet ID.</li>
+            <li>Mocked AI categorization with confidence clamp and unknown-slug filtering.</li>
+            <li>Local search that only returns candidate IDs.</li>
+            <li>JSON/CSV/manifest export without live network calls.</li>
+          </ul>
+        </div>
+        <div class="panel command-card">
+          <div class="panel-row"><span class="eyebrow"><b>✓</b> Verification</span></div>
+          <code class="command-line">npm test</code>
+          <code class="command-line">npm run browser-smoke</code>
+          <p>Selected depth: workflow-proof + contract-parity + mocked-runtime-proof. Live X, provider, hosted, account/session, UI parity, and full clone parity are explicitly not claimed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>↳</b> Artifacts</span><h2>Open the proof files</h2></div></div>
+      <div class="grid mapper-output-grid">
+        {artifacts.map((artifact) => <a class="panel mapper-artifact proof-artifact-link" href={artifact.href}><code>{artifact.label}</code><h3>{artifact.label.replace(/\.(md|json)$/,'')}</h3><p>{artifact.text}</p></a>)}
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="panel proof-note">
+        <span class="eyebrow"><b>!</b> Honest boundary</span>
+        <h2>This is a scoped Mapper proof, not Siftly parity.</h2>
+        <p>The proof validates the selected clean-room workflow with fixtures and mocks. It does not claim live X import parity, real provider quality, exact Siftly UI parity, hosted runtime parity, or full clone parity.</p>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
