@@ -1,0 +1,72 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+const proofBase = '/proofs/langgraph-durable-runtime-proof';
+const artifacts = [
+  { label: 'PUBLIC_PROOF_SUMMARY.md', href: `${proofBase}/PUBLIC_PROOF_SUMMARY.md`, text: 'Public status, command, 12/12 result, source commit, and claim boundary.' },
+  { label: 'SOURCE_TRACE.md', href: `${proofBase}/SOURCE_TRACE.md`, text: 'Pinned source evidence for StateGraph, Pregel runtime, checkpoints, streams, commands, interrupts, and serializer safety.' },
+  { label: 'CRITICAL_REVIEW.md', href: `${proofBase}/CRITICAL_REVIEW.md`, text: 'Critical review of the mapping output, overclaim risks, and applied tightening.' },
+  { label: 'BUILDPRINT.md', href: `${proofBase}/buildprint-submission/BUILDPRINT.md`, text: 'The clean-room Buildprint for a portable durable graph runtime.' },
+  { label: 'REVERSAL_REPORT.md', href: `${proofBase}/cleanroom-ts-proof/REVERSAL_REPORT.md`, text: 'Clean-room TypeScript reversal report and non-claims.' },
+  { label: 'QA_REPORT.md', href: `${proofBase}/cleanroom-ts-proof/QA_REPORT.md`, text: 'Final QA report: tsc + node tests, 12/12 passing.' },
+  { label: 'runtime.ts', href: `${proofBase}/cleanroom-ts-proof/src/runtime.ts`, text: 'The clean-room TypeScript proof runtime.' },
+  { label: 'runtime.test.js', href: `${proofBase}/cleanroom-ts-proof/tests/runtime.test.js`, text: 'The proof test matrix implementation.' },
+];
+---
+<BaseLayout title="LangGraph durable runtime proof — Agent Buildprint" description="A scoped LangGraph-inspired durable graph runtime Buildprint with source trace, clean-room TypeScript reversal proof, and 12/12 tests passing.">
+  <main>
+    <section class="container hero detail-hero proof-hero">
+      <a class="pill" href="/buildprints/portable-durable-agent-graph-runtime/">← Buildprint package</a>
+      <h1>LangGraph-inspired durable graph runtime proof.</h1>
+      <p class="lead">A serious source-trace mapping of LangGraph into a scoped portable runtime Buildprint, followed by a clean-room TypeScript reversal proof. The result proves a useful workflow/runtime subset — not a clone, drop-in replacement, or full parity implementation.</p>
+      <div class="tags detail-meta"><span class="tag hot">Proof passed</span><span class="tag">166 refs checked</span><span class="tag">12/12 tests</span><span class="tag">TypeScript reversal</span></div>
+      <div class="actions"><a class="btn primary" href={`${proofBase}/PUBLIC_PROOF_SUMMARY.md`}>Open summary</a><a class="btn" href="https://github.com/langchain-ai/langgraph">Source repo</a><a class="btn" href="/buildprints/portable-durable-agent-graph-runtime/">Use Buildprint</a></div>
+    </section>
+
+    <section class="container section proof-summary-grid">
+      <div class="panel proof-stat"><b>076e2a3</b><span>source commit</span></div>
+      <div class="panel proof-stat"><b>166</b><span>refs checked</span></div>
+      <div class="panel proof-stat"><b>12/12</b><span>tests passed</span></div>
+      <div class="panel proof-stat"><b>0</b><span>bad citation ranges</span></div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>⌁</b> Selected candidate</span><h2>Portable Durable Agent Graph Runtime</h2></div></div>
+      <div class="grid columns two proof-two">
+        <div class="panel">
+          <h3>What was validated</h3>
+          <ul class="clean-list check-list">
+            <li>Typed-ish state schema with reducer channels.</li>
+            <li>Builder with nodes, directed edges, conditional routes, and compile validation.</li>
+            <li>Deterministic superstep runtime with invoke/stream surfaces.</li>
+            <li>In-memory checkpoints by thread/checkpoint id.</li>
+            <li>Interrupt/resume via Command.</li>
+            <li>Send fanout with custom target args.</li>
+            <li>Pending-write recovery simulation.</li>
+            <li>Strict serializer safety gate.</li>
+          </ul>
+        </div>
+        <div class="panel command-card">
+          <div class="panel-row"><span class="eyebrow"><b>✓</b> Verification</span></div>
+          <code class="command-line">npm test</code>
+          <p><code>npm test</code> runs <code>tsc -p tsconfig.json</code> and <code>node --test</code>. Final result: 12/12 passing.</p>
+          <p>Selected depth: workflow-proof + contract-parity + mocked-runtime-proof.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>↳</b> Artifacts</span><h2>Open the proof files</h2></div></div>
+      <div class="grid mapper-output-grid">
+        {artifacts.map((artifact) => <a class="panel mapper-artifact proof-artifact-link" href={artifact.href}><code>{artifact.label}</code><h3>{artifact.label.replace(/\.(md|json|ts|js)$/,'')}</h3><p>{artifact.text}</p></a>)}
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="panel proof-note">
+        <span class="eyebrow"><b>!</b> Honest boundary</span>
+        <h2>This is not LangGraph parity.</h2>
+        <p>The proof validates a clean-room portable subset. It does not claim full LangGraph clone parity, Python API parity, LangGraph.js parity, LangSmith/cloud behavior, provider/tool ecosystem parity, production storage adapters, Pregel concurrency/performance, exact event ordering, exact checkpoint bytes, or exact interrupt id behavior.</p>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

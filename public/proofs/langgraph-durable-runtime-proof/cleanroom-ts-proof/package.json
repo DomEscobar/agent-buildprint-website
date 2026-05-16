@@ -1,0 +1,20 @@
+{
+  "name": "langgraph-cleanroom-ts-proof-2026-05-16",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/runtime.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && cp types/runtime.d.ts dist/runtime.d.ts",
+    "test": "npm run build && node --test",
+    "check": "npm test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "types": "dist/runtime.d.ts"
+}
