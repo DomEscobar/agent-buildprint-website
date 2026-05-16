@@ -824,3 +824,15 @@ html, body { max-width: 100%; overflow-x: clip; }
 .key-doc-item { grid-template-columns: minmax(150px,.55fr) minmax(0,1fr); }
 .all-files-list { margin-top: 12px; }
 @media (max-width:640px) { .key-doc-item { grid-template-columns:1fr; } }
+
+/* Benefit-first Buildprint detail cleanup */
+.benefit-shell { max-width: 880px; }
+.benefit-body h2 { font-size: 30px; }
+.benefit-list { list-style:none; padding-left:0; display:grid; gap:10px; }
+.benefit-list li { margin:0; padding:12px 14px; border:1px solid var(--border); background:var(--surface-2); border-radius:12px; color:var(--text); }
+.need-list li:first-child { border-color: color-mix(in srgb, #16a34a 42%, var(--border)); background: color-mix(in srgb, #16a34a 8%, var(--surface-2)); }
+.advanced-details h3 { margin-top:18px; }
+@media (max-width:640px) {
+  .benefit-body h2 { font-size: 24px; }
+  .benefit-list li { padding:11px 12px; }
+}
