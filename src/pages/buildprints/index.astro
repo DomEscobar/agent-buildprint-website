@@ -5,7 +5,7 @@ import { badgeIcon, iconHtml as icon } from '@/lib/icons';
 
 const trustLabel = (bp) => {
   if (bp.planned || bp.status === 'coming-soon') return 'PLANNED';
-  if (bp.status === 'validated') return 'PASSED';
+  if (bp.status === 'validated') return 'Validated';
   if (bp.status === 'draft') return 'DRAFT';
   if (bp.checks.length > 0) return 'CHECKED';
   return 'READY';
@@ -19,11 +19,11 @@ const trustTip = (bp) => {
 };
 const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
 ---
-<BaseLayout title="Buildprint Registry — Agent Buildprint" description="Browse expert-authored Buildprints for products, features, architectures, workflows, and integrations.">
+<BaseLayout title="Buildprint Registry — Agent Buildprint" description="Browse reusable Buildprints for products, features, architectures, workflows, and integrations.">
   <main>
     <section class="container hero compact-hero">
       <span class="pill"><b>⌁</b> Registry · human and agent navigable</span>
-      <h1>Find an expert blueprint before your agent writes code.</h1>
+      <h1>Find a real plan before your agent writes code.</h1>
       <p class="lead">Browse reusable build plans with architecture, specs, phases, contracts, and checks — made for humans to inspect and agents to follow.</p>
       <div class="actions"><a class="btn primary" href="#cards">Browse cards</a><a class="btn" href="/buildprints/submit/">Submit a Buildprint</a><a class="btn" href="/buildprints/index.json">Registry JSON</a></div>
     </section>

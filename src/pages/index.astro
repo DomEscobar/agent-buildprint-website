@@ -5,7 +5,7 @@ import { badgeIcon, iconHtml as icon } from '@/lib/icons';
 const featured = liveBuildprints.filter((bp) => bp.featured).slice(0, 4);
 const trustLabel = (bp) => {
   if (bp.planned || bp.status === 'coming-soon') return 'PLANNED';
-  if (bp.status === 'validated') return 'PASSED';
+  if (bp.status === 'validated') return 'Validated';
   if (bp.status === 'draft') return 'DRAFT';
   if (bp.checks.length > 0) return 'CHECKED';
   return 'READY';
@@ -25,36 +25,36 @@ const sections = [
   { title: 'Workflow OS', items: buildprints.filter((bp) => bp.category === 'Workflow OS').slice(0, 5) },
 ];
 ---
-<BaseLayout title="Agent Buildprint — expert blueprints for AI coding agents" description="Expert-authored blueprints with specs, phases, contracts, and checks for building software with AI coding agents.">
+<BaseLayout title="Agent Buildprint — reusable specs for AI coding agents" description="Reusable implementation packages with specs, phases, contracts, and checks for AI coding agents.">
   <main>
     <section class="container hero clean-hero platform-hero">
       <div class="hero-copy">
-        <span class="pill"><b>⌁</b> expert build blueprints</span>
-        <h1>Expert blueprints for building software with AI coding agents.</h1>
-        <p class="lead">Buildprints package architecture, specs, phase plans, contracts, and checks into implementation plans that humans can review and agents can follow.</p>
+        <span class="pill"><b>⌁</b> build plans for coding agents</span>
+        <h1>Give your coding agent a real implementation plan.</h1>
+        <p class="lead">Buildprints package the decisions agents usually guess: architecture, behavior, contracts, phases, and validation gates.</p>
         <div class="actions">
           <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
           <a class="btn" href="#how-it-works">How it works</a>
         </div>
       </div>
-      <div class="blueprint-hero-card" aria-label="Buildprint concept visual">
-        <div class="blueprint-card-head"><span>Expert Buildprint</span><b>PASSED</b></div>
+      <div class="blueprint-hero-card" aria-label="Buildprint package preview">
+        <div class="blueprint-card-head"><span>Buildprint package</span><b>Validated</b></div>
         <h3>Automated AI Blog OS</h3>
-        <div class="blueprint-lines">
-          <span>Architecture</span><span>Spec</span><span>Phase plan</span><span>Contracts</span><span>Checks</span>
+        <p class="blueprint-card-copy">A concrete handoff for agents: what to build, how it behaves, what can go wrong, and how to prove it works.</p>
+        <div class="blueprint-lines compact">
+          <span>BUILDPRINT.md</span><span>SPEC.md</span><span>PLAN.md</span><span>CONTRACTS.md</span><span>TEST_MATRIX.md</span>
         </div>
-        <div class="blueprint-arrow">human goal → expert blueprint → agent build</div>
       </div>
     </section>
 
     <section class="container audience-strip" aria-label="Who Agent Buildprint is for">
-      <div><b>Founders</b><span>start from expert product blueprints</span></div>
+      <div><b>Founders</b><span>start from proven product plans</span></div>
       <div><b>Developers</b><span>avoid drift, missing edges, rewrite chaos</span></div>
       <div><b>Architects</b><span>package expertise into reusable plans</span></div>
     </section>
 
     <section id="how-it-works" class="container section visual-proof-section" aria-labelledby="visual-proof-title">
-      <div class="section-head simple proof-head"><div><span class="eyebrow"><b>↯</b> Why Buildprints</span><h2 id="visual-proof-title">AI agents are fast, but they guess.</h2><p>Buildprints give agents expert plans before they write code — so the result drifts less and is easier to check.</p></div></div>
+      <div class="section-head simple proof-head"><div><span class="eyebrow"><b>↯</b> Why Buildprints</span><h2 id="visual-proof-title">AI agents are fast, but they guess.</h2><p>Buildprints give agents explicit plans before they write code — so the result drifts less and is easier to check.</p></div></div>
       <div class="blueprint-explainer">
         <div class="proof-card bad">
           <span class="proof-label">Vague prompt</span>
@@ -86,7 +86,7 @@ const sections = [
         </div>
       </div>
       <div class="proof-flow" aria-label="Buildprint flow">
-        <span>Vague prompt → agent guesses → drift/errors</span><b>vs</b><span>Expert Buildprint → agent follows plan → checked implementation</span>
+        <span>Vague prompt → agent guesses → drift/errors</span><b>vs</b><span>Buildprint package → agent follows plan → checked implementation</span>
       </div>
     </section>
 
@@ -131,7 +131,7 @@ const sections = [
 → BUILDPRINT_CANDIDATES.md
 → selected buildprint-submission/
 → REVERSAL_REPORT.md</pre></div>
-      <div class="panel quiet"><span class="eyebrow"><b>✦</b> Creator angle</span><h2>Architects and expert devs can publish expertise.</h2><p>Package a repeatable architecture, feature, or workflow into a reusable Buildprint others can use with their coding agents.</p><pre>architecture + spec + phases + checks</pre></div>
+      <div class="panel quiet"><span class="eyebrow"><b>✦</b> Creator angle</span><h2>Architects and experienced devs can publish reusable plans.</h2><p>Package a repeatable architecture, feature, or workflow into a reusable Buildprint others can use with their coding agents.</p><pre>architecture + spec + phases + checks</pre></div>
     </section>
   </main>
 </BaseLayout>
