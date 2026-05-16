@@ -18,19 +18,24 @@ const isMapper = bp.slug === 'buildprint-mapper-os';
 ---
 <BaseLayout title={`${bp.title} — Agent Buildprint`} description={bp.summary}>
   <main>
-    <section class="container hero detail-hero">
-      <a class="pill" href="/buildprints/">← Registry</a>
-      <h1>{bp.title}</h1>
-      <p class="lead">{bp.promise}</p>
-      <div class="tags detail-meta"><span class="tag hot"><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="tag"><b>{badgeIcon(bp.status)}</b>{detailStatus}</span>{bp.stack.slice(0,3).map((x) => <span class="tag">{x}</span>)}</div>
-      <div class="actions"><a class="btn primary" href="#cli-start">Start with CLI</a><button class="btn copy-btn" data-copy={bp.copyPrompt}>Copy agent prompt</button><a class="btn" href={starIssueUrl}>★ Star / request</a><a class="btn" href={bp.githubUrl}>GitHub</a></div>
-    </section>
+    <section class="container hero detail-hero readable-detail-hero">
+      <div class="detail-intro">
+        <a class="pill" href="/buildprints/">← Registry</a>
+        <div class="tags detail-meta"><span class="tag hot"><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="tag"><b>{badgeIcon(bp.status)}</b>{detailStatus}</span>{bp.stack.slice(0,3).map((x) => <span class="tag">{x}</span>)}</div>
+        <h1>{bp.title}</h1>
+        <p class="lead">{bp.promise}</p>
+      </div>
 
-    <section id="cli-start" class="container section detail-start">
-      <div class="panel command-card">
-        <div class="panel-row"><span class="eyebrow"><b>◆</b> Recommended: CLI start</span><button class="btn copy-btn" data-copy={startCommand}>Copy CLI command</button></div>
-        <code class="command-line">{startCommand}</code>
-        <p>Recommended path: use the CLI to fetch the exact Buildprint into <code>.buildprint/</code>. If you are already inside a coding agent, use <b>Copy agent prompt</b> instead — it tells the agent to bootstrap from this same package.</p>
+      <div id="cli-start" class="top-action-stack" aria-label="Start using this Buildprint">
+        <div class="panel command-card primary-command-card">
+          <div class="panel-row"><span class="eyebrow"><b>◆</b> Start here</span><button class="btn copy-btn" data-copy={startCommand}>Copy CLI</button></div>
+          <code class="command-line">{startCommand}</code>
+          <p>Fetches the exact package into <code>.buildprint/</code>. Then your coding agent reads <code>.buildprint/next-agent.md</code>.</p>
+        </div>
+        <div class="prompt-action-card">
+          <div><b>Already inside Codex, Cursor, or Claude Code?</b><span>Copy the agent handoff prompt instead.</span></div>
+          <button class="btn primary copy-btn" data-copy={bp.copyPrompt}>Copy agent prompt</button>
+        </div>
       </div>
     </section>
 
@@ -52,30 +57,47 @@ const isMapper = bp.slug === 'buildprint-mapper-os';
       </div>
     </section> : null}
 
-    {bp.trustBadges?.length ? <section class="container section trust-section">
-      <div class="section-head compact"><div><span class="eyebrow"><b>✓</b> Validation</span><h2>Trust signals</h2></div></div>
-      <div class="grid trust-grid">
-        {bp.trustBadges.map((badge) => <div class={`panel trust-card ${badge.tone ?? 'info'}`}><h3>{badge.label}</h3><p>{badge.detail}</p></div>)}
-      </div>
-    </section> : null}
-
-    <section class="container section agent-use-section">
-      <div class="panel">
-        <span class="eyebrow"><b>↳</b> Use with coding agents</span>
-        <h2>Codex, Cursor, Claude Code</h2>
-        <div class="agent-steps">
-          <div><b>1</b><span>Run the CLI command in the repo you want to build in.</span></div>
-          <div><b>2</b><span>Tell your coding agent: “Read <code>.buildprint/next-agent.md</code> and continue.”</span></div>
-          <div><b>3</b><span>Keep generated implementation separate from snapshot files; snapshots are source-of-truth contracts.</span></div>
+    <section class="container section product-preview-section">
+      <div class="detail-preview-card">
+        <div class="preview-visual" aria-hidden="true">
+          <div class="preview-window">
+            <span></span><span></span><span></span>
+            <div class="preview-flow">
+              <b>{bp.stack[0] ?? 'Input'}</b>
+              <i></i>
+              <b>{bp.stack[1] ?? 'Contracts'}</b>
+              <i></i>
+              <b>{bp.stack[2] ?? 'Proof'}</b>
+            </div>
+            <div class="preview-output-lines"><em></em><em></em><em></em></div>
+          </div>
         </div>
-        <p>Cursor/Claude Code fallback: copy the agent prompt above. It bootstraps this same package, then hands the agent to <code>.buildprint/next-agent.md</code>.</p>
+        <div class="preview-copy">
+          <span class="eyebrow"><b>→</b> What this helps you build</span>
+          <h2>{bp.summary}</h2>
+          <p>{bp.includes[0] ?? 'A reusable Buildprint package with implementation contracts, plan, tests, and agent handoff files.'}</p>
+        </div>
       </div>
     </section>
 
-    <section class="container section grid columns detail-readable">
-      <div class="panel"><h2>What it gives you</h2>{bp.includes.length ? <ul class="clean-list">{bp.includes.map((x) => <li>{x}</li>)}</ul> : <p>Package details are still being prepared.</p>}</div>
-      <div class="panel"><h2>Quality gates</h2>{bp.checks.length ? <ul class="clean-list check-list">{bp.checks.map((x) => <li>{x}</li>)}</ul> : <p>Checks will be added before this Buildprint is publishable.</p>}</div>
-      <div class="panel"><h2>Prevents</h2>{bp.risks.length ? <ul class="clean-list risk-list">{bp.risks.map((x) => <li>{x}</li>)}</ul> : <p>Risk coverage will be listed with the final package.</p>}</div>
+    <section class="container section detail-readable-simple">
+      <div class="section-head compact"><div><span class="eyebrow"><b>◇</b> Useful outputs</span><h2>The parts people actually use</h2></div></div>
+      <div class="outcome-grid">
+        {bp.includes.slice(0, 6).map((x, index) => <div class="panel outcome-card"><span>{String(index + 1).padStart(2, '0')}</span><h3>{x}</h3></div>)}
+      </div>
+    </section>
+
+    <section class="container section proof-boundary-section">
+      <div class="proof-boundary-grid">
+        <div class="panel proof-column">
+          <span class="eyebrow"><b>✓</b> Proven / checked</span>
+          {bp.trustBadges?.length ? <div class="proof-mini-list">{bp.trustBadges.slice(0, 4).map((badge) => <div><b>{badge.label}</b><span>{badge.detail}</span></div>)}</div> : bp.checks.length ? <ul class="clean-list check-list">{bp.checks.slice(0, 5).map((x) => <li>{x}</li>)}</ul> : <p>Checks will be added before this Buildprint is publishable.</p>}
+        </div>
+        <div class="panel proof-column quiet-boundary">
+          <span class="eyebrow"><b>!</b> Boundary</span>
+          {bp.risks.length ? <ul class="clean-list risk-list">{bp.risks.slice(0, 5).map((x) => <li>{x}</li>)}</ul> : <p>Risk coverage will be listed with the final package.</p>}
+        </div>
+      </div>
     </section>
 
     <section class="container section technical-appendix">
