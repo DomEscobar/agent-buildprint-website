@@ -17,8 +17,9 @@ const originName = bp.originLabel ?? bp.originGithubUrl?.replace('https://github
 const description = bp.plainDescription ?? bp.summary;
 const whatYouGet = bp.whatYouGet?.length ? bp.whatYouGet : bp.includes.slice(0, 6);
 const whatYouNeed = bp.whatYouNeed?.length ? bp.whatYouNeed : ['Nothing for local/mock mode', 'Bring API keys or account credentials only if you want live external providers'];
-const statusItems = bp.trustBadges?.length
-  ? bp.trustBadges.slice(0, 3).map((badge) => `${badge.label}: ${badge.detail}`)
+const architectureFlow = bp.architectureFlow?.length ? bp.architectureFlow : bp.stack.slice(0, 6);
+const proofChips = bp.trustBadges?.length
+  ? bp.trustBadges.slice(0, 3).map((badge) => badge.label)
   : bp.checks.slice(0, 3);
 ---
 <BaseLayout title={`${bp.title} — Agent Buildprint`} description={description}>
@@ -44,11 +45,17 @@ const statusItems = bp.trustBadges?.length
         <h2>What you get</h2>
         <ul class="benefit-list">{whatYouGet.map((item) => <li>{item}</li>)}</ul>
 
+        <h2>Architecture preview</h2>
+        <div class="architecture-flow" aria-label="Architecture preview">
+          {architectureFlow.map((step, index) => <>
+            <span>{step}</span>
+            {index < architectureFlow.length - 1 ? <b aria-hidden="true">→</b> : null}
+          </>)}
+        </div>
+        {proofChips.length ? <div class="proof-chip-row">{proofChips.map((chip) => <span>{chip}</span>)}</div> : null}
+
         <h2>What you need from you</h2>
         <ul class="benefit-list need-list">{whatYouNeed.map((item) => <li>{item}</li>)}</ul>
-
-        <h2>Status</h2>
-        {statusItems.length ? <ul>{statusItems.map((item) => <li>{item}</li>)}</ul> : <p>Status details will be added when this Buildprint is validated.</p>}
 
         <h2>Links</h2>
         <ul>

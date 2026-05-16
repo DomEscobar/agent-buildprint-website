@@ -25,6 +25,7 @@ export type Buildprint = {
   plainDescription?: string;
   whatYouGet?: string[];
   whatYouNeed?: string[];
+  architectureFlow?: string[];
   copyPrompt: string;
   githubUrl: string;
   originGithubUrl?: string;
@@ -78,6 +79,7 @@ export const buildprints: Buildprint[] = [
     plainDescription: 'A blueprint for building an AI creator/influencer system with persona memory, image generation, content planning, draft queues, QA, and controlled publishing handoff.',
     whatYouGet: ['AI creator/influencer operating system', 'Configurable persona and memory model', 'Image generation workflow', 'Social draft and media queue', 'Approval-gated publishing handoff', 'Manager audit and safety checks'],
     whatYouNeed: ['Nothing for local/mock mode', 'Image provider key, such as Wavespeed, for real image generation', 'Social account/browser access if you want real publishing', 'Brand/persona decisions and media policy from the human'],
+    architectureFlow: ['Persona', 'Ideas', 'Images', 'Drafts', 'Approval', 'Publish'],
     promise: 'An agent-grade Buildprint package for a full AI influencer system. The architecture is fixed; persona, voice, channels, content lanes, and approval policy stay configurable.',
     includes: ['OpenClaw runtime shape', 'Configurable persona preset', 'Relationship memory', 'Life state and journal', 'Wavespeed image skill', 'Social drafts and media queue', 'Manager audit', 'Browser/noVNC publishing handoff'],
     risks: ['Generic chatbot drift', 'Fixed persona/name leakage', 'Ungrounded public claims', 'Unsafe media requests', 'Image provider drift', 'Auto-publishing by default'],
@@ -122,6 +124,7 @@ export const buildprints: Buildprint[] = [
     plainDescription: 'A blueprint for an automated blog workflow that finds ideas, drafts posts, validates claims and SEO, then waits for approval before publishing.',
     whatYouGet: ['AI-assisted blog publishing workflow', 'Source scanning and idea scoring', 'Draft generation with claim/source tracking', 'SEO, metadata, sitemap, RSS, and llms.txt checks', 'Approval queue before publishing', 'Manager audit for stale or weak drafts'],
     whatYouNeed: ['Nothing for local/mock mode', 'AI provider key for real drafting/research assistance', 'Website/repo access for real publishing', 'Human approval policy and editorial taste'],
+    architectureFlow: ['Sources', 'Ideas', 'Drafts', 'SEO checks', 'Approval', 'Publish'],
     promise: 'An agent-grade Buildprint package for automated AI blogging: source scanning, idea scoring, content memory, draft generation, visual plans, claim grounding, SEO validation, approval queue, and gated publishing/scheduling.',
     includes: ['Source scanner', 'Rubric-based idea scoring', 'Content memory', 'Draft generator with source/claim maps', 'Visual post templates', 'Claim grounding validator', 'SEO/build/feed validator', 'Approval queue', 'Gated publisher/scheduler', 'Manager audit'],
     risks: ['Generic SEO filler', 'Unsourced claims', 'Source laundering', 'Repeated content angles', 'Fake expertise', 'Broken metadata/RSS/sitemap/llms outputs', 'Publishing without approval', 'External API calls in tests'],
@@ -173,6 +176,7 @@ export const buildprints: Buildprint[] = [
     plainDescription: 'A blueprint for a novel-to-storyboard webapp: import chapters, extract story events, generate staged scripts, create storyboard rows, queue mock media jobs, and export a preview manifest.',
     whatYouGet: ['Novel-to-storyboard webapp workflow', 'Chapter import and event extraction', 'ScriptAgent-style script workspace', 'ProductionAgent-style storyboard rows', 'Mock image/video generation tasks', 'Preview/export manifest'],
     whatYouNeed: ['Nothing for local/mock mode', 'AI provider key for real script/event generation', 'Image/video provider keys for live media generation', 'Source text/story rights and creative direction from the human'],
+    architectureFlow: ['Chapters', 'Events', 'Scripts', 'Storyboard', 'Media jobs', 'Preview'],
     promise: 'A validated mapped-project Buildprint for rebuilding the portable novel-to-storyboard workflow without copying Toonflow source or claiming full clone/media-export parity.',
     includes: ['Portable workflow scope', 'Webapp target spec', 'ScriptAgent and ProductionAgent contracts', 'XML output contract and repair loop', 'Async job/cancellation model', 'Mock-first provider adapters', 'UI/workbench mapping with confidence labels', 'Preview composition manifest', 'Head-to-foot QA gate', 'Browser QA scenarios', 'Parity claims and explicit non-claims'],
     risks: ['Accidentally implying full Toonflow parity', 'Provider API drift', 'Media export overclaiming', 'Canvas/workbench exactness overclaiming', 'Live provider costs without env gates', 'Persistence mode confusion'],
@@ -244,6 +248,7 @@ export const buildprints: Buildprint[] = [
     plainDescription: 'A blueprint for turning a repo into useful Buildprints: scan the codebase, find good product/feature slices, choose one, and extract a safe implementation plan.',
     whatYouGet: ['Repo-to-Buildprint mapping workflow', 'System map of an existing codebase', 'Scoped product/feature blueprint candidates', 'One selected Buildprint package', 'Clean-room reversal proof plan', 'Submission/review checklist'],
     whatYouNeed: ['Nothing for public repos', 'GitHub/private repo access if the source is private', 'A human scope choice when multiple candidates exist', 'Permission to use any private source code'],
+    architectureFlow: ['Repo', 'System map', 'Candidates', 'Selection', 'Package', 'Proof'],
     promise: 'An official workflow Buildprint for creator submissions: evidence-backed system maps, scoped Buildprint candidates, human scope selection, selected extraction, reversal validation, and an honest gap report.',
     includes: ['Safety and secrets boundary', 'Repo census', 'SYSTEM_MAP.md', 'BUILDPRINT_CANDIDATES.md', 'Human scope decision gate', 'Progressive questions.md', 'Clean-room reversal report', 'QA_PLAN.md', 'TRACEABILITY_MATRIX.md', 'Single Buildprint extraction', 'Hierarchical System Buildprint extraction', 'Submission checklist', 'Golden eval targets'],
     risks: ['Whole-repo sludge', 'Secret leakage', 'Hallucinated intent', 'Invented validation results', 'Missing scope', 'Vague marketplace submissions', 'Unclear module boundaries', 'Generic QA plans', 'Missing traceability'],
@@ -309,6 +314,7 @@ export const buildprints: Buildprint[] = [
     plainDescription: 'A blueprint for adding paid SaaS billing: checkout, subscriptions, customer portal, webhooks, entitlement checks, and billing settings.',
     whatYouGet: ['Stripe checkout flow', 'Subscription and trial handling', 'Customer portal entry point', 'Verified webhook handler', 'Server-side entitlement checks', 'Billing settings UI'],
     whatYouNeed: ['Stripe account and API keys for live billing', 'Webhook signing secret for production webhooks', 'Product/pricing decisions from the human', 'Nothing for mocked/local billing tests'],
+    architectureFlow: ['Checkout', 'Webhook', 'Subscription', 'Entitlements', 'Portal', 'Billing UI'],
     promise: 'A practical extension Buildprint for the paid-app foundation coding agents often implement incompletely.',
     includes: ['Checkout session', 'Subscriptions and trials', 'Customer portal', 'Webhook handler', 'Subscription state model', 'Entitlement guards', 'Billing settings UI'],
     risks: ['Webhook signature skipped', 'Frontend state trusted for access', 'Failed payment states ignored', 'Portal exposed without auth', 'Subscription state drift'],
@@ -334,6 +340,7 @@ export const buildprints: Buildprint[] = [
     plainDescription: 'A blueprint for an AI shorts production studio: start from a product, generate a UGC script, choose actor/voice options, queue media jobs, plan a 9:16 video, and hand off gallery/social assets.',
     whatYouGet: ['AI shorts production studio', 'Product input and product analysis flow', 'UGC script generator', 'Actor/avatar and voice selection flow', 'Mock talking-head, b-roll, and subtitle job pipeline', '9:16 composition plus gallery/SEO/social handoff'],
     whatYouNeed: ['Nothing for local/mock proof mode', 'AI provider key for real product analysis and script generation', 'TTS provider key for real voiceover', 'Image/video provider keys for live media generation', 'Storage or social credentials only if you want real publishing'],
+    architectureFlow: ['Product', 'Script', 'Voice/avatar', 'Media jobs', '9:16 video', 'Gallery/social'],
     promise: 'A validated mapped-project Buildprint for rebuilding a portable AI shorts production pipeline from public OpenShorts architecture patterns without claiming OpenShorts clone, provider/API, rendering-quality, or social-platform parity.',
     includes: ['Pinned OpenShorts source trace', 'Repo facts and fork/license boundary notes', 'Product URL/manual-input analysis flow', 'Five-segment UGC script contract', 'Actor gallery/generated/uploaded selection model', 'Voiceover adapter contract', 'Talking-head/lipsync adapter contract', 'B-roll generation adapter contract', 'Subtitle and hook overlay composition plan', '9:16 video manifest', 'Gallery SEO VideoObject manifest', 'Social publishing handoff manifest', 'Threat model for keys, likeness, scraping, and gallery exposure', 'Clean-room runnable proof with tests'],
     risks: ['Accidentally implying OpenShorts clone parity', 'Provider/API parity overclaiming', 'Video quality/rendering parity overclaiming', 'Social platform publishing reliability overclaiming', 'User likeness/copyright/consent under-specification', 'Client-side API key handling scope creep'],
@@ -387,6 +394,7 @@ export const buildprints: Buildprint[] = [
     plainDescription: 'A blueprint for a durable agent graph runtime: define graph nodes, route state through edges, checkpoint progress, resume interrupted runs, and stream execution events.',
     whatYouGet: ['Durable agent graph runtime', 'Graph builder API', 'State schema and reducer model', 'Conditional routing and fanout', 'Checkpoint/resume behavior', 'Interrupt/recovery and stream events'],
     whatYouNeed: ['Nothing for local/mock runtime proof', 'Database/storage credentials only if replacing the in-memory checkpoint saver', 'AI/model/tool provider keys only if your nodes call real external services'],
+    architectureFlow: ['Graph builder', 'State', 'Routing', 'Checkpoint', 'Interrupt', 'Stream'],
     promise: 'A validated mapped-project Buildprint for rebuilding a small portable durable graph runtime from evidence-backed LangGraph architecture concepts without claiming clone, drop-in, API, provider, cloud, storage, or Pregel parity.',
     includes: ['Pinned LangGraph source trace', 'Builder / compile / runtime architecture map', 'Typed-ish state schema and reducers', 'Directed and conditional routing', 'Invoke/stream contracts', 'Checkpoint tuple and in-memory saver contract', 'Pending-write recovery simulation', 'Interrupt/resume via Command', 'Send fanout proof', 'Async invoke/stream proof', 'Serializer safety gate', 'Clean-room TypeScript reversal proof', 'QA and reversal reports'],
     risks: ['Accidentally implying LangGraph clone parity', 'API compatibility overclaiming', 'Pregel concurrency/performance overclaiming', 'Provider/tool ecosystem scope creep', 'Production storage adapter overclaiming', 'Serializer/checkpoint byte compatibility overclaiming'],
@@ -441,6 +449,7 @@ export const buildprints: Buildprint[] = [
     plainDescription: 'A small TypeScript blueprint for building an agent graph contract with nodes, routes, state, prompts, and side-effect boundaries.',
     whatYouGet: ['Minimal TypeScript agent graph skeleton', 'Node and route contracts', 'State schema pattern', 'Prompt contract structure', 'Side-effect policy', 'Example runner shape'],
     whatYouNeed: ['Nothing for local/mock mode', 'AI provider key only when graph nodes call real models', 'Tool/API credentials only for real side effects'],
+    architectureFlow: ['Nodes', 'State', 'Routes', 'Prompts', 'Policies', 'Runner'],
     promise: 'A technical architecture Buildprint for typed agent nodes, routes, policies, and tests.',
     includes: ['Node contracts', 'Route specs', 'State schema', 'Prompt contracts', 'Side-effect policy', 'Example runner'],
     risks: ['Runtime lock-in', 'Untyped outputs', 'Unclear side effects', 'Prompt/schema drift'],

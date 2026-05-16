@@ -836,3 +836,15 @@ html, body { max-width: 100%; overflow-x: clip; }
   .benefit-body h2 { font-size: 24px; }
   .benefit-list li { padding:11px 12px; }
 }
+
+/* Simple architecture preview for benefit-first details */
+.architecture-flow { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin:12px 0 10px; }
+.architecture-flow span { border:1px solid var(--border); background:var(--surface-2); color:var(--text); border-radius:12px; padding:10px 12px; font-weight:800; font-size:14px; }
+.architecture-flow b { color:var(--muted); font-weight:900; }
+.proof-chip-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.proof-chip-row span { border:1px solid color-mix(in srgb, #16a34a 34%, var(--border)); background:color-mix(in srgb, #16a34a 8%, var(--surface)); color:color-mix(in srgb, #16a34a 68%, var(--text)); border-radius:999px; padding:6px 9px; font-size:12px; font-weight:850; }
+@media (max-width:640px) {
+  .architecture-flow { display:grid; grid-template-columns:1fr; gap:7px; }
+  .architecture-flow span { width:100%; }
+  .architecture-flow b { display:none; }
+}
