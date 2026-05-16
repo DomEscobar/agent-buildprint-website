@@ -24,6 +24,8 @@ export type Buildprint = {
   trustBadges?: BuildprintTrustBadge[];
   copyPrompt: string;
   githubUrl: string;
+  originGithubUrl?: string;
+  originLabel?: string;
   rawBaseUrl: string;
   featured?: boolean;
   planned?: boolean;
@@ -209,6 +211,8 @@ export const buildprints: Buildprint[] = [
       { label: 'Explicit parity boundary', detail: 'Claims stop at workflow/contract/runtime proof and preview manifest export unless upgraded with evidence.', tone: 'warning' },
     ],
     githubUrl: `${repoUrl}/tree/main/buildprints/portable-novel-storyboard-pipeline`,
+    originGithubUrl: 'https://github.com/HBAI-Ltd/Toonflow-app',
+    originLabel: 'HBAI-Ltd/Toonflow-app',
     rawBaseUrl: `${siteBase}/buildprint-files/portable-novel-storyboard-pipeline`,
     copyPrompt: `${localPrompt('portable-novel-storyboard-pipeline', 'Portable Novel-to-Storyboard Pipeline')} Build a clean-room portable webapp proof for the novel-to-storyboard workflow. Use mock/no-network providers by default. Produce a PortablePreviewManifest/preview package only; do not claim Toonflow clone, provider parity, exact workbench parity, or final stitched-video export parity unless explicitly upgraded with evidence.`,
   },
@@ -341,6 +345,8 @@ export const buildprints: Buildprint[] = [
       { label: 'Mocked providers', detail: 'External video, voice, storage, and social services are modeled as adapters/mocks.', tone: 'neutral' },
     ],
     githubUrl: `${repoUrl}/tree/main/buildprints/portable-ai-shorts-production-studio`,
+    originGithubUrl: 'https://github.com/mutonby/openshorts',
+    originLabel: 'mutonby/openshorts',
     rawBaseUrl: `${siteBase}/buildprint-files/portable-ai-shorts-production-studio`,
     copyPrompt: `${localPrompt('portable-ai-shorts-production-studio', 'Portable AI Shorts Production Studio')} Build a clean-room AI shorts production proof from the Buildprint package. Keep claims scoped to workflow-proof + contract-parity + mocked-provider proof. Do not call it an OpenShorts clone, drop-in replacement, provider/API parity implementation, rendering-quality parity proof, or social-platform publishing parity proof.`,
   },
@@ -390,6 +396,8 @@ export const buildprints: Buildprint[] = [
       { label: 'TypeScript proof', detail: 'Includes tsc build, public declarations, async surfaces, Send fanout, and pending-write recovery simulation.', tone: 'info' },
     ],
     githubUrl: `${repoUrl}/tree/main/buildprints/portable-durable-agent-graph-runtime`,
+    originGithubUrl: 'https://github.com/langchain-ai/langgraph',
+    originLabel: 'langchain-ai/langgraph',
     rawBaseUrl: `${siteBase}/buildprint-files/portable-durable-agent-graph-runtime`,
     copyPrompt: `${localPrompt('portable-durable-agent-graph-runtime', 'Portable Durable Agent Graph Runtime')} Build a clean-room TypeScript durable graph runtime proof from the Buildprint package. Keep claims scoped to workflow-proof + contract-parity + mocked-runtime-proof. Do not call it a LangGraph clone, drop-in replacement, full API-compatible runtime, LangSmith/cloud equivalent, provider/tool parity implementation, production storage adapter, or Pregel concurrency/performance parity.`,
   },
@@ -412,6 +420,8 @@ export const buildprints: Buildprint[] = [
     files: [{ path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true }],
     checks: ['No framework runtime import', 'Schemas exist', 'Routes are testable', 'Side effects are declared'],
     githubUrl: `${repoUrl}/tree/main/langgraph`,
+    originGithubUrl: 'https://github.com/langchain-ai/langgraph',
+    originLabel: 'langchain-ai/langgraph',
     rawBaseUrl: `${rawRepoBase}/langgraph`,
     copyPrompt: 'Use the Vanilla TS Agent Contract Buildprint. Keep generated code framework-light, typed, policy-aware, and testable. Do not import LangGraph runtime packages unless explicitly requested.',
   },
@@ -447,7 +457,7 @@ export function packageManifest(bp: Buildprint) {
     status: bp.status,
     runtime: bp.runtime,
     stack: bp.stack,
-    entrypoints: { human: urls.human, agent: urls.agent, manifest: urls.manifest, prompt: urls.prompt, github: bp.githubUrl, rawBase: bp.rawBaseUrl },
+    entrypoints: { human: urls.human, agent: urls.agent, manifest: urls.manifest, prompt: urls.prompt, github: bp.githubUrl, originGithub: bp.originGithubUrl, rawBase: bp.rawBaseUrl },
     bootstrap: {
       command: `agb start ${siteBase}/buildprints/${bp.slug}/package.json`,
       fallbackCommand: `git clone https://github.com/DomEscobar/agent-buildprint && node agent-buildprint/bin/agb.js start ${siteBase}/buildprints/${bp.slug}/package.json`,

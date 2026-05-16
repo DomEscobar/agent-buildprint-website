@@ -36,6 +36,9 @@ const isMapper = bp.slug === 'buildprint-mapper-os';
           <div><b>Already inside Codex, Cursor, or Claude Code?</b><span>Copy the agent handoff prompt instead.</span></div>
           <button class="btn primary copy-btn" data-copy={bp.copyPrompt}>Copy agent prompt</button>
         </div>
+        {bp.originGithubUrl ? <a class="origin-link-card" href={bp.originGithubUrl} target="_blank" rel="noreferrer"><span>Source repo</span><b>{bp.originLabel ?? bp.originGithubUrl.replace('https://github.com/', '')}</b></a> : null}
+      </div>
+    </section>
       </div>
     </section>
 
