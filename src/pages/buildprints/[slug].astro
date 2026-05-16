@@ -29,9 +29,9 @@ const originName = bp.originLabel ?? bp.originGithubUrl?.replace('https://github
           {bp.stack.slice(0, 4).map((item) => <span>{item}</span>)}
         </div>
         <div class="readme-links">
+          <button class="readme-primary-action copy-btn" data-copy={bp.copyPrompt}>Copy agent prompt</button>
           <a href={`/buildprints/${bp.slug}/package.json`}>Package JSON</a>
           <a href={bp.githubUrl}>Buildprint files</a>
-          <a href={`/buildprints/${bp.slug}/agent.md`}>Agent guide</a>
           {bp.originGithubUrl ? <a href={bp.originGithubUrl} target="_blank" rel="noreferrer">Source repo: {originName}</a> : null}
         </div>
       </header>
