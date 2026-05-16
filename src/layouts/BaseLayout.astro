@@ -20,6 +20,7 @@ const { title = 'Agent Buildprint', description = 'Reusable specs for building s
     </script>
   </head>
   <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <header class="nav-shell">
       <div class="container nav">
         <a class="logo" href="/" aria-label="Agent Buildprint home">
@@ -34,7 +35,9 @@ const { title = 'Agent Buildprint', description = 'Reusable specs for building s
         </nav>
       </div>
     </header>
-    <slot />
+    <div id="main-content">
+      <slot />
+    </div>
     <footer class="container footer">
       <span>Agent Buildprint — reusable specs for AI coding agents.</span>
       <span class="footer-links"><a href="/buildprints/">Browse</a><a href="/llms.txt">Agent nav</a><a href="/buildprints/index.json">JSON</a></span>

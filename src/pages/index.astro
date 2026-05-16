@@ -18,6 +18,12 @@ const trustTip = (bp) => {
   return 'Ready to inspect.';
 };
 const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
+const evidenceChips = (bp) => {
+  if (bp.status === 'validated') return ['CLI snapshot ✓', 'Tests ✓', 'Proof gated ✓'];
+  if (bp.status === 'draft') return ['Draft', 'Review needed'];
+  if (bp.checks.length > 0) return ['Checks defined', 'Needs dry-run'];
+  return ['Inspectable'];
+};
 const sections = [
   { title: 'Product OS', items: buildprints.filter((bp) => bp.category === 'Product OS').slice(0, 5) },
   { title: 'Features & Extensions', items: buildprints.filter((bp) => bp.category === 'Feature / Extension').slice(0, 5) },
@@ -29,14 +35,28 @@ const sections = [
   <main>
     <section class="container hero clean-hero platform-hero">
       <div class="hero-copy">
-        <span class="pill"><b>⌁</b> build plans for coding agents</span>
+        <span class="pill dossier-pill"><b>⌁</b> inspected plans for coding agents</span>
         <h1>Give your coding agent a real implementation plan.</h1>
         <p class="lead">Buildprints package the decisions agents usually guess: architecture, behavior, contracts, phases, and validation gates.</p>
         <div class="actions">
-          <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
-          <a class="btn" href="#how-it-works">How it works</a>
+          <a class="btn primary" href="/buildprints/">Try a validated Buildprint</a>
+          <a class="btn" href="#how-it-works">See how it works</a>
         </div>
       </div>
+      <aside class="blueprint-dossier-card" aria-label="Buildprint package preview">
+        <div class="dossier-topline"><span>BUILDPRINT PACKAGE</span><b>VALIDATED</b></div>
+        <div class="dossier-file-tree">
+          <div><code>BUILDPRINT.md</code><span>architecture truth</span></div>
+          <div><code>SPEC.md</code><span>behavior contract</span></div>
+          <div><code>PLAN.md</code><span>phase rails</span></div>
+          <div><code>CONTRACTS.md</code><span>interfaces</span></div>
+          <div><code>TEST_MATRIX.md</code><span>validation gates</span></div>
+        </div>
+        <div class="dossier-ledger">
+          <span>CLI snapshot ✓</span><span>Tests ✓</span><span>Browser smoke ✓</span>
+        </div>
+        <p>agent reads → implements phases → runs checks</p>
+      </aside>
     </section>
 
     <section id="how-it-works" class="container section visual-proof-section" aria-labelledby="visual-proof-title">
@@ -84,6 +104,7 @@ const sections = [
           <h3>{bp.title}</h3>
           <p>{bp.summary}</p>
           <div class="stack-row"><span class="stack-line" title={bp.stack.join(' · ')}>{bp.stack.slice(0, 3).join(' · ')}</span><span class="stack-icons" aria-label={`Stack icons: ${(bp.iconKeys ?? []).join(', ')}`}>{(bp.iconKeys ?? []).slice(0,3).map((key) => <i class={`tech-icon ${key}`} title={key} set:html={icon(key)} />)}</span></div>
+          <div class="evidence-chip-row" aria-label="Validation evidence">{evidenceChips(bp).map((chip) => <span class="evidence-chip">{chip}</span>)}</div>
         </a>)}
       </div>
     </section>

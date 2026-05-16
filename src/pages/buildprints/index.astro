@@ -18,6 +18,12 @@ const trustTip = (bp) => {
   return 'Ready to inspect.';
 };
 const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
+const evidenceChips = (bp) => {
+  if (bp.status === 'validated') return ['CLI snapshot ✓', 'Tests ✓', 'Proof gated ✓'];
+  if (bp.status === 'draft') return ['Draft', 'Review'];
+  if (bp.checks.length > 0) return ['Checks defined'];
+  return ['Inspectable'];
+};
 ---
 <BaseLayout title="Buildprint Registry — Agent Buildprint" description="Browse reusable Buildprints for products, features, architectures, workflows, and integrations.">
   <main>
@@ -42,6 +48,7 @@ const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
               <h3>{bp.title}</h3>
               <p>{bp.summary}</p>
               <div class="stack-row"><span class="stack-line" title={bp.stack.join(' · ')}>{bp.stack.slice(0,3).join(' · ')}</span><span class="stack-icons" aria-label={`Stack icons: ${(bp.iconKeys ?? []).join(', ')}`}>{(bp.iconKeys ?? []).slice(0,3).map((key) => <i class={`tech-icon ${key}`} title={key} set:html={icon(key)} />)}</span></div>
+              <div class="evidence-chip-row" aria-label="Validation evidence">{evidenceChips(bp).map((chip) => <span class="evidence-chip">{chip}</span>)}</div>
             </div>
           </a>
         ))}
@@ -64,8 +71,11 @@ const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
         card.classList.toggle('hidden', !(categoryOk && tierOk && searchOk));
       }
     }
-    buttons.forEach((b) => b.addEventListener('click', () => { active = b.dataset.category || 'All'; apply(); }));
-    tierButtons.forEach((b) => b.addEventListener('click', () => { activeTier = b.dataset.tier || 'All'; apply(); }));
+    function markActive(group, value, key) {
+      group.forEach((button) => button.classList.toggle('active', (button.dataset[key] || 'All') === value));
+    }
+    buttons.forEach((b) => b.addEventListener('click', () => { active = b.dataset.category || 'All'; markActive(buttons, active, 'category'); apply(); }));
+    tierButtons.forEach((b) => b.addEventListener('click', () => { activeTier = b.dataset.tier || 'All'; markActive(tierButtons, activeTier, 'tier'); apply(); }));
     search?.addEventListener('input', apply);
     document.querySelectorAll('.copy').forEach((b) => b.addEventListener('click', async () => { await navigator.clipboard.writeText(b.dataset.prompt || ''); b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy prompt', 1000); }));
   </script>
