@@ -1,0 +1,66 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+const proofBase = '/proofs/feedme-mapper-dogfood';
+const artifacts = [
+  { label: 'SYSTEM_MAP.md', href: `${proofBase}/SYSTEM_MAP.md`, text: 'FeedMe architecture zones, RSS updater flow, static data output, and selected risks.' },
+  { label: 'BUILDPRINT_CANDIDATES.md', href: `${proofBase}/BUILDPRINT_CANDIDATES.md`, text: 'Scoped candidates found before extraction, with depth boundaries.' },
+  { label: 'selection.md', href: `${proofBase}/selection.md`, text: 'The simulated dogfood selection: static RSS update pipeline.' },
+  { label: 'CODEX_DOGFOOD_REVIEW.md', href: `${proofBase}/CODEX_DOGFOOD_REVIEW.md`, text: 'What worked, what was ambiguous, and what Mapper OS needed to fix.' },
+  { label: 'QA_REPORT.md', href: `${proofBase}/buildprint-submission/QA_REPORT.md`, text: 'Commands run, pass/fail result, and explicit QA gaps.' },
+  { label: 'PARITY_CLAIMS.md', href: `${proofBase}/buildprint-submission/PARITY_CLAIMS.md`, text: 'Safe claims and excluded parity targets for the extracted candidate.' },
+];
+---
+<BaseLayout title="FeedMe Mapper OS dogfood proof — Agent Buildprint" description="A Codex dogfood proof showing Mapper OS mapping Seanium/FeedMe into scoped candidates, extracting the static RSS pipeline, and passing mocked reversal checks.">
+  <main>
+    <section class="container hero detail-hero proof-hero">
+      <a class="pill" href="/buildprints/buildprint-mapper-os/">← Mapper OS</a>
+      <h1>FeedMe → Mapper OS dogfood proof.</h1>
+      <p class="lead">A tiny public repo was mapped with the public Mapper OS prompt via Codex. The run produced candidates first, selected one small scope, extracted a Buildprint, and passed compact mocked reversal checks.</p>
+      <div class="tags detail-meta"><span class="tag hot">Dogfood passed</span><span class="tag">75 files scanned</span><span class="tag">RSS pipeline</span><span class="tag">mocked-runtime-proof</span></div>
+      <div class="actions"><a class="btn primary" href={`${proofBase}/CODEX_DOGFOOD_REVIEW.md`}>Open dogfood review</a><a class="btn" href="https://github.com/Seanium/FeedMe">Source repo</a><a class="btn" href="/buildprints/buildprint-mapper-os/">Use Mapper OS</a></div>
+    </section>
+
+    <section class="container section proof-summary-grid">
+      <div class="panel proof-stat"><b>75</b><span>files scanned</span></div>
+      <div class="panel proof-stat"><b>3</b><span>depths selected</span></div>
+      <div class="panel proof-stat"><b>2</b><span>checks passed</span></div>
+      <div class="panel proof-stat"><b>0</b><span>source files changed</span></div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>⌁</b> Selected candidate</span><h2>Static RSS update pipeline contract</h2></div></div>
+      <div class="grid columns two proof-two">
+        <div class="panel">
+          <h3>What was proven</h3>
+          <ul class="clean-list check-list">
+            <li>Candidate-first discovery avoided a vague full FeedMe clone.</li>
+            <li>Selected depth: workflow-proof + contract-parity + mocked-runtime-proof.</li>
+            <li>Explicitly excluded UI/workbench, live feed-source, hosted deployment, provider, and full clone parity.</li>
+            <li>Reversal proof covered the static RSS aggregation contract without live network or secrets.</li>
+          </ul>
+        </div>
+        <div class="panel command-card">
+          <div class="panel-row"><span class="eyebrow"><b>✓</b> Verification</span></div>
+          <code class="command-line">node codex-output/reversal-proof/test/rss-pipeline.test.mjs</code>
+          <code class="command-line">node --check FeedMe/scripts/update-feeds.js</code>
+          <p>Both checks passed. Browser QA was intentionally out of scope because the selected candidate excluded UI parity.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>↳</b> Artifacts</span><h2>Open the dogfood files</h2></div></div>
+      <div class="grid mapper-output-grid">
+        {artifacts.map((artifact) => <a class="panel mapper-artifact proof-artifact-link" href={artifact.href}><code>{artifact.label}</code><h3>{artifact.label.replace(/\.(md|json)$/,'')}</h3><p>{artifact.text}</p></a>)}
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="panel proof-note">
+        <span class="eyebrow"><b>!</b> Honest boundary</span>
+        <h2>This validates Mapper OS workflow, not FeedMe parity.</h2>
+        <p>The proof validates the Mapper process and the selected RSS pipeline contract with mocks. It does not claim live RSS source parity, hosted deployment parity, UI parity, or full product clone parity.</p>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

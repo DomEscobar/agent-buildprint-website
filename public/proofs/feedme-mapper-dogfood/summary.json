@@ -1,0 +1,13 @@
+{
+  "slug": "feedme-mapper-dogfood",
+  "sourceRepo": "Seanium/FeedMe",
+  "filesScanned": 75,
+  "selectedCandidate": "Static RSS update pipeline contract",
+  "selectedDepth": ["workflow-proof", "contract-parity", "mocked-runtime-proof"],
+  "excludedDepths": ["ui-workbench-parity", "provider-parity", "feed-source-parity", "hosted-product-parity", "full-clone-parity"],
+  "verification": [
+    "node codex-output/reversal-proof/test/rss-pipeline.test.mjs",
+    "node --check FeedMe/scripts/update-feeds.js"
+  ],
+  "status": "passed"
+}
