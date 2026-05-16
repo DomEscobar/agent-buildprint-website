@@ -1,0 +1,72 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+const proofBase = '/proofs/openshorts-ai-shorts-proof';
+const artifacts = [
+  { label: 'PUBLIC_PROOF_SUMMARY.md', href: `${proofBase}/PUBLIC_PROOF_SUMMARY.md`, text: 'Public status, source commit, command, 7/7 result, and claim boundary.' },
+  { label: 'SOURCE_TRACE.md', href: `${proofBase}/SOURCE_TRACE.md`, text: 'Source evidence for product analysis, scripts, actor/voice, media jobs, gallery, and publishing handoff.' },
+  { label: 'SYSTEM_MAP.md', href: `${proofBase}/SYSTEM_MAP.md`, text: 'OpenShorts system map across backend, dashboard, video jobs, storage, gallery, and deployment.' },
+  { label: 'BUILDPRINT.md', href: `${proofBase}/buildprint-submission/BUILDPRINT.md`, text: 'The clean-room Buildprint for a portable AI shorts production studio.' },
+  { label: 'PARITY_CLAIMS.md', href: `${proofBase}/buildprint-submission/PARITY_CLAIMS.md`, text: 'Safe claims, prohibited claims, and explicit non-goals.' },
+  { label: 'pipeline.js', href: `${proofBase}/cleanroom-proof/src/pipeline.js`, text: 'Runnable clean-room proof pipeline.' },
+  { label: 'pipeline.test.js', href: `${proofBase}/cleanroom-proof/tests/pipeline.test.js`, text: 'Seven proof tests for the portable pipeline contracts.' },
+  { label: 'Clean-room demo', href: `${proofBase}/cleanroom-proof/dist/index.html`, text: 'Static browser demo for the mocked production flow.' },
+];
+---
+<BaseLayout title="OpenShorts AI shorts proof — Agent Buildprint" description="A scoped OpenShorts-inspired AI shorts production Buildprint with source trace, clean-room runnable proof, and 7/7 tests passing.">
+  <main>
+    <section class="container hero detail-hero proof-hero">
+      <a class="pill" href="/buildprints/portable-ai-shorts-production-studio/">← Buildprint package</a>
+      <h1>OpenShorts-inspired AI shorts production proof.</h1>
+      <p class="lead">A public-repo Mapper OS pass over OpenShorts, followed by a clean-room runnable proof for a portable AI shorts pipeline. It proves the workflow and contracts — not OpenShorts clone parity, provider parity, rendering quality, or social-platform publishing reliability.</p>
+      <div class="tags detail-meta"><span class="tag hot">Proof passed</span><span class="tag">7/7 tests</span><span class="tag">Mocked providers</span><span class="tag">Clean-room JS</span></div>
+      <div class="actions"><a class="btn primary" href={`${proofBase}/cleanroom-proof/dist/index.html`}>Open demo</a><a class="btn" href={`${proofBase}/PUBLIC_PROOF_SUMMARY.md`}>Read summary</a><a class="btn" href="/buildprints/portable-ai-shorts-production-studio/">Use Buildprint</a></div>
+    </section>
+
+    <section class="container section proof-summary-grid">
+      <div class="panel proof-stat"><b>7/7</b><span>tests passed</span></div>
+      <div class="panel proof-stat"><b>9:16</b><span>video plan</span></div>
+      <div class="panel proof-stat"><b>mock</b><span>provider adapters</span></div>
+      <div class="panel proof-stat"><b>SEO</b><span>gallery manifest</span></div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>⌁</b> Selected candidate</span><h2>Portable AI Shorts Production Studio</h2></div></div>
+      <div class="grid columns two proof-two">
+        <div class="panel">
+          <h3>What was validated</h3>
+          <ul class="clean-list check-list">
+            <li>Product URL/manual product input model.</li>
+            <li>Deterministic product analysis contract.</li>
+            <li>Exact five-segment UGC script structure.</li>
+            <li>Actor gallery/generated/uploaded selection with consent flag.</li>
+            <li>Voiceover artifact contract.</li>
+            <li>Talking-head, b-roll, and subtitle provider task graph.</li>
+            <li>9:16 video composition plan.</li>
+            <li>Gallery SEO and social publishing handoff manifest.</li>
+          </ul>
+        </div>
+        <div class="panel command-card">
+          <div class="panel-row"><span class="eyebrow"><b>✓</b> Verification</span></div>
+          <code class="command-line">npm run check</code>
+          <p><code>npm run check</code> runs <code>npm test</code> and <code>npm run build</code>. Final result: 7/7 tests passing and <code>dist/</code> built.</p>
+          <p>Claim boundary: workflow-proof + contract-parity + mocked-provider proof.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>↳</b> Artifacts</span><h2>Open the proof files</h2></div></div>
+      <div class="grid mapper-output-grid">
+        {artifacts.map((artifact) => <a class="panel mapper-artifact proof-artifact-link" href={artifact.href}><code>{artifact.label}</code><h3>{artifact.label.replace(/\.(md|json|js)$/,'')}</h3><p>{artifact.text}</p></a>)}
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="panel proof-note">
+        <span class="eyebrow"><b>!</b> Honest boundary</span>
+        <h2>This is not OpenShorts parity.</h2>
+        <p>The proof validates a clean-room portable workflow. It does not claim full OpenShorts clone parity, provider/API parity, video rendering quality parity, social-platform publishing reliability, real scraping reliability, production auth/key hardening, or copyright/likeness/legal compliance.</p>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

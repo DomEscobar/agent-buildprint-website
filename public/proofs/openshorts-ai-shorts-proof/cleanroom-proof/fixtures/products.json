@@ -1,0 +1,18 @@
+[
+  {
+    "url": "https://example.com/agent-buildprint",
+    "name": "Agent Buildprint",
+    "description": "Reusable architecture contracts for coding agents with phases, specs, contracts, and validation gates.",
+    "audience": "founders and senior developers using coding agents",
+    "features": ["architecture contracts", "phase plans", "test matrices", "agent handoff prompts"],
+    "painPoints": ["agents drift from vague prompts", "architecture decisions are forgotten", "done is hard to verify"]
+  },
+  {
+    "url": "https://example.com/local-restaurant",
+    "name": "Mina's Pizza",
+    "description": "A neighborhood pizza shop with online ordering, lunch specials, and family catering.",
+    "audience": "busy local families and office workers",
+    "features": ["online ordering", "lunch deals", "catering trays"],
+    "painPoints": ["nobody wants to wait on the phone", "team lunches are hard to organize", "families need quick dinner options"]
+  }
+]
