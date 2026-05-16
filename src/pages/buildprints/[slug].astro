@@ -50,18 +50,32 @@ const originName = bp.originLabel ?? bp.originGithubUrl?.replace('https://github
           <button class="copy-inline copy-btn" data-copy={startCommand}>Copy</button>
         </div>
 
-        <h2>What is included</h2>
-        <div class="readme-file-list">
-          {bp.files.map((file) => {
+        <h2>Key docs</h2>
+        <p>Start with these. They are the files most coding agents and reviewers actually need.</p>
+        <div class="readme-file-list compact-doc-list">
+          {bp.files.filter((file) => ['BUILDPRINT.md', 'SPEC.md', 'PLAN.md', 'CONTRACTS.md', 'TEST_MATRIX.md', 'PARITY_CLAIMS.md', 'HEAD_TO_FOOT_QA.md', 'QA_PLAN.md'].includes(file.path)).slice(0, 7).map((file) => {
             const fileUrl = `${bp.rawBaseUrl}/${file.path}`;
-            const copyUrl = fileUrl.startsWith('http') ? fileUrl : `${siteBase}${fileUrl}`;
-            return <div class="readme-file-item">
+            return <div class="readme-file-item key-doc-item">
               <a href={fileUrl}><code>{file.path}</code></a>
               <p>{file.purpose}</p>
-              <button class="copy-inline copy-btn" data-copy={copyUrl}>Copy URL</button>
             </div>;
           })}
         </div>
+
+        <details class="readme-details">
+          <summary>All package files</summary>
+          <div class="readme-file-list all-files-list">
+            {bp.files.map((file) => {
+              const fileUrl = `${bp.rawBaseUrl}/${file.path}`;
+              const copyUrl = fileUrl.startsWith('http') ? fileUrl : `${siteBase}${fileUrl}`;
+              return <div class="readme-file-item">
+                <a href={fileUrl}><code>{file.path}</code></a>
+                <p>{file.purpose}</p>
+                <button class="copy-inline copy-btn" data-copy={copyUrl}>Copy URL</button>
+              </div>;
+            })}
+          </div>
+        </details>
 
         <h2>Validation</h2>
         {bp.trustBadges?.length ? <ul>{bp.trustBadges.map((badge) => <li><strong>{badge.label}:</strong> {badge.detail}</li>)}</ul> : bp.checks.length ? <ul>{bp.checks.map((check) => <li>{check}</li>)}</ul> : <p>Checks will be added before this Buildprint is publishable.</p>}

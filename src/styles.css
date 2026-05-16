@@ -818,3 +818,9 @@ html, body { max-width: 100%; overflow-x: clip; }
 .readme-primary-action:hover { border-color:var(--accent); }
 .readme-primary-action.copied { border-color: color-mix(in srgb, #16a34a 70%, var(--border)); background: color-mix(in srgb, #16a34a 16%, var(--text)); color: var(--bg); }
 @media (max-width:640px) { .readme-primary-action { width:100%; } }
+
+/* Keep README file sections quiet */
+.compact-doc-list { gap: 8px; }
+.key-doc-item { grid-template-columns: minmax(150px,.55fr) minmax(0,1fr); }
+.all-files-list { margin-top: 12px; }
+@media (max-width:640px) { .key-doc-item { grid-template-columns:1fr; } }
