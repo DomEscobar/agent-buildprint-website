@@ -18,12 +18,6 @@ const trustTip = (bp) => {
   return 'Ready to inspect.';
 };
 const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
-const evidenceChips = (bp) => {
-  if (bp.status === 'validated') return ['CLI snapshot ✓', 'Tests ✓', 'Proof gated ✓'];
-  if (bp.status === 'draft') return ['Draft', 'Review needed'];
-  if (bp.checks.length > 0) return ['Checks defined', 'Needs dry-run'];
-  return ['Inspectable'];
-};
 const sections = [
   { title: 'Product OS', items: buildprints.filter((bp) => bp.category === 'Product OS').slice(0, 5) },
   { title: 'Features & Extensions', items: buildprints.filter((bp) => bp.category === 'Feature / Extension').slice(0, 5) },
@@ -104,7 +98,6 @@ const sections = [
           <h3>{bp.title}</h3>
           <p>{bp.summary}</p>
           <div class="stack-row"><span class="stack-line" title={bp.stack.join(' · ')}>{bp.stack.slice(0, 3).join(' · ')}</span><span class="stack-icons" aria-label={`Stack icons: ${(bp.iconKeys ?? []).join(', ')}`}>{(bp.iconKeys ?? []).slice(0,3).map((key) => <i class={`tech-icon ${key}`} title={key} set:html={icon(key)} />)}</span></div>
-          <div class="evidence-chip-row" aria-label="Validation evidence">{evidenceChips(bp).map((chip) => <span class="evidence-chip">{chip}</span>)}</div>
         </a>)}
       </div>
     </section>
