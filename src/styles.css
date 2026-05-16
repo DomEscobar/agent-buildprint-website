@@ -618,3 +618,22 @@ html, body { max-width: 100%; overflow-x: clip; }
   .dossier-topline b { transform: none; }
   .dossier-ledger span { max-width: 100%; }
 }
+
+/* Mobile QA pass: prevent card/content intrinsic-width overflow */
+.grid, .cards, .featured-grid, .row-scroll, .blueprint-explainer, .how-grid { min-width: 0; }
+.mini-card, .buildprint-card, .row-card, .proof-card, .blueprint-plan-card { min-width: 0; max-width: 100%; }
+.card-topline, .stack-row, .row-top { min-width: 0; }
+.plain-category, .status-word, .stack-line, .row-top span {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.stack-row { align-items: flex-start; }
+.stack-line { white-space: normal; }
+@media (max-width: 640px) {
+  .card-topline { align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+  .status-word { margin-left: 0; }
+  .stack-row { flex-direction: column; gap: 9px; }
+  .stack-icons { justify-content: flex-start; }
+  .mini-card p, .buildprint-card p, .row-card p { overflow-wrap: anywhere; }
+}
