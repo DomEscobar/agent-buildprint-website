@@ -6,8 +6,6 @@ export function getStaticPaths() { return buildprints.map((bp) => ({ params: { s
 const bp = getBuildprint(Astro.params.slug ?? '');
 if (!bp) return Astro.redirect('/buildprints/');
 const manifest = packageManifest(bp);
-const startCommand = `agb start ${siteBase}/buildprints/${bp.slug}/package.json`;
-const starIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent(`[star] ${bp.title}`)}&body=${encodeURIComponent(`I want to star/use this Buildprint.\n\nBuildprint: ${siteBase}/buildprints/${bp.slug}/\nPackage: ${siteBase}/buildprints/${bp.slug}/package.json\n\nOptional context:\n- What do you want to build with it?\n- Which stack/tool would you use?`)}`;
 const detailStatus = bp.planned || bp.status === 'coming-soon' ? 'Planned' : bp.status === 'validated' ? 'Dry-run passed' : bp.status === 'draft' ? 'Draft' : bp.checks.length ? 'Has checks' : 'Ready';
 const endpoints = [
   { label: 'Agent guide', value: `${siteBase}/buildprints/${bp.slug}/agent.md`, href: `/buildprints/${bp.slug}/agent.md` },
@@ -26,16 +24,9 @@ const isMapper = bp.slug === 'buildprint-mapper-os';
         <p class="lead">{bp.promise}</p>
       </div>
 
-      <div id="cli-start" class="top-action-stack" aria-label="Start using this Buildprint">
-        <div class="panel command-card primary-command-card">
-          <div class="panel-row"><span class="eyebrow"><b>◆</b> Start here</span><button class="btn copy-btn" data-copy={startCommand}>Copy CLI</button></div>
-          <code class="command-line">{startCommand}</code>
-          <p>Fetches the exact package into <code>.buildprint/</code>. Then your coding agent reads <code>.buildprint/next-agent.md</code>.</p>
-        </div>
-        <div class="prompt-action-card">
-          <div><b>Already inside Codex, Cursor, or Claude Code?</b><span>Copy the agent handoff prompt instead.</span></div>
-          <button class="btn primary copy-btn" data-copy={bp.copyPrompt}>Copy agent prompt</button>
-        </div>
+      <div class="simple-detail-actions" aria-label="Buildprint links">
+        <a class="btn primary" href={`/buildprints/${bp.slug}/package.json`}>Package JSON</a>
+        <a class="btn" href={bp.githubUrl}>Buildprint files</a>
         {bp.originGithubUrl ? <a class="origin-link-card" href={bp.originGithubUrl} target="_blank" rel="noreferrer"><span>Source repo</span><b>{bp.originLabel ?? bp.originGithubUrl.replace('https://github.com/', '')}</b></a> : null}
       </div>
     </section>
@@ -127,15 +118,9 @@ const isMapper = bp.slug === 'buildprint-mapper-os';
           </div>
         </div>
 
-        <div class="appendix-block grid columns two">
-          <div class="code-card">
-            <div class="panel-row"><h2>Agent prompt</h2><button class="btn copy-btn" data-copy={bp.copyPrompt}>Copy agent prompt</button></div>
-            <code class="code-block-text">{bp.copyPrompt}</code>
-          </div>
-          <div class="code-card">
-            <div class="panel-row"><h2>Manifest preview</h2><button class="btn copy-btn" data-copy={JSON.stringify({ slug: bp.slug, tier: bp.tier, category: bp.category, agent: manifest.entrypoints.agent, manifest: manifest.entrypoints.manifest }, null, 2)}>Copy</button></div>
-            <code class="code-block-text">{JSON.stringify({ slug: bp.slug, tier: bp.tier, category: bp.category, agent: manifest.entrypoints.agent, manifest: manifest.entrypoints.manifest }, null, 2)}</code>
-          </div>
+        <div class="appendix-block code-card">
+          <div class="panel-row"><h2>Manifest preview</h2><button class="btn copy-btn" data-copy={JSON.stringify({ slug: bp.slug, tier: bp.tier, category: bp.category, agent: manifest.entrypoints.agent, manifest: manifest.entrypoints.manifest }, null, 2)}>Copy</button></div>
+          <code class="code-block-text">{JSON.stringify({ slug: bp.slug, tier: bp.tier, category: bp.category, agent: manifest.entrypoints.agent, manifest: manifest.entrypoints.manifest }, null, 2)}</code>
         </div>
       </details>
     </section>

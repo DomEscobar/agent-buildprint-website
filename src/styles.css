@@ -748,3 +748,12 @@ html, body { max-width: 100%; overflow-x: clip; }
 .origin-link-card b { color:var(--text); font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .origin-link-card:hover { border-color:var(--accent); color:var(--accent); }
 @media (max-width:640px) { .origin-link-card { align-items:flex-start; flex-direction:column; gap:4px; } .origin-link-card b { max-width:100%; white-space:normal; overflow-wrap:anywhere; } }
+
+/* KISS detail actions: no top CLI/prompt handoff block */
+.simple-detail-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:22px; }
+.simple-detail-actions .origin-link-card { min-width:220px; box-shadow:none; }
+@media (max-width:640px) {
+  .readable-detail-hero { display:block; }
+  .simple-detail-actions { align-items:stretch; flex-direction:column; margin-top:18px; }
+  .simple-detail-actions .btn, .simple-detail-actions .origin-link-card { width:100%; }
+}
