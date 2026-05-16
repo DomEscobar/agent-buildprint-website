@@ -1,129 +1,94 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildprints, getBuildprint, packageManifest, repoUrl, siteBase } from '@/lib/buildprints';
+import { buildprints, getBuildprint, packageManifest, siteBase } from '@/lib/buildprints';
 import { badgeIcon } from '@/lib/icons';
-export function getStaticPaths() { return buildprints.map((bp) => ({ params: { slug: bp.slug } })); }
+
+export function getStaticPaths() {
+  return buildprints.map((bp) => ({ params: { slug: bp.slug } }));
+}
+
 const bp = getBuildprint(Astro.params.slug ?? '');
 if (!bp) return Astro.redirect('/buildprints/');
+
 const manifest = packageManifest(bp);
-const detailStatus = bp.planned || bp.status === 'coming-soon' ? 'Planned' : bp.status === 'validated' ? 'Dry-run passed' : bp.status === 'draft' ? 'Draft' : bp.checks.length ? 'Has checks' : 'Ready';
-const endpoints = [
-  { label: 'Agent guide', value: `${siteBase}/buildprints/${bp.slug}/agent.md`, href: `/buildprints/${bp.slug}/agent.md` },
-  { label: 'Manifest JSON', value: `${siteBase}/buildprints/${bp.slug}/package.json`, href: `/buildprints/${bp.slug}/package.json` },
-  { label: 'Prompt', value: `${siteBase}/buildprints/${bp.slug}/prompt.txt`, href: `/buildprints/${bp.slug}/prompt.txt` },
-];
-const isMapper = bp.slug === 'buildprint-mapper-os';
+const detailStatus = bp.planned || bp.status === 'coming-soon' ? 'Planned' : bp.status === 'validated' ? 'Validated' : bp.status === 'draft' ? 'Draft' : bp.checks.length ? 'Checked' : 'Ready';
+const startCommand = `agb start ${siteBase}/buildprints/${bp.slug}/package.json`;
+const originName = bp.originLabel ?? bp.originGithubUrl?.replace('https://github.com/', '');
 ---
 <BaseLayout title={`${bp.title} — Agent Buildprint`} description={bp.summary}>
-  <main>
-    <section class="container hero detail-hero readable-detail-hero">
-      <div class="detail-intro">
-        <a class="pill" href="/buildprints/">← Registry</a>
-        <div class="tags detail-meta"><span class="tag hot"><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="tag"><b>{badgeIcon(bp.status)}</b>{detailStatus}</span>{bp.stack.slice(0,3).map((x) => <span class="tag">{x}</span>)}</div>
+  <main class="readme-page">
+    <article class="container readme-shell">
+      <header class="readme-header">
+        <a class="readme-back" href="/buildprints/">← Buildprints</a>
         <h1>{bp.title}</h1>
-        <p class="lead">{bp.promise}</p>
-      </div>
-
-      <div class="simple-detail-actions" aria-label="Buildprint links">
-        <a class="btn primary" href={`/buildprints/${bp.slug}/package.json`}>Package JSON</a>
-        <a class="btn" href={bp.githubUrl}>Buildprint files</a>
-        {bp.originGithubUrl ? <a class="origin-link-card" href={bp.originGithubUrl} target="_blank" rel="noreferrer"><span>Source repo</span><b>{bp.originLabel ?? bp.originGithubUrl.replace('https://github.com/', '')}</b></a> : null}
-      </div>
-    </section>
-      </div>
-    </section>
-
-    {isMapper ? <section class="container section mapper-output-section">
-      <div class="section-head compact"><div><span class="eyebrow"><b>⌁</b> Mapper output</span><h2>From repo scan to selected Buildprint</h2></div></div>
-      <div class="grid mapper-output-grid">
-        <div class="panel mapper-artifact"><code>SYSTEM_MAP.md</code><h3>Observed architecture zones</h3><p>Frameworks, routes, APIs, data files, integrations, subprojects, risks, and review questions — labeled as observed/inferred/question instead of pretending certainty.</p></div>
-        <div class="panel mapper-artifact"><code>BUILDPRINT_CANDIDATES.md</code><h3>Scoped Buildprint candidates</h3><p>Reusable slices like AI workflow, billing flow, auth/session, data infrastructure, or subproject packages with included paths, risks, and questions.</p></div>
-        <div class="panel mapper-artifact"><code>SELECTED_CANDIDATE.md</code><h3>Focused extraction handoff</h3><p>After human selection, the coding agent writes a selected candidate file so the final Buildprint stays inside the intended boundary.</p></div>
-        <a class="panel mapper-artifact proof-artifact-link" href="/proofs/vercel-ai-chatbot-mapper/"><code>PUBLIC PROOF</code><h3>Vercel AI Chatbot case study</h3><p>See a real Next.js + Vercel AI SDK repo mapped into candidates, then focused on the AI Workflow Buildprint.</p></a>
-      </div>
-      <div class="panel mapper-command-card">
-        <div><b>Typical flow</b><p>Paste Mapper OS into your coding agent. It discovers candidates first, asks for one scope decision, then extracts and reversal-tests the selected Buildprint.</p></div>
-        <pre>1. Read Mapper OS files
-2. Write SYSTEM_MAP.md + BUILDPRINT_CANDIDATES.md
-3. Ask for one selected candidate
-4. Extract buildprint-submission/
-5. Run clean-room reversal and report gaps</pre>
-      </div>
-    </section> : null}
-
-    <section class="container section product-preview-section">
-      <div class="detail-preview-card">
-        <div class="preview-visual" aria-hidden="true">
-          <div class="preview-window">
-            <span></span><span></span><span></span>
-            <div class="preview-flow">
-              <b>{bp.stack[0] ?? 'Input'}</b>
-              <i></i>
-              <b>{bp.stack[1] ?? 'Contracts'}</b>
-              <i></i>
-              <b>{bp.stack[2] ?? 'Proof'}</b>
-            </div>
-            <div class="preview-output-lines"><em></em><em></em><em></em></div>
-          </div>
+        <p class="readme-lead">{bp.promise}</p>
+        <div class="readme-badges">
+          <span><b>{badgeIcon(bp.category)}</b>{bp.category}</span>
+          <span><b>{badgeIcon(bp.status)}</b>{detailStatus}</span>
+          <span>{bp.difficulty}</span>
+          {bp.stack.slice(0, 4).map((item) => <span>{item}</span>)}
         </div>
-        <div class="preview-copy">
-          <span class="eyebrow"><b>→</b> What this helps you build</span>
-          <h2>{bp.summary}</h2>
-          <p>{bp.includes[0] ?? 'A reusable Buildprint package with implementation contracts, plan, tests, and agent handoff files.'}</p>
+        <div class="readme-links">
+          <a href={`/buildprints/${bp.slug}/package.json`}>Package JSON</a>
+          <a href={bp.githubUrl}>Buildprint files</a>
+          <a href={`/buildprints/${bp.slug}/agent.md`}>Agent guide</a>
+          {bp.originGithubUrl ? <a href={bp.originGithubUrl} target="_blank" rel="noreferrer">Source repo: {originName}</a> : null}
         </div>
-      </div>
-    </section>
+      </header>
 
-    <section class="container section detail-readable-simple">
-      <div class="section-head compact"><div><span class="eyebrow"><b>◇</b> Useful outputs</span><h2>The parts people actually use</h2></div></div>
-      <div class="outcome-grid">
-        {bp.includes.slice(0, 6).map((x, index) => <div class="panel outcome-card"><span>{String(index + 1).padStart(2, '0')}</span><h3>{x}</h3></div>)}
-      </div>
-    </section>
+      <section class="markdown-body">
+        <h2>Overview</h2>
+        <p>{bp.summary}</p>
 
-    <section class="container section proof-boundary-section">
-      <div class="proof-boundary-grid">
-        <div class="panel proof-column">
-          <span class="eyebrow"><b>✓</b> Proven / checked</span>
-          {bp.trustBadges?.length ? <div class="proof-mini-list">{bp.trustBadges.slice(0, 4).map((badge) => <div><b>{badge.label}</b><span>{badge.detail}</span></div>)}</div> : bp.checks.length ? <ul class="clean-list check-list">{bp.checks.slice(0, 5).map((x) => <li>{x}</li>)}</ul> : <p>Checks will be added before this Buildprint is publishable.</p>}
-        </div>
-        <div class="panel proof-column quiet-boundary">
-          <span class="eyebrow"><b>!</b> Boundary</span>
-          {bp.risks.length ? <ul class="clean-list risk-list">{bp.risks.slice(0, 5).map((x) => <li>{x}</li>)}</ul> : <p>Risk coverage will be listed with the final package.</p>}
-        </div>
-      </div>
-    </section>
+        <h2>Use this when</h2>
+        {bp.includes.length ? <ul>{bp.includes.slice(0, 8).map((item) => <li>{item}</li>)}</ul> : <p>Package details are still being prepared.</p>}
 
-    <section class="container section technical-appendix">
-      <details class="panel">
-        <summary><span><b>Technical package details</b><small>Agent endpoints, files, prompt, and manifest preview</small></span></summary>
-
-        <div class="appendix-block endpoint-card">
-          <h2>Agent endpoints</h2>
-          {endpoints.map((endpoint) => <div class="endpoint-row"><a href={endpoint.href}>{endpoint.label}</a><code>{endpoint.value.replace(siteBase, '')}</code><button class="copy-inline copy-btn" data-copy={endpoint.value}>Copy</button></div>)}
+        <h2>Quick start</h2>
+        <p>Fetch the exact Buildprint package into your project:</p>
+        <div class="readme-code-row">
+          <code>{startCommand}</code>
+          <button class="copy-inline copy-btn" data-copy={startCommand}>Copy</button>
         </div>
 
-        <div class="appendix-block">
-          <div class="section-head compact"><div><h2>Files and purposes</h2></div><a class="btn" href={manifest.entrypoints.manifest}>Open manifest</a></div>
-          <div class="file-table">
-            {bp.files.map((file) => {
-              const fileUrl = `${bp.rawBaseUrl}/${file.path}`;
-              const copyUrl = fileUrl.startsWith('http') ? fileUrl : `${siteBase}${fileUrl}`;
-              return <div class="file-row">
-                <code>{file.path}</code>
-                <span>{file.purpose}</span>
-                <div class="file-actions"><a href={fileUrl}>Open</a><button class="copy-inline copy-btn" data-copy={copyUrl}>Copy URL</button></div>
-              </div>;
-            })}
-          </div>
+        <h2>What is included</h2>
+        <div class="readme-file-list">
+          {bp.files.map((file) => {
+            const fileUrl = `${bp.rawBaseUrl}/${file.path}`;
+            const copyUrl = fileUrl.startsWith('http') ? fileUrl : `${siteBase}${fileUrl}`;
+            return <div class="readme-file-item">
+              <a href={fileUrl}><code>{file.path}</code></a>
+              <p>{file.purpose}</p>
+              <button class="copy-inline copy-btn" data-copy={copyUrl}>Copy URL</button>
+            </div>;
+          })}
         </div>
 
-        <div class="appendix-block code-card">
-          <div class="panel-row"><h2>Manifest preview</h2><button class="btn copy-btn" data-copy={JSON.stringify({ slug: bp.slug, tier: bp.tier, category: bp.category, agent: manifest.entrypoints.agent, manifest: manifest.entrypoints.manifest }, null, 2)}>Copy</button></div>
-          <code class="code-block-text">{JSON.stringify({ slug: bp.slug, tier: bp.tier, category: bp.category, agent: manifest.entrypoints.agent, manifest: manifest.entrypoints.manifest }, null, 2)}</code>
-        </div>
-      </details>
-    </section>
+        <h2>Validation</h2>
+        {bp.trustBadges?.length ? <ul>{bp.trustBadges.map((badge) => <li><strong>{badge.label}:</strong> {badge.detail}</li>)}</ul> : bp.checks.length ? <ul>{bp.checks.map((check) => <li>{check}</li>)}</ul> : <p>Checks will be added before this Buildprint is publishable.</p>}
+
+        {bp.checks.length ? <>
+          <h3>Quality gates</h3>
+          <ul>{bp.checks.map((check) => <li>{check}</li>)}</ul>
+        </> : null}
+
+        <h2>Boundaries / non-goals</h2>
+        {bp.risks.length ? <ul>{bp.risks.map((risk) => <li>{risk}</li>)}</ul> : <p>Risk coverage will be listed with the final package.</p>}
+
+        <h2>Links</h2>
+        <ul>
+          <li><a href={`/buildprints/${bp.slug}/package.json`}>Manifest JSON</a></li>
+          <li><a href={`/buildprints/${bp.slug}/agent.md`}>Agent guide</a></li>
+          <li><a href={`/buildprints/${bp.slug}/prompt.txt`}>Prompt text</a></li>
+          <li><a href={bp.githubUrl}>Buildprint files on GitHub</a></li>
+          {bp.originGithubUrl ? <li><a href={bp.originGithubUrl} target="_blank" rel="noreferrer">Original/source GitHub repo: {originName}</a></li> : null}
+        </ul>
+
+        <details class="readme-details">
+          <summary>Manifest preview</summary>
+          <pre>{JSON.stringify({ slug: bp.slug, title: bp.title, tier: bp.tier, category: bp.category, status: bp.status, originGithub: bp.originGithubUrl, agent: manifest.entrypoints.agent, manifest: manifest.entrypoints.manifest }, null, 2)}</pre>
+        </details>
+      </section>
+    </article>
   </main>
   <script>
     function copyText(value) {
