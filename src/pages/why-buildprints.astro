@@ -2,136 +2,174 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 ---
 <BaseLayout
-  title="Why Buildprints — architecture slides for coding agents"
-  description="A kinetic slide deck explaining Agent Buildprint: exact architecture packages coding agents can bootstrap, follow, and validate."
+  title="Why Buildprints — slide deck for coding agents"
+  description="A fullscreen pitch deck explaining Agent Buildprint: exact architecture packages coding agents can bootstrap, follow, and validate."
 >
-  <main class="why-deck" aria-label="Why Agent Buildprint cinematic slide deck">
-    <nav class="deck-rail" aria-label="Slide navigation">
-      <a href="#slide-hero"><span>00</span>Open</a>
-      <a href="#slide-chaos"><span>01</span>Chaos</a>
-      <a href="#slide-blueprint"><span>02</span>Blueprint</a>
-      <a href="#slide-package"><span>03</span>Package</a>
-      <a href="#slide-flow"><span>04</span>Flow</a>
-      <a href="#slide-proof"><span>05</span>Proof</a>
-      <a href="#slide-market"><span>06</span>Market</a>
-    </nav>
-
-    <section id="slide-hero" class="why-slide hero-slide" aria-labelledby="why-title">
-      <div class="slide-copy">
-        <p class="deck-kicker">Agent Buildprint / cinematic deck</p>
-        <h1 id="why-title">Architecture that agents can actually follow.</h1>
-        <p class="deck-lead">A Buildprint is not another prompt. It is a verified construction sequence: exact docs, scope rails, contracts, tests, and proof gates.</p>
-        <div class="why-actions">
-          <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
-          <a class="btn" href="#slide-chaos">Play the story ↓</a>
+  <main class="pitch-deck" aria-label="Why Agent Buildprint slide deck">
+    <div class="deck-stage" data-deck>
+      <section class="deck-slide is-active cover-slide" data-slide aria-labelledby="why-title">
+        <div class="slide-content">
+          <p class="deck-eyebrow">Agent Buildprint / 9-slide thesis</p>
+          <h1 id="why-title">Coding agents need construction plans.</h1>
+          <p>Not more vibes. Not longer prompts. Reusable architecture packets they can bootstrap, follow, and prove.</p>
         </div>
-      </div>
-      <div class="orbital-stage" aria-hidden="true">
-        <div class="blueprint-core">BUILD<br/>PRINT</div>
-        <span style="--i:0">SPEC</span>
-        <span style="--i:1">PLAN</span>
-        <span style="--i:2">TEST</span>
-        <span style="--i:3">PROOF</span>
-        <span style="--i:4">SCOPE</span>
-        <span style="--i:5">TRACE</span>
-      </div>
-    </section>
+        <div class="cover-art" aria-hidden="true">
+          <div class="blueprint-sun">AGB</div>
+          <span>SPEC</span><span>PLAN</span><span>TEST</span><span>PROOF</span>
+        </div>
+      </section>
 
-    <section id="slide-chaos" class="why-slide chaos-slide">
-      <div class="slide-copy">
-        <p class="slide-number">01 / The failure mode</p>
-        <h2>Agents are fast enough to build the wrong thing beautifully.</h2>
-        <p>Without a reusable architecture contract, the model fills gaps with confidence: guessed components, mushy scope, late tests, fake parity, and “done” from one happy path.</p>
-      </div>
-      <div class="chaos-board" aria-label="Uncontrolled agent drift graphic">
-        <div class="prompt-chip">“Build me a RAG app”</div>
-        <svg viewBox="0 0 520 380" role="img" aria-label="Drift lines from prompt to bad outcomes">
-          <path d="M72 92 C180 42 238 150 338 70 S470 82 474 32" />
-          <path d="M70 145 C176 245 242 94 350 184 S462 260 492 150" />
-          <path d="M72 214 C180 174 246 310 356 260 S452 272 486 338" />
-          <path d="M82 282 C176 330 252 206 358 312 S438 188 486 236" />
-        </svg>
-        <ul>
-          <li><b>Scope creep</b><span>quietly expands</span></li>
-          <li><b>Architecture drift</b><span>changes mid-build</span></li>
-          <li><b>Validation theatre</b><span>tests after code</span></li>
-          <li><b>Parity overclaim</b><span>demo ≠ product</span></li>
-        </ul>
-      </div>
-    </section>
+      <section class="deck-slide chaos-slide" data-slide>
+        <div class="slide-content">
+          <p class="deck-eyebrow">01 / The failure mode</p>
+          <h2>Agents can build the wrong thing at incredible speed.</h2>
+          <p>A single prompt becomes guessed architecture, hidden scope creep, late tests, and fake “done”.</p>
+        </div>
+        <div class="chaos-map" aria-hidden="true">
+          <b>“Build me a RAG app”</b>
+          <i style="--x:14%;--y:28%;--c:#ff4d8d">scope drift</i>
+          <i style="--x:61%;--y:20%;--c:#24f6ff">missing contracts</i>
+          <i style="--x:72%;--y:62%;--c:#eaff3f">test theatre</i>
+          <i style="--x:22%;--y:72%;--c:#a78bfa">overclaim</i>
+        </div>
+      </section>
 
-    <section id="slide-blueprint" class="why-slide blueprint-slide">
-      <div class="stamp-cloud" aria-hidden="true">
-        <span>NO VIBES</span><span>EXACT SNAPSHOTS</span><span>CLAIM BOUNDARY</span><span>RUN THE GATE</span>
-      </div>
-      <div class="slide-copy wide">
-        <p class="slide-number">02 / The intervention</p>
-        <h2>Give the agent the senior-engineer thinking before it touches files.</h2>
-        <p>Buildprints convert repeated product architecture into a portable packet the agent can bootstrap, inspect, execute, and validate.</p>
-      </div>
-    </section>
+      <section class="deck-slide insight-slide" data-slide>
+        <div class="giant-word" aria-hidden="true">BEFORE</div>
+        <div class="slide-content wide">
+          <p class="deck-eyebrow">02 / The insight</p>
+          <h2>The best work happens before the agent writes code.</h2>
+          <p>Senior-engineer context — architecture, boundaries, contracts, risks, validation — should be packaged before generation starts.</p>
+        </div>
+      </section>
 
-    <section id="slide-package" class="why-slide package-slide">
-      <div class="slide-copy">
-        <p class="slide-number">03 / The object</p>
-        <h2>A Buildprint is a stack of executable decisions.</h2>
-        <p>Every file has a job. The agent does not scrape marketing cards or invent missing architecture.</p>
-      </div>
-      <div class="file-cascade" aria-label="Buildprint package files">
-        <article><b>BUILDPRINT.md</b><span>architecture truth</span></article>
-        <article><b>SPEC.md</b><span>behavior contract</span></article>
-        <article><b>PLAN.md</b><span>ordered implementation rails</span></article>
-        <article><b>CONTRACTS.md</b><span>interfaces, data, events</span></article>
-        <article><b>TEST_MATRIX.md</b><span>risk → proof gates</span></article>
-        <article><b>VALIDATION_REPORT.md</b><span>evidence, not vibes</span></article>
-      </div>
-    </section>
+      <section class="deck-slide object-slide" data-slide>
+        <div class="slide-content">
+          <p class="deck-eyebrow">03 / The object</p>
+          <h2>A Buildprint is an executable architecture packet.</h2>
+          <p>Exact files. Exact read order. Exact claim boundary. Exact proof gates.</p>
+        </div>
+        <div class="sheet-stack" aria-label="Buildprint files">
+          <article><b>BUILDPRINT.md</b><span>architecture truth</span></article>
+          <article><b>SPEC.md</b><span>behavior contract</span></article>
+          <article><b>PLAN.md</b><span>implementation rails</span></article>
+          <article><b>CONTRACTS.md</b><span>interfaces + events</span></article>
+          <article><b>TEST_MATRIX.md</b><span>risk → check</span></article>
+        </div>
+      </section>
 
-    <section id="slide-flow" class="why-slide flow-slide">
-      <p class="slide-number">04 / The machine</p>
-      <h2>The agent moves through a constrained build tunnel.</h2>
-      <div class="flow-machine" aria-label="Buildprint execution flow">
-        <div><span>01</span><b>Choose</b><small>architecture</small></div>
-        <i></i>
-        <div><span>02</span><b>Bootstrap</b><small><code>agb start</code></small></div>
-        <i></i>
-        <div><span>03</span><b>Build</b><small>from snapshots</small></div>
-        <i></i>
-        <div><span>04</span><b>Validate</b><small>tests + proof</small></div>
-      </div>
-    </section>
+      <section class="deck-slide bootstrap-slide" data-slide>
+        <div class="slide-content wide">
+          <p class="deck-eyebrow">04 / The ritual</p>
+          <h2><code>agb start</code> gives the agent exact snapshots.</h2>
+          <p>No scraping human cards. No hallucinated docs. The coding agent gets the real package and starts from the next-agent handoff.</p>
+        </div>
+        <div class="command-strip" aria-hidden="true">
+          <span>$ agb start package.json .</span>
+          <b>↓</b>
+          <span>.buildprint/snapshots/*</span>
+        </div>
+      </section>
 
-    <section id="slide-proof" class="why-slide proof-slide">
-      <div class="slide-copy">
-        <p class="slide-number">05 / The trust layer</p>
-        <h2>“Done” has to leave evidence.</h2>
-        <p>Validated Buildprints carry runnable proof: build logs, test counts, raw file checks, bootstrap checks, and explicit claim boundaries.</p>
-      </div>
-      <div class="proof-terminal" aria-label="Validation terminal graphic">
-        <p><span>$</span> agb start package.json</p>
-        <p class="ok">✓ downloaded exact snapshots</p>
-        <p><span>$</span> npm test</p>
-        <p class="ok">✓ 12/12 proof tests passed</p>
-        <p><span>$</span> check claims</p>
-        <p class="warn">! clone/API/provider parity excluded</p>
-      </div>
-    </section>
+      <section class="deck-slide tunnel-slide" data-slide>
+        <div class="slide-content">
+          <p class="deck-eyebrow">05 / The build tunnel</p>
+          <h2>The agent moves through constrained gates.</h2>
+          <p>Choose → bootstrap → read → build → test → verify → report gaps.</p>
+        </div>
+        <div class="gate-tunnel" aria-label="Execution gates">
+          <span>Choose</span><span>Bootstrap</span><span>Build</span><span>Validate</span>
+        </div>
+      </section>
 
-    <section id="slide-market" class="why-slide market-slide">
-      <div class="slide-copy wide">
-        <p class="slide-number">06 / The category</p>
-        <h2>Docker Hub for environments. npm for code. Buildprints for agent architecture.</h2>
-        <p>Build new systems, map real products into clean-room blueprints, and benchmark agents on the same architecture task.</p>
-      </div>
-      <div class="poster-grid" aria-label="Agent Buildprint use cases">
-        <article><span>Build</span><b>RAG, billing, agents, content OS</b></article>
-        <article><span>Map</span><b>GitHub products into clean-room architecture</b></article>
-        <article><span>Benchmark</span><b>Codex vs Claude vs Cursor on one task</b></article>
-      </div>
-      <div class="why-actions final-actions">
-        <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
-        <a class="btn" href="/buildprints/superpowers-skill-methodology-harness/">See Superpowers Harness</a>
-      </div>
-    </section>
+      <section class="deck-slide proof-slide" data-slide>
+        <div class="slide-content">
+          <p class="deck-eyebrow">06 / The proof layer</p>
+          <h2>“Done” means evidence survived inspection.</h2>
+          <p>Validated Buildprints include build/test output, raw file checks, bootstrap checks, and explicit non-goals.</p>
+        </div>
+        <div class="terminal-card" aria-label="Proof terminal">
+          <p><em>$</em> npm test</p>
+          <p class="ok">✓ 12/12 tests passed</p>
+          <p><em>$</em> check raw urls</p>
+          <p class="ok">✓ 23/23 files live</p>
+          <p class="warn">! clone parity excluded</p>
+        </div>
+      </section>
+
+      <section class="deck-slide category-slide" data-slide>
+        <div class="slide-content wide">
+          <p class="deck-eyebrow">07 / The category</p>
+          <h2>Docker Hub for environments. npm for code. Buildprints for agent architecture.</h2>
+          <p>Architecture becomes reusable, inspectable, benchmarkable, and improvable.</p>
+        </div>
+      </section>
+
+      <section class="deck-slide final-slide" data-slide>
+        <div class="slide-content wide">
+          <p class="deck-eyebrow">08 / The ask</p>
+          <h2>Stop asking agents to invent the plan while they execute it.</h2>
+          <p>Pick a Buildprint. Bootstrap exact snapshots. Let the agent build inside rails. Then verify.</p>
+          <div class="deck-actions">
+            <a class="deck-btn primary" href="/buildprints/">Browse Buildprints</a>
+            <a class="deck-btn" href="/buildprints/superpowers-skill-methodology-harness/">See Superpowers Harness</a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="deck-hud" aria-label="Slide controls">
+      <button type="button" class="deck-arrow" data-prev aria-label="Previous slide">←</button>
+      <div class="deck-count"><span data-current>01</span><i>/</i><span data-total>09</span></div>
+      <button type="button" class="deck-arrow" data-next aria-label="Next slide">→</button>
+    </div>
+    <div class="deck-dots" data-dots aria-label="Slide dots"></div>
+    <p class="deck-hint">Use ← → keys, buttons, or swipe</p>
   </main>
+
+  <script is:inline>
+    const deck = document.querySelector('[data-deck]');
+    const slides = Array.from(document.querySelectorAll('[data-slide]'));
+    const current = document.querySelector('[data-current]');
+    const total = document.querySelector('[data-total]');
+    const dotsWrap = document.querySelector('[data-dots]');
+    const prev = document.querySelector('[data-prev]');
+    const next = document.querySelector('[data-next]');
+    let index = 0;
+    let touchStart = null;
+    total.textContent = String(slides.length).padStart(2, '0');
+    const dots = slides.map((_, i) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+      dot.addEventListener('click', () => go(i));
+      dotsWrap.appendChild(dot);
+      return dot;
+    });
+    function go(nextIndex) {
+      index = Math.max(0, Math.min(slides.length - 1, nextIndex));
+      deck.style.setProperty('--slide-index', index);
+      slides.forEach((slide, i) => slide.classList.toggle('is-active', i === index));
+      dots.forEach((dot, i) => dot.classList.toggle('is-active', i === index));
+      current.textContent = String(index + 1).padStart(2, '0');
+      history.replaceState(null, '', `#slide-${index + 1}`);
+    }
+    prev.addEventListener('click', () => go(index - 1));
+    next.addEventListener('click', () => go(index + 1));
+    window.addEventListener('keydown', (event) => {
+      if (['ArrowRight', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); go(index + 1); }
+      if (['ArrowLeft', 'PageUp'].includes(event.key)) { event.preventDefault(); go(index - 1); }
+      if (event.key === 'Home') go(0);
+      if (event.key === 'End') go(slides.length - 1);
+    });
+    deck.addEventListener('touchstart', (event) => { touchStart = event.touches[0].clientX; }, { passive: true });
+    deck.addEventListener('touchend', (event) => {
+      if (touchStart === null) return;
+      const delta = event.changedTouches[0].clientX - touchStart;
+      if (Math.abs(delta) > 42) go(index + (delta < 0 ? 1 : -1));
+      touchStart = null;
+    }, { passive: true });
+    const hashMatch = location.hash.match(/slide-(\d+)/);
+    go(hashMatch ? Number(hashMatch[1]) - 1 : 0);
+  </script>
 </BaseLayout>
