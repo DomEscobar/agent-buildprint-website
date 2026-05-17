@@ -82,9 +82,8 @@ p { color:var(--muted); line-height:1.65; }
 .tech-icon.markdown, .tech-icon.md { color:#475569; }
 .tech-name { display:inline-flex; align-items:center; gap:6px; min-width:0; vertical-align:middle; }
 .tech-name-icons { display:inline-flex; align-items:center; gap:3px; flex:0 0 auto; }
-.tech-name .tech-icon { width:16px; height:16px; border:0; border-radius:0; padding:0; background:transparent; box-shadow:none; }
+.tech-name .tech-icon { width:18px; height:18px; border-radius:6px; padding:3px; background:color-mix(in srgb, var(--surface-2) 84%, transparent); }
 .tech-name .tech-icon img { width:100%; height:100%; object-fit:contain; display:block; }
-.readme-badges .tech-name .tech-icon, .stack-name-row .tech-name .tech-icon { width:14px; height:14px; }
 .tech-name span:last-child { min-width:0; overflow:hidden; text-overflow:ellipsis; }
 .meta-row { display:flex; gap:8px; flex-wrap:wrap; color:var(--muted); font-size:12px; }
 .meta-row span { border:1px solid var(--border); border-radius:999px; padding:5px 8px; }
