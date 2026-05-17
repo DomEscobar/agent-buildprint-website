@@ -1,4 +1,5 @@
 ---
+import TechName from '@/components/TechName.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildprints, getBuildprint, packageManifest, siteBase } from '@/lib/buildprints';
 import { badgeIcon } from '@/lib/icons';
@@ -32,12 +33,12 @@ const proofChips = bp.trustBadges?.length
         <div class="readme-badges">
           <span><b>{badgeIcon(bp.category)}</b>{bp.category}</span>
           <span><b>{badgeIcon(bp.status)}</b>{detailStatus}</span>
-          {bp.stack.slice(0, 3).map((item) => <span>{item}</span>)}
+          {bp.stack.slice(0, 3).map((item) => <span><TechName name={item} /></span>)}
         </div>
         <div class="readme-links">
           <button class="readme-primary-action copy-btn" data-copy={bp.copyPrompt}>Copy agent prompt</button>
           <a href={`/buildprints/${bp.slug}/package.json`}>Package JSON</a>
-          {bp.originGithubUrl ? <a href={bp.originGithubUrl} target="_blank" rel="noreferrer">Source repo: {originName}</a> : null}
+          {bp.originGithubUrl ? <a href={bp.originGithubUrl} target="_blank" rel="noreferrer">Source repo: <TechName name={`GitHub ${originName}`} /></a> : null}
         </div>
       </header>
 
@@ -48,7 +49,7 @@ const proofChips = bp.trustBadges?.length
         <h2>Architecture preview</h2>
         <div class="architecture-flow" aria-label="Architecture preview">
           {architectureFlow.map((step, index) => <>
-            <span>{step}</span>
+            <span><TechName name={step} /></span>
             {index < architectureFlow.length - 1 ? <b aria-hidden="true">→</b> : null}
           </>)}
         </div>
@@ -61,8 +62,8 @@ const proofChips = bp.trustBadges?.length
         <ul>
           <li><a href={`/buildprints/${bp.slug}/package.json`}>Package JSON</a></li>
           <li><a href={`/buildprints/${bp.slug}/agent.md`}>Agent guide</a></li>
-          <li><a href={bp.githubUrl}>Buildprint files</a></li>
-          {bp.originGithubUrl ? <li><a href={bp.originGithubUrl} target="_blank" rel="noreferrer">Source repo: {originName}</a></li> : null}
+          <li><a href={bp.githubUrl}><TechName name="GitHub" /> Buildprint files</a></li>
+          {bp.originGithubUrl ? <li><a href={bp.originGithubUrl} target="_blank" rel="noreferrer">Source repo: <TechName name={`GitHub ${originName}`} /></a></li> : null}
         </ul>
 
         <details class="readme-details advanced-details">

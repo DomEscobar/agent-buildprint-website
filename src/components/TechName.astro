@@ -1,0 +1,10 @@
+---
+import { iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
+
+const { name, class: className = '', maxIcons = 3 } = Astro.props;
+const keys = iconKeysForName(String(name ?? '')).slice(0, maxIcons);
+---
+<span class:list={['tech-name', className, { 'has-tech-icon': keys.length > 0 }]}>
+  {keys.length ? <span class="tech-name-icons" aria-hidden="true">{keys.map((key) => <i class={`tech-icon ${key}`} title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span> : null}
+  <span>{name}</span>
+</span>

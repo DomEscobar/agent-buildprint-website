@@ -1,4 +1,5 @@
 ---
+import TechName from '@/components/TechName.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { repoUrl } from '@/lib/buildprints';
 const submitIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent('[submission] <your buildprint title>')}&body=${encodeURIComponent(`Submit a free Buildprint for review.\n\nRepository URL:\nPackage path, if not repo root:\nCreator name/profile:\nBuildprint title:\nCategory: Product OS / Feature / Extension / Framework / Architecture / Workflow OS\nLicense:\n\nWhat it helps people build:\n\nVerification checklist:\n- [ ] BUILDPRINT.md exists\n- [ ] SPEC.md or equivalent behavior spec exists, if applicable\n- [ ] PLAN.md or phased steps exist\n- [ ] TEST_MATRIX.md or quality checks exist\n- [ ] No secrets, private keys, tokens, or env values are included\n- [ ] Links resolve\n- [ ] License is clear\n\nNotes for reviewer:\n`)}`;
@@ -44,23 +45,23 @@ Start with Stage 1 now.`;
       <a class="pill" href="/buildprints/">← Registry</a>
       <h1>Submit a free Buildprint.</h1>
       <p class="lead">Creators can submit reusable Buildprints for products, features, architectures, workflows, and integrations. Submissions are verified before they appear in the registry.</p>
-      <div class="actions"><a class="btn primary" href={submitIssueUrl}>Submit for review</a><a class="btn" href="/buildprints/buildprint-mapper-os/">Mapper OS</a><a class="btn" href="https://github.com/DomEscobar/agent-buildprint">Open GitHub</a></div>
+      <div class="actions"><a class="btn primary" href={submitIssueUrl}>Submit for review</a><a class="btn" href="/buildprints/buildprint-mapper-os/">Mapper OS</a><a class="btn" href="https://github.com/DomEscobar/agent-buildprint">Open <TechName name="GitHub" /></a></div>
     </section>
 
     <section class="container section submission-prompt-section">
       <div class="panel code-card prompt-card">
         <div class="panel-row"><div><span class="eyebrow"><b>✎</b> Creator prompt</span><h2>Turn your project into scoped Buildprint candidates.</h2></div><button class="btn copy-btn" data-copy={creatorPrompt}>Copy prompt</button></div>
-        <p>Paste this into Codex, Cursor, Claude Code, or another coding agent inside your repo. Large projects should first produce candidate Buildprints and ask for scope before final extraction.</p>
+        <p>Paste this into <TechName name="Codex" />, <TechName name="Cursor" />, <TechName name="Claude Code" />, or another coding agent inside your repo. Large projects should first produce candidate Buildprints and ask for scope before final extraction.</p>
         <code class="code-block-text">{creatorPrompt}</code>
       </div>
     </section>
 
     <section class="container section submission-flow">
-      <div class="section-head simple"><div><span class="eyebrow"><b>✓</b> Verification</span><h2>GitHub is the first identity and review layer.</h2><p>No marketplace auth yet. For now, creator identity comes from the GitHub account/repo that submits the package, and every Buildprint is reviewed before listing.</p></div></div>
+      <div class="section-head simple"><div><span class="eyebrow"><b>✓</b> Verification</span><h2><TechName name="GitHub" /> is the first identity and review layer.</h2><p>No marketplace auth yet. For now, creator identity comes from the <TechName name="GitHub" /> account/repo that submits the package, and every Buildprint is reviewed before listing.</p></div></div>
       <div class="grid how-grid">
         <div class="panel quiet"><span class="step-number">1</span><h3>Map or discover scope</h3><p>For large repos, use Mapper OS or the creator prompt to produce candidates before extraction. No CLI is required.</p></div>
         <div class="panel quiet"><span class="step-number">2</span><h3>Extract selected Buildprint</h3><p>Create one scoped package, or a hierarchical System Buildprint with modules. Avoid whole-repo sludge.</p></div>
-        <div class="panel quiet"><span class="step-number">3</span><h3>Submit for review</h3><p>Open a GitHub issue with repo URL, package path, creator profile, license, scope, and checklist.</p></div>
+        <div class="panel quiet"><span class="step-number">3</span><h3>Submit for review</h3><p>Open a <TechName name="GitHub" /> issue with repo URL, package path, creator profile, license, scope, and checklist.</p></div>
       </div>
     </section>
 
