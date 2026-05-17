@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import TechName from '@/components/TechName.astro';
 ---
 <BaseLayout
   title="Why Buildprints — reusable plans for coding agents"
@@ -90,7 +91,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     <section class="why-slide market-slide">
       <div class="slide-copy wide">
         <p class="slide-number">06 / The category</p>
-        <h2>Docker Hub for environments. npm for code. Buildprints for agent architecture.</h2>
+        <h2><TechName name="Docker" /> Hub for environments. <TechName name="npm" /> for code. Buildprints for agent architecture.</h2>
         <p>Architecture becomes reusable, inspectable, benchmarkable, and improvable — instead of being rediscovered in every chat.</p>
       </div>
       <div class="poster-grid" aria-label="Agent Buildprint use cases">

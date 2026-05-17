@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import TechName from '@/components/TechName.astro';
 import { repoUrl } from '@/lib/buildprints';
 const submitIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent('[submission] <your buildprint title>')}&body=${encodeURIComponent(`Submit a free Buildprint for review.\n\nRepository URL:\nPackage path, if not repo root:\nCreator name/profile:\nBuildprint title:\nCategory: Product OS / Feature / Extension / Framework / Architecture / Workflow OS\nLicense:\n\nWhat it helps people build:\n\nVerification checklist:\n- [ ] BUILDPRINT.md exists\n- [ ] SPEC.md or equivalent behavior spec exists, if applicable\n- [ ] PLAN.md or phased steps exist\n- [ ] TEST_MATRIX.md or quality checks exist\n- [ ] No secrets, private keys, tokens, or env values are included\n- [ ] Links resolve\n- [ ] License is clear\n\nNotes for reviewer:\n`)}`;
 const creatorPrompt = `You are helping me turn an existing software project into an Agent Buildprint: a reusable implementation plan that humans can review and AI coding agents can follow.
