@@ -987,3 +987,16 @@ html, body { max-width: 100%; overflow-x: clip; }
 @media (max-width:640px) {
   .flat-snapshot .detail-panel, .agent-packet-list a { grid-template-columns:1fr; gap:8px; }
 }
+
+/* Tiny card footer tech metadata: text + known logos, no pills */
+.card-tech-footer { margin-top:auto; padding-top:14px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:10px; color:var(--muted); font-size:11px; line-height:1.35; font-weight:760; min-width:0; }
+.card-tech-footer > span:first-child { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.card-tech-footer.compact { margin-top:10px; padding-top:10px; }
+.tiny-tech-icons { display:inline-flex; align-items:center; justify-content:flex-end; gap:5px; flex:0 0 auto; }
+.tiny-tech-icons i { width:14px; height:14px; display:inline-flex; align-items:center; justify-content:center; border:0; border-radius:0; padding:0; margin:0; background:transparent; box-shadow:none; color:currentColor; font-size:10px; line-height:1; font-style:normal; font-weight:900; opacity:.72; }
+.tiny-tech-icons img { width:100%; height:100%; object-fit:contain; display:block; }
+.clickable-card:hover .tiny-tech-icons i { opacity:.95; }
+@media (max-width:640px) {
+  .card-tech-footer { align-items:flex-start; }
+  .tiny-tech-icons { padding-top:1px; }
+}

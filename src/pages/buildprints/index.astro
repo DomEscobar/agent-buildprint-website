@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildprints, categories, tiers } from '@/lib/buildprints';
-import { badgeIcon } from '@/lib/icons';
+import { badgeIcon, iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
 
 const trustLabel = (bp) => {
   if (bp.status === 'validated') return 'Validated';
@@ -14,6 +14,7 @@ const trustTip = (bp) => {
   return 'Ready to inspect.';
 };
 const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
+const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKeysForName(item)))).slice(0, 4);
 ---
 <BaseLayout title="Buildprint Registry — Agent Buildprint" description="Browse reusable Buildprints for products, features, architectures, workflows, and integrations.">
   <main>
@@ -37,7 +38,7 @@ const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
               <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={trustTip(bp)}>{trustLabel(bp)}</span></div>
               <h3>{bp.title}</h3>
               <p>{bp.summary}</p>
-              <div class="stack-row" title={bp.stack.join(' · ')}>{bp.stack.slice(0, 3).join(' · ')}</div>
+              <div class="card-tech-footer" title={bp.stack.join(' · ')}><span>{bp.stack.slice(0, 3).join(' · ')}</span><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></div>
             </div>
           </a>
         ))}
