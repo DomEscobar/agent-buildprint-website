@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildprints, liveBuildprints } from '@/lib/buildprints';
+import { buildprints, implementationEstimate, liveBuildprints } from '@/lib/buildprints';
 import { badgeIcon, iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
 import TechName from '@/components/TechName.astro';
 const featured = liveBuildprints.filter((bp) => bp.featured).slice(0, 4);
@@ -94,7 +94,7 @@ const sections = [
           <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={trustTip(bp)}>{trustLabel(bp)}</span></div>
           <h3>{bp.title}</h3>
           <p>{bp.summary}</p>
-          <div class="card-tech-footer" title={bp.stack.join(' · ')}><span>{bp.stack.slice(0, 3).join(' · ')}</span><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></div>
+          <div class="card-tech-footer" title={bp.stack.join(' · ')}><span>{bp.stack.slice(0, 3).join(' · ')}</span><span class="card-tech-side"><em>{implementationEstimate(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span></div>
         </a>)}
       </div>
     </section>
@@ -107,7 +107,7 @@ const sections = [
             <div class="row-top"><span><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="row-status"><b>{badgeIcon(bp.status)}</b>{trustLabel(bp)}</span></div>
             <b>{bp.title}</b>
             <p>{bp.summary}</p>
-            <small class="card-tech-footer compact" title={bp.stack.join(' · ')}><span>{bp.stack.slice(0, 3).join(' · ')}</span><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></small>
+            <small class="card-tech-footer compact" title={bp.stack.join(' · ')}><span>{bp.stack.slice(0, 3).join(' · ')}</span><span class="card-tech-side"><em>{implementationEstimate(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span></small>
           </a>)}
         </div>
       </div>)}

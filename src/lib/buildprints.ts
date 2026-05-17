@@ -34,6 +34,19 @@ export type Buildprint = {
   featured?: boolean;
 };
 
+export function implementationEstimate(bp: Pick<Buildprint, 'tier' | 'category' | 'difficulty' | 'files' | 'checks'>) {
+  let minutes = bp.tier === 'basic' ? 75 : bp.tier === 'strong' ? 120 : 165;
+  if (bp.category === 'Product OS' || bp.category === 'Mapped Project') minutes += 45;
+  if (bp.category === 'Workflow OS') minutes += 20;
+  if (bp.category === 'Feature / Extension') minutes -= 20;
+  if (bp.difficulty === 'Advanced') minutes += 35;
+  if (bp.files.length > 18) minutes += 25;
+  if (bp.checks.length > 8) minutes += 15;
+  const low = Math.max(30, Math.round((minutes - 30) / 15) * 15);
+  const high = Math.round((minutes + 30) / 15) * 15;
+  return `${low}–${high} min`;
+}
+
 export const repoUrl = 'https://github.com/DomEscobar/agent-buildprint';
 export const rawRepoBase = 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/23d843e';
 // Production DNS for agent-buildprint.com is not yet serving this static site.

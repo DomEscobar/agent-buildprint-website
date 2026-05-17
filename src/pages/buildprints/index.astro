@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildprints, categories, tiers } from '@/lib/buildprints';
+import { buildprints, categories, implementationEstimate, tiers } from '@/lib/buildprints';
 import { badgeIcon, iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
 
 const trustLabel = (bp) => {
@@ -38,7 +38,7 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
               <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={trustTip(bp)}>{trustLabel(bp)}</span></div>
               <h3>{bp.title}</h3>
               <p>{bp.summary}</p>
-              <div class="card-tech-footer" title={bp.stack.join(' · ')}><span>{bp.stack.slice(0, 3).join(' · ')}</span><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></div>
+              <div class="card-tech-footer" title={bp.stack.join(' · ')}><span>{bp.stack.slice(0, 3).join(' · ')}</span><span class="card-tech-side"><em>{implementationEstimate(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span></div>
             </div>
           </a>
         ))}

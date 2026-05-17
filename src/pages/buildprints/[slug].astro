@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildprints, getBuildprint, packageManifest, siteBase } from '@/lib/buildprints';
+import { buildprints, getBuildprint, implementationEstimate, packageManifest, siteBase } from '@/lib/buildprints';
 import { badgeIcon } from '@/lib/icons';
 import TechName from '@/components/TechName.astro';
 
@@ -70,6 +70,10 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
             <span>Flexibility</span>
             <p>Use the defaults or swap parts while keeping the contracts and checks.</p>
             <ul>{flexibilityItems.slice(0, 4).map((item) => <li>{item}</li>)}</ul>
+          </section>
+          <section class="detail-panel estimate-panel">
+            <span>Estimate</span>
+            <p><b>{implementationEstimate(bp)}</b> for a first agent implementation pass.</p>
           </section>
         </div>
 
