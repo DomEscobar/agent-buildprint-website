@@ -2,7 +2,7 @@
 
 ## Status
 
-Initial local package/proof validation passed. Local static manifest bootstrap also passed. Full public live bootstrap still must be checked after publish/deploy.
+Initial local package/proof validation passed. Local static manifest bootstrap passed. Public live manifest and bootstrap passed after publish.
 
 ## Research validation
 
@@ -35,3 +35,5 @@ Validated coverage:
 Local result: `npm test` passed 6/6 proof tests.
 
 Local static bootstrap result: `node /root/blueprint/bin/agb.js start http://127.0.0.1:4199/buildprints/perfect-rag-retrieval-os/package.json .` downloaded 17 snapshot files; running `npm test` from `.buildprint/snapshots/proof` passed 6/6 tests.
+
+Public live result: `https://agent-buildprint.com/buildprints/perfect-rag-retrieval-os/package.json` returned 17 manifest files; all raw URLs returned 200; `node /root/blueprint/bin/agb.js start https://agent-buildprint.com/buildprints/perfect-rag-retrieval-os/package.json .` downloaded 17 snapshot files; running `npm test` from `.buildprint/snapshots/proof` passed 6/6 tests.
