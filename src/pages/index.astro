@@ -2,7 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildprints, liveBuildprints } from '@/lib/buildprints';
 import TechName from '@/components/TechName.astro';
-import { badgeIcon } from '@/lib/icons';
+import { badgeIcon, iconHtml as icon } from '@/lib/icons';
 const featured = liveBuildprints.filter((bp) => bp.featured).slice(0, 4);
 const trustLabel = (bp) => {
   if (bp.status === 'validated') return 'Validated';
@@ -93,7 +93,7 @@ const sections = [
           <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={trustTip(bp)}>{trustLabel(bp)}</span></div>
           <h3>{bp.title}</h3>
           <p>{bp.summary}</p>
-          <div class="stack-row stack-name-row" title={bp.stack.join(' · ')}>{bp.stack.slice(0, 3).map((item) => <TechName name={item} />)}</div>
+          <div class="stack-row"><span class="stack-line" title={bp.stack.join(' · ')}>{bp.stack.slice(0, 3).join(' · ')}</span><span class="stack-icons" aria-label={`Stack icons: ${(bp.iconKeys ?? []).join(', ')}`}>{(bp.iconKeys ?? []).slice(0,3).map((key) => <i class={`tech-icon ${key}`} title={key} set:html={icon(key)} />)}</span></div>
         </a>)}
       </div>
     </section>
@@ -106,7 +106,7 @@ const sections = [
             <div class="row-top"><span><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="row-status"><b>{badgeIcon(bp.status)}</b>{trustLabel(bp)}</span></div>
             <b>{bp.title}</b>
             <p>{bp.summary}</p>
-            <small class="stack-name-row compact">{bp.stack.slice(0, 3).map((item) => <TechName name={item} />)}</small>
+            <small>{bp.stack.slice(0, 3).join(' · ')}</small>
           </a>)}
         </div>
       </div>)}
