@@ -778,8 +778,8 @@ html, body { max-width: 100%; overflow-x: clip; }
 .readme-header h1 { font-size: clamp(34px, 6vw, 62px); line-height: 1; letter-spacing: -.055em; margin: 18px 0 12px; max-width: 860px; }
 .readme-lead { font-size: 18px; color: var(--text); max-width: 760px; margin: 0; }
 .readme-badges, .readme-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
-.readme-badges > span { display:inline-flex; align-items:center; gap:6px; border: 1px solid var(--border); background: var(--surface-2); color: var(--muted); border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 800; }
-.readme-badges b { color: var(--accent); margin-right: 0; }
+.readme-badges span { border: 1px solid var(--border); background: var(--surface-2); color: var(--muted); border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 800; }
+.readme-badges b { color: var(--accent); margin-right: 5px; }
 .readme-links a { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 10px; padding: 9px 11px; font-size: 14px; font-weight: 800; }
 .readme-links a:hover { border-color: var(--accent); color: var(--accent); }
 .markdown-body { margin-top: 18px; border: 1px solid var(--border); background: var(--surface); border-radius: 18px; padding: 30px; box-shadow: var(--shadow); }
@@ -814,10 +814,10 @@ html, body { max-width: 100%; overflow-x: clip; }
 
 /* README detail mobile overflow fixes */
 .readme-header, .markdown-body, .readme-badges, .readme-links { min-width: 0; max-width: 100%; overflow: hidden; }
-.readme-header h1, .readme-lead, .readme-badges > span, .readme-links a { overflow-wrap: anywhere; word-break: normal; }
+.readme-header h1, .readme-lead, .readme-badges span, .readme-links a { overflow-wrap: anywhere; word-break: normal; }
 @media (max-width: 640px) {
   .readme-header h1 { font-size: clamp(28px, 8.8vw, 36px); line-height: 1.04; letter-spacing: -.04em; }
-  .readme-badges > span { white-space: normal; }
+  .readme-badges span { white-space: normal; }
 }
 .readme-lead, .markdown-body p, .markdown-body li { max-width: 100%; white-space: normal; overflow-wrap: break-word; }
 .readme-header { overflow: visible; }
@@ -851,13 +851,13 @@ html, body { max-width: 100%; overflow-x: clip; }
 
 /* Simple architecture preview for benefit-first details */
 .architecture-flow { display:flex; align-items:center; flex-wrap:wrap; gap:9px; margin:12px 0 10px; }
-.architecture-flow > span { display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--border); background:var(--surface-2); color:var(--text); border-radius:12px; padding:10px 12px; font-weight:800; font-size:14px; }
+.architecture-flow span { border:1px solid var(--border); background:var(--surface-2); color:var(--text); border-radius:12px; padding:10px 12px; font-weight:800; font-size:14px; }
 .architecture-flow b { color:var(--muted); font-weight:900; }
 .proof-chip-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
 .proof-chip-row span { border:1px solid color-mix(in srgb, #16a34a 34%, var(--border)); background:color-mix(in srgb, #16a34a 8%, var(--surface)); color:color-mix(in srgb, #16a34a 68%, var(--text)); border-radius:999px; padding:6px 9px; font-size:12px; font-weight:850; }
 @media (max-width:640px) {
   .architecture-flow { display:grid; grid-template-columns:1fr; gap:7px; }
-  .architecture-flow > span { width:100%; }
+  .architecture-flow span { width:100%; }
   .architecture-flow b { display:none; }
 }
 
