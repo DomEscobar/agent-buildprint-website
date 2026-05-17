@@ -43,10 +43,10 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
         <a class="readme-back" href="/buildprints/">← Buildprints</a>
         <h1>{bp.title}</h1>
         <p class="readme-lead">{description}</p>
-        <div class="readme-badges">
+        <div class="readme-meta-line">
           <span><b>{badgeIcon(bp.category)}</b>{bp.category}</span>
           <span><b>{badgeIcon(bp.status)}</b>{detailStatus}</span>
-          {bp.stack.slice(0, 3).map((item) => <span><TechName name={item} /></span>)}
+          <span>{bp.stack.slice(0, 3).join(' · ')}</span>
         </div>
         <div class="readme-links">
           <button class="readme-primary-action copy-btn" data-copy={bp.copyPrompt}>Copy agent prompt</button>
@@ -56,7 +56,7 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
       </header>
 
       <section class="markdown-body benefit-body detail-blueprint-body">
-        <div class="detail-snapshot" aria-label="Buildprint snapshot">
+        <div class="detail-snapshot flat-snapshot" aria-label="Buildprint snapshot">
           <section class="detail-panel">
             <span>Builds</span>
             <ul>{whatYouGet.slice(0, 3).map((item) => <li>{item}</li>)}</ul>
@@ -74,7 +74,7 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
         </div>
 
         <h2>Agent packet</h2>
-        <div class="agent-packet-grid" aria-label="Files the agent receives">
+        <div class="agent-packet-list" aria-label="Files the agent receives">
           {packetFiles.map((file) => <a href={`${bp.rawBaseUrl}/${file.path}`}>
             <code>{file.path}</code>
             <span>{file.purpose}</span>
@@ -82,7 +82,7 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
         </div>
 
         <h2>Implementation flow</h2>
-        <div class="architecture-flow compact-flow" aria-label="Implementation flow">
+        <div class="architecture-flow compact-flow flat-flow" aria-label="Implementation flow">
           {architectureFlow.map((step, index) => <>
             <span><TechName name={step} /></span>
             {index < architectureFlow.length - 1 ? <b aria-hidden="true">→</b> : null}
@@ -90,10 +90,10 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
         </div>
 
         <h2>Validation</h2>
-        <div class="verification-receipt" aria-label="Validation evidence">
-          {proofItems.map((item) => <span>✓ {item}</span>)}
-          {bp.status === 'validated' ? <span>✓ validated status</span> : <span>△ {detailStatus}</span>}
-        </div>
+        <ul class="verification-list" aria-label="Validation evidence">
+          {proofItems.map((item) => <li>{item}</li>)}
+          {bp.status === 'validated' ? <li>validated status</li> : <li>{detailStatus}</li>}
+        </ul>
 
         <h2>Links</h2>
         <ul>
