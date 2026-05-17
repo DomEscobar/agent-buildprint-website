@@ -11,7 +11,7 @@ const bp = getBuildprint(Astro.params.slug ?? '');
 if (!bp) return Astro.redirect('/buildprints/');
 
 const manifest = packageManifest(bp);
-const detailStatus = bp.planned || bp.status === 'coming-soon' ? 'Planned' : bp.status === 'validated' ? 'Validated' : bp.status === 'draft' ? 'Draft' : bp.checks.length ? 'Checked' : 'Ready';
+const detailStatus = bp.status === 'validated' ? 'Validated' : bp.checks.length ? 'Checked' : 'Ready';
 const startCommand = `agb start ${siteBase}/buildprints/${bp.slug}/package.json`;
 const originName = bp.originLabel ?? bp.originGithubUrl?.replace('https://github.com/', '');
 const description = bp.plainDescription ?? bp.summary;

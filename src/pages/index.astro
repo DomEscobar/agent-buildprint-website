@@ -4,16 +4,12 @@ import { buildprints, liveBuildprints } from '@/lib/buildprints';
 import { badgeIcon, iconHtml as icon } from '@/lib/icons';
 const featured = liveBuildprints.filter((bp) => bp.featured).slice(0, 4);
 const trustLabel = (bp) => {
-  if (bp.planned || bp.status === 'coming-soon') return 'PLANNED';
   if (bp.status === 'validated') return 'Validated';
-  if (bp.status === 'draft') return 'DRAFT';
   if (bp.checks.length > 0) return 'CHECKED';
   return 'READY';
 };
 const trustTip = (bp) => {
-  if (bp.planned || bp.status === 'coming-soon') return 'Planned Buildprint; package details are not ready yet.';
   if (bp.status === 'validated') return 'Validated by snapshot bootstrap, Codex dry-run, local tests, and gated publishing checks.';
-  if (bp.status === 'draft') return 'Draft Buildprint; useful for review but not fully validated.';
   if (bp.checks.length > 0) return 'Has defined quality checks, but still needs full dry-run validation.';
   return 'Ready to inspect.';
 };
@@ -23,7 +19,7 @@ const sections = [
   { title: 'Features & Extensions', items: buildprints.filter((bp) => bp.category === 'Feature / Extension').slice(0, 5) },
   { title: 'Framework Blueprints', items: buildprints.filter((bp) => bp.category === 'Framework / Architecture').slice(0, 5) },
   { title: 'Workflow OS', items: buildprints.filter((bp) => bp.category === 'Workflow OS').slice(0, 5) },
-];
+].filter((section) => section.items.length > 0);
 ---
 <BaseLayout title="Agent Buildprint — reusable specs for AI coding agents" description="Reusable implementation packages with specs, phases, contracts, and checks for AI coding agents.">
   <main>
@@ -105,7 +101,7 @@ const sections = [
       {sections.map((section) => <div class="catalog-row">
         <div class="row-head"><h2>{section.title}</h2><a class="link" href="/buildprints/">Explore →</a></div>
         <div class="row-scroll">
-          {section.items.map((bp) => <a class={`row-card ${bp.planned ? 'muted-card' : ''}`} href={bp.planned ? '/buildprints/' : `/buildprints/${bp.slug}/`}>
+          {section.items.map((bp) => <a class="row-card" href={`/buildprints/${bp.slug}/`}>
             <div class="row-top"><span><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="row-status"><b>{badgeIcon(bp.status)}</b>{trustLabel(bp)}</span></div>
             <b>{bp.title}</b>
             <p>{bp.summary}</p>

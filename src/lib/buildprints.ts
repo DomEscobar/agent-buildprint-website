@@ -1,6 +1,6 @@
 export type BuildprintCategory = 'Framework / Architecture' | 'Product OS' | 'Feature / Extension' | 'Workflow OS' | 'Mapped Project';
-export type BuildprintTier = 'basic' | 'strong' | 'agent-grade' | 'planned';
-export type BuildprintStatus = 'draft' | 'publishable-draft' | 'dry-run-needed' | 'validated' | 'coming-soon';
+export type BuildprintTier = 'basic' | 'strong' | 'agent-grade';
+export type BuildprintStatus = 'publishable-draft' | 'dry-run-needed' | 'validated';
 
 export type BuildprintFile = { path: string; purpose: string; required: boolean };
 export type BuildprintTrustBadge = { label: string; detail: string; tone?: 'success' | 'info' | 'warning' };
@@ -32,7 +32,6 @@ export type Buildprint = {
   originLabel?: string;
   rawBaseUrl: string;
   featured?: boolean;
-  planned?: boolean;
 };
 
 export const repoUrl = 'https://github.com/DomEscobar/agent-buildprint';
@@ -433,50 +432,12 @@ export const buildprints: Buildprint[] = [
     rawBaseUrl: `${siteBase}/buildprint-files/portable-durable-agent-graph-runtime`,
     copyPrompt: `${localPrompt('portable-durable-agent-graph-runtime', 'Portable Durable Agent Graph Runtime')} Build a clean-room TypeScript durable graph runtime proof from the Buildprint package. Keep claims scoped to workflow-proof + contract-parity + mocked-runtime-proof. Do not call it a LangGraph clone, drop-in replacement, full API-compatible runtime, LangSmith/cloud equivalent, provider/tool parity implementation, production storage adapter, or Pregel concurrency/performance parity.`,
   },
-  {
-    slug: 'langgraph-vanilla-ts-agent',
-    title: 'Vanilla TS Agent Contract',
-    creator: 'Agent Buildprint',
-    category: 'Framework / Architecture',
-    tier: 'strong',
-    status: 'draft',
-    runtime: ['TypeScript'],
-    stack: ['Vanilla TypeScript', 'Agent contracts', 'Schemas', 'Policy checks'],
-    iconKeys: ['typescript', 'json', 'md'],
-    difficulty: 'Medium',
-    featured: true,
-    summary: 'Framework-light agent architecture inspired by graph workflows, without locking generated code into a runtime framework.',
-    plainDescription: 'A small TypeScript blueprint for building an agent graph contract with nodes, routes, state, prompts, and side-effect boundaries.',
-    whatYouGet: ['Minimal TypeScript agent graph skeleton', 'Node and route contracts', 'State schema pattern', 'Prompt contract structure', 'Side-effect policy', 'Example runner shape'],
-    whatYouNeed: ['Nothing for local/mock mode', 'AI provider key only when graph nodes call real models', 'Tool/API credentials only for real side effects'],
-    architectureFlow: ['Nodes', 'State', 'Routes', 'Prompts', 'Policies', 'Runner'],
-    promise: 'A technical architecture Buildprint for typed agent nodes, routes, policies, and tests.',
-    includes: ['Node contracts', 'Route specs', 'State schema', 'Prompt contracts', 'Side-effect policy', 'Example runner'],
-    risks: ['Runtime lock-in', 'Untyped outputs', 'Unclear side effects', 'Prompt/schema drift'],
-    files: [{ path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true }],
-    checks: ['No framework runtime import', 'Schemas exist', 'Routes are testable', 'Side effects are declared'],
-    githubUrl: `${repoUrl}/tree/main/langgraph`,
-    originGithubUrl: 'https://github.com/langchain-ai/langgraph',
-    originLabel: 'langchain-ai/langgraph',
-    rawBaseUrl: `${rawRepoBase}/langgraph`,
-    copyPrompt: 'Use the Vanilla TS Agent Contract Buildprint. Keep generated code framework-light, typed, policy-aware, and testable. Do not import LangGraph runtime packages unless explicitly requested.',
-  },
-  {
-    slug: 'auth-teams-rbac', title: 'Auth + Teams RBAC', creator: 'Agent Buildprint', category: 'Feature / Extension', tier: 'planned', status: 'coming-soon', runtime: ['Next.js', 'TypeScript'], stack: ['Auth', 'Teams', 'RBAC'], iconKeys: ['typescript', 'json'], difficulty: 'Medium', planned: true, summary: 'Team accounts, roles, invitations, and permission checks agents usually miss.', promise: 'Coming soon.', includes: [], risks: [], files: [], checks: [], githubUrl: repoUrl, rawBaseUrl: rawRepoBase, copyPrompt: 'Coming soon.'
-  },
-  {
-    slug: 'admin-dashboard', title: 'Admin Dashboard', creator: 'Agent Buildprint', category: 'Feature / Extension', tier: 'planned', status: 'coming-soon', runtime: ['React', 'TypeScript'], stack: ['Tables', 'Filters', 'Actions', 'Audit logs'], iconKeys: ['typescript', 'json'], difficulty: 'Medium', planned: true, summary: 'A safe admin dashboard with search, filters, guarded actions, and auditability.', promise: 'Coming soon.', includes: [], risks: [], files: [], checks: [], githubUrl: repoUrl, rawBaseUrl: rawRepoBase, copyPrompt: 'Coming soon.'
-  },
-  {
-    slug: 'ai-support-desk-os', title: 'AI Support Desk OS', creator: 'Agent Buildprint', category: 'Product OS', tier: 'planned', status: 'coming-soon', runtime: ['OpenClaw', 'Helpdesk'], stack: ['Tickets', 'Knowledge base', 'Escalation'], iconKeys: ['openclaw', 'json', 'md'], difficulty: 'Advanced', planned: true, summary: 'Support agent system with knowledge retrieval, escalation, QA, and human handoff.', promise: 'Coming soon.', includes: [], risks: [], files: [], checks: [], githubUrl: repoUrl, rawBaseUrl: rawRepoBase, copyPrompt: 'Coming soon.'
-  }
 ];
 
 export const categories = ['All', 'Framework / Architecture', 'Product OS', 'Feature / Extension', 'Workflow OS', 'Mapped Project'] as const;
-export const tiers = ['All', 'basic', 'strong', 'agent-grade', 'planned'] as const;
+export const tiers = ['All', 'basic', 'strong', 'agent-grade'] as const;
 export const getBuildprint = (slug: string) => buildprints.find((item) => item.slug === slug);
-export const liveBuildprints = buildprints.filter((bp) => !bp.planned);
-export const plannedBuildprints = buildprints.filter((bp) => bp.planned);
+export const liveBuildprints = buildprints;
 
 export function buildprintUrls(bp: Buildprint) {
   return { human: `/buildprints/${bp.slug}/`, agent: `/buildprints/${bp.slug}/agent.md`, manifest: `/buildprints/${bp.slug}/package.json`, prompt: `/buildprints/${bp.slug}/prompt.txt`, files: bp.rawBaseUrl };

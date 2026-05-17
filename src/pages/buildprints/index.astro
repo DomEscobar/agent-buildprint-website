@@ -4,16 +4,12 @@ import { buildprints, categories, tiers } from '@/lib/buildprints';
 import { badgeIcon, iconHtml as icon } from '@/lib/icons';
 
 const trustLabel = (bp) => {
-  if (bp.planned || bp.status === 'coming-soon') return 'PLANNED';
   if (bp.status === 'validated') return 'Validated';
-  if (bp.status === 'draft') return 'DRAFT';
   if (bp.checks.length > 0) return 'CHECKED';
   return 'READY';
 };
 const trustTip = (bp) => {
-  if (bp.planned || bp.status === 'coming-soon') return 'Planned Buildprint; package details are not ready yet.';
   if (bp.status === 'validated') return 'Validated by snapshot bootstrap, Codex dry-run, local tests, and gated publishing checks.';
-  if (bp.status === 'draft') return 'Draft Buildprint; useful for review but not fully validated.';
   if (bp.checks.length > 0) return 'Has defined quality checks, but still needs full dry-run validation.';
   return 'Ready to inspect.';
 };
@@ -36,7 +32,7 @@ const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
       </div>
       <div class="grid cards" id="cards">
         {buildprints.map((bp) => (
-          <a class="card buildprint-card clickable-card" href={bp.planned ? '/buildprints/' : `/buildprints/${bp.slug}/`} data-category={bp.category} data-tier={bp.tier} data-search={`${bp.title} ${bp.creator} ${bp.category} ${bp.tier} ${bp.status} ${bp.runtime.join(' ')} ${bp.stack.join(' ')} ${bp.summary} ${(bp.trustBadges ?? []).map((badge) => badge.label).join(' ')}`.toLowerCase()}>
+          <a class="card buildprint-card clickable-card" href={`/buildprints/${bp.slug}/`} data-category={bp.category} data-tier={bp.tier} data-search={`${bp.title} ${bp.creator} ${bp.category} ${bp.tier} ${bp.status} ${bp.runtime.join(' ')} ${bp.stack.join(' ')} ${bp.summary} ${(bp.trustBadges ?? []).map((badge) => badge.label).join(' ')}`.toLowerCase()}>
             <div class="card-body">
               <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={trustTip(bp)}>{trustLabel(bp)}</span></div>
               <h3>{bp.title}</h3>
