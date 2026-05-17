@@ -18,10 +18,11 @@ const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
 <BaseLayout title="Buildprint Registry — Agent Buildprint" description="Browse reusable Buildprints for products, features, architectures, workflows, and integrations.">
   <main>
     <section class="container hero compact-hero">
-      <span class="pill"><b>⌁</b> Registry · human and agent navigable</span>
-      <h1>Find a real plan before your agent writes code.</h1>
-      <p class="lead">Browse reusable build plans with architecture, specs, phases, contracts, and checks — made for humans to inspect and agents to follow.</p>
-      <div class="actions"><a class="btn primary" href="#cards">Browse cards</a><a class="btn" href="/buildprints/submit/">Submit a Buildprint</a><a class="btn" href="/buildprints/index.json">Registry JSON</a></div>
+      <span class="pill"><b>⌁</b> Buildprint marketplace · agent-ready packages</span>
+      <h1>Browse verified implementation packages for coding agents.</h1>
+      <p class="lead">Each Buildprint is a package of architecture decisions, file snapshots, phase rails, contracts, and checks — so agents build from a plan instead of guessing.</p>
+      <div class="marketplace-thesis compact" aria-label="What a Buildprint contains"><span>Architecture</span><b>+</b><span>Specs</span><b>+</b><span>Checks</span><b>=</b><span>agent-ready package</span></div>
+      <div class="actions"><a class="btn primary" href="#cards">Browse packages</a><a class="btn" href="/buildprints/submit/">Submit a Buildprint</a><a class="btn" href="/buildprints/index.json">Registry JSON</a></div>
     </section>
 
     <section class="container section registry-tools">
@@ -37,6 +38,7 @@ const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
               <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={trustTip(bp)}>{trustLabel(bp)}</span></div>
               <h3>{bp.title}</h3>
               <p>{bp.summary}</p>
+              <div class="package-preview" aria-label="Buildprint package contents"><span>BUILDPRINT</span><span>SPEC</span><span>PLAN</span><span>TESTS</span></div>
               <div class="stack-row"><span class="stack-line" title={bp.stack.join(' · ')}>{bp.stack.slice(0, 3).join(' · ')}</span><span class="stack-icons" aria-label={`Stack icons: ${(bp.iconKeys ?? []).join(', ')}`}>{(bp.iconKeys ?? []).slice(0,3).map((key) => <i class={`tech-icon ${key}`} title={key} set:html={icon(key)} />)}</span></div>
             </div>
           </a>

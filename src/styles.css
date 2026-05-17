@@ -966,3 +966,102 @@ html, body { max-width: 100%; overflow-x: clip; }
   .flow-machine i { width:2px; height:24px; justify-self:center; }
   .proof-terminal p { display:grid; }
 }
+
+/* USP marketplace pass */
+.marketplace-thesis {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:20px 0 0;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:850;
+}
+.marketplace-thesis span {
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--text);
+  border-radius:999px;
+  padding:7px 10px;
+  box-shadow:0 10px 24px rgba(15,23,42,.04);
+}
+.marketplace-thesis span:last-child {
+  border-color:color-mix(in srgb, var(--accent) 34%, var(--border));
+  background:var(--accent-soft);
+  color:var(--accent);
+}
+.marketplace-thesis b { color:var(--accent); }
+.marketplace-thesis.compact { margin:18px 0 0; }
+.package-preview {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:5px;
+  margin-top:16px;
+  padding:8px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:color-mix(in srgb, var(--surface-2) 70%, var(--surface));
+}
+.package-preview span {
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  border:1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  border-radius:8px;
+  background:var(--surface);
+  color:var(--muted);
+  padding:6px 5px;
+  text-align:center;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.055em;
+}
+.package-preview span:first-child {
+  color:var(--accent);
+  border-color:color-mix(in srgb, var(--accent) 28%, var(--border));
+}
+.row-package-strip {
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-top:11px;
+}
+.row-package-strip span {
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  color:var(--muted);
+  border-radius:999px;
+  padding:4px 7px;
+  font-size:10px;
+  font-weight:850;
+}
+.agent-package-strip {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  margin-top:18px;
+}
+.agent-package-strip span {
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  border-radius:12px;
+  padding:10px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.35;
+}
+.agent-package-strip b {
+  display:block;
+  color:var(--text);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:11px;
+  margin-bottom:3px;
+}
+@media (max-width:720px) {
+  .package-preview { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .agent-package-strip { grid-template-columns:1fr 1fr; }
+}
+@media (max-width:420px) {
+  .agent-package-strip { grid-template-columns:1fr; }
+}

@@ -35,6 +35,12 @@ const proofChips = bp.trustBadges?.length
           <span><b>{badgeIcon(bp.status)}</b>{detailStatus}</span>
           {bp.stack.slice(0, 3).map((item) => <span><TechName name={item} /></span>)}
         </div>
+        <div class="agent-package-strip" aria-label="What the agent receives">
+          <span><b>BUILDPRINT.md</b> architecture</span>
+          <span><b>SPEC.md</b> behavior</span>
+          <span><b>PLAN.md</b> phases</span>
+          <span><b>TEST_MATRIX.md</b> checks</span>
+        </div>
         <div class="readme-links">
           <button class="readme-primary-action copy-btn" data-copy={bp.copyPrompt}>Copy agent prompt</button>
           <a href={`/buildprints/${bp.slug}/package.json`}>Package JSON</a>
