@@ -338,6 +338,7 @@ export const buildprints: Buildprint[] = [
       { path: 'proof/src/billing/webhookVerifier.ts', purpose: 'dry-run proof mockable signature verifier', required: false },
       { path: 'proof/src/billing/webhook.ts', purpose: 'dry-run proof webhook lifecycle handler', required: false },
       { path: 'proof/src/billing/entitlements.ts', purpose: 'dry-run proof server-side entitlement guard', required: false },
+      { path: 'proof/src/ui/billingUi.ts', purpose: 'dry-run proof billing settings UI stub', required: false },
       { path: 'proof/test/billing.test.ts', purpose: 'dry-run proof lifecycle tests', required: false },
       { path: 'proof/test/node-builtins.d.ts', purpose: 'dry-run proof local Node type shims', required: false },
     ],
