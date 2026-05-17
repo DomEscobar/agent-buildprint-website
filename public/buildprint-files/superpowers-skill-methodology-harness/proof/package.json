@@ -1,0 +1,14 @@
+{
+  "name": "superpowers-methodology-harness-proof",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Clean-room proof harness built from Agent Buildprint snapshots.",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/harness.test.js",
+    "eval": "node src/run-evals.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
