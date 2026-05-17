@@ -1,10 +1,10 @@
-# Local SaaS Billing Proof
+# Stripe Billing Extension
 
-Offline TypeScript proof for the Stripe Billing Extension Buildprint.
+Portable Buildprint for adding SaaS billing with Stripe Checkout, customer portal, verified webhooks, server-side subscription state, entitlement checks, and billing settings.
 
-This module demonstrates checkout creation, customer portal creation, verified webhook handling through an injectable verifier, subscription state storage, server-side entitlement checks, a billing UI stub, and mocked lifecycle tests.
+The bundled TypeScript proof is a verified reference implementation, not the only target stack. Use `TARGET_STACK_ADAPTERS.md` to adapt the same billing contract to Python, Rails, Go, PHP/Laravel, or another backend.
 
-No real Stripe SDK, Stripe keys, or network APIs are used.
+No real Stripe SDK, Stripe keys, or network APIs are used in the proof.
 
 ## Environment Variable Names
 
@@ -15,9 +15,18 @@ No real Stripe SDK, Stripe keys, or network APIs are used.
 - `APP_BILLING_CANCEL_URL`
 - `APP_BILLING_PORTAL_RETURN_URL`
 
-## Commands
+## Proof commands
 
 ```sh
+cd proof
 npm test
 npm run build
 ```
+
+## Portability rule
+
+Keep the architecture stable across stacks:
+
+Checkout → Webhook → Subscription State → Entitlements → Portal/Billing UI
+
+Translate framework details, but do not weaken the security boundaries: raw-body webhook verification, server-side entitlement checks, authenticated portal access, and mocked lifecycle tests.

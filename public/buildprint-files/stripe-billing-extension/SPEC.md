@@ -2,7 +2,7 @@
 
 ## Goal
 
-Add a paid SaaS billing feature with Stripe Checkout, customer portal, verified webhooks, server-side subscription state, entitlement checks, and a billing settings UI.
+Add a paid SaaS billing feature with Stripe Checkout, customer portal, verified webhooks, server-side subscription state, entitlement checks, and a billing settings UI. The Buildprint is backend-stack agnostic: implement the same contracts in the user's existing stack instead of forcing the TypeScript proof structure.
 
 ## Core behaviors
 
@@ -13,6 +13,7 @@ Add a paid SaaS billing feature with Stripe Checkout, customer portal, verified 
 5. Premium access is granted only from server-side subscription state, never from frontend flags/query params.
 6. The billing UI reflects server state and offers checkout / portal actions.
 7. Local tests use mocked Stripe/provider events and no network calls.
+8. Target-stack adapters preserve the same security boundaries in Node/TypeScript, Python, Rails, Go, PHP/Laravel, or another backend.
 
 ## Subscription statuses
 
@@ -35,3 +36,16 @@ Handle at minimum:
 - `APP_BILLING_PORTAL_RETURN_URL`
 
 Use names only in generated examples unless the human provides real values separately.
+
+## Target stack adaptation
+
+Before implementation, inspect the host app's:
+
+- backend language and framework
+- routing style
+- auth/current-user access pattern
+- database/ORM/storage layer
+- existing user/account/team model
+- test runner and mocking style
+
+Then adapt the universal billing contract from `TARGET_STACK_ADAPTERS.md`. The TypeScript proof is a behavioral reference only.

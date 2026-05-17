@@ -1,5 +1,11 @@
 # Stripe Billing Extension Plan
 
+## Phase 0 — Target stack alignment
+
+Identify the host app's backend stack, routing style, auth/current-user pattern, database/ORM, existing user/account/team model, and test runner. Read `TARGET_STACK_ADAPTERS.md` and choose the closest adapter before writing code.
+
+Do not force TypeScript proof structure into non-TypeScript apps. Preserve the universal billing contract and security boundaries.
+
 ## Phase 1 — Data model
 
 Define a billing customer/subscription state model connected to the app user/account.

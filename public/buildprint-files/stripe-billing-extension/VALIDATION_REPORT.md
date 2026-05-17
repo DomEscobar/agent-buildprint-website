@@ -1,5 +1,9 @@
 # Validation
 
+## Scope
+
+The runnable proof is TypeScript, but the Buildprint is now explicitly stack-adaptable. `TARGET_STACK_ADAPTERS.md` documents how to preserve the same billing contract in Python, Rails, Go, PHP/Laravel, Node/TypeScript, or another backend.
+
 ## What Works
 
 - Checkout creation is implemented through an injectable `BillingProvider`; the included `MockBillingProvider` returns deterministic local URLs and performs no network calls.
@@ -17,3 +21,4 @@
 - HTTP route adapters are represented by service functions rather than a framework-specific server.
 - The signature verifier is mock-only; a production adapter would wrap Stripe SDK verification later.
 - Trial configuration is represented by subscription status events, not a real Stripe checkout trial setting.
+- Non-TypeScript stacks are specified through adapter guidance, not separately runnable proofs yet.
