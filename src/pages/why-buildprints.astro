@@ -4,97 +4,96 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 ---
 <BaseLayout
   title="Why Buildprints — slide deck for coding agents"
-  description="A fullscreen pitch deck explaining Agent Buildprint: exact architecture packages coding agents can bootstrap, follow, and validate."
+  description="A clean slide-by-slide story explaining why coding agents need reusable architecture packets before implementation starts."
 >
   <main class="pitch-deck" aria-label="Why Agent Buildprint slide deck">
     <div class="deck-stage" data-deck>
       <section class="deck-slide is-active cover-slide" data-slide aria-labelledby="why-title">
         <div class="slide-content">
-          <p class="deck-eyebrow">Agent Buildprint / 9-slide thesis</p>
-          <h1 id="why-title">Coding agents need construction plans.</h1>
-          <p>Not more vibes. Not longer prompts. Reusable architecture packets they can bootstrap, follow, and prove.</p>
+          <p class="deck-eyebrow">Agent Buildprint / short story</p>
+          <h1 id="why-title">A coding agent should not start from a blank prompt.</h1>
+          <p>It should start from a reviewed plan: what to build, what to avoid, which files matter, and how “done” will be checked.</p>
         </div>
         <div class="cover-art" aria-hidden="true">
           <div class="blueprint-sun">AGB</div>
-          <span>SPEC</span><span>PLAN</span><span>TEST</span><span>PROOF</span>
+          <span>Intent</span><span>Scope</span><span>Contracts</span><span>Checks</span>
         </div>
       </section>
 
       <section class="deck-slide chaos-slide" data-slide>
         <div class="slide-content">
-          <p class="deck-eyebrow">01 / The failure mode</p>
-          <h2>Agents can build the wrong thing at incredible speed.</h2>
-          <p>A single prompt becomes guessed architecture, hidden scope creep, late tests, and fake “done”.</p>
+          <p class="deck-eyebrow">01 / The problem</p>
+          <h2>Fast implementation is not the same as correct implementation.</h2>
+          <p>When the plan lives only in a prompt, the agent has to infer architecture, edge cases, sequencing, and acceptance criteria at the same time it writes code.</p>
         </div>
-        <div class="chaos-map" aria-hidden="true">
-          <b>“Build me a RAG app”</b>
-          <i style="--x:14%;--y:28%;--c:#ff4d8d">scope drift</i>
-          <i style="--x:61%;--y:20%;--c:#24f6ff">missing contracts</i>
-          <i style="--x:72%;--y:62%;--c:#eaff3f">test theatre</i>
-          <i style="--x:22%;--y:72%;--c:#a78bfa">overclaim</i>
+        <div class="chaos-map" aria-label="Common failure points">
+          <b>Vague request</b>
+          <i style="--x:12%;--y:24%">guessed architecture</i>
+          <i style="--x:56%;--y:20%">unclear scope</i>
+          <i style="--x:62%;--y:62%">late validation</i>
+          <i style="--x:16%;--y:70%">weak handoff</i>
         </div>
       </section>
 
       <section class="deck-slide insight-slide" data-slide>
-        <div class="giant-word" aria-hidden="true">BEFORE</div>
+        <div class="giant-word" aria-hidden="true">PLAN</div>
         <div class="slide-content wide">
-          <p class="deck-eyebrow">02 / The insight</p>
-          <h2>The best work happens before the agent writes code.</h2>
-          <p>Senior-engineer context — architecture, boundaries, contracts, risks, validation — should be packaged before generation starts.</p>
+          <p class="deck-eyebrow">02 / The missing layer</p>
+          <h2>The most valuable work happens before code generation.</h2>
+          <p>Architecture, boundaries, contracts, risks, and validation gates should be packaged first — then the coding agent can execute inside a clear frame.</p>
         </div>
       </section>
 
       <section class="deck-slide object-slide" data-slide>
         <div class="slide-content">
-          <p class="deck-eyebrow">03 / The object</p>
-          <h2>A Buildprint is an executable architecture packet.</h2>
-          <p>Exact files. Exact read order. Exact claim boundary. Exact proof gates.</p>
+          <p class="deck-eyebrow">03 / The package</p>
+          <h2>A Buildprint is a reusable implementation brief.</h2>
+          <p>It turns expert context into files an agent can read, follow, and verify without inventing the plan mid-build.</p>
         </div>
         <div class="sheet-stack" aria-label="Buildprint files">
-          <article><b>BUILDPRINT.md</b><span>architecture truth</span></article>
-          <article><b>SPEC.md</b><span>behavior contract</span></article>
-          <article><b>PLAN.md</b><span>implementation rails</span></article>
-          <article><b>CONTRACTS.md</b><span>interfaces + events</span></article>
-          <article><b>TEST_MATRIX.md</b><span>risk → check</span></article>
+          <article><b>BUILDPRINT.md</b><span>system purpose and architecture</span></article>
+          <article><b>SPEC.md</b><span>behavior, rules, and edge cases</span></article>
+          <article><b>PLAN.md</b><span>ordered implementation phases</span></article>
+          <article><b>CONTRACTS.md</b><span>interfaces, data, and side effects</span></article>
+          <article><b>TEST_MATRIX.md</b><span>risks mapped to checks</span></article>
         </div>
       </section>
 
       <section class="deck-slide bootstrap-slide" data-slide>
         <div class="slide-content wide">
-          <p class="deck-eyebrow">04 / The ritual</p>
+          <p class="deck-eyebrow">04 / The handoff</p>
           <h2><code>agb start</code> gives the agent exact snapshots.</h2>
-          <p>No scraping human cards. No hallucinated docs. The coding agent gets the real package and starts from the next-agent handoff.</p>
+          <p>The package is fetched as real files, not copied from a web card. The agent gets a concrete next step and the human can inspect the same source of truth.</p>
         </div>
         <div class="command-strip" aria-hidden="true">
           <span>$ agb start package.json .</span>
-          <b>↓</b>
+          <b>→</b>
           <span>.buildprint/snapshots/*</span>
         </div>
       </section>
 
       <section class="deck-slide tunnel-slide" data-slide>
         <div class="slide-content">
-          <p class="deck-eyebrow">05 / The build tunnel</p>
-          <h2>The agent moves through constrained gates.</h2>
-          <p>Choose → bootstrap → read → build → test → verify → report gaps.</p>
+          <p class="deck-eyebrow">05 / The workflow</p>
+          <h2>The agent follows a sequence instead of improvising.</h2>
+          <p>Choose the Buildprint, bootstrap the files, read the package, implement in phases, run checks, then report evidence and gaps.</p>
         </div>
-        <div class="gate-tunnel" aria-label="Execution gates">
+        <div class="gate-tunnel" aria-label="Execution sequence">
           <span>Choose</span><span>Bootstrap</span><span>Build</span><span>Validate</span>
         </div>
       </section>
 
       <section class="deck-slide proof-slide" data-slide>
         <div class="slide-content">
-          <p class="deck-eyebrow">06 / The proof layer</p>
-          <h2>“Done” means evidence survived inspection.</h2>
-          <p>Validated Buildprints include build/test output, raw file checks, bootstrap checks, and explicit non-goals.</p>
+          <p class="deck-eyebrow">06 / The standard</p>
+          <h2>“Done” should mean there is evidence.</h2>
+          <p>Validated Buildprints include build/test output, raw file checks, bootstrap checks, scoped claims, and explicit non-goals.</p>
         </div>
-        <div class="terminal-card" aria-label="Proof terminal">
-          <p><em>$</em> npm test</p>
-          <p class="ok">✓ 12/12 tests passed</p>
-          <p><em>$</em> check raw urls</p>
-          <p class="ok">✓ 23/23 files live</p>
-          <p class="warn">! clone parity excluded</p>
+        <div class="terminal-card" aria-label="Proof checklist">
+          <p><em>Build</em><span>npm run build passed</span></p>
+          <p class="ok"><em>Tests</em><span>12/12 passed</span></p>
+          <p><em>Files</em><span>raw URLs checked</span></p>
+          <p class="warn"><em>Claims</em><span>non-goals documented</span></p>
         </div>
       </section>
 
@@ -102,15 +101,15 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
         <div class="slide-content wide">
           <p class="deck-eyebrow">07 / The category</p>
           <h2><TechName name="Docker" /> Hub for environments. <TechName name="npm" /> for code. Buildprints for agent architecture.</h2>
-          <p>Architecture becomes reusable, inspectable, benchmarkable, and improvable.</p>
+          <p>Architecture becomes something teams can reuse, inspect, benchmark, improve, and hand to different coding agents.</p>
         </div>
       </section>
 
       <section class="deck-slide final-slide" data-slide>
         <div class="slide-content wide">
           <p class="deck-eyebrow">08 / The ask</p>
-          <h2>Stop asking agents to invent the plan while they execute it.</h2>
-          <p>Pick a Buildprint. Bootstrap exact snapshots. Let the agent build inside rails. Then verify.</p>
+          <h2>Separate planning from execution.</h2>
+          <p>Pick a Buildprint. Bootstrap exact snapshots. Let the agent build from a professional brief — then verify the result.</p>
           <div class="deck-actions">
             <a class="deck-btn primary" href="/buildprints/">Browse Buildprints</a>
             <a class="deck-btn" href="/buildprints/superpowers-skill-methodology-harness/">See Superpowers Harness</a>
