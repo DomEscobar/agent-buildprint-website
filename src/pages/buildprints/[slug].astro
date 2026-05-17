@@ -17,11 +17,24 @@ const startCommand = `agb start ${siteBase}/buildprints/${bp.slug}/package.json`
 const originName = bp.originLabel ?? bp.originGithubUrl?.replace('https://github.com/', '');
 const description = bp.plainDescription ?? bp.summary;
 const whatYouGet = bp.whatYouGet?.length ? bp.whatYouGet : bp.includes.slice(0, 6);
-const whatYouNeed = bp.whatYouNeed?.length ? bp.whatYouNeed : ['Nothing for local/mock mode', 'Bring API keys or account credentials only if you want live external providers'];
+const rawRequirements = bp.whatYouNeed?.length ? bp.whatYouNeed : ['Nothing for local/mock mode', 'Bring API keys or account credentials only if you want live external providers'];
 const architectureFlow = bp.architectureFlow?.length ? bp.architectureFlow : bp.stack.slice(0, 6);
-const proofChips = bp.trustBadges?.length
-  ? bp.trustBadges.slice(0, 3).map((badge) => badge.label)
-  : bp.checks.slice(0, 3);
+const proofItems = bp.trustBadges?.length
+  ? bp.trustBadges.slice(0, 4).map((badge) => badge.label)
+  : bp.checks.slice(0, 4);
+const packetOrder = ['BUILDPRINT.md', 'SPEC.md', 'PLAN.md', 'CONTRACTS.md', 'DEFAULT_PRESET.md', 'TEST_MATRIX.md', 'VALIDATION_TEMPLATE.md'];
+const packetFiles = packetOrder
+  .map((path) => bp.files.find((file) => file.path === path))
+  .filter(Boolean)
+  .slice(0, 6);
+const mockRequirement = rawRequirements.find((item) => /nothing/i.test(item));
+const realRequirementTerms = /(api|key|credential|account|access|repo|private|provider|storage|database|webhook|domain|runtime|adapter|corpus|permission)/i;
+const fillerRequirementTerms = /(human|taste|decision|policy|direction|choice|list of|critical workflow)/i;
+const hardRequirements = rawRequirements
+  .filter((item) => !/nothing/i.test(item))
+  .filter((item) => realRequirementTerms.test(item) && !fillerRequirementTerms.test(item))
+  .slice(0, 5);
+const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Database / storage', 'Deployment target'];
 ---
 <BaseLayout title={`${bp.title} — Agent Buildprint`} description={description}>
   <main class="readme-page">
@@ -42,21 +55,45 @@ const proofChips = bp.trustBadges?.length
         </div>
       </header>
 
-      <section class="markdown-body benefit-body">
-        <h2>What you get</h2>
-        <ul class="benefit-list">{whatYouGet.map((item) => <li>{item}</li>)}</ul>
+      <section class="markdown-body benefit-body detail-blueprint-body">
+        <div class="detail-snapshot" aria-label="Buildprint snapshot">
+          <section class="detail-panel">
+            <span>Builds</span>
+            <ul>{whatYouGet.slice(0, 3).map((item) => <li>{item}</li>)}</ul>
+          </section>
+          <section class="detail-panel requirements-panel">
+            <span>Requirements</span>
+            {mockRequirement ? <p><b>Mock/local:</b> {mockRequirement}</p> : null}
+            {hardRequirements.length ? <ul>{hardRequirements.map((item) => <li>{item}</li>)}</ul> : <p><b>Live:</b> no external blockers listed</p>}
+          </section>
+          <section class="detail-panel">
+            <span>Flexibility</span>
+            <p>Use the defaults or swap parts while keeping the contracts and checks.</p>
+            <ul>{flexibilityItems.slice(0, 4).map((item) => <li>{item}</li>)}</ul>
+          </section>
+        </div>
 
-        <h2>Architecture preview</h2>
-        <div class="architecture-flow" aria-label="Architecture preview">
+        <h2>Agent packet</h2>
+        <div class="agent-packet-grid" aria-label="Files the agent receives">
+          {packetFiles.map((file) => <a href={`${bp.rawBaseUrl}/${file.path}`}>
+            <code>{file.path}</code>
+            <span>{file.purpose}</span>
+          </a>)}
+        </div>
+
+        <h2>Implementation flow</h2>
+        <div class="architecture-flow compact-flow" aria-label="Implementation flow">
           {architectureFlow.map((step, index) => <>
             <span><TechName name={step} /></span>
             {index < architectureFlow.length - 1 ? <b aria-hidden="true">→</b> : null}
           </>)}
         </div>
-        {proofChips.length ? <div class="proof-chip-row">{proofChips.map((chip) => <span>{chip}</span>)}</div> : null}
 
-        <h2>What you need from you</h2>
-        <ul class="benefit-list need-list">{whatYouNeed.map((item) => <li>{item}</li>)}</ul>
+        <h2>Validation</h2>
+        <div class="verification-receipt" aria-label="Validation evidence">
+          {proofItems.map((item) => <span>✓ {item}</span>)}
+          {bp.status === 'validated' ? <span>✓ validated status</span> : <span>△ {detailStatus}</span>}
+        </div>
 
         <h2>Links</h2>
         <ul>

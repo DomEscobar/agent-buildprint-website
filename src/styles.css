@@ -943,3 +943,25 @@ html, body { max-width: 100%; overflow-x: clip; }
 .tech-name .tech-icon { width:1em; height:1em; display:inline-flex; align-items:center; justify-content:center; flex:0 0 auto; border:0; border-radius:0; padding:0; margin:0; background:transparent; box-shadow:none; color:currentColor; font-size:1em; line-height:1; font-style:normal; font-weight:800; }
 .tech-name .tech-icon img { width:100%; height:100%; object-fit:contain; display:block; }
 .why-deck h1 .tech-name .tech-icon, .why-deck h2 .tech-name .tech-icon { width:.86em; height:.86em; }
+
+/* Focused Buildprint detail layout */
+.detail-blueprint-body { display:block; }
+.detail-snapshot { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:0 0 30px; }
+.detail-panel { border:1px solid var(--border); background:var(--surface-2); border-radius:16px; padding:16px; min-width:0; }
+.detail-panel > span { display:block; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; font-size:11px; font-weight:900; margin-bottom:10px; }
+.detail-panel p { margin:0 0 10px; color:var(--text); font-size:14px; line-height:1.5; }
+.detail-panel ul { list-style:none; display:grid; gap:8px; padding:0; margin:0; }
+.detail-panel li { margin:0; color:var(--text); font-size:14px; line-height:1.42; }
+.detail-panel li::before { content:'✓'; color:color-mix(in srgb, #16a34a 72%, var(--text)); font-weight:900; margin-right:7px; }
+.requirements-panel { border-color:color-mix(in srgb, var(--accent) 26%, var(--border)); }
+.agent-packet-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:12px 0 26px; }
+.agent-packet-grid a { border:1px solid var(--border); background:var(--surface-2); border-radius:14px; padding:14px; color:var(--text); text-decoration:none; }
+.agent-packet-grid a:hover { border-color:var(--accent); }
+.agent-packet-grid code { display:block; color:var(--text); font-weight:900; margin-bottom:5px; overflow-wrap:anywhere; }
+.agent-packet-grid span { display:block; color:var(--muted); font-size:13px; line-height:1.4; }
+.compact-flow { margin-bottom:26px; }
+.verification-receipt { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin:12px 0 26px; }
+.verification-receipt span { border:1px solid color-mix(in srgb, #16a34a 30%, var(--border)); background:color-mix(in srgb, #16a34a 7%, var(--surface-2)); color:var(--text); border-radius:12px; padding:11px 12px; font-size:13px; font-weight:800; line-height:1.35; }
+@media (max-width:760px) {
+  .detail-snapshot, .agent-packet-grid, .verification-receipt { grid-template-columns:1fr; }
+}
