@@ -1,0 +1,108 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Why Buildprints — construction plans for coding agents"
+  description="A short slide-style explanation of Agent Buildprint: tested architecture packages that coding agents can bootstrap, follow, and validate."
+>
+  <main class="why-deck" aria-label="Why Agent Buildprint slide presentation">
+    <section class="why-slide why-hero" aria-labelledby="why-title">
+      <div class="why-kicker">60 second deck</div>
+      <h1 id="why-title">Construction plans for coding agents.</h1>
+      <p>Agents can write code. Buildprints help them preserve architecture, scope, tests, and “done”.</p>
+      <div class="why-actions">
+        <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
+        <a class="btn" href="#problem">Start the deck</a>
+      </div>
+    </section>
+
+    <section id="problem" class="why-slide split-slide">
+      <div>
+        <span class="slide-number">01</span>
+        <h2>The problem</h2>
+        <p>Coding agents are fast, but they improvise. Ask for a product and they often guess the architecture, skip validation, or declare “done” from a happy path.</p>
+      </div>
+      <div class="drift-card" aria-label="Agent drift examples">
+        <span>vague prompt</span>
+        <b>“Build me a RAG app”</b>
+        <ul>
+          <li>architecture drifts</li>
+          <li>scope expands quietly</li>
+          <li>tests arrive too late</li>
+          <li>parity gets overclaimed</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="why-slide center-slide">
+      <span class="slide-number">02</span>
+      <h2>Agent Buildprint gives the agent a plan before it writes code.</h2>
+      <p>Not a prompt marketplace. Not a code template store. A tested architecture package: exact files, contracts, implementation rails, validation gates, and proof checks.</p>
+    </section>
+
+    <section class="why-slide package-slide">
+      <div>
+        <span class="slide-number">03</span>
+        <h2>What’s inside a Buildprint?</h2>
+        <p>The boring senior-engineer stuff agents need most.</p>
+      </div>
+      <div class="file-stack" aria-label="Buildprint file stack">
+        <div><b>BUILDPRINT.md</b><span>architecture truth</span></div>
+        <div><b>SPEC.md</b><span>behavior contract</span></div>
+        <div><b>PLAN.md</b><span>implementation order</span></div>
+        <div><b>CONTRACTS.md</b><span>interfaces and data</span></div>
+        <div><b>TEST_MATRIX.md</b><span>validation gates</span></div>
+        <div><b>VALIDATION_REPORT.md</b><span>evidence, not vibes</span></div>
+      </div>
+    </section>
+
+    <section class="why-slide flow-slide">
+      <span class="slide-number">04</span>
+      <h2>How it works</h2>
+      <div class="big-flow" aria-label="Buildprint flow">
+        <span>Choose</span>
+        <i>→</i>
+        <span><code>agb start</code></span>
+        <i>→</i>
+        <span>Agent builds</span>
+        <i>→</i>
+        <span>Tests pass</span>
+      </div>
+      <p>The agent reads exact snapshots instead of scraping marketing cards or hallucinating missing files.</p>
+    </section>
+
+    <section class="why-slide quote-slide">
+      <p class="quote-label">The metaphor</p>
+      <blockquote>Docker Hub showed developers how to ship environments. npm showed them how to reuse code. Agent Buildprint shows coding agents how to reuse architecture.</blockquote>
+    </section>
+
+    <section class="why-slide usecase-slide">
+      <span class="slide-number">06</span>
+      <h2>Three jobs for the platform</h2>
+      <div class="usecase-grid">
+        <article>
+          <b>Build new systems</b>
+          <p>Billing, RAG, agent runtimes, support desks, content pipelines.</p>
+        </article>
+        <article>
+          <b>Map real products</b>
+          <p>Extract clean-room architecture from real GitHub apps without copying source.</p>
+        </article>
+        <article>
+          <b>Benchmark agents</b>
+          <p>Give Codex, Claude Code, Cursor, and others the same Buildprint task and compare outcomes.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="why-slide final-slide">
+      <span class="slide-number">07</span>
+      <h2>Validated architecture, not vibes.</h2>
+      <p>Pick a Buildprint, bootstrap exact snapshots, let your coding agent build against a real plan, then verify the result.</p>
+      <div class="why-actions">
+        <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
+        <a class="btn" href="/buildprints/portable-personal-agent-chat-os/">See Agent Chat OS</a>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
