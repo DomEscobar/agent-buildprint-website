@@ -26,15 +26,12 @@ const sections = [
   <main>
     <section class="container hero clean-hero platform-hero">
       <div class="hero-copy">
-        <span class="pill dossier-pill"><b>⌁</b> marketplace for agent-ready architecture</span>
-        <h1>Install the plan before your coding agent builds.</h1>
-        <p class="lead">Agent Buildprints are verified implementation packages: architecture, specs, phases, contracts, and checks that coding agents can bootstrap and follow.</p>
-        <div class="marketplace-thesis" aria-label="Marketplace positioning">
-          <span>Not prompts</span><b>→</b><span>not templates</span><b>→</b><span>agent-ready build packages</span>
-        </div>
+        <span class="pill dossier-pill"><b>⌁</b> inspected plans for coding agents</span>
+        <h1>Give your coding agent a real implementation plan.</h1>
+        <p class="lead">Buildprints package the decisions agents usually guess: architecture, behavior, contracts, phases, and validation gates.</p>
         <div class="actions">
-          <a class="btn primary" href="/buildprints/">Browse the marketplace</a>
-          <a class="btn" href="#how-it-works">See the proof</a>
+          <a class="btn primary" href="/buildprints/">Try a validated Buildprint</a>
+          <a class="btn" href="#how-it-works">See how it works</a>
         </div>
       </div>
       <aside class="blueprint-dossier-card" aria-label="Buildprint package preview">
@@ -96,7 +93,6 @@ const sections = [
           <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={trustTip(bp)}>{trustLabel(bp)}</span></div>
           <h3>{bp.title}</h3>
           <p>{bp.summary}</p>
-          <div class="package-preview" aria-label="Buildprint package contents"><span>BUILDPRINT</span><span>SPEC</span><span>PLAN</span><span>TESTS</span></div>
           <div class="stack-row"><span class="stack-line" title={bp.stack.join(' · ')}>{bp.stack.slice(0, 3).join(' · ')}</span><span class="stack-icons" aria-label={`Stack icons: ${(bp.iconKeys ?? []).join(', ')}`}>{(bp.iconKeys ?? []).slice(0,3).map((key) => <i class={`tech-icon ${key}`} title={key} set:html={icon(key)} />)}</span></div>
         </a>)}
       </div>
@@ -111,7 +107,6 @@ const sections = [
             <b>{bp.title}</b>
             <p>{bp.summary}</p>
             <small>{bp.stack.slice(0, 3).join(' · ')}</small>
-            <div class="row-package-strip"><span>Plan</span><span>Contracts</span><span>Checks</span></div>
           </a>)}
         </div>
       </div>)}
