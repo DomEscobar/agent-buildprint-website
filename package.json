@@ -7,7 +7,8 @@
     "dev": "astro dev --host 0.0.0.0 --port 4321",
     "build": "astro build",
     "preview": "astro preview --host 0.0.0.0 --port 4321",
-    "check:buildprints": "node scripts/check-buildprints-canonical.mjs"
+    "check:buildprints": "node scripts/check-buildprints-canonical.mjs",
+    "check:codex-drift": "node scripts/codex-read-order-drift.mjs"
   },
   "dependencies": {
     "astro": "^6.1.10"
