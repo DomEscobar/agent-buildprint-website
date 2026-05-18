@@ -698,8 +698,9 @@ export function packageManifest(bp: Buildprint) {
     },
     files: bp.files.map((file) => ({ ...file, rawUrl: `${bp.rawBaseUrl}/${file.path}` })),
     instructions: {
-      readOrder: ['BUILDPRINT.md', 'SPEC.md', 'PLAN.md', ...bp.files.filter((file) => file.path.startsWith('plans/')).map((file) => file.path), 'CONTRACTS.md', 'DEFAULT_PRESET.md', 'TEST_MATRIX.md', 'VALIDATION_TEMPLATE.md', 'questions.md'].filter((path) => bp.files.some((file) => file.path === path)),
-      rule: 'Do not scrape human cards. Use this manifest, agent.md, and raw files.',
+      canonicalStart: 'BUILDPRINT.md',
+      readOrder: ['BUILDPRINT.md'].filter((path) => bp.files.some((file) => file.path === path)),
+      rule: 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the canonical start file and owns the required read order, phase gates, and acceptance gates. Structured control files are machine-readable mirrors only.',
     },
   };
 }
