@@ -434,8 +434,8 @@ export const buildprints: Buildprint[] = [
     includes: ['Clean-room source mapping', 'Streaming runtime contract', 'Provider router', 'Tool registry and safety policy', 'Skill registry', 'MCP adapter boundary', 'Memory/context compaction', 'Subagent/team bus', 'Token telemetry', 'Streaming WebUI map', 'Head-to-foot QA gate', 'Parity claims', 'Offline TypeScript proof'],
     risks: ['Overclaiming full Emperor Agent clone parity', 'Unsafe shell/filesystem/network tools', 'Provider API drift', 'Context truncation losing user instructions', 'Skill injection bloat', 'MCP timeout/security failures', 'Telemetry hidden from UI'],
     files: [
-      { path: 'README.md', purpose: 'package overview and clean-room scope boundary', required: true },
       { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
+      { path: 'README.md', purpose: 'package overview and clean-room scope boundary', required: true },
       { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
       { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
       { path: 'CONTRACTS.md', purpose: canonicalFilePurposes['CONTRACTS.md'], required: true },
@@ -494,8 +494,8 @@ export const buildprints: Buildprint[] = [
     includes: ['Source and chunk contracts', 'Dense plus lexical/sparse retrieval architecture', 'Fusion and dedupe policy', 'Permission and tenant filters', 'Reranker adapter boundary', 'Grounded answer contract', 'RAG eval harness', 'Advanced technique guidance for HyDE, SPLADE, ColBERT, RAPTOR, GraphRAG, Self-RAG, and CRAG', 'Offline TypeScript proof'],
     risks: ['Vector-only false confidence', 'Hallucinated uncited answers', 'Permission leakage', 'Eval-free quality drift', 'Reranker latency/cost creep', 'Advanced-tech hype without measured gain'],
     files: [
-      { path: 'README.md', purpose: 'package overview and research basis', required: true },
       { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
+      { path: 'README.md', purpose: 'package overview and research basis', required: true },
       { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
       { path: 'CONTRACTS.md', purpose: canonicalFilePurposes['CONTRACTS.md'], required: true },
       { path: 'TEST_MATRIX.md', purpose: canonicalFilePurposes['TEST_MATRIX.md'], required: true },
@@ -540,8 +540,8 @@ export const buildprints: Buildprint[] = [
     includes: ['Checkout session', 'Subscriptions and trials', 'Customer portal', 'Webhook handler', 'Subscription state model', 'Entitlement guards', 'Billing settings UI'],
     risks: ['Webhook signature skipped', 'Frontend state trusted for access', 'Failed payment states ignored', 'Portal exposed without auth', 'Subscription state drift'],
     files: [
-      { path: 'README.md', purpose: 'package overview and validation summary', required: true },
       { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
+      { path: 'README.md', purpose: 'package overview and validation summary', required: true },
       { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
       { path: 'CONTRACTS.md', purpose: canonicalFilePurposes['CONTRACTS.md'], required: true },
       { path: 'TEST_MATRIX.md', purpose: canonicalFilePurposes['TEST_MATRIX.md'], required: true },
@@ -640,8 +640,8 @@ export const buildprints: Buildprint[] = [
     includes: ['Pinned LangGraph source trace', 'Builder / compile / runtime architecture map', 'Typed-ish state schema and reducers', 'Directed and conditional routing', 'Invoke/stream contracts', 'Checkpoint tuple and in-memory saver contract', 'Pending-write recovery simulation', 'Interrupt/resume via Command', 'Send fanout proof', 'Async invoke/stream proof', 'Serializer safety gate', 'Clean-room TypeScript reversal proof', 'QA and reversal reports'],
     risks: ['Accidentally implying LangGraph clone parity', 'API compatibility overclaiming', 'Pregel concurrency/performance overclaiming', 'Provider/tool ecosystem scope creep', 'Production storage adapter overclaiming', 'Serializer/checkpoint byte compatibility overclaiming'],
     files: [
-      { path: 'README.md', purpose: 'package overview and clean-room boundary', required: true },
       { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
+      { path: 'README.md', purpose: 'package overview and clean-room boundary', required: true },
       { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
       { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
       { path: 'CONTRACTS.md', purpose: canonicalFilePurposes['CONTRACTS.md'], required: true },
