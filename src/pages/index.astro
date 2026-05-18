@@ -58,6 +58,8 @@ const heroStoryImages = [
             </figure>)}
           </div>
         </div>
+        <button class="story-arrow prev" type="button" aria-label="Previous hero story" data-story-prev>‹</button>
+        <button class="story-arrow next" type="button" aria-label="Next hero story" data-story-next>›</button>
         <div class="story-carousel-controls" aria-label="Choose hero story">
           {heroStoryImages.map((image, index) => <button type="button" class={index === 0 ? 'active' : ''} aria-label={`Show ${image.label} story`} data-story-dot={index}>{image.label}</button>)}
         </div>
@@ -154,12 +156,16 @@ const heroStoryImages = [
       if (!root) return;
       const viewport = root.querySelector('[data-story-viewport]');
       const dots = Array.from(root.querySelectorAll('[data-story-dot]'));
+      const prev = root.querySelector('[data-story-prev]');
+      const next = root.querySelector('[data-story-next]');
       if (!viewport || dots.length === 0) return;
       const setSlide = (index) => {
         viewport.scrollTo({ left: viewport.clientWidth * index, behavior: 'smooth' });
         dots.forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === index));
       };
       dots.forEach((dot, index) => dot.addEventListener('click', () => setSlide(index)));
+      prev?.addEventListener('click', () => setSlide((Math.round(viewport.scrollLeft / Math.max(1, viewport.clientWidth)) - 1 + dots.length) % dots.length));
+      next?.addEventListener('click', () => setSlide((Math.round(viewport.scrollLeft / Math.max(1, viewport.clientWidth)) + 1) % dots.length));
       viewport.addEventListener('scroll', () => {
         const current = Math.round(viewport.scrollLeft / Math.max(1, viewport.clientWidth));
         dots.forEach((dot, index) => dot.classList.toggle('active', index === current));
