@@ -22,10 +22,20 @@ const sections = [
   { title: 'Framework Blueprints', items: buildprints.filter((bp) => bp.category === 'Framework / Architecture').slice(0, 5) },
   { title: 'Workflow OS', items: buildprints.filter((bp) => bp.category === 'Workflow OS').slice(0, 5) },
 ].filter((section) => section.items.length > 0);
-const heroStoryImage = {
-  src: '/images/hero-buildprint-story/agent-buildprint-story-1.jpg',
-  alt: 'Manga-style Buildprint explainer story',
-};
+const heroStoryImages = [
+  {
+    src: '/images/hero-buildprint-story/agent-buildprint-story-1.jpg',
+    alt: 'Manga-style Buildprint explainer story',
+    label: 'Agent plan',
+    caption: 'tiny idea → build intent → agent-ready plan',
+  },
+  {
+    src: '/images/hero-buildprint-story/framework-replacement-story.jpg',
+    alt: 'Manga-style framework replacement story',
+    label: 'Framework-free',
+    caption: 'framework lock-in → portable plan → build anywhere',
+  },
+];
 ---
 <BaseLayout title="Agent Buildprint — reusable specs for AI coding agents" description="Reusable implementation packages with specs, phases, contracts, and checks for AI coding agents.">
   <main>
@@ -39,12 +49,19 @@ const heroStoryImage = {
           <a class="btn" href="#how-it-works">See how it works</a>
         </div>
       </div>
-      <aside class="hero-story-card" aria-label="Buildprint visual explainer">
-        <div class="story-card-topline"><span>BUILDPRINT STORY</span><b>agent-ready</b></div>
-        <figure class="story-card-frame">
-          <img src={heroStoryImage.src} alt={heroStoryImage.alt} loading="eager" decoding="async" />
-        </figure>
-        <p>tiny idea → build intent → agent-ready plan</p>
+      <aside class="hero-story-carousel" aria-label="Buildprint visual explainer" data-hero-story>
+        <div class="story-card-topline"><span>BUILDPRINT STORIES</span><b>manual</b></div>
+        <div class="story-carousel-viewport" data-story-viewport>
+          <div class="story-carousel-track">
+            {heroStoryImages.map((image, index) => <figure class="story-slide" aria-label={`${image.label} story`}>
+              <img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
+              <figcaption>{image.caption}</figcaption>
+            </figure>)}
+          </div>
+        </div>
+        <div class="story-carousel-controls" aria-label="Choose hero story">
+          {heroStoryImages.map((image, index) => <button type="button" class={index === 0 ? 'active' : ''} aria-label={`Show ${image.label} story`} data-story-dot={index}>{image.label}</button>)}
+        </div>
       </aside>
     </section>
     <section id="how-it-works" class="container section visual-proof-section" aria-labelledby="visual-proof-title">
@@ -128,4 +145,22 @@ const heroStoryImage = {
       <div class="panel quiet"><span class="eyebrow"><b>✦</b> Creator angle</span><h2>Architects and experienced devs can publish reusable plans.</h2><p>Package a repeatable architecture, feature, or workflow into a reusable Buildprint others can use with their coding agents.</p><pre>architecture + spec + phases + checks</pre></div>
     </section>
   </main>
+  <script is:inline>
+    (() => {
+      const root = document.querySelector('[data-hero-story]');
+      if (!root) return;
+      const viewport = root.querySelector('[data-story-viewport]');
+      const dots = Array.from(root.querySelectorAll('[data-story-dot]'));
+      if (!viewport || dots.length === 0) return;
+      const setSlide = (index) => {
+        viewport.scrollTo({ left: viewport.clientWidth * index, behavior: 'smooth' });
+        dots.forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === index));
+      };
+      dots.forEach((dot, index) => dot.addEventListener('click', () => setSlide(index)));
+      viewport.addEventListener('scroll', () => {
+        const current = Math.round(viewport.scrollLeft / Math.max(1, viewport.clientWidth));
+        dots.forEach((dot, index) => dot.classList.toggle('active', index === current));
+      }, { passive: true });
+    })();
+  </script>
 </BaseLayout>
