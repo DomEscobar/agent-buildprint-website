@@ -22,6 +22,11 @@ const sections = [
   { title: 'Framework Blueprints', items: buildprints.filter((bp) => bp.category === 'Framework / Architecture').slice(0, 5) },
   { title: 'Workflow OS', items: buildprints.filter((bp) => bp.category === 'Workflow OS').slice(0, 5) },
 ].filter((section) => section.items.length > 0);
+const heroStoryImages = [
+  { src: '/images/hero-buildprint-story/agent-buildprint-story-1.jpg', alt: 'Manga-style Buildprint explainer panel one' },
+  { src: '/images/hero-buildprint-story/agent-buildprint-story-2.jpg', alt: 'Manga-style Buildprint explainer panel two' },
+  { src: '/images/hero-buildprint-story/agent-buildprint-story-3.jpg', alt: 'Manga-style Buildprint explainer panel three' },
+];
 ---
 <BaseLayout title="Agent Buildprint — reusable specs for AI coding agents" description="Reusable implementation packages with specs, phases, contracts, and checks for AI coding agents.">
   <main>
@@ -35,19 +40,19 @@ const sections = [
           <a class="btn" href="#how-it-works">See how it works</a>
         </div>
       </div>
-      <aside class="blueprint-dossier-card" aria-label="Buildprint package preview">
-        <div class="dossier-topline"><span>BUILDPRINT PACKAGE</span><b>VALIDATED</b></div>
-        <div class="dossier-file-tree">
-          <div><code>BUILDPRINT.md</code><span>architecture truth</span></div>
-          <div><code>SPEC.md</code><span>behavior contract</span></div>
-          <div><code>PLAN.md</code><span>phase rails</span></div>
-          <div><code>CONTRACTS.md</code><span>interfaces</span></div>
-          <div><code>TEST_MATRIX.md</code><span>validation gates</span></div>
+      <aside class="hero-story-carousel" aria-label="Buildprint visual explainer" data-hero-story>
+        <div class="story-carousel-topline"><span>BUILDPRINT STORY</span><b>3 panels</b></div>
+        <div class="story-carousel-viewport" data-story-viewport>
+          <div class="story-carousel-track">
+            {heroStoryImages.map((image, index) => <figure class="story-slide" aria-label={`Panel ${index + 1} of ${heroStoryImages.length}`}>
+              <img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
+            </figure>)}
+          </div>
         </div>
-        <div class="dossier-ledger">
-          <span>CLI snapshot ✓</span><span>Tests ✓</span><span>Browser smoke ✓</span>
+        <div class="story-carousel-controls" aria-label="Choose hero panel">
+          {heroStoryImages.map((_, index) => <button type="button" class={index === 0 ? 'active' : ''} aria-label={`Show panel ${index + 1}`} data-story-dot={index}></button>)}
         </div>
-        <p>agent reads → implements phases → runs checks</p>
+        <p>tiny idea → build intent → agent-ready plan</p>
       </aside>
     </section>
     <section id="how-it-works" class="container section visual-proof-section" aria-labelledby="visual-proof-title">
@@ -131,4 +136,30 @@ const sections = [
       <div class="panel quiet"><span class="eyebrow"><b>✦</b> Creator angle</span><h2>Architects and experienced devs can publish reusable plans.</h2><p>Package a repeatable architecture, feature, or workflow into a reusable Buildprint others can use with their coding agents.</p><pre>architecture + spec + phases + checks</pre></div>
     </section>
   </main>
+  <script is:inline>
+    (() => {
+      const root = document.querySelector('[data-hero-story]');
+      if (!root) return;
+      const viewport = root.querySelector('[data-story-viewport]');
+      const dots = Array.from(root.querySelectorAll('[data-story-dot]'));
+      if (!viewport || dots.length === 0) return;
+      const setSlide = (index) => {
+        const slideWidth = viewport.clientWidth;
+        viewport.scrollTo({ left: slideWidth * index, behavior: 'smooth' });
+        dots.forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === index));
+      };
+      dots.forEach((dot, index) => dot.addEventListener('click', () => setSlide(index)));
+      let current = 0;
+      const interval = window.setInterval(() => {
+        if (document.hidden || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        current = (current + 1) % dots.length;
+        setSlide(current);
+      }, 4200);
+      viewport.addEventListener('scroll', () => {
+        current = Math.round(viewport.scrollLeft / Math.max(1, viewport.clientWidth));
+        dots.forEach((dot, index) => dot.classList.toggle('active', index === current));
+      }, { passive: true });
+      window.addEventListener('pagehide', () => window.clearInterval(interval), { once: true });
+    })();
+  </script>
 </BaseLayout>
