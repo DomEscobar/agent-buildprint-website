@@ -4,6 +4,13 @@ import { buildprints, implementationEstimate, liveBuildprints } from '@/lib/buil
 import { badgeIcon, iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
 import TechName from '@/components/TechName.astro';
 const featured = liveBuildprints.filter((bp) => bp.featured).slice(0, 4);
+const homepagePromise: Record<string, string> = {
+  'ai-influencer-os': 'Launch an approval-gated AI creator system with memory, images, drafts, and safe publishing handoff.',
+  'automated-ai-blog-os': 'Turn research into SEO-checked visual posts without letting weak claims slip into publish.',
+  'portable-novel-storyboard-pipeline': 'Convert chapters into events, scripts, storyboard rows, media jobs, and preview manifests.',
+  'buildprint-mapper-os': 'Map an existing repo into scoped, reusable Buildprints your agent can reversal-test.',
+};
+const cardCopy = (bp) => homepagePromise[bp.slug] ?? bp.summary;
 const trustLabel = (bp) => {
   if (bp.status === 'validated') return 'Validated';
   if (bp.checks.length > 0) return 'CHECKED';
@@ -24,48 +31,65 @@ const sections = [
 ].filter((section) => section.items.length > 0);
 const heroStoryImages = [
   {
+    src: '/images/hero-buildprint-story/category-clarity-hero.jpg',
+    alt: 'Three-step visual showing a vague prompt becoming a Buildprint and then checked agent-built software',
+    label: 'How it works',
+    width: 1536,
+    height: 1024,
+  },
+  {
     src: '/images/hero-buildprint-story/agent-buildprint-story-1.jpg',
     alt: 'Manga-style Buildprint explainer story',
     label: 'Agent plan',
+    width: 880,
+    height: 1184,
   },
   {
     src: '/images/hero-buildprint-story/framework-replacement-story.jpg',
     alt: 'Manga-style framework replacement story',
     label: 'Framework-free',
+    width: 880,
+    height: 1184,
   },
 ];
 ---
-<BaseLayout title="Agent Buildprint — reusable specs for AI coding agents" description="Reusable implementation packages with specs, phases, contracts, and checks for AI coding agents.">
+<BaseLayout title="Agent Buildprint — installable plans for AI coding agents" description="Portable build-intent packages with architecture, decisions, checks, and proof for Codex, Cursor, Claude Code, and other AI coding agents." image="/images/hero-buildprint-story/category-clarity-hero.jpg">
   <main>
     <section class="container hero clean-hero platform-hero">
       <div class="hero-copy">
-        <span class="pill dossier-pill"><b>⌁</b> inspected plans for coding agents</span>
-        <h1>Give your coding agent a real implementation plan.</h1>
-        <p class="lead">Buildprints package the decisions agents usually guess: architecture, behavior, contracts, phases, and validation gates.</p>
+        <span class="pill dossier-pill"><b>⌁</b> missing package layer for coding agents</span>
+        <h1>Stop prompting agents. Install the plan first.</h1>
+        <p class="lead">Buildprints are portable build-intent packages: architecture, decisions, checks, and proof — before the agent writes code.</p>
         <div class="actions">
           <a class="btn primary" href="/buildprints/">Try a validated Buildprint</a>
           <a class="btn" href="#how-it-works">See how it works</a>
         </div>
+        <div class="hero-trust-strip" aria-label="Agent Buildprint trust markers">
+          <span><b>✓</b> Validated Buildprints</span>
+          <span><b>~</b> 30–60 min starts</span>
+          <span><b>↯</b> Codex / Cursor / Claude-ready</span>
+          <span><b>⌁</b> Bootstrap + test gates</span>
+        </div>
       </div>
       <aside class="hero-story-carousel" aria-label="Buildprint visual explainer" data-hero-story>
-        <div class="story-card-topline"><span>BUILDPRINT STORIES</span><b>manual</b></div>
+        <div class="story-card-topline"><span>VISUAL EXPLAINER</span><b>no autoplay</b></div>
         <div class="story-carousel-viewport" data-story-viewport>
           <div class="story-carousel-track">
             {heroStoryImages.map((image, index) => <figure class="story-slide" aria-label={`${image.label} story`}>
               <button class="story-expand" type="button" data-expand-image={image.src} data-expand-alt={image.alt} aria-label={`Expand ${image.label} story image`}>
-                <img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
+                <img src={image.src} alt={image.alt} width={image.width} height={image.height} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
               </button>
             </figure>)}
           </div>
         </div>
-        <button class="story-arrow prev" type="button" aria-label="Previous hero story" data-story-prev>‹</button>
-        <button class="story-arrow next" type="button" aria-label="Next hero story" data-story-next>›</button>
+        <button class="story-arrow prev" type="button" data-story-prev><span aria-hidden="true">‹</span><span class="sr-only">Previous hero story</span></button>
+        <button class="story-arrow next" type="button" data-story-next><span aria-hidden="true">›</span><span class="sr-only">Next hero story</span></button>
         <div class="story-carousel-controls" aria-label="Choose hero story">
           {heroStoryImages.map((image, index) => <button type="button" class={index === 0 ? 'active' : ''} aria-label={`Show ${image.label} story`} data-story-dot={index}>{image.label}</button>)}
         </div>
       </aside>
       <dialog class="story-lightbox" data-story-lightbox aria-label="Expanded story image">
-        <button class="story-lightbox-close" type="button" data-story-close aria-label="Close expanded image">×</button>
+        <button class="story-lightbox-close" type="button" data-story-close><span aria-hidden="true">×</span><span class="sr-only">Close expanded image</span></button>
         <img data-story-lightbox-image alt="" />
       </dialog>
     </section>
@@ -84,11 +108,11 @@ const heroStoryImages = [
         </div>
         <div class="blueprint-plan-card">
           <span class="proof-label">Buildprint</span>
-          <div class="plan-file"><b>BUILDPRINT.md</b><span>what to build</span></div>
-          <div class="plan-file"><b>SPEC.md</b><span>how it behaves</span></div>
-          <div class="plan-file"><b>PLAN.md</b><span>what to do first</span></div>
-          <div class="plan-file"><b>phases/*.md</b><span>small implementation steps</span></div>
-          <div class="plan-file"><b>TEST_MATRIX.md</b><span>how to verify</span></div>
+          <div class="plan-file"><b>Intent</b><span>what outcome to build</span></div>
+          <div class="plan-file"><b>Architecture</b><span>the shape before code</span></div>
+          <div class="plan-file"><b>Decisions</b><span>choices the agent must not guess</span></div>
+          <div class="plan-file"><b>Steps</b><span>small implementation rails</span></div>
+          <div class="plan-file"><b>Checks + proof</b><span>how done is verified</span></div>
         </div>
         <div class="proof-card good">
           <span class="proof-label">Agent outcome</span>
@@ -104,6 +128,10 @@ const heroStoryImages = [
       <div class="proof-flow" aria-label="Buildprint flow">
         <span>Vague prompt → agent guesses → drift/errors</span><b>vs</b><span>Buildprint package → agent follows plan → checked implementation</span>
       </div>
+      <div class="category-analogy" aria-label="Buildprint category analogy">
+        <b>Like npm packages — but for implementation intent.</b>
+        <span>Not prompt templates. Not boilerplate. Reusable plans agents can bootstrap, follow, and prove.</span>
+      </div>
     </section>
 
     <section class="container section">
@@ -112,7 +140,7 @@ const heroStoryImages = [
         {featured.map((bp) => <a class="mini-card clickable-card" href={`/buildprints/${bp.slug}/`}>
           <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={trustTip(bp)}>{trustLabel(bp)}</span></div>
           <h3>{bp.title}</h3>
-          <p>{bp.summary}</p>
+          <p>{cardCopy(bp)}</p>
           <div class="card-tech-footer" title={bp.stack.join(' · ')}><span>{bp.stack.slice(0, 3).join(' · ')}</span><span class="card-tech-side"><em>{implementationEstimate(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span></div>
         </a>)}
       </div>
@@ -125,7 +153,7 @@ const heroStoryImages = [
           {section.items.map((bp) => <a class="row-card" href={`/buildprints/${bp.slug}/`}>
             <div class="row-top"><span><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="row-status"><b>{badgeIcon(bp.status)}</b>{trustLabel(bp)}</span></div>
             <b>{bp.title}</b>
-            <p>{bp.summary}</p>
+            <p>{cardCopy(bp)}</p>
             <small class="card-tech-footer compact" title={bp.stack.join(' · ')}><span>{bp.stack.slice(0, 3).join(' · ')}</span><span class="card-tech-side"><em>{implementationEstimate(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span></small>
           </a>)}
         </div>

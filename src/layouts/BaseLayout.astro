@@ -1,6 +1,11 @@
 ---
 import '../styles.css';
-const { title = 'Agent Buildprint', description = 'Reusable specs for building software with AI coding agents.' } = Astro.props;
+const {
+  title = 'Agent Buildprint',
+  description = 'Reusable specs for building software with AI coding agents.',
+  image = '/og-image.svg',
+} = Astro.props;
+const absoluteImage = new URL(image, Astro.url.origin).href;
 ---
 <!doctype html>
 <html lang="en">
@@ -13,6 +18,13 @@ const { title = 'Agent Buildprint', description = 'Reusable specs for building s
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content={absoluteImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={absoluteImage} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <script is:inline>
       const saved = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -32,7 +44,7 @@ const { title = 'Agent Buildprint', description = 'Reusable specs for building s
           <a href="/buildprints/">Browse</a>
           <a href="/buildprints/submit/">Submit</a>
           <a href="https://github.com/DomEscobar/agent-buildprint">GitHub</a>
-          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">◐</button>
+          <button class="theme-toggle" id="themeToggle" type="button"><span aria-hidden="true">◐</span><span class="sr-only">Toggle color theme</span></button>
         </nav>
       </div>
     </header>

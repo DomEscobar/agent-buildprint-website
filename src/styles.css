@@ -319,6 +319,20 @@ pre { overflow:auto; background:var(--surface-2); border:1px solid var(--border)
 .proof-flow { margin-top:14px; border:1px solid var(--border); background:var(--surface); border-radius:16px; padding:13px; display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; color:var(--muted); box-shadow:var(--shadow); }
 .proof-flow span { border:1px solid var(--border); background:var(--surface-2); color:var(--text); border-radius:999px; padding:7px 10px; font-size:13px; font-weight:800; }
 .proof-flow b { color:var(--accent); }
+.category-analogy {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-top:14px;
+  border:1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  background:linear-gradient(135deg, var(--surface), color-mix(in srgb, var(--accent-soft) 56%, var(--surface)));
+  border-radius:18px;
+  padding:16px 18px;
+  box-shadow:var(--shadow);
+}
+.category-analogy b { font-size:18px; letter-spacing:-.025em; }
+.category-analogy span { color:var(--muted); font-size:14px; line-height:1.45; }
 @media (prefers-reduced-motion:no-preference) {
   .proof-card, .proof-folder { animation:proof-rise .55s ease both; }
   .proof-card.good { animation-delay:.08s; }
@@ -332,7 +346,28 @@ pre { overflow:auto; background:var(--surface-2); border:1px solid var(--border)
 @media (max-width:700px) { .proof-compare { grid-template-columns:1fr; } .proof-vs { margin:-2px 0; } .proof-folder pre { font-size:12px; } }
 
 /* Platform positioning overhaul */
-.platform-hero h1 { max-width:860px; }
+.platform-hero h1 { max-width:860px; font-size:clamp(48px,6vw,76px); }
+.clean-hero { grid-template-columns:minmax(0,1fr) minmax(500px,600px); gap:52px; }
+.hero-trust-strip {
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:9px;
+  margin-top:20px;
+  max-width:620px;
+}
+.hero-trust-strip span {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  border:1px solid color-mix(in srgb, var(--verified) 20%, var(--border));
+  background:color-mix(in srgb, var(--surface) 82%, var(--accent-soft));
+  border-radius:999px;
+  padding:8px 10px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:850;
+}
+.hero-trust-strip b { color:color-mix(in srgb, var(--verified) 78%, var(--text)); }
 .blueprint-hero-card { border:1px solid var(--border); background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--accent-soft) 42%,var(--surface))); border-radius:24px; box-shadow:var(--shadow); padding:22px; position:relative; overflow:hidden; }
 .blueprint-hero-card::before { content:''; position:absolute; inset:-40% -30% auto auto; width:210px; height:210px; background:radial-gradient(circle,color-mix(in srgb,var(--accent) 20%,transparent),transparent 68%); }
 .blueprint-card-head { display:flex; align-items:center; justify-content:space-between; gap:14px; color:var(--muted); font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
@@ -360,7 +395,7 @@ pre { overflow:auto; background:var(--surface-2); border:1px solid var(--border)
   .blueprint-hero-card:hover .blueprint-lines span:nth-child(odd) { transform:translateX(3px); }
 }
 @media (max-width:980px) { .audience-strip, .blueprint-explainer { grid-template-columns:1fr; } }
-@media (max-width:640px) { .blueprint-hero-card h3 { font-size:23px; margin-top:26px; } .plan-file { align-items:flex-start; flex-direction:column; gap:3px; } .plan-file span { text-align:left; } }
+@media (max-width:640px) { .blueprint-hero-card h3 { font-size:23px; margin-top:26px; } .plan-file { align-items:flex-start; flex-direction:column; gap:3px; } .plan-file span { text-align:left; } .hero-trust-strip { grid-template-columns:1fr; } .category-analogy { align-items:flex-start; flex-direction:column; } }
 
 /* Submission creator prompt */
 .submission-prompt-section { padding-top:20px; }
@@ -422,6 +457,17 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   box-shadow: var(--shadow);
 }
 .skip-link:focus { transform: translateY(0); }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .nav-shell { box-shadow: 0 1px 0 color-mix(in srgb, var(--accent) 8%, transparent); }
 .platform-hero { position: relative; }
 .platform-hero::before {
@@ -552,8 +598,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 .story-carousel-viewport::-webkit-scrollbar { display:none; }
 .story-carousel-track { display:flex; }
 .story-slide { flex:0 0 100%; margin:0; scroll-snap-align:center; }
-.story-expand { display:block; width:100%; border:0; padding:0; background:transparent; cursor:zoom-in; }
-.story-slide img { display:block; width:100%; aspect-ratio: 880 / 1184; object-fit:cover; border-radius:26px; }
+.story-expand { display:block; width:100%; aspect-ratio:3 / 2; border:0; padding:0; background:transparent; cursor:zoom-in; overflow:hidden; border-radius:26px; }
+.story-slide img { display:block; width:100%; height:100%; object-fit:cover; border-radius:26px; }
 .story-arrow { position:absolute; z-index:4; top:50%; transform:translateY(-50%); width:42px; height:42px; border:1px solid rgba(255,255,255,.34); border-radius:999px; background:rgba(15,23,42,.58); color:white; backdrop-filter:blur(8px); font-size:32px; line-height:1; cursor:pointer; display:grid; place-items:center; transition:background-color .18s ease, transform .18s ease; }
 .story-arrow:hover { background:rgba(15,23,42,.76); transform:translateY(-50%) scale(1.04); }
 .story-arrow.prev { left:12px; }
@@ -619,7 +665,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 @media (max-width: 640px) {
   .blueprint-dossier-card { padding: 16px; border-radius: 20px; }
   .hero-story-carousel { border-radius: 20px; }
-  .story-carousel-viewport, .story-slide img { border-radius:20px; }
+  .story-carousel-viewport, .story-expand, .story-slide img { border-radius:20px; }
   .story-arrow { width:36px; height:36px; font-size:28px; }
   .story-carousel-controls { padding:0 54px; }
   .story-carousel-controls button { font-size:10px; padding:5px 7px; }
