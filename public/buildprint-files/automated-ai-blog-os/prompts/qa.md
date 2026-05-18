@@ -1,1 +1,0 @@
-Review an Automated AI Blog OS implementation against BUILDPRINT.md, SPEC.md, CONTRACTS.md, TEST_MATRIX.md, and VALIDATION_TEMPLATE.md. Focus on source grounding, anti-slop protections, SEO/feed/build validation, approval-gated publishing, and test isolation.
