@@ -17,7 +17,7 @@ Agent endpoints:
 - `/buildprints/{slug}/agent.md`
 - `/buildprints/{slug}/package.json`
 - `/buildprints/{slug}/prompt.txt`
-- `/buildprint-files/{slug}/{path}`
+- `/buildprints/{slug}/files/{path}`
 
 ## Development
 
@@ -25,9 +25,10 @@ Agent endpoints:
 npm install
 npm run dev
 npm run build
+npm run check:buildprints
 ```
 
-The static raw Buildprint files under `public/buildprint-files/` are copied from the Agent Buildprint repo before deployment.
+Buildprint files are served from the canonical Agent Buildprint repo at `/root/blueprint/buildprints` through generated `/buildprints/{slug}/files/*` routes. Do not copy or edit `public/buildprint-files` as a source of truth.
 
 ## Agent bootstrap UX
 
