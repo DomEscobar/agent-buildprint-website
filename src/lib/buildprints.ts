@@ -35,15 +35,13 @@ export type Buildprint = {
 };
 
 export function implementationEstimate(bp: Pick<Buildprint, 'tier' | 'category' | 'difficulty' | 'files' | 'checks'>) {
-  let minutes = bp.tier === 'basic' ? 45 : bp.tier === 'strong' ? 75 : 95;
-  if (bp.category === 'Product OS' || bp.category === 'Mapped Project') minutes += 20;
-  if (bp.category === 'Workflow OS') minutes += 10;
-  if (bp.category === 'Feature / Extension') minutes -= 10;
-  if (bp.difficulty === 'Advanced') minutes += 20;
-  if (bp.files.length > 18) minutes += 10;
-  if (bp.checks.length > 8) minutes += 5;
-  const low = Math.max(30, Math.round((minutes - 20) / 15) * 15);
-  const high = Math.round((minutes + 40) / 15) * 15;
+  let minutes = bp.tier === 'basic' ? 15 : bp.tier === 'strong' ? 25 : 35;
+  if (bp.category === 'Product OS' || bp.category === 'Mapped Project') minutes += 5;
+  if (bp.category === 'Workflow OS') minutes += 5;
+  if (bp.category === 'Feature / Extension') minutes -= 5;
+  if (bp.difficulty === 'Advanced') minutes += 5;
+  const low = Math.max(15, Math.round((minutes - 10) / 15) * 15);
+  const high = Math.max(30, Math.round((minutes + 10) / 15) * 15);
   return `${low}–${high} min`;
 }
 
