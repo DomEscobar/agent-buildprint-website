@@ -27,13 +27,11 @@ const heroStoryImages = [
     src: '/images/hero-buildprint-story/agent-buildprint-story-1.jpg',
     alt: 'Manga-style Buildprint explainer story',
     label: 'Agent plan',
-    caption: 'tiny idea → build intent → agent-ready plan',
   },
   {
     src: '/images/hero-buildprint-story/framework-replacement-story.jpg',
     alt: 'Manga-style framework replacement story',
     label: 'Framework-free',
-    caption: 'framework lock-in → portable plan → build anywhere',
   },
 ];
 ---
@@ -54,8 +52,9 @@ const heroStoryImages = [
         <div class="story-carousel-viewport" data-story-viewport>
           <div class="story-carousel-track">
             {heroStoryImages.map((image, index) => <figure class="story-slide" aria-label={`${image.label} story`}>
-              <img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
-              <figcaption>{image.caption}</figcaption>
+              <button class="story-expand" type="button" data-expand-image={image.src} data-expand-alt={image.alt} aria-label={`Expand ${image.label} story image`}>
+                <img src={image.src} alt={image.alt} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
+              </button>
             </figure>)}
           </div>
         </div>
@@ -63,6 +62,10 @@ const heroStoryImages = [
           {heroStoryImages.map((image, index) => <button type="button" class={index === 0 ? 'active' : ''} aria-label={`Show ${image.label} story`} data-story-dot={index}>{image.label}</button>)}
         </div>
       </aside>
+      <dialog class="story-lightbox" data-story-lightbox aria-label="Expanded story image">
+        <button class="story-lightbox-close" type="button" data-story-close aria-label="Close expanded image">×</button>
+        <img data-story-lightbox-image alt="" />
+      </dialog>
     </section>
     <section id="how-it-works" class="container section visual-proof-section" aria-labelledby="visual-proof-title">
       <div class="section-head simple proof-head"><div><span class="eyebrow"><b>↯</b> Why Buildprints</span><h2 id="visual-proof-title">AI agents are fast, but they guess.</h2><p>Buildprints give agents explicit plans before they write code — so the result drifts less and is easier to check.</p></div></div>
@@ -161,6 +164,22 @@ const heroStoryImages = [
         const current = Math.round(viewport.scrollLeft / Math.max(1, viewport.clientWidth));
         dots.forEach((dot, index) => dot.classList.toggle('active', index === current));
       }, { passive: true });
+
+      const lightbox = document.querySelector('[data-story-lightbox]');
+      const lightboxImage = document.querySelector('[data-story-lightbox-image]');
+      const close = document.querySelector('[data-story-close]');
+      root.querySelectorAll('[data-expand-image]').forEach((button) => {
+        button.addEventListener('click', () => {
+          if (!lightbox || !lightboxImage) return;
+          lightboxImage.src = button.dataset.expandImage;
+          lightboxImage.alt = button.dataset.expandAlt || '';
+          if (typeof lightbox.showModal === 'function') lightbox.showModal();
+        });
+      });
+      close?.addEventListener('click', () => lightbox?.close());
+      lightbox?.addEventListener('click', (event) => {
+        if (event.target === lightbox) lightbox.close();
+      });
     })();
   </script>
 </BaseLayout>
