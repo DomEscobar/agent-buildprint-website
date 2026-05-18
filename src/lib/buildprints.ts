@@ -186,8 +186,8 @@ export const buildprints: Buildprint[] = [
     includes: ['Portable workflow scope', 'Webapp target spec', 'ScriptAgent and ProductionAgent contracts', 'XML output contract and repair loop', 'Async job/cancellation model', 'Mock-first provider adapters', 'UI/workbench mapping with confidence labels', 'Preview composition manifest', 'Head-to-foot QA gate', 'Browser QA scenarios', 'Parity claims and explicit non-claims', 'Machine-readable phase/acceptance/claim gates'],
     risks: ['Accidentally implying full Toonflow parity', 'Provider API drift', 'Media export overclaiming', 'Canvas/workbench exactness overclaiming', 'Live provider costs without env gates', 'Persistence mode confusion'],
     files: [
-      { path: 'README.md', purpose: 'package overview and scope boundary', required: true },
       { path: 'BUILDPRINT.md', purpose: 'canonical start, authority spine, binding slice, phase gates, and acceptance gates', required: true },
+      { path: 'README.md', purpose: 'package overview and scope boundary', required: true },
       { path: 'buildprint.json', purpose: 'machine-readable authority, file roles, binding slice, and forbidden defaults', required: true },
       { path: 'phases.yaml', purpose: 'structured phase gates for agent alignment and proof before proceeding', required: true },
       { path: 'acceptance.yaml', purpose: 'structured done criteria for tests, browser QA, artifacts, and no-network gates', required: true },

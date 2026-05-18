@@ -11,7 +11,8 @@ export function GET({ params }: { params: { slug: string } }) {
   const prompt = `Use the Agent Buildprint at ${urls.agent}.
 
 Fetch ${urls.manifest}.
-Read the package files in the manifest order.
+Read \`BUILDPRINT.md\` first; it is the canonical authority and owns the required read order, phase gates, and acceptance gates.
+Use structured control files only as machine-readable mirrors, not competing instructions.
 Follow alignment/question rules before implementation.
 Do not scrape human UI cards.
 
