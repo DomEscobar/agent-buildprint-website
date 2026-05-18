@@ -46,7 +46,6 @@ export function implementationEstimate(bp: Pick<Buildprint, 'tier' | 'category' 
 }
 
 export const repoUrl = 'https://github.com/DomEscobar/agent-buildprint';
-export const rawRepoBase = 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/23d843e';
 // Production DNS for agent-buildprint.com is not yet serving this static site.
 // Keep generated manifests/CLI bootstrap commands on the live preview origin until DNS is cut over.
 export const siteBase = import.meta.env.PUBLIC_SITE_BASE || 'https://agent-buildprint.com';
@@ -63,7 +62,7 @@ export const canonicalFilePurposes: Record<string, string> = {
   'questions.md': 'configuration interview',
 };
 
-const rawFor = (slug: string) => `${rawRepoBase}/buildprints/${slug}`;
+const rawFor = (slug: string) => `${siteBase}/buildprints/${slug}/files`;
 const localPrompt = (slug: string, title: string) => `Use the ${title} Buildprint. First bootstrap exact snapshots: agb start ${siteBase}/buildprints/${slug}/package.json . If agb is not installed, clone https://github.com/DomEscobar/agent-buildprint and run node agent-buildprint/bin/agb.js start ${siteBase}/buildprints/${slug}/package.json . Then read .buildprint/next-agent.md and continue. Do not write Buildprint snapshots manually.`;
 const agentTrustBadges: BuildprintTrustBadge[] = [
   { label: 'Snapshot bootstrap passed', detail: 'agb start downloaded exact Markdown snapshots; HTML/parked-domain responses are rejected.', tone: 'success' },
@@ -167,7 +166,7 @@ export const buildprints: Buildprint[] = [
     checks: ['Sources are captured as records, not invented', 'Ideas use explicit scoring rubric', 'Drafts include source map and claim map', 'Ungrounded factual claims block publishing', 'SEO metadata, structured data, sitemap/RSS/llms, and build are validated', 'Unapproved drafts cannot publish by default', 'Tests run without real network/publishing credentials', 'Manager audit reports stale/weak/blocked items'],
     trustBadges: agentTrustBadges,
     githubUrl: `${repoUrl}/tree/main/buildprints/automated-ai-blog-os`,
-    rawBaseUrl: `${siteBase}/buildprint-files/automated-ai-blog-os`,
+    rawBaseUrl: rawFor('automated-ai-blog-os'),
     copyPrompt: `${localPrompt('automated-ai-blog-os', 'Automated AI Blog OS')} Build the approval-gated AI blog pipeline with source scanning, idea scoring, draft generation, claim/SEO validation, approval queue, gated publishing/scheduling, manager audit, and tests. Do not auto-publish by default.`,
   },
   {
@@ -239,7 +238,7 @@ export const buildprints: Buildprint[] = [
     githubUrl: `${repoUrl}/tree/main/buildprints/portable-novel-storyboard-pipeline`,
     originGithubUrl: 'https://github.com/HBAI-Ltd/Toonflow-app',
     originLabel: 'HBAI-Ltd/Toonflow-app',
-    rawBaseUrl: `${siteBase}/buildprint-files/portable-novel-storyboard-pipeline`,
+    rawBaseUrl: rawFor('portable-novel-storyboard-pipeline'),
     copyPrompt: `${localPrompt('portable-novel-storyboard-pipeline', 'Portable Novel-to-Storyboard Pipeline')} Build a clean-room portable webapp proof for the novel-to-storyboard workflow. Use mock/no-network providers by default. Produce a PortablePreviewManifest/preview package only; do not claim Toonflow clone, provider parity, exact workbench parity, or final stitched-video export parity unless explicitly upgraded with evidence.`,
   },
   {
@@ -312,7 +311,7 @@ export const buildprints: Buildprint[] = [
       { label: 'Dogfood proof passed', detail: 'Mapped Seanium/FeedMe with Codex, extracted a static RSS pipeline Buildprint, and passed reversal checks.', tone: 'success' },
     ],
     githubUrl: `${repoUrl}/tree/main/buildprints/buildprint-mapper-os`,
-    rawBaseUrl: `${siteBase}/buildprints/buildprint-mapper-os/files`,
+    rawBaseUrl: rawFor('buildprint-mapper-os'),
     copyPrompt: `${localPrompt('buildprint-mapper-os', 'Buildprint Mapper OS')} Use it to map this repo into SYSTEM_MAP.md and BUILDPRINT_CANDIDATES.md first. Ask me to choose one candidate, then extract only that selected scope into buildprint-submission/. Default to production-grade selected scope: smaller scope is OK, but do not create a lazy MVP, mock services as product behavior, placeholder routes, no-op controls, skeleton adapters, or in-memory-only persistence when durability is claimed. Do not require a CLI, do not copy secrets, and do not flatten the repo into one vague document.`,
   },
 
@@ -369,10 +368,10 @@ export const buildprints: Buildprint[] = [
       { label: 'Clean-room proof passed', detail: 'Codex built a neutral Node.js proof from snapshots; npm test passed 6/6 and transcript evals passed 5/5.', tone: 'success' },
       { label: 'Scoped validation', detail: 'Validated as an inspired/adaptive methodology harness proof, not a production runtime adapter or official clone.', tone: 'warning' },
     ],
-    githubUrl: 'https://github.com/DomEscobar/agent-buildprint-website/tree/main/public/buildprint-files/superpowers-skill-methodology-harness',
+    githubUrl: `${repoUrl}/tree/main/buildprints/superpowers-skill-methodology-harness`,
     originGithubUrl: 'https://github.com/obra/superpowers',
     originLabel: 'obra/superpowers',
-    rawBaseUrl: `${siteBase}/buildprint-files/superpowers-skill-methodology-harness`,
+    rawBaseUrl: rawFor('superpowers-skill-methodology-harness'),
     copyPrompt: `${localPrompt('superpowers-skill-methodology-harness', 'Superpowers Skill Methodology Harness')} Build a clean-room skill-methodology harness proof. Do not make a dashboard/manager. Implement session bootstrap, skill lookup before action, brainstorming-before-code, TDD gate, subagent/review loop contracts, and transcript evals. Keep claims Superpowers-inspired unless installing the official plugin.`,
   },
 
@@ -428,10 +427,10 @@ export const buildprints: Buildprint[] = [
       { label: 'Not just skill tests', detail: 'Skill unit tests are one module; activation, process compliance, safety, and loadout cost are separate gates.', tone: 'info' },
       { label: 'Safety hard-fails', detail: 'Secrets, external writes, destructive actions, and fabricated evidence override aggregate scores.', tone: 'warning' },
     ],
-    githubUrl: 'https://github.com/DomEscobar/agent-buildprint-website/tree/main/public/buildprint-files/complete-agent-skills-evaluation-os',
+    githubUrl: `${repoUrl}/tree/main/buildprints/complete-agent-skills-evaluation-os`,
     originGithubUrl: 'https://github.com/balyakin/skill-eval-runner',
     originLabel: 'balyakin/skill-eval-runner + eval stack',
-    rawBaseUrl: `${siteBase}/buildprint-files/complete-agent-skills-evaluation-os`,
+    rawBaseUrl: rawFor('complete-agent-skills-evaluation-os'),
     copyPrompt: `${localPrompt('complete-agent-skills-evaluation-os', 'Complete Agent Skills Evaluation OS')} Build a complete evaluation stack for my coding-agent setup. Treat skill-eval-runner-style per-skill tests as one module only. Include setup snapshot, static lint, loadout/token inventory, activation/routing evals with positive and negative prompts, transcript/process checks, E2E task bench, multi-agent safety, safety hard-fails, and CI scorecard. Use offline fixtures by default; do not perform live external actions without approval.`,
   },
 
@@ -491,10 +490,10 @@ export const buildprints: Buildprint[] = [
       { label: 'Safety-gated tools', detail: 'Shell/network/write risk is explicit; dangerous tools are denied unless policy allows them.', tone: 'info' },
       { label: 'Explicit parity boundary', detail: 'Claims stop at clean-room workflow/contract/mock-runtime proof unless upgraded with live evidence.', tone: 'warning' },
     ],
-    githubUrl: 'https://github.com/DomEscobar/agent-buildprint-website/tree/main/public/buildprint-files/portable-personal-agent-chat-os',
+    githubUrl: `${repoUrl}/tree/main/buildprints/portable-personal-agent-chat-os`,
     originGithubUrl: 'https://github.com/TheSyart/emperor-agent',
     originLabel: 'TheSyart/emperor-agent',
-    rawBaseUrl: `${siteBase}/buildprint-files/portable-personal-agent-chat-os`,
+    rawBaseUrl: rawFor('portable-personal-agent-chat-os'),
     copyPrompt: `${localPrompt('portable-personal-agent-chat-os', 'Portable Personal Agent Chat OS')} Build a clean-room personal agent chatbot OS with streaming chat, provider routing, tools, skills, MCP adapter, memory/compaction, subagent delegation, token telemetry, and safety-gated tool policy. Use fake providers/tools by default. Do not claim Emperor Agent clone, exact UI parity, live provider parity, shell parity, or real MCP parity unless separately validated.`,
   },
 
@@ -544,8 +543,8 @@ export const buildprints: Buildprint[] = [
       { label: 'Offline proof', detail: 'Deterministic TypeScript proof runs without live model, vector DB, or provider credentials.', tone: 'info' },
       { label: 'Permission-safe retrieval', detail: 'Tenant/private filters are part of the proof and acceptance tests.', tone: 'success' },
     ],
-    githubUrl: 'https://github.com/DomEscobar/agent-buildprint-website/tree/main/public/buildprint-files/perfect-rag-retrieval-os',
-    rawBaseUrl: `${siteBase}/buildprint-files/perfect-rag-retrieval-os`,
+    githubUrl: `${repoUrl}/tree/main/buildprints/perfect-rag-retrieval-os`,
+    rawBaseUrl: rawFor('perfect-rag-retrieval-os'),
     copyPrompt: `${localPrompt('perfect-rag-retrieval-os', 'Perfect RAG / Retrieval OS')} First identify my corpus, permissions, backend stack, search/vector infrastructure, latency/cost budget, and eval cases. Implement ingestion, chunking, hybrid retrieval, fusion/dedupe, permission filtering, reranking, grounded cited answers, refusal behavior, trace logging, and retrieval/answer evals. Use deterministic mocks in tests; do not call live model/vector/reranker providers unless explicitly configured.`,
   },
   {
@@ -601,8 +600,8 @@ export const buildprints: Buildprint[] = [
       { label: 'Portable backend contract', detail: 'Adapters preserve the same checkout, webhook, state, entitlement, portal, and test boundaries across stacks.', tone: 'info' },
       { label: 'No real Stripe calls', detail: 'Validation uses mock providers and env var names only; no secrets or network billing calls.', tone: 'info' },
     ],
-    githubUrl: 'https://github.com/DomEscobar/agent-buildprint-website/tree/main/public/buildprint-files/stripe-billing-extension',
-    rawBaseUrl: `${siteBase}/buildprint-files/stripe-billing-extension`,
+    githubUrl: `${repoUrl}/tree/main/buildprints/stripe-billing-extension`,
+    rawBaseUrl: rawFor('stripe-billing-extension'),
     copyPrompt: `${localPrompt('stripe-billing-extension', 'Stripe Billing Extension')} First identify my backend stack, routing/auth/database/test patterns, then adapt TARGET_STACK_ADAPTERS.md to that stack. Implement billing with verified webhooks, server-side subscription state, entitlements, customer portal, billing UI, and lifecycle tests. Use env var names only; do not call real Stripe APIs in tests.`, 
   },
   {
@@ -656,7 +655,7 @@ export const buildprints: Buildprint[] = [
     githubUrl: `${repoUrl}/tree/main/buildprints/portable-ai-shorts-production-studio`,
     originGithubUrl: 'https://github.com/mutonby/openshorts',
     originLabel: 'mutonby/openshorts',
-    rawBaseUrl: `${siteBase}/buildprint-files/portable-ai-shorts-production-studio`,
+    rawBaseUrl: rawFor('portable-ai-shorts-production-studio'),
     copyPrompt: `${localPrompt('portable-ai-shorts-production-studio', 'Portable AI Shorts Production Studio')} Build a clean-room AI shorts production proof from the Buildprint package. Keep claims scoped to workflow-proof + contract-parity + mocked-provider proof. Do not call it an OpenShorts clone, drop-in replacement, provider/API parity implementation, rendering-quality parity proof, or social-platform publishing parity proof.`,
   },
   {
@@ -711,7 +710,7 @@ export const buildprints: Buildprint[] = [
     githubUrl: `${repoUrl}/tree/main/buildprints/portable-durable-agent-graph-runtime`,
     originGithubUrl: 'https://github.com/langchain-ai/langgraph',
     originLabel: 'langchain-ai/langgraph',
-    rawBaseUrl: `${siteBase}/buildprint-files/portable-durable-agent-graph-runtime`,
+    rawBaseUrl: rawFor('portable-durable-agent-graph-runtime'),
     copyPrompt: `${localPrompt('portable-durable-agent-graph-runtime', 'Portable Durable Agent Graph Runtime')} Build a clean-room TypeScript durable graph runtime proof from the Buildprint package. Keep claims scoped to workflow-proof + contract-parity + mocked-runtime-proof. Do not call it a LangGraph clone, drop-in replacement, full API-compatible runtime, LangSmith/cloud equivalent, provider/tool parity implementation, production storage adapter, or Pregel concurrency/performance parity.`,
   },
 ];
