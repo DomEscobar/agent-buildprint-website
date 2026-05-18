@@ -142,7 +142,7 @@ export const buildprints: Buildprint[] = [
       { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
       { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
       { path: 'plans/00-alignment.md', purpose: 'phase 00 alignment rail', required: true },
-      { path: 'plans/01-content-skeleton.md', purpose: 'phase 01 content skeleton rail', required: true },
+      { path: 'plans/01-content-structure.md', purpose: 'phase 01 content structure rail', required: true },
       { path: 'plans/02-source-scanner.md', purpose: 'phase 02 source scanner rail', required: true },
       { path: 'plans/03-idea-scoring.md', purpose: 'phase 03 idea scoring rail', required: true },
       { path: 'plans/04-drafting-visuals.md', purpose: 'phase 04 drafting and visuals rail', required: true },
