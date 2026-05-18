@@ -97,7 +97,7 @@ export const buildprints: Buildprint[] = [
       { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
       { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
       { path: 'plans/00-alignment.md', purpose: 'phase 00 alignment rail', required: true },
-      { path: 'plans/01-openclaw-skeleton.md', purpose: 'phase 01 runtime skeleton rail', required: true },
+      { path: 'plans/01-openclaw-runtime-shape.md', purpose: 'phase 01 OpenClaw runtime shape rail', required: true },
       { path: 'plans/02-persona-runtime.md', purpose: 'phase 02 persona runtime rail', required: true },
       { path: 'plans/03-memory-life-state.md', purpose: 'phase 03 memory/life rail', required: true },
       { path: 'plans/04-wavespeed-image.md', purpose: 'phase 04 Wavespeed image rail', required: true },
