@@ -49,6 +49,8 @@ jobs:
 
       - name: Build and validate
         working-directory: website
+        env:
+          BUILDPRINTS_SOURCE: ../agent-buildprint/buildprints
         run: |
           npm run build
           npm run check:buildprints

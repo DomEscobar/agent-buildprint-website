@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { buildprints, getBuildprint } from '@/lib/buildprints';
 
-const buildprintsRoot = '/root/blueprint/buildprints';
+const buildprintsRoot = process.env.BUILDPRINTS_SOURCE || '/root/blueprint/buildprints';
 
 function listFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
