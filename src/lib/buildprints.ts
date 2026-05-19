@@ -52,6 +52,7 @@ export const siteBase = import.meta.env.PUBLIC_SITE_BASE || 'https://agent-build
 
 export const canonicalFilePurposes: Record<string, string> = {
   'BUILDPRINT.md': 'architecture truth / coding-agent contract',
+  'README.md': 'human overview, non-authoritative',
   'SPEC.md': 'behavior truth / requirements',
   'PLAN.md': 'execution index',
   'plans/*.md': 'tiny phase task rails',
@@ -59,6 +60,7 @@ export const canonicalFilePurposes: Record<string, string> = {
   'DEFAULT_PRESET.md': 'configurable defaults, no fixed identity',
   'TEST_MATRIX.md': 'risk-to-test alignment',
   'VALIDATION_TEMPLATE.md': 'completion report template',
+  'checks/acceptance.md': 'acceptance checklist',
   'questions.md': 'configuration interview',
 };
 
@@ -130,7 +132,8 @@ export const buildprints: Buildprint[] = [
       { path: 'conformance/test/node-builtins.d.ts', purpose: 'minimal Node built-in type declarations for conformance tests', required: true },
       { path: 'conformance/test/auth-rbac.conformance.test.ts', purpose: 'black-box tenant/RBAC/invite/billing/audit conformance suite', required: true },
       { path: 'conformance/examples/adapter.stub.ts', purpose: 'non-passing adapter stub documenting required implementation shape', required: true },
-      { path: 'schemas/buildprint.meta.json', purpose: 'Buildprint package file', required: false }
+      { path: 'schemas/buildprint.meta.json', purpose: 'Buildprint package file', required: false },
+      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
     ],
     checks: ['Phase 00 artifacts exist before implementation', 'Existing auth is reused by default', 'Permission engine denies unknown/missing access by default', 'Every team-scoped route has direct API authorization tests', 'Invite expiry/revoke/single-use/exact-email policies are tested', 'Role mutation blocks self-escalation and last-owner loss', 'Audit metadata is redacted', 'Offline proof harness is included in the manifest and passes npm --prefix proof test', 'Target-app conformance kit is included and typechecks; completion requires it to pass against a real adapter or record blockers', 'Migration/backfill/rollback/recovery path is documented'],
     trustBadges: [
@@ -180,6 +183,9 @@ export const buildprints: Buildprint[] = [
       { path: 'TEST_MATRIX.md', purpose: canonicalFilePurposes['TEST_MATRIX.md'], required: true },
       { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
       { path: 'questions.md', purpose: canonicalFilePurposes['questions.md'], required: true },
+    
+      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['OpenClaw runtime command/blocker exists', 'LLM analyzer adapter prevents keyword-only drift', 'Wavespeed real adapter shape exists', 'Tests use mock image mode without external APIs', 'User memory and self-state are separate', 'noVNC handoff service shape exists', 'Publishing is mock/manual-gated by default'],
     trustBadges: agentTrustBadges,
@@ -228,6 +234,8 @@ export const buildprints: Buildprint[] = [
       { path: 'checks/acceptance.md', purpose: 'acceptance checklist', required: true },
       { path: 'policies/publishing.md', purpose: 'publishing safety policy', required: true },
       { path: 'schemas/buildprint.meta.json', purpose: 'package metadata schema example', required: false },
+    
+      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
     ],
     checks: ['Sources are captured as records, not invented', 'Ideas use explicit scoring rubric', 'Drafts include source map and claim map', 'Ungrounded factual claims block publishing', 'SEO metadata, structured data, sitemap/RSS/llms, and build are validated', 'Unapproved drafts cannot publish by default', 'Tests run without real network/publishing credentials', 'Manager audit reports stale/weak/blocked items'],
     trustBadges: agentTrustBadges,
@@ -298,6 +306,10 @@ export const buildprints: Buildprint[] = [
       { path: 'LLM_FLOW.md', purpose: 'LLM orchestration and agent flow notes', required: false },
       { path: 'PORTABILITY.md', purpose: 'portability and clean-room constraints', required: false },
       { path: 'IMPLEMENTATION_ROADMAP.md', purpose: 'implementation roadmap', required: false },
+    
+      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Default storyboard preset accepted or questions.md asked exactly and confirmed', 'Numbered plans execute in order to reduce LLM context rot', 'Selected fidelity target is workflow-proof + contract/runtime proof, not full clone parity', 'Buildprint uses clean-room artifacts only; original app source is not implementation input', 'Mock/no-network providers are default', 'Browser UI proofs require creative workbench state: local thumbnails, timeline lanes, selected-shot inspector, compact media tiles, and debug drawer', 'Raw URI tables, manifest-first previews, empty mobile screenshots, and generic dashboard layouts are rejected', 'Provider/live smoke is env-gated and optional', 'Export claim is PortablePreviewManifest/preview package only, not final stitched-video parity', 'Final chat handover must state outcome, evidence, gaps, and next direction', 'PARITY_CLAIMS.md and claims.yaml label safe claims, non-claims, and upgrade evidence'],
     trustBadges: [
@@ -330,7 +342,7 @@ export const buildprints: Buildprint[] = [
     whatYouNeed: ['Nothing for public repos', 'GitHub/private repo access if the source is private', 'A human scope choice when multiple candidates exist', 'Permission to use any private source code'],
     architectureFlow: ['Repo', 'System map', 'Candidates', 'Selection', 'Package', 'Proof'],
     promise: 'An official workflow Buildprint for creator submissions: evidence-backed system maps, scoped Buildprint candidates, production-grade selected-scope extraction, reversal validation, no-fake implementation checks, and an honest gap report.',
-    includes: ['Safety and secrets boundary', 'Repo census', 'SYSTEM_MAP.md', 'BUILDPRINT_CANDIDATES.md', 'Human scope decision gate', 'Progressive questions.md', 'Clean-room reversal report', 'QA_PLAN.md', 'IMPLEMENTATION_COMPLETENESS.md', 'TRACEABILITY_MATRIX.md', 'Single Buildprint extraction', 'Hierarchical System Buildprint extraction', 'Submission checklist', 'Golden eval targets'],
+    includes: ['Safety and secrets boundary', 'Repo census', 'SYSTEM_MAP.md', 'BUILDPRINT_CANDIDATES.md', 'Human scope decision gate', 'Progressive questions.md', 'Clean-room reversal report', 'QA_PLAN.md', 'IMPLEMENTATION_COMPLETENESS.md', 'TRACEABILITY_MATRIX.md', 'Single Buildprint extraction', 'Hierarchical System Buildprint extraction', 'Submission checklist', 'Golden eval harness and fixtures'],
     risks: ['Whole-repo sludge', 'Secret leakage', 'Hallucinated intent', 'Invented validation results', 'Missing scope', 'Vague marketplace submissions', 'Unclear module boundaries', 'Generic QA plans', 'Missing traceability'],
     files: [
       { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
@@ -371,14 +383,51 @@ export const buildprints: Buildprint[] = [
       { path: 'prompts/discover.md', purpose: 'candidate discovery prompt', required: true },
       { path: 'prompts/extract-selected.md', purpose: 'selected Buildprint extraction prompt', required: true },
       { path: 'schemas/candidate.schema.json', purpose: 'candidate record schema', required: false },
+      { path: 'evals/README.md', purpose: 'golden mapper eval instructions', required: true },
+      { path: 'evals/check-map.mjs', purpose: 'golden mapper eval runner', required: true },
+      { path: 'evals/golden-projects/admin-dashboard/.env.example', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/admin-dashboard/package.json', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/admin-dashboard/expected-signals.json', purpose: 'golden mapper fixture expected signals', required: true },
+      { path: 'evals/golden-projects/admin-dashboard/app/admin/users/page.tsx', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/admin-dashboard/app/api/admin/users/route.ts', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/admin-dashboard/src/models/db.ts', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/admin-dashboard/src/routes/auth/session.ts', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/admin-dashboard/tests/admin-auth.test.js', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/large-monorepo/package.json', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/large-monorepo/expected-signals.json', purpose: 'golden mapper fixture expected signals', required: true },
+      { path: 'evals/golden-projects/large-monorepo/.github/workflows/ci.yml', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/large-monorepo/apps/web/src/app/admin/page.tsx', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/large-monorepo/apps/web/src/app/api/admin/users/route.ts', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/large-monorepo/apps/web/src/app/api/billing/webhook/route.ts', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/large-monorepo/packages/worker/src/content-agent.ts', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/large-monorepo/prisma/schema.prisma', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/malicious-secrets/.env', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/malicious-secrets/package.json', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/malicious-secrets/README.md', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/malicious-secrets/expected-signals.json', purpose: 'golden mapper fixture expected signals', required: true },
+      { path: 'evals/golden-projects/malicious-secrets/src/agent.ts', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/route-patterns/.env.example', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/route-patterns/package.json', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/route-patterns/expected-signals.json', purpose: 'golden mapper fixture expected signals', required: true },
+      { path: 'evals/golden-projects/route-patterns/app/(auth)/login/page.tsx', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/route-patterns/app/(chat)/api/chat/route.ts', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/route-patterns/src/routes/api/tasks/index.ts', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/stripe-saas/package.json', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/stripe-saas/expected-signals.json', purpose: 'golden mapper fixture expected signals', required: true },
+      { path: 'evals/golden-projects/stripe-saas/src/app/api/billing/checkout/route.ts', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/stripe-saas/src/app/api/stripe/webhook/route.ts', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/stripe-saas/src/lib/stripe.ts', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/stripe-saas/src/models/subscription.ts', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/stripe-saas/tests/billing.test.js', purpose: 'golden mapper eval file', required: true },
     ],
-    checks: ['Large repos produce candidates before final package unless full-system mode is selected', 'Generated files contain no secret values', 'Claims are labeled OBSERVED/INFERRED/QUESTION', 'Scope includes included/excluded paths', 'Production-grade selected scope is explicit', 'Agent execution brief/XML contract/current state/manifest exist', 'XML and JSON agent contracts parse', 'Mocks/fixtures are not counted as product implementation', 'Included routes/services/providers/persistence/jobs/exports are real or excluded', 'QA plan is derived from mapped flows', 'Traceability matrix links evidence to requirements and checks', 'Submission checklist reports commands run and known gaps', 'No validation results are invented', 'Golden eval examples include stripe-saas, ai-blog-os, malicious-secrets, admin-dashboard, and large-monorepo'],
+    checks: ['Large repos produce candidates before final package unless full-system mode is selected', 'Generated files contain no secret values', 'Claims are labeled OBSERVED/INFERRED/QUESTION', 'Scope includes included/excluded paths', 'Production-grade selected scope is explicit', 'Agent execution brief/XML contract/current state/manifest exist', 'XML and JSON agent contracts parse', 'Mocks/fixtures are not counted as product implementation', 'Included routes/services/providers/persistence/jobs/exports are real or excluded', 'QA plan is derived from mapped flows', 'Traceability matrix links evidence to requirements and checks', 'Submission checklist reports commands run and known gaps', 'No validation results are invented', 'Golden eval harness passes stripe-saas, malicious-secrets, admin-dashboard, large-monorepo, and route-patterns'], 
     trustBadges: [
       { label: 'Submission workflow', detail: 'Defines the official reviewable path from existing repo to scoped Buildprint package.', tone: 'info' },
       { label: 'Safety-first extraction', detail: 'Requires no app-code changes, no secret copying, and explicit unknowns.', tone: 'success' },
       { label: 'Blueprint-first workflow', detail: 'The mapper works as pure coding-agent instructions; CLI bootstrap is optional, not required.', tone: 'success' },
       { label: 'Traceable QA', detail: 'Requires source evidence → requirement → reversal/QA checks instead of generic demo validation.', tone: 'success' },
       { label: 'No fake MVPs', detail: 'Scope may be small, but included capabilities must be real, wired, persistent where relevant, and QA-tested.', tone: 'warning' },
+      { label: 'Golden eval harness', detail: 'Runs real agb map against billing, malicious-secrets, admin-dashboard, large-monorepo, and route-pattern fixtures.', tone: 'success' },
       { label: 'Dogfood proof passed', detail: 'Mapped Seanium/FeedMe with Codex, extracted a static RSS pipeline Buildprint, and passed reversal checks.', tone: 'success' },
     ],
     githubUrl: `${repoUrl}/tree/main/buildprints/buildprint-mapper-os`,
@@ -427,6 +476,11 @@ export const buildprints: Buildprint[] = [
       { path: 'proof/src/subagents.js', purpose: 'subagent packet and review-loop proof', required: false },
       { path: 'proof/src/transcript.js', purpose: 'transcript event recorder', required: false },
       { path: 'proof/tests/harness.test.js', purpose: '6-subtest Node proof test suite', required: false },
+    
+      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
+      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Pinned Superpowers commit recorded', 'Source trace cites README, skill files, plugin manifests, OpenCode bootstrap, and eval/test docs', 'Buildprint distinguishes manager tooling from methodology harness behavior', 'Bootstrap/skill activation is treated as required runtime behavior', 'Acceptance prompt requires brainstorming before code', 'Clean-room proof passes npm test 6/6 and transcript evals 5/5'],
     trustBadges: [
@@ -482,6 +536,11 @@ export const buildprints: Buildprint[] = [
       { path: 'proof/package-lock.json', purpose: 'offline proof lockfile', required: false },
       { path: 'proof/src/eval-os.mjs', purpose: 'deterministic evaluation pipeline/scoring proof', required: false },
       { path: 'proof/test/eval-os.test.mjs', purpose: 'offline proof tests for snapshot/lint/loadout/skill/activation/transcript/multi-agent scoring', required: false },
+    
+      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
+      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Static-invalid setups fail before expensive behavior tests', 'Loadout inventory exposes loaded token tax and dormant artifacts', 'Skill unit tests are separated from activation tests', 'Activation evals include positive and negative prompts', 'Transcript checks enforce skill-before-action and approval-before-risky-action invariants', 'Multi-agent cases check parent context, output schema, and file ownership', 'Safety hard-fails override good final outputs', 'Offline proof passes 8/8 tests without live agents, providers, or network calls'],
     trustBadges: [
@@ -543,6 +602,9 @@ export const buildprints: Buildprint[] = [
       { path: 'proof/src/runtime.ts', purpose: 'deterministic personal agent runtime proof', required: false },
       { path: 'proof/test/runtime.test.ts', purpose: 'offline proof tests for streaming, tools, skills, MCP, memory, team, and telemetry', required: false },
       { path: 'proof/test/node-builtins.d.ts', purpose: 'offline proof local Node type shims', required: false },
+    
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Clean-room mapped-project scope; not a full Emperor Agent clone', 'Offline TypeScript proof builds without live providers or network calls', 'Proof streams deltas before completion', 'Tool policy denies shell by default', 'Skill selection and subagent delegation are traceable events', 'MCP fake tool maps through same ToolSpec boundary', 'Memory compacts under context pressure while retaining recent messages', 'Token telemetry is emitted and asserted'],
     trustBadges: [
@@ -592,6 +654,10 @@ export const buildprints: Buildprint[] = [
       { path: 'proof/src/index.ts', purpose: 'offline proof module exports', required: false },
       { path: 'proof/src/rag.ts', purpose: 'offline deterministic RAG pipeline proof', required: false },
       { path: 'proof/test/rag.test.ts', purpose: 'offline proof retrieval, answer, refusal, permission, and eval tests', required: false },
+    
+      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Research report validated with 18 sources and 16 evidence-backed claims', 'Offline TypeScript proof builds without network or provider keys', 'Proof compares lexical, dense-like, hybrid, and reranked retrieval paths', 'Grounded answer includes citations from selected chunks', 'Unsupported query refuses with insufficient-evidence', 'Tenant/private retrieval filter blocks unauthorized chunks', 'Eval harness emits machine-readable recall@5 and MRR-style metrics'],
     trustBadges: [
@@ -646,6 +712,10 @@ export const buildprints: Buildprint[] = [
       { path: 'proof/src/ui/billingUi.ts', purpose: 'dry-run proof billing settings UI stub', required: false },
       { path: 'proof/test/billing.test.ts', purpose: 'dry-run proof lifecycle tests', required: false },
       { path: 'proof/test/node-builtins.d.ts', purpose: 'dry-run proof local Node type shims', required: false },
+    
+      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Codex dry-run generated a TypeScript billing proof', 'npm run build passed in dry-run proof', 'npm test passed: 6/6 lifecycle tests', 'Target-stack adapters document Node/TypeScript, Python, Rails, Go, and PHP/Laravel mappings', 'Webhook signatures verified before state mutation', 'Premium access uses server-side subscription state', 'Portal requires authenticated customer', 'Failed/canceled/trialing states handled'],
     trustBadges: [
@@ -690,6 +760,10 @@ export const buildprints: Buildprint[] = [
       { path: 'THREAT_MODEL.md', purpose: 'key/likeness/scraping/provider/gallery safety model', required: true },
       { path: 'SOURCE_TRACE.md', purpose: 'OpenShorts source evidence grouped by capability', required: true },
       { path: 'SYSTEM_MAP.md', purpose: 'OpenShorts system map and pipeline layers', required: true },
+    
+      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Mapped source commit is recorded: fe87af6dd599b854e6eab2de0ca247ebafe13885', 'Required Mapper OS artifacts exist', 'Source trace cites concrete OpenShorts files/line ranges', 'Clean-room proof is built from Buildprint docs, not OpenShorts imports', 'npm run check passes in clean-room proof', '7/7 proof tests pass', 'Claim boundary remains workflow-proof + contract-parity + mocked-provider proof', 'Full clone/provider/API/rendering/social-platform parity are explicitly out of scope'],
     trustBadges: [
@@ -737,6 +811,9 @@ export const buildprints: Buildprint[] = [
       { path: 'THREAT_MODEL.md', purpose: 'serializer/checkpoint/node-output safety model', required: true },
       { path: 'SOURCE_TRACE.md', purpose: 'pinned LangGraph source trace with OBSERVED evidence', required: true },
       { path: 'SYSTEM_MAP.md', purpose: 'selected system map and runtime layers', required: true },
+    
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Pinned source commit is recorded: 076e2a3627206f5a1aef573aaca4a01e5af897ca', '166 source references checked with 0 missing and 0 bad line ranges', 'Clean-room TypeScript proof uses Buildprint docs only, not LangGraph source imports', 'npm test runs tsc and node --test', '12/12 proof tests pass', 'Claim boundary remains workflow-proof + contract-parity + mocked-runtime-proof', 'Full clone/API/provider/cloud/storage/Pregel parity are explicitly out of scope'],
     trustBadges: [
