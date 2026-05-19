@@ -52,6 +52,7 @@ export const siteBase = import.meta.env.PUBLIC_SITE_BASE || 'https://agent-build
 
 export const canonicalFilePurposes: Record<string, string> = {
   'BUILDPRINT.md': 'architecture truth / coding-agent contract',
+  'README.md': 'human overview, non-authoritative',
   'SPEC.md': 'behavior truth / requirements',
   'PLAN.md': 'execution index',
   'plans/*.md': 'tiny phase task rails',
@@ -59,6 +60,7 @@ export const canonicalFilePurposes: Record<string, string> = {
   'DEFAULT_PRESET.md': 'configurable defaults, no fixed identity',
   'TEST_MATRIX.md': 'risk-to-test alignment',
   'VALIDATION_TEMPLATE.md': 'completion report template',
+  'checks/acceptance.md': 'acceptance checklist',
   'questions.md': 'configuration interview',
 };
 
@@ -130,7 +132,8 @@ export const buildprints: Buildprint[] = [
       { path: 'conformance/test/node-builtins.d.ts', purpose: 'minimal Node built-in type declarations for conformance tests', required: true },
       { path: 'conformance/test/auth-rbac.conformance.test.ts', purpose: 'black-box tenant/RBAC/invite/billing/audit conformance suite', required: true },
       { path: 'conformance/examples/adapter.stub.ts', purpose: 'non-passing adapter stub documenting required implementation shape', required: true },
-      { path: 'schemas/buildprint.meta.json', purpose: 'Buildprint package file', required: false }
+      { path: 'schemas/buildprint.meta.json', purpose: 'Buildprint package file', required: false },
+      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
     ],
     checks: ['Phase 00 artifacts exist before implementation', 'Existing auth is reused by default', 'Permission engine denies unknown/missing access by default', 'Every team-scoped route has direct API authorization tests', 'Invite expiry/revoke/single-use/exact-email policies are tested', 'Role mutation blocks self-escalation and last-owner loss', 'Audit metadata is redacted', 'Offline proof harness is included in the manifest and passes npm --prefix proof test', 'Target-app conformance kit is included and typechecks; completion requires it to pass against a real adapter or record blockers', 'Migration/backfill/rollback/recovery path is documented'],
     trustBadges: [
@@ -180,6 +183,9 @@ export const buildprints: Buildprint[] = [
       { path: 'TEST_MATRIX.md', purpose: canonicalFilePurposes['TEST_MATRIX.md'], required: true },
       { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
       { path: 'questions.md', purpose: canonicalFilePurposes['questions.md'], required: true },
+    
+      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['OpenClaw runtime command/blocker exists', 'LLM analyzer adapter prevents keyword-only drift', 'Wavespeed real adapter shape exists', 'Tests use mock image mode without external APIs', 'User memory and self-state are separate', 'noVNC handoff service shape exists', 'Publishing is mock/manual-gated by default'],
     trustBadges: agentTrustBadges,
@@ -228,6 +234,8 @@ export const buildprints: Buildprint[] = [
       { path: 'checks/acceptance.md', purpose: 'acceptance checklist', required: true },
       { path: 'policies/publishing.md', purpose: 'publishing safety policy', required: true },
       { path: 'schemas/buildprint.meta.json', purpose: 'package metadata schema example', required: false },
+    
+      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
     ],
     checks: ['Sources are captured as records, not invented', 'Ideas use explicit scoring rubric', 'Drafts include source map and claim map', 'Ungrounded factual claims block publishing', 'SEO metadata, structured data, sitemap/RSS/llms, and build are validated', 'Unapproved drafts cannot publish by default', 'Tests run without real network/publishing credentials', 'Manager audit reports stale/weak/blocked items'],
     trustBadges: agentTrustBadges,
@@ -283,6 +291,10 @@ export const buildprints: Buildprint[] = [
       { path: 'LLM_FLOW.md', purpose: 'LLM orchestration and agent flow notes', required: false },
       { path: 'PORTABILITY.md', purpose: 'portability and clean-room constraints', required: false },
       { path: 'IMPLEMENTATION_ROADMAP.md', purpose: 'implementation roadmap', required: false },
+    
+      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Selected fidelity target is workflow-proof + contract/runtime proof, not full clone parity', 'Buildprint uses clean-room artifacts only; original app source is not implementation input', 'Mock/no-network providers are default', 'Browser UI proofs require real runtime clicks, rendered-state parsing, screenshots, and runtime report', 'Provider/live smoke is env-gated and optional', 'Export claim is PortablePreviewManifest/preview package only, not final stitched-video parity', 'PARITY_CLAIMS.md and claims.yaml label safe claims, non-claims, and upgrade evidence'],
     trustBadges: [
@@ -449,6 +461,11 @@ export const buildprints: Buildprint[] = [
       { path: 'proof/src/subagents.js', purpose: 'subagent packet and review-loop proof', required: false },
       { path: 'proof/src/transcript.js', purpose: 'transcript event recorder', required: false },
       { path: 'proof/tests/harness.test.js', purpose: '6-subtest Node proof test suite', required: false },
+    
+      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
+      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Pinned Superpowers commit recorded', 'Source trace cites README, skill files, plugin manifests, OpenCode bootstrap, and eval/test docs', 'Buildprint distinguishes manager tooling from methodology harness behavior', 'Bootstrap/skill activation is treated as required runtime behavior', 'Acceptance prompt requires brainstorming before code', 'Clean-room proof passes npm test 6/6 and transcript evals 5/5'],
     trustBadges: [
@@ -504,6 +521,11 @@ export const buildprints: Buildprint[] = [
       { path: 'proof/package-lock.json', purpose: 'offline proof lockfile', required: false },
       { path: 'proof/src/eval-os.mjs', purpose: 'deterministic evaluation pipeline/scoring proof', required: false },
       { path: 'proof/test/eval-os.test.mjs', purpose: 'offline proof tests for snapshot/lint/loadout/skill/activation/transcript/multi-agent scoring', required: false },
+    
+      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
+      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Static-invalid setups fail before expensive behavior tests', 'Loadout inventory exposes loaded token tax and dormant artifacts', 'Skill unit tests are separated from activation tests', 'Activation evals include positive and negative prompts', 'Transcript checks enforce skill-before-action and approval-before-risky-action invariants', 'Multi-agent cases check parent context, output schema, and file ownership', 'Safety hard-fails override good final outputs', 'Offline proof passes 8/8 tests without live agents, providers, or network calls'],
     trustBadges: [
@@ -565,6 +587,9 @@ export const buildprints: Buildprint[] = [
       { path: 'proof/src/runtime.ts', purpose: 'deterministic personal agent runtime proof', required: false },
       { path: 'proof/test/runtime.test.ts', purpose: 'offline proof tests for streaming, tools, skills, MCP, memory, team, and telemetry', required: false },
       { path: 'proof/test/node-builtins.d.ts', purpose: 'offline proof local Node type shims', required: false },
+    
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Clean-room mapped-project scope; not a full Emperor Agent clone', 'Offline TypeScript proof builds without live providers or network calls', 'Proof streams deltas before completion', 'Tool policy denies shell by default', 'Skill selection and subagent delegation are traceable events', 'MCP fake tool maps through same ToolSpec boundary', 'Memory compacts under context pressure while retaining recent messages', 'Token telemetry is emitted and asserted'],
     trustBadges: [
@@ -614,6 +639,10 @@ export const buildprints: Buildprint[] = [
       { path: 'proof/src/index.ts', purpose: 'offline proof module exports', required: false },
       { path: 'proof/src/rag.ts', purpose: 'offline deterministic RAG pipeline proof', required: false },
       { path: 'proof/test/rag.test.ts', purpose: 'offline proof retrieval, answer, refusal, permission, and eval tests', required: false },
+    
+      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Research report validated with 18 sources and 16 evidence-backed claims', 'Offline TypeScript proof builds without network or provider keys', 'Proof compares lexical, dense-like, hybrid, and reranked retrieval paths', 'Grounded answer includes citations from selected chunks', 'Unsupported query refuses with insufficient-evidence', 'Tenant/private retrieval filter blocks unauthorized chunks', 'Eval harness emits machine-readable recall@5 and MRR-style metrics'],
     trustBadges: [
@@ -668,6 +697,10 @@ export const buildprints: Buildprint[] = [
       { path: 'proof/src/ui/billingUi.ts', purpose: 'dry-run proof billing settings UI stub', required: false },
       { path: 'proof/test/billing.test.ts', purpose: 'dry-run proof lifecycle tests', required: false },
       { path: 'proof/test/node-builtins.d.ts', purpose: 'dry-run proof local Node type shims', required: false },
+    
+      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Codex dry-run generated a TypeScript billing proof', 'npm run build passed in dry-run proof', 'npm test passed: 6/6 lifecycle tests', 'Target-stack adapters document Node/TypeScript, Python, Rails, Go, and PHP/Laravel mappings', 'Webhook signatures verified before state mutation', 'Premium access uses server-side subscription state', 'Portal requires authenticated customer', 'Failed/canceled/trialing states handled'],
     trustBadges: [
@@ -712,6 +745,10 @@ export const buildprints: Buildprint[] = [
       { path: 'THREAT_MODEL.md', purpose: 'key/likeness/scraping/provider/gallery safety model', required: true },
       { path: 'SOURCE_TRACE.md', purpose: 'OpenShorts source evidence grouped by capability', required: true },
       { path: 'SYSTEM_MAP.md', purpose: 'OpenShorts system map and pipeline layers', required: true },
+    
+      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Mapped source commit is recorded: fe87af6dd599b854e6eab2de0ca247ebafe13885', 'Required Mapper OS artifacts exist', 'Source trace cites concrete OpenShorts files/line ranges', 'Clean-room proof is built from Buildprint docs, not OpenShorts imports', 'npm run check passes in clean-room proof', '7/7 proof tests pass', 'Claim boundary remains workflow-proof + contract-parity + mocked-provider proof', 'Full clone/provider/API/rendering/social-platform parity are explicitly out of scope'],
     trustBadges: [
@@ -759,6 +796,9 @@ export const buildprints: Buildprint[] = [
       { path: 'THREAT_MODEL.md', purpose: 'serializer/checkpoint/node-output safety model', required: true },
       { path: 'SOURCE_TRACE.md', purpose: 'pinned LangGraph source trace with OBSERVED evidence', required: true },
       { path: 'SYSTEM_MAP.md', purpose: 'selected system map and runtime layers', required: true },
+    
+      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
+      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
     ],
     checks: ['Pinned source commit is recorded: 076e2a3627206f5a1aef573aaca4a01e5af897ca', '166 source references checked with 0 missing and 0 bad line ranges', 'Clean-room TypeScript proof uses Buildprint docs only, not LangGraph source imports', 'npm test runs tsc and node --test', '12/12 proof tests pass', 'Claim boundary remains workflow-proof + contract-parity + mocked-runtime-proof', 'Full clone/API/provider/cloud/storage/Pregel parity are explicitly out of scope'],
     trustBadges: [
