@@ -21,7 +21,7 @@ Do not scrape the human UI. Use this agent guide, the package manifest, and raw 
 2. Read \`BUILDPRINT.md\` first. It owns the required read order, phase gates, and acceptance gates.
 3. Use structured control files only as machine-readable mirrors, not competing instructions.
 4. Follow the Buildprint's alignment/question rules before implementation.
-5. Run required validation and write the requested validation report.
+5. Run required validation and write requested validation evidence plus the final chat handover.
 
 ## Metadata
 

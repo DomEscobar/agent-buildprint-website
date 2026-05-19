@@ -15,6 +15,7 @@ Read \`BUILDPRINT.md\` first; it is the canonical authority and owns the require
 Use structured control files only as machine-readable mirrors, not competing instructions.
 Follow alignment/question rules before implementation.
 Do not scrape human UI cards.
+If the Buildprint requires it, finish with a chat handover summarizing outcome, evidence, known gaps, and recommended next direction.
 
 ${bp.copyPrompt}
 `;

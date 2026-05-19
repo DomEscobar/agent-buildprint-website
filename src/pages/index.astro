@@ -1,219 +1,212 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildprints, implementationEstimate, liveBuildprints } from '@/lib/buildprints';
-import { badgeIcon, iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
+import { implementationEstimate, liveBuildprints } from '@/lib/buildprints';
+import { iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
 import TechName from '@/components/TechName.astro';
+
 const featured = liveBuildprints.filter((bp) => bp.featured).slice(0, 4);
-const homepagePromise: Record<string, string> = {
-  'ai-influencer-os': 'Launch an approval-gated AI creator system with memory, images, drafts, and safe publishing handoff.',
-  'automated-ai-blog-os': 'Turn research into SEO-checked visual posts without letting weak claims slip into publish.',
-  'portable-novel-storyboard-pipeline': 'Convert chapters into events, scripts, storyboard rows, media jobs, and preview manifests.',
-  'buildprint-mapper-os': 'Map an existing repo into scoped, reusable Buildprints your agent can reversal-test.',
-};
-const cardCopy = (bp) => homepagePromise[bp.slug] ?? bp.summary;
+const packetParts = ['Architecture', 'Spec', 'Phases', 'Contracts', 'Requirements', 'Checks'];
+const agentReceives = ['Architecture', 'Spec', 'Phases', 'Contracts', 'Checks'];
+const fixedRails = ['Outcome and scope', 'Architecture boundaries', 'Behavior contracts', 'Phase order', 'Validation gates'];
+const adaptableParts = ['Stack', 'Providers', 'UI', 'Database', 'Deployment target'];
+const proofItems = ['Bootstrap snapshot passed', 'Raw files available', 'Dry-run or tests recorded', 'Claim boundaries documented'];
+
 const trustLabel = (bp) => {
   if (bp.status === 'validated') return 'Validated';
-  if (bp.checks.length > 0) return 'CHECKED';
-  return 'READY';
+  if (bp.checks.length > 0) return 'Checked';
+  return 'Ready';
 };
 const trustTip = (bp) => {
-  if (bp.status === 'validated') return 'Validated by snapshot bootstrap, Codex dry-run, local tests, and gated publishing checks.';
+  if (bp.status === 'validated') return 'Validated by snapshot bootstrap, dry-run/tests, and documented proof.';
   if (bp.checks.length > 0) return 'Has defined quality checks, but still needs full dry-run validation.';
   return 'Ready to inspect.';
 };
-const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
+const cardCopy = (bp) => bp.plainDescription ?? bp.summary;
+const practicalNeed = (bp) => {
+  const needs = bp.whatYouNeed ?? [];
+  const noLocalBlocker = needs.find((need) => /^Nothing/i.test(need));
+  const externalBlocker = needs.find((need) => !/^Nothing/i.test(need));
+  if (noLocalBlocker && externalBlocker) return 'Local/mock mode has no external blocker. Real use needs configured keys, accounts, or repo access.';
+  if (noLocalBlocker) return 'Local/mock mode has no external blocker.';
+  return externalBlocker ?? 'Bring the target repo, product decisions, and any required external credentials.';
+};
 const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKeysForName(item)))).slice(0, 4);
-const sections = [
-  { title: 'Product OS', items: buildprints.filter((bp) => bp.category === 'Product OS').slice(0, 5) },
-  { title: 'Features & Extensions', items: buildprints.filter((bp) => bp.category === 'Feature / Extension').slice(0, 5) },
-  { title: 'Framework Blueprints', items: buildprints.filter((bp) => bp.category === 'Framework / Architecture').slice(0, 5) },
-  { title: 'Workflow OS', items: buildprints.filter((bp) => bp.category === 'Workflow OS').slice(0, 5) },
-].filter((section) => section.items.length > 0);
-const heroStoryImages = [
-  {
-    src: '/images/hero-buildprint-story/category-clarity-hero.png',
-    alt: 'Vertical visual showing a vague prompt becoming a Buildprint package and then checked agent-built software',
-    label: 'How it works',
-    width: 768,
-    height: 1024,
-  },
-  {
-    src: '/images/hero-buildprint-story/agent-buildprint-story-1.jpg',
-    alt: 'Manga-style Buildprint explainer story',
-    label: 'Agent plan',
-    width: 880,
-    height: 1184,
-  },
-  {
-    src: '/images/hero-buildprint-story/framework-replacement-story.jpg',
-    alt: 'Manga-style framework replacement story',
-    label: 'Framework-free',
-    width: 880,
-    height: 1184,
-  },
-];
 ---
-<BaseLayout title="Agent Buildprint — installable plans for AI coding agents" description="Portable build-intent packages with architecture, decisions, checks, and proof for Codex, Cursor, Claude Code, and other AI coding agents." image="/images/hero-buildprint-story/category-clarity-hero.png">
+<BaseLayout title="Agent Buildprint - plans before AI writes code" description="Executable implementation plans for coding agents. Give Codex, Cursor, Claude Code, and other agents architecture, phases, contracts, requirements, and checks before they write code.">
   <main>
-    <section class="container hero clean-hero platform-hero">
+    <section class="container hero clean-hero platform-hero usp-hero">
       <div class="hero-copy">
-        <span class="pill dossier-pill"><b>⌁</b> missing package layer for coding agents</span>
-        <h1>Stop prompting agents. Install the plan first.</h1>
-        <p class="lead">Buildprints are portable build-intent packages: architecture, decisions, checks, and proof — before the agent writes code.</p>
+        <span class="pill dossier-pill"><b>The planning layer before AI writes code</b></span>
+        <h1>Your coding agent can write code. The problem is what it guesses.</h1>
+        <p class="lead">Buildprints give agents architecture, phases, contracts, requirements, and checks before they start coding.</p>
+        <div class="agent-compat" aria-label="Compatible coding agents">
+          <span>Works with</span>
+          <TechName name="Codex" />
+          <TechName name="Cursor" />
+          <TechName name="Claude Code" />
+        </div>
         <div class="actions">
-          <a class="btn primary" href="/buildprints/">Try a validated Buildprint</a>
-          <a class="btn" href="#how-it-works">See how it works</a>
+          <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
+          <a class="btn" href="#how-it-works">See how one works</a>
         </div>
         <div class="hero-trust-strip" aria-label="Agent Buildprint trust markers">
-          <span><b>✓</b> Validated Buildprints</span>
-          <span><b>~</b> 30–60 min starts</span>
-          <span><b>↯</b> Codex / Cursor / Claude-ready</span>
-          <span><b>⌁</b> Bootstrap + test gates</span>
+          <span><b>OK</b> Validated Buildprints</span>
+          <span><b>30</b> 30-60 min starts</span>
+          <span><b>AI</b> Codex / Cursor / Claude-ready</span>
+          <span><b>QA</b> Bootstrap + test gates</span>
         </div>
       </div>
-      <aside class="hero-story-carousel" aria-label="Buildprint visual explainer" data-hero-story>
-        <div class="story-card-topline"><span>VISUAL EXPLAINER</span><b>no autoplay</b></div>
-        <div class="story-carousel-viewport" data-story-viewport>
-          <div class="story-carousel-track">
-            {heroStoryImages.map((image, index) => <figure class="story-slide" aria-label={`${image.label} story`}>
-              <button class="story-expand" type="button" data-expand-image={image.src} data-expand-alt={image.alt} aria-label={`Expand ${image.label} story image`}>
-                <img src={image.src} alt={image.alt} width={image.width} height={image.height} loading={index === 0 ? 'eager' : 'lazy'} decoding="async" />
-              </button>
-            </figure>)}
-          </div>
+
+      <aside class="split-rail-diagram" aria-label="Prompt-only workflow compared with Buildprint workflow">
+        <div class="workbench-topline"><span>Buildprint workbench</span><b>before code</b></div>
+        <div class="rail-column rail-bad">
+          <span class="rail-kicker">Prompt only</span>
+          <div class="rail-node">"Build me an AI blog system"</div>
+          <div class="rail-arrow" aria-hidden="true"></div>
+          <div class="rail-node muted">Agent guesses architecture while coding</div>
+          <div class="rail-arrow" aria-hidden="true"></div>
+          <div class="rail-result bad">Drift, rework, forgotten gates</div>
         </div>
-        <button class="story-arrow prev" type="button" data-story-prev><span aria-hidden="true">‹</span><span class="sr-only">Previous hero story</span></button>
-        <button class="story-arrow next" type="button" data-story-next><span aria-hidden="true">›</span><span class="sr-only">Next hero story</span></button>
-        <div class="story-carousel-controls" aria-label="Choose hero story">
-          {heroStoryImages.map((image, index) => <button type="button" class={index === 0 ? 'active' : ''} aria-label={`Show ${image.label} story`} data-story-dot={index}>{image.label}</button>)}
+        <div class="rail-column rail-good">
+          <span class="rail-kicker">With Buildprint</span>
+          <div class="packet-stack" aria-label="Layered Buildprint packet">
+            <div class="packet-shadow packet-shadow-one">SPEC</div>
+            <div class="packet-shadow packet-shadow-two">PLAN</div>
+            <div class="packet-shadow packet-shadow-three">CONTRACTS</div>
+            <div class="packet-shadow packet-shadow-four">CHECKS</div>
+            <div class="rail-node strong">Buildprint packet</div>
+          </div>
+          <span class="validated-stamp">Validated</span>
+          <div class="rail-packet-list">
+            {agentReceives.map((part) => <span>{part}</span>)}
+          </div>
+          <div class="rail-arrow" aria-hidden="true"></div>
+          <div class="rail-result good">Agent follows rails. Human reviews evidence.</div>
+        </div>
+        <div class="evidence-receipt" aria-label="Evidence receipt">
+          <span>Evidence receipt</span>
+          <div><b>bootstrap</b><em>passed</em></div>
+          <div><b>files</b><em>available</em></div>
+          <div><b>tests</b><em>recorded</em></div>
+          <div><b>boundaries</b><em>documented</em></div>
         </div>
       </aside>
-      <dialog class="story-lightbox" data-story-lightbox aria-label="Expanded story image">
-        <button class="story-lightbox-close" type="button" data-story-close><span aria-hidden="true">×</span><span class="sr-only">Close expanded image</span></button>
-        <img data-story-lightbox-image alt="" />
-      </dialog>
     </section>
-    <section id="how-it-works" class="container section visual-proof-section" aria-labelledby="visual-proof-title">
-      <div class="section-head simple proof-head"><div><span class="eyebrow"><b>↯</b> Why Buildprints</span><h2 id="visual-proof-title">AI agents are fast, but they guess.</h2><p>Buildprints give agents explicit plans before they write code — so the result drifts less and is easier to check.</p></div></div>
-      <div class="blueprint-explainer">
-        <div class="proof-card bad">
-          <span class="proof-label">Vague prompt</span>
-          <code>“Build me an AI blog system”</code>
-          <ul>
-            <li>agent guesses the architecture</li>
-            <li>approval gates get forgotten</li>
-            <li>edge cases appear late</li>
-            <li>hard to verify “done”</li>
-          </ul>
-        </div>
-        <div class="blueprint-plan-card">
-          <span class="proof-label">Buildprint</span>
-          <div class="plan-file"><b>Intent</b><span>what outcome to build</span></div>
-          <div class="plan-file"><b>Architecture</b><span>the shape before code</span></div>
-          <div class="plan-file"><b>Decisions</b><span>choices the agent must not guess</span></div>
-          <div class="plan-file"><b>Steps</b><span>small implementation rails</span></div>
-          <div class="plan-file"><b>Checks + proof</b><span>how done is verified</span></div>
-        </div>
-        <div class="proof-card good">
-          <span class="proof-label">Agent outcome</span>
-          <code>read plan → implement phases → run checks</code>
-          <ul>
-            <li>less architecture drift</li>
-            <li>clearer handoff to Codex/Cursor/Claude</li>
-            <li>checks and acceptance gates included</li>
-            <li>humans can inspect the plan</li>
-          </ul>
+
+    <section id="how-it-works" class="container section packet-section" aria-labelledby="packet-title">
+      <div class="section-head simple proof-head">
+        <div>
+          <span class="eyebrow"><b>01</b> What a Buildprint contains</span>
+          <h2 id="packet-title">An implementation packet your agent can actually follow.</h2>
+          <p>Not a prompt template. Not starter code. A Buildprint packages the decisions agents usually invent on the fly.</p>
         </div>
       </div>
-      <div class="proof-flow" aria-label="Buildprint flow">
-        <span>Vague prompt → agent guesses → drift/errors</span><b>vs</b><span>Buildprint package → agent follows plan → checked implementation</span>
+      <div class="packet-grid" aria-label="Buildprint packet contents">
+        {packetParts.map((part) => <div class="packet-item"><b>{part}</b><span>{part === 'Requirements' ? 'Only real blockers: keys, accounts, credentials, repo access, deployment targets.' : 'Written before the agent starts coding.'}</span></div>)}
       </div>
       <div class="category-analogy" aria-label="Buildprint category analogy">
-        <b>Like npm packages — but for implementation intent.</b>
-        <span>Not prompt templates. Not boilerplate. Reusable plans agents can bootstrap, follow, and prove.</span>
+        <b>Like npm packages, but for implementation intent.</b>
+        <span>Reusable plans agents can bootstrap, follow, and prove.</span>
       </div>
     </section>
 
-    <section class="container section">
-      <div class="section-head simple"><div><span class="eyebrow"><b>★</b> Featured</span><h2>Browse Buildprints for products, features, architectures, workflows, and integrations.</h2></div><a class="link" href="/buildprints/">View registry →</a></div>
-      <div class="grid cards featured-grid">
-        {featured.map((bp) => <a class="mini-card clickable-card" href={`/buildprints/${bp.slug}/`}>
-          <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={trustTip(bp)}>{trustLabel(bp)}</span></div>
+    <section class="container section rails-section" aria-labelledby="rails-title">
+      <div class="section-head simple">
+        <div>
+          <span class="eyebrow"><b>02</b> Control</span>
+          <h2 id="rails-title">Rails, not handcuffs.</h2>
+          <p>Use the defaults or swap parts. The contracts and checks keep the build scoped and testable.</p>
+        </div>
+      </div>
+      <div class="rails-grid">
+        <div class="rails-panel fixed">
+          <span>Fixed by the plan</span>
+          <ul>{fixedRails.map((item) => <li>{item}</li>)}</ul>
+        </div>
+        <div class="rails-panel adapt">
+          <span>Adaptable by the builder</span>
+          <ul>{adaptableParts.map((item) => <li>{item}</li>)}</ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section featured-dossiers" aria-labelledby="featured-title">
+      <div class="section-head simple">
+        <div>
+          <span class="eyebrow"><b>03</b> Featured</span>
+          <h2 id="featured-title">Pick a plan before your agent opens the editor.</h2>
+        </div>
+        <a class="link" href="/buildprints/">View registry</a>
+      </div>
+      <div class="grid cards featured-grid dossier-grid">
+        {featured.map((bp) => <a class="mini-card clickable-card dossier-card" href={`/buildprints/${bp.slug}/`}>
+          <div class="dossier-card-topline">
+            <span>{bp.category}</span>
+            <b title={trustTip(bp)}>{trustLabel(bp)}</b>
+          </div>
           <h3>{bp.title}</h3>
-          <p>{cardCopy(bp)}</p>
-          <div class="card-tech-footer" title={bp.stack.join(' · ')}><span>{bp.stack.slice(0, 3).join(' · ')}</span><span class="card-tech-side"><em>{implementationEstimate(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span></div>
+          <p><strong>Builds:</strong> {cardCopy(bp)}</p>
+          <p><strong>Needs:</strong> {practicalNeed(bp)}</p>
+          <div class="agent-receives" aria-label={`${bp.title} agent receives`}>
+            <span>Agent receives</span>
+            <div>{agentReceives.map((part) => <em>{part}</em>)}</div>
+          </div>
+          <div class="card-tech-footer" title={bp.stack.join(' / ')}>
+            <span>{bp.stack.slice(0, 3).join(' / ')}</span>
+            <span class="card-tech-side"><em>{implementationEstimate(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span>
+          </div>
         </a>)}
       </div>
     </section>
 
-    <section class="container section rows">
-      {sections.map((section) => <div class="catalog-row">
-        <div class="row-head"><h2>{section.title}</h2><a class="link" href="/buildprints/">Explore →</a></div>
-        <div class="row-scroll">
-          {section.items.map((bp) => <a class="row-card" href={`/buildprints/${bp.slug}/`}>
-            <div class="row-top"><span><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="row-status"><b>{badgeIcon(bp.status)}</b>{trustLabel(bp)}</span></div>
-            <b>{bp.title}</b>
-            <p>{cardCopy(bp)}</p>
-            <small class="card-tech-footer compact" title={bp.stack.join(' · ')}><span>{bp.stack.slice(0, 3).join(' · ')}</span><span class="card-tech-side"><em>{implementationEstimate(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span></small>
-          </a>)}
+    <section class="container section evidence-section" aria-labelledby="evidence-title">
+      <div class="evidence-band">
+        <div>
+          <span class="eyebrow"><b>04</b> Proof</span>
+          <h2 id="evidence-title">Validated means evidence.</h2>
+          <p>Trust is not a badge alone. A validated Buildprint leaves inspectable proof that the package can be bootstrapped, read, tested, and bounded.</p>
         </div>
-      </div>)}
-    </section>
-
-    <section class="container section how-section">
-      <div class="section-head simple"><div><span class="eyebrow"><b>◆</b> Use it</span><h2>Copy the plan, or let the CLI fetch it.</h2></div></div>
-      <div class="grid how-grid">
-        <div class="panel quiet"><span class="step-number">1</span><h3>Choose a blueprint</h3><p>Pick a product, feature, architecture, or workflow Buildprint from the registry.</p></div>
-        <div class="panel quiet"><span class="step-number">2</span><h3>Give it to your agent</h3><pre>npx --yes github:DomEscobar/agent-buildprint start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json</pre></div>
-        <div class="panel quiet"><span class="step-number">3</span><h3>Build with checks</h3><p>Tell <TechName name="Codex" />, <TechName name="Cursor" />, or <TechName name="Claude Code" /> to follow the plan, implement phases, and run the validation gates.</p></div>
+        <div class="evidence-list">
+          {proofItems.map((item) => <span>{item}</span>)}
+        </div>
       </div>
     </section>
 
-    <section class="container section two-col">
-      <div class="panel quiet"><span class="eyebrow"><b>⌁</b> Mapper</span><h2>Have a repo already?</h2><p>Use Mapper OS as a coding-agent workflow: map the system, propose scoped candidates, choose one, extract a Buildprint, then reversal-test it — no CLI required.</p><pre>Read Mapper OS
-→ SYSTEM_MAP.md
-→ BUILDPRINT_CANDIDATES.md
-→ selected buildprint-submission/
-→ REVERSAL_REPORT.md</pre></div>
-      <div class="panel quiet"><span class="eyebrow"><b>✦</b> Creator angle</span><h2>Architects and experienced devs can publish reusable plans.</h2><p>Package a repeatable architecture, feature, or workflow into a reusable Buildprint others can use with their coding agents.</p><pre>architecture + spec + phases + checks</pre></div>
+    <section class="container section how-section">
+      <div class="section-head simple">
+        <div>
+          <span class="eyebrow"><b>05</b> Use it</span>
+          <h2>Give your agent the packet, then make it prove the work.</h2>
+        </div>
+      </div>
+      <div class="grid how-grid">
+        <div class="panel quiet"><span class="step-number">1</span><h3>Choose a Buildprint</h3><p>Pick the product, feature, workflow, or architecture you want the agent to implement.</p></div>
+        <div class="panel quiet"><span class="step-number">2</span><h3>Bootstrap or copy it</h3><pre>npx --yes github:DomEscobar/agent-buildprint start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json</pre></div>
+        <div class="panel quiet"><span class="step-number">3</span><h3>Agent follows phases</h3><p>Tell <TechName name="Codex" />, <TechName name="Cursor" />, or <TechName name="Claude Code" /> to follow the package, not improvise from a vague prompt.</p></div>
+        <div class="panel quiet"><span class="step-number">4</span><h3>Review the evidence</h3><p>The agent runs checks, reports blockers, and leaves proof you can inspect before you call the build done.</p></div>
+      </div>
+    </section>
+
+    <section class="container section two-col secondary-paths">
+      <div class="panel quiet">
+        <span class="eyebrow"><b>Mapper</b></span>
+        <h2>Already have a repo?</h2>
+        <p>Use Mapper OS to turn a working system into scoped Buildprint candidates, choose one, extract the packet, and reversal-test it.</p>
+        <pre>Map system
+Select candidate
+Extract Buildprint
+Run reversal proof</pre>
+      </div>
+      <div class="panel quiet">
+        <span class="eyebrow"><b>Publish</b></span>
+        <h2>Have an architecture worth reusing?</h2>
+        <p>Package the outcome, boundaries, defaults, contracts, phases, and checks so other builders can give agents a plan instead of a wish.</p>
+        <pre>Architecture
+Spec
+Phases
+Checks
+Proof</pre>
+      </div>
     </section>
   </main>
-  <script is:inline>
-    (() => {
-      const root = document.querySelector('[data-hero-story]');
-      if (!root) return;
-      const viewport = root.querySelector('[data-story-viewport]');
-      const dots = Array.from(root.querySelectorAll('[data-story-dot]'));
-      const prev = root.querySelector('[data-story-prev]');
-      const next = root.querySelector('[data-story-next]');
-      if (!viewport || dots.length === 0) return;
-      const setSlide = (index) => {
-        viewport.scrollTo({ left: viewport.clientWidth * index, behavior: 'smooth' });
-        dots.forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === index));
-      };
-      dots.forEach((dot, index) => dot.addEventListener('click', () => setSlide(index)));
-      prev?.addEventListener('click', () => setSlide((Math.round(viewport.scrollLeft / Math.max(1, viewport.clientWidth)) - 1 + dots.length) % dots.length));
-      next?.addEventListener('click', () => setSlide((Math.round(viewport.scrollLeft / Math.max(1, viewport.clientWidth)) + 1) % dots.length));
-      viewport.addEventListener('scroll', () => {
-        const current = Math.round(viewport.scrollLeft / Math.max(1, viewport.clientWidth));
-        dots.forEach((dot, index) => dot.classList.toggle('active', index === current));
-      }, { passive: true });
-
-      const lightbox = document.querySelector('[data-story-lightbox]');
-      const lightboxImage = document.querySelector('[data-story-lightbox-image]');
-      const close = document.querySelector('[data-story-close]');
-      root.querySelectorAll('[data-expand-image]').forEach((button) => {
-        button.addEventListener('click', () => {
-          if (!lightbox || !lightboxImage) return;
-          lightboxImage.src = button.dataset.expandImage;
-          lightboxImage.alt = button.dataset.expandAlt || '';
-          if (typeof lightbox.showModal === 'function') lightbox.showModal();
-        });
-      });
-      close?.addEventListener('click', () => lightbox?.close());
-      lightbox?.addEventListener('click', (event) => {
-        if (event.target === lightbox) lightbox.close();
-      });
-    })();
-  </script>
 </BaseLayout>
