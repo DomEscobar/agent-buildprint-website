@@ -5,8 +5,8 @@ on:
   repository_dispatch:
     types: [buildprints-updated]
   schedule:
-    # Fallback in case cross-repo dispatch token is not configured.
-    - cron: '*/30 * * * *'
+    # Fallback safety net; cross-repo dispatch should normally trigger immediately.
+    - cron: '*/5 * * * *'
 
 permissions:
   contents: write
