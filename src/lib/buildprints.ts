@@ -117,9 +117,14 @@ export const buildprints: Buildprint[] = [
       { path: 'VALIDATION_TEMPLATE.md', purpose: 'Buildprint package file', required: true },
       { path: 'questions.md', purpose: 'Buildprint package file', required: true },
       { path: 'checks/acceptance.md', purpose: 'Buildprint package file', required: true },
+      { path: 'proof/package.json', purpose: 'offline TypeScript proof package manifest', required: true },
+      { path: 'proof/tsconfig.json', purpose: 'offline TypeScript proof compiler contract', required: true },
+      { path: 'proof/src/index.ts', purpose: 'offline permission and lifecycle proof implementation', required: true },
+      { path: 'proof/test/node-builtins.d.ts', purpose: 'minimal Node built-in type declarations for dependency-light proof tests', required: true },
+      { path: 'proof/test/rbac.test.ts', purpose: 'offline RBAC, tenant isolation, invite, owner-safety, and audit-redaction proof tests', required: true },
       { path: 'schemas/buildprint.meta.json', purpose: 'Buildprint package file', required: false }
     ],
-    checks: ['Phase 00 artifacts exist before implementation', 'Existing auth is reused by default', 'Permission engine denies unknown/missing access by default', 'Every team-scoped route has direct API authorization tests', 'Invite expiry/revoke/single-use/exact-email policies are tested', 'Role mutation blocks self-escalation and last-owner loss', 'Audit metadata is redacted', 'Migration/backfill/rollback/recovery path is documented'],
+    checks: ['Phase 00 artifacts exist before implementation', 'Existing auth is reused by default', 'Permission engine denies unknown/missing access by default', 'Every team-scoped route has direct API authorization tests', 'Invite expiry/revoke/single-use/exact-email policies are tested', 'Role mutation blocks self-escalation and last-owner loss', 'Audit metadata is redacted', 'Offline proof harness is included in the manifest and passes npm --prefix proof test', 'Migration/backfill/rollback/recovery path is documented'],
     trustBadges: [
       { label: 'Phase 00 heavy', detail: 'Starts with auth forensics, tenant mapping, authz audit, threat model, and decision gate.', tone: 'success' },
       { label: 'Offline proof included', detail: 'TypeScript proof covers deny-by-default, tenant isolation, invites, owner safety, and audit redaction.', tone: 'success' },
