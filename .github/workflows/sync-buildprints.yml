@@ -1,0 +1,68 @@
+name: Sync Buildprints
+
+on:
+  workflow_dispatch: {}
+  repository_dispatch:
+    types: [buildprints-updated]
+  schedule:
+    # Fallback in case cross-repo dispatch token is not configured.
+    - cron: '*/30 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-buildprints
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout website
+        uses: actions/checkout@v4
+        with:
+          path: website
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout Buildprint source
+        uses: actions/checkout@v4
+        with:
+          repository: DomEscobar/agent-buildprint
+          ref: main
+          path: agent-buildprint
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+
+      - name: Install dependencies
+        working-directory: website
+        run: npm ci
+
+      - name: Sync Buildprint manifests from source repo
+        working-directory: website
+        run: npm run sync:buildprints -- --source ../agent-buildprint
+
+      - name: Build and validate
+        working-directory: website
+        run: |
+          npm run build
+          npm run check:buildprints
+          npm run check:codex-drift
+
+      - name: Commit synced website manifest
+        working-directory: website
+        run: |
+          if git diff --quiet; then
+            echo "No Buildprint website sync changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/lib/buildprints.ts package.json package-lock.json scripts/sync-buildprints-from-source.mjs .github/workflows/sync-buildprints.yml
+          git commit -m "Sync Buildprint manifests from source"
+          git push
