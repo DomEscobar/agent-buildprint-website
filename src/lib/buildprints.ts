@@ -90,7 +90,7 @@ export const buildprints: Buildprint[] = [
     whatYouNeed: ['An existing app or auth provider to wrap', 'Product decisions for team naming, owner/admin policy, billing/API-key scope', 'Database migration path for tenant ownership'],
     architectureFlow: ['Auth census', 'Tenant map', 'Permissions', 'Server guards', 'Lifecycle', 'Validation'],
     promise: 'An agent-grade Auth, Teams & RBAC Buildprint that forces deep Phase 00 research and blocks completion unless every team-scoped route has direct server/API authorization tests.',
-    includes: ['Auth provider census', 'Tenant boundary map', 'Authorization audit', 'Threat model', 'RBAC matrix', 'Permission engine', 'Invite lifecycle', 'Role mutation safety', 'Audit log', 'Migration and rollback plan', 'Offline TypeScript proof'],
+    includes: ['Auth provider census', 'Tenant boundary map', 'Authorization audit', 'Threat model', 'RBAC matrix', 'Permission engine', 'Invite lifecycle', 'Role mutation safety', 'Audit log', 'Migration and rollback plan', 'Offline TypeScript proof', 'Target-app conformance kit'],
     risks: ['Auth provider rip-and-replace', 'Frontend-only authorization', 'Cross-tenant data leakage', 'Client-provided teamId trust', 'Self-escalation', 'Last-owner deletion', 'Invite replay', 'Stale JWT permissions', 'Audit logs leaking secrets'],
     files: [
       { path: 'BUILDPRINT.md', purpose: 'Buildprint package file', required: true },
@@ -122,9 +122,17 @@ export const buildprints: Buildprint[] = [
       { path: 'proof/src/index.ts', purpose: 'offline permission and lifecycle proof implementation', required: true },
       { path: 'proof/test/node-builtins.d.ts', purpose: 'minimal Node built-in type declarations for dependency-light proof tests', required: true },
       { path: 'proof/test/rbac.test.ts', purpose: 'offline RBAC, tenant isolation, invite, owner-safety, and audit-redaction proof tests', required: true },
+      { path: 'conformance/README.md', purpose: 'target-app conformance kit instructions', required: true },
+      { path: 'conformance/package.json', purpose: 'target-app conformance package manifest', required: true },
+      { path: 'conformance/tsconfig.json', purpose: 'target-app conformance TypeScript contract', required: true },
+      { path: 'conformance/src/adapter-contract.ts', purpose: 'adapter interface for real target app DB/API/service validation', required: true },
+      { path: 'conformance/src/load-adapter.ts', purpose: 'runtime adapter loader for target-app conformance tests', required: true },
+      { path: 'conformance/test/node-builtins.d.ts', purpose: 'minimal Node built-in type declarations for conformance tests', required: true },
+      { path: 'conformance/test/auth-rbac.conformance.test.ts', purpose: 'black-box tenant/RBAC/invite/billing/audit conformance suite', required: true },
+      { path: 'conformance/examples/adapter.stub.ts', purpose: 'non-passing adapter stub documenting required implementation shape', required: true },
       { path: 'schemas/buildprint.meta.json', purpose: 'Buildprint package file', required: false }
     ],
-    checks: ['Phase 00 artifacts exist before implementation', 'Existing auth is reused by default', 'Permission engine denies unknown/missing access by default', 'Every team-scoped route has direct API authorization tests', 'Invite expiry/revoke/single-use/exact-email policies are tested', 'Role mutation blocks self-escalation and last-owner loss', 'Audit metadata is redacted', 'Offline proof harness is included in the manifest and passes npm --prefix proof test', 'Migration/backfill/rollback/recovery path is documented'],
+    checks: ['Phase 00 artifacts exist before implementation', 'Existing auth is reused by default', 'Permission engine denies unknown/missing access by default', 'Every team-scoped route has direct API authorization tests', 'Invite expiry/revoke/single-use/exact-email policies are tested', 'Role mutation blocks self-escalation and last-owner loss', 'Audit metadata is redacted', 'Offline proof harness is included in the manifest and passes npm --prefix proof test', 'Target-app conformance kit is included and typechecks; completion requires it to pass against a real adapter or record blockers', 'Migration/backfill/rollback/recovery path is documented'],
     trustBadges: [
       { label: 'Phase 00 heavy', detail: 'Starts with auth forensics, tenant mapping, authz audit, threat model, and decision gate.', tone: 'success' },
       { label: 'Offline proof included', detail: 'TypeScript proof covers deny-by-default, tenant isolation, invites, owner safety, and audit redaction.', tone: 'success' },
