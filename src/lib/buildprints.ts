@@ -342,10 +342,14 @@ export const buildprints: Buildprint[] = [
     whatYouNeed: ['Nothing for public repos', 'GitHub/private repo access if the source is private', 'A human scope choice when multiple candidates exist', 'Permission to use any private source code'],
     architectureFlow: ['Repo', 'System map', 'Candidates', 'Selection', 'Package', 'Proof'],
     promise: 'An official workflow Buildprint for creator submissions: evidence-backed system maps, scoped Buildprint candidates, production-grade selected-scope extraction, reversal validation, no-fake implementation checks, and an honest gap report.',
-    includes: ['Safety and secrets boundary', 'Repo census', 'SYSTEM_MAP.md', 'BUILDPRINT_CANDIDATES.md', 'Human scope decision gate', 'Progressive questions.md', 'Clean-room reversal report', 'QA_PLAN.md', 'IMPLEMENTATION_COMPLETENESS.md', 'TRACEABILITY_MATRIX.md', 'Single Buildprint extraction', 'Hierarchical System Buildprint extraction', 'Submission checklist', 'Golden eval harness and fixtures'],
+    includes: ['Safety and secrets boundary', 'Machine-readable buildprint/phases/acceptance/claims rails', 'Repo census', 'SYSTEM_MAP.md', 'BUILDPRINT_CANDIDATES.md', 'Human scope decision gate', 'Progressive questions.md', 'Agent-first execution rails in generated output', 'Clean-room reversal report', 'QA_PLAN.md', 'IMPLEMENTATION_COMPLETENESS.md', 'TRACEABILITY_MATRIX.md', 'Single Buildprint extraction', 'Hierarchical System Buildprint extraction', 'Submission checklist', 'Final chat handover', 'Golden eval harness and fixtures'],
     risks: ['Whole-repo sludge', 'Secret leakage', 'Hallucinated intent', 'Invented validation results', 'Missing scope', 'Vague marketplace submissions', 'Unclear module boundaries', 'Generic QA plans', 'Missing traceability'],
     files: [
       { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
+      { path: 'buildprint.json', purpose: 'machine-readable authority, file roles, forbidden defaults, and binding slice', required: true },
+      { path: 'phases.yaml', purpose: 'machine-readable phase gates for mapper execution', required: true },
+      { path: 'acceptance.yaml', purpose: 'machine-readable acceptance gates and required outputs', required: true },
+      { path: 'claims.yaml', purpose: 'safe/unsafe mapper claim contract', required: true },
       { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
       { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
       { path: 'plans/00-safety-boundaries.md', purpose: 'phase 00 safety and write boundaries', required: true },
@@ -383,6 +387,7 @@ export const buildprints: Buildprint[] = [
       { path: 'prompts/discover.md', purpose: 'candidate discovery prompt', required: true },
       { path: 'prompts/extract-selected.md', purpose: 'selected Buildprint extraction prompt', required: true },
       { path: 'schemas/candidate.schema.json', purpose: 'candidate record schema', required: false },
+      { path: 'AGENT_HANDOFF.md', purpose: 'late-stage handoff and latest-safe-next-step guidance', required: false },
       { path: 'evals/README.md', purpose: 'golden mapper eval instructions', required: true },
       { path: 'evals/check-map.mjs', purpose: 'golden mapper eval runner', required: true },
       { path: 'evals/golden-projects/admin-dashboard/.env.example', purpose: 'golden mapper eval file', required: true },
@@ -420,7 +425,7 @@ export const buildprints: Buildprint[] = [
       { path: 'evals/golden-projects/stripe-saas/src/models/subscription.ts', purpose: 'golden mapper eval file', required: true },
       { path: 'evals/golden-projects/stripe-saas/tests/billing.test.js', purpose: 'golden mapper eval file', required: true },
     ],
-    checks: ['Large repos produce candidates before final package unless full-system mode is selected', 'Generated files contain no secret values', 'Claims are labeled OBSERVED/INFERRED/QUESTION', 'Scope includes included/excluded paths', 'Production-grade selected scope is explicit', 'Agent execution brief/XML contract/current state/manifest exist', 'XML and JSON agent contracts parse', 'Mocks/fixtures are not counted as product implementation', 'Included routes/services/providers/persistence/jobs/exports are real or excluded', 'QA plan is derived from mapped flows', 'Traceability matrix links evidence to requirements and checks', 'Submission checklist reports commands run and known gaps', 'No validation results are invented', 'Golden eval harness passes stripe-saas, malicious-secrets, admin-dashboard, large-monorepo, and route-patterns'], 
+    checks: ['Large repos produce candidates before final package unless full-system mode is selected', 'Generated discovery output is labeled scaffold unless a selected candidate is confirmed', 'Generated files contain no secret values', 'Claims are labeled OBSERVED/INFERRED/QUESTION/OUT_OF_SCOPE', 'Scope includes included/excluded paths', 'Production-grade selected scope is explicit', 'Agent execution brief/XML contract/current state/manifest exist', 'Generated output includes QA plan, implementation completeness, head-to-foot QA, traceability, and submission checklist', 'XML and JSON agent contracts parse', 'Mocks/fixtures are not counted as product implementation', 'Included routes/services/providers/persistence/jobs/exports are real or excluded', 'QA plan is derived from mapped flows', 'Traceability matrix links evidence to requirements and checks', 'Submission checklist reports commands run and known gaps', 'No validation results are invented', 'Final chat handover states outcome, selected scope, evidence, files, commands/evals, gaps, and next direction', 'Golden eval harness passes stripe-saas, malicious-secrets, admin-dashboard, large-monorepo, and route-patterns'],
     trustBadges: [
       { label: 'Submission workflow', detail: 'Defines the official reviewable path from existing repo to scoped Buildprint package.', tone: 'info' },
       { label: 'Safety-first extraction', detail: 'Requires no app-code changes, no secret copying, and explicit unknowns.', tone: 'success' },
@@ -432,7 +437,7 @@ export const buildprints: Buildprint[] = [
     ],
     githubUrl: `${repoUrl}/tree/main/buildprints/buildprint-mapper-os`,
     rawBaseUrl: rawFor('buildprint-mapper-os'),
-    copyPrompt: `${localPrompt('buildprint-mapper-os', 'Buildprint Mapper OS')} Use it to map this repo into SYSTEM_MAP.md and BUILDPRINT_CANDIDATES.md first. Ask me to choose one candidate, then extract only that selected scope into buildprint-submission/. Default to production-grade selected scope: smaller scope is OK, but do not create a lazy MVP, mock services as product behavior, placeholder routes, no-op controls, skeleton adapters, or in-memory-only persistence when durability is claimed. Do not require a CLI, do not copy secrets, and do not flatten the repo into one vague document.`,
+    copyPrompt: `${localPrompt('buildprint-mapper-os', 'Buildprint Mapper OS')} Use it to map this repo. Discover first, ask later: create SYSTEM_MAP.md and BUILDPRINT_CANDIDATES.md before selected extraction unless I already picked a scope. Ask me to choose one candidate, then extract only that selected scope into buildprint-submission/ with AGENT_EXECUTION_BRIEF.md, agent-contract.xml, CURRENT_STATE.md, manifest.json, QA/no-fake gates, traceability, and submission checklist. Default to production-grade selected scope: smaller scope is OK, but do not create a lazy MVP, mock services as product behavior, placeholder routes, no-op controls, skeleton adapters, or in-memory-only persistence when durability is claimed. Do not require a CLI, do not copy secrets, and do not flatten the repo into one vague document. Run mapper golden evals when mapper behavior changes. Finish with a chat handover containing outcome, selected scope, evidence inspected, files generated, commands/evals run, known gaps, and recommended next direction.`,
   },
 
 
