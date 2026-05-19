@@ -745,6 +745,8 @@ export function packageManifest(bp: Buildprint) {
     status: bp.status,
     runtime: bp.runtime,
     stack: bp.stack,
+    canonicalStart: 'BUILDPRINT.md',
+    readOrder: ['BUILDPRINT.md'].filter((path) => bp.files.some((file) => file.path === path)),
     entrypoints: { human: urls.human, agent: urls.agent, manifest: urls.manifest, prompt: urls.prompt, github: bp.githubUrl, originGithub: bp.originGithubUrl, rawBase: bp.rawBaseUrl },
     bootstrap: {
       command: `agb start ${siteBase}/buildprints/${bp.slug}/package.json`,
