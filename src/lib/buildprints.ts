@@ -421,6 +421,7 @@ export const buildprints: Buildprint[] = [
       { path: 'templates/IMPLEMENTATION_PLAN.md', purpose: 'Buildprint package file', required: true },
       { path: 'templates/manifest.json', purpose: 'machine-readable mirror', required: true },
       { path: 'templates/OBSERVABILITY.md', purpose: 'logs/metrics/traces/runbook template', required: false },
+      { path: 'templates/PRE_IMPLEMENTATION_QUESTIONS.md', purpose: 'Buildprint package file', required: true },
       { path: 'templates/PROVIDERS.md', purpose: 'Buildprint package file', required: true },
       { path: 'templates/QA_REPORT.md', purpose: 'Buildprint package file', required: true },
       { path: 'templates/REVERSAL_REPORT.md', purpose: 'Buildprint package file', required: true },
