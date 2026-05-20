@@ -28,7 +28,7 @@ export function GET() {
     '',
     '- basic: BUILDPRINT.md plus checks',
     '- strong: adds SPEC.md, PLAN.md, CONTRACTS.md',
-    '- agent-grade: adds plans/*.md, TEST_MATRIX.md, VALIDATION_TEMPLATE.md and stronger alignment rails',
+    '- agent-grade: adds plans/*.md plus verification, execution, or validation rails appropriate to the package',
     '',
     '## Available Buildprints',
     '',

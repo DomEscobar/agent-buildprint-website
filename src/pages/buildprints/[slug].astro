@@ -22,7 +22,7 @@ const architectureFlow = bp.architectureFlow?.length ? bp.architectureFlow : bp.
 const proofItems = bp.trustBadges?.length
   ? bp.trustBadges.slice(0, 4).map((badge) => badge.label)
   : bp.checks.slice(0, 4);
-const packetOrder = ['BUILDPRINT.md', 'SPEC.md', 'PLAN.md', 'CONTRACTS.md', 'DEFAULT_PRESET.md', 'TEST_MATRIX.md', 'VALIDATION_TEMPLATE.md'];
+const packetOrder = ['BUILDPRINT.md', 'SPEC.md', 'PLAN.md', 'CONTRACTS.md', 'EXECUTION_PROTOCOL.md', 'IMPLEMENTATION_PLAN.md', 'VERIFICATION.md', 'DEFAULT_PRESET.md', 'TEST_MATRIX.md', 'VALIDATION_TEMPLATE.md'];
 const packetFiles = packetOrder
   .map((path) => bp.files.find((file) => file.path === path))
   .filter(Boolean)

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
 const args = process.argv.slice(2);
@@ -24,8 +25,11 @@ const canonicalPurposes = new Map([
   ['SPEC.md', "canonicalFilePurposes['SPEC.md']"],
   ['PLAN.md', "canonicalFilePurposes['PLAN.md']"],
   ['CONTRACTS.md', "canonicalFilePurposes['CONTRACTS.md']"],
+  ['EXECUTION_PROTOCOL.md', "canonicalFilePurposes['EXECUTION_PROTOCOL.md']"],
+  ['IMPLEMENTATION_PLAN.md', "canonicalFilePurposes['IMPLEMENTATION_PLAN.md']"],
   ['TEST_MATRIX.md', "canonicalFilePurposes['TEST_MATRIX.md']"],
   ['VALIDATION_TEMPLATE.md', "canonicalFilePurposes['VALIDATION_TEMPLATE.md']"],
+  ['VERIFICATION.md', "canonicalFilePurposes['VERIFICATION.md']"],
   ['checks/acceptance.md', "canonicalFilePurposes['checks/acceptance.md']"],
   ['questions.md', "canonicalFilePurposes['questions.md']"],
   ['DEFAULT_PRESET.md', "canonicalFilePurposes['DEFAULT_PRESET.md']"],
@@ -37,8 +41,11 @@ const requiredCore = new Set([
   'SPEC.md',
   'CONTRACTS.md',
   'PLAN.md',
+  'EXECUTION_PROTOCOL.md',
+  'IMPLEMENTATION_PLAN.md',
   'TEST_MATRIX.md',
   'VALIDATION_TEMPLATE.md',
+  'VERIFICATION.md',
   'checks/acceptance.md',
 ]);
 
@@ -59,7 +66,7 @@ function walkFiles(dir, base = dir) {
 }
 
 function orderFiles(files) {
-  const core = ['BUILDPRINT.md', 'README.md', 'SPEC.md', 'CONTRACTS.md', 'PLAN.md', 'TEST_MATRIX.md', 'VALIDATION_TEMPLATE.md', 'checks/acceptance.md'];
+  const core = ['BUILDPRINT.md', 'README.md', 'SPEC.md', 'CONTRACTS.md', 'PLAN.md', 'EXECUTION_PROTOCOL.md', 'IMPLEMENTATION_PLAN.md', 'TEST_MATRIX.md', 'VALIDATION_TEMPLATE.md', 'VERIFICATION.md', 'checks/acceptance.md'];
   const coreRank = new Map(core.map((file, index) => [file, index]));
   return [...files].sort((a, b) => {
     const ar = coreRank.has(a) ? coreRank.get(a) : 1000;
@@ -67,6 +74,15 @@ function orderFiles(files) {
     if (ar !== br) return ar - br;
     return a.localeCompare(b);
   });
+}
+
+function gitTrackedFiles(sourceRoot, slug) {
+  const gitDir = path.join(sourceRoot, '.git');
+  if (!fs.existsSync(gitDir)) return null;
+  const prefix = `buildprints/${slug}/`;
+  const output = execFileSync('git', ['-C', sourceRoot, 'ls-files', prefix], { encoding: 'utf8' }).trim();
+  if (!output) return [];
+  return output.split(/\r?\n/).map((file) => file.slice(prefix.length)).filter(Boolean);
 }
 
 function purposeExpr(file, previous) {
@@ -151,7 +167,8 @@ for (const slug of sourceSlugs) {
   if (filesArrayEnd < 0) throw new Error(`Could not locate files array end for ${slug}`);
   const oldArray = text.slice(filesArrayStart, filesArrayEnd + 1);
   const previous = parseExistingFiles(oldArray);
-  const sourceFiles = orderFiles(walkFiles(path.join(sourceBuildprints, slug)));
+  const trackedFiles = gitTrackedFiles(sourceRoot, slug);
+  const sourceFiles = orderFiles(trackedFiles ?? walkFiles(path.join(sourceBuildprints, slug)));
   const lines = sourceFiles.map((file) => {
     const prev = previous.get(file);
     return `      { path: '${file}', purpose: ${purposeExpr(file, prev)}, required: ${requiredFor(file, prev)} },`;

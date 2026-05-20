@@ -2,7 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TechName from '@/components/TechName.astro';
 import { repoUrl } from '@/lib/buildprints';
-const submitIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent('[submission] <your buildprint title>')}&body=${encodeURIComponent(`Submit a free Buildprint for review.\n\nRepository URL:\nPackage path, if not repo root:\nCreator name/profile:\nBuildprint title:\nCategory: Product OS / Feature / Extension / Framework / Architecture / Workflow OS\nLicense:\n\nWhat it helps people build:\n\nVerification checklist:\n- [ ] BUILDPRINT.md exists\n- [ ] SPEC.md or equivalent behavior spec exists, if applicable\n- [ ] PLAN.md or phased steps exist\n- [ ] TEST_MATRIX.md or quality checks exist\n- [ ] No secrets, private keys, tokens, or env values are included\n- [ ] Links resolve\n- [ ] License is clear\n\nNotes for reviewer:\n`)}`;
+const submitIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent('[submission] <your buildprint title>')}&body=${encodeURIComponent(`Submit a free Buildprint for review.\n\nRepository URL:\nPackage path, if not repo root:\nCreator name/profile:\nBuildprint title:\nCategory: Product OS / Feature / Extension / Framework / Architecture / Workflow OS\nLicense:\n\nWhat it helps people build:\n\nVerification checklist:\n- [ ] BUILDPRINT.md exists\n- [ ] SPEC.md or equivalent behavior spec exists, if applicable\n- [ ] PLAN.md or phased steps exist\n- [ ] VERIFICATION.md, TEST_MATRIX.md, or quality checks exist\n- [ ] No secrets, private keys, tokens, or env values are included\n- [ ] Links resolve\n- [ ] License is clear\n\nNotes for reviewer:\n`)}`;
 const creatorPrompt = `You are helping me turn an existing software project into an Agent Buildprint: a reusable implementation plan that humans can review and AI coding agents can follow.
 
 Use a two-stage process. Do not modify application code. Do not copy secrets, tokens, private keys, .env values, credentials, customer data, or private production URLs. If you see env vars, record only variable names and purpose.
@@ -23,8 +23,9 @@ For a normal scoped Buildprint, create:
 - SPEC.md — behavior requirements, must/must-not rules, edge cases
 - PLAN.md — implementation phases another agent could follow
 - CONTRACTS.md — interfaces, data models, APIs, integrations, side effects
-- TEST_MATRIX.md — quality gates, acceptance checks, risks mapped to tests
-- VALIDATION_TEMPLATE.md — honest final report template
+- EXECUTION_PROTOCOL.md — how a coding agent should execute the package
+- IMPLEMENTATION_PLAN.md — implementation phases another agent could follow
+- VERIFICATION.md — quality gates, acceptance checks, evidence, and blockers
 - questions.md — unknowns that require human/creator review
 - README.md — marketplace-facing overview: what this helps people build, who it is for, stack, license, and usage notes
 - SUBMISSION_CHECKLIST.md — files created, scope, included/excluded paths, known gaps, commands run, secrets check result, and estimated tier
@@ -73,8 +74,9 @@ Start with Stage 1 now.`;
   SPEC.md                # behavior, if applicable
   PLAN.md                # execution plan
   CONTRACTS.md           # interfaces/data contracts
-  TEST_MATRIX.md         # checks and acceptance gates
-  VALIDATION_TEMPLATE.md # honest completion report
+  EXECUTION_PROTOCOL.md  # agent execution rules
+  IMPLEMENTATION_PLAN.md # implementation roadmap
+  VERIFICATION.md        # checks and evidence
   prompts/
   policies/
   tests/
