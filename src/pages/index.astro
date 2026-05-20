@@ -5,11 +5,19 @@ import { iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
 import TechName from '@/components/TechName.astro';
 
 const featured = liveBuildprints.filter((bp) => bp.featured).slice(0, 4);
-const packetParts = ['Architecture', 'Spec', 'Phases', 'Contracts', 'Requirements', 'Checks'];
+const packetParts = [
+  { code: 'ARCH', label: 'Architecture', detail: 'Boundaries, runtime shape, and what the agent must not replace.' },
+  { code: 'SPEC', label: 'Spec', detail: 'Behavior, inputs, outputs, defaults, and claim limits.' },
+  { code: 'PLAN', label: 'Phases', detail: 'Ordered implementation rails with stop points before risky work.' },
+  { code: 'API', label: 'Contracts', detail: 'Interfaces, data shape, adapters, and acceptance surfaces.' },
+  { code: 'REQ', label: 'Requirements', detail: 'Only real blockers: keys, accounts, credentials, repo access.' },
+  { code: 'QA', label: 'Checks', detail: 'Tests, bootstrap proof, and validation gates the agent must report.' },
+];
 const agentReceives = ['Architecture', 'Spec', 'Phases', 'Contracts', 'Checks'];
 const fixedRails = ['Outcome and scope', 'Architecture boundaries', 'Behavior contracts', 'Phase order', 'Validation gates'];
 const adaptableParts = ['Stack', 'Providers', 'UI', 'Database', 'Deployment target'];
 const proofItems = ['Bootstrap snapshot passed', 'Raw files available', 'Dry-run or tests recorded', 'Claim boundaries documented'];
+const intakeQuestions = ['What outcome is fixed?', 'Which parts may vary?', 'What evidence proves completion?'];
 
 const trustLabel = (bp) => {
   if (bp.status === 'validated') return 'Validated';
@@ -37,8 +45,8 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
     <section class="container hero clean-hero platform-hero usp-hero">
       <div class="hero-copy">
         <span class="pill dossier-pill"><b>The planning layer before AI writes code</b></span>
-        <h1>Your coding agent can write code. The problem is what it guesses.</h1>
-        <p class="lead">Buildprints give agents architecture, phases, contracts, requirements, and checks before they start coding.</p>
+        <h1>Stop asking agents to improvise your architecture.</h1>
+        <p class="lead">Buildprints turn reusable implementation knowledge into packets an agent can bootstrap, follow, and prove.</p>
         <div class="agent-compat" aria-label="Compatible coding agents">
           <span>Works with</span>
           <TechName name="Codex" />
@@ -50,10 +58,10 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
           <a class="btn" href="#how-it-works">See how one works</a>
         </div>
         <div class="hero-trust-strip" aria-label="Agent Buildprint trust markers">
-          <span><b>OK</b> Validated Buildprints</span>
-          <span><b>30</b> 30-60 min starts</span>
-          <span><b>AI</b> Codex / Cursor / Claude-ready</span>
-          <span><b>QA</b> Bootstrap + test gates</span>
+          <span><b>ARCH</b> Architecture fixed first</span>
+          <span><b>API</b> Contracts before code</span>
+          <span><b>QA</b> Evidence required</span>
+          <span><b>AGENT</b> Codex / Cursor / Claude-ready</span>
         </div>
       </div>
 
@@ -94,15 +102,25 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
     </section>
 
     <section id="how-it-works" class="container section packet-section" aria-labelledby="packet-title">
-      <div class="section-head simple proof-head">
+      <div class="section-head proof-head">
         <div>
           <span class="eyebrow"><b>01</b> What a Buildprint contains</span>
-          <h2 id="packet-title">An implementation packet your agent can actually follow.</h2>
-          <p>Not a prompt template. Not starter code. A Buildprint packages the decisions agents usually invent on the fly.</p>
+          <h2 id="packet-title">A handoff packet, not another prompt template.</h2>
         </div>
+        <p>Each Buildprint answers the questions that usually appear too late: what is fixed, what can adapt, and what proof counts as done.</p>
       </div>
-      <div class="packet-grid" aria-label="Buildprint packet contents">
-        {packetParts.map((part) => <div class="packet-item"><b>{part}</b><span>{part === 'Requirements' ? 'Only real blockers: keys, accounts, credentials, repo access, deployment targets.' : 'Written before the agent starts coding.'}</span></div>)}
+      <div class="packet-ledger" aria-label="Buildprint handoff ledger">
+        <div class="packet-ledger-main">
+          {packetParts.map((part) => <div class="packet-item">
+            <span>{part.code}</span>
+            <b>{part.label}</b>
+            <small>{part.detail}</small>
+          </div>)}
+        </div>
+        <aside class="packet-ledger-side" aria-label="Buildprint intake questions">
+          <span>Before an agent starts</span>
+          <ul>{intakeQuestions.map((item) => <li>{item}</li>)}</ul>
+        </aside>
       </div>
       <div class="category-analogy" aria-label="Buildprint category analogy">
         <b>Like npm packages, but for implementation intent.</b>
