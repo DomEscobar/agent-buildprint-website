@@ -161,7 +161,10 @@ for (const slug of sourceSlugs) {
   if (objectStart < 0 || objectEnd < 0) throw new Error(`Could not locate object for ${slug}`);
   const objectText = text.slice(objectStart, objectEnd + 1);
   const filesKey = objectText.indexOf('files: [');
-  if (filesKey < 0) throw new Error(`No files array for ${slug}`);
+  if (filesKey < 0) {
+    console.warn(`Website registry entry for ${slug} uses a shared/generated files expression; skipping file array sync.`);
+    continue;
+  }
   const filesArrayStart = objectStart + filesKey + 'files: '.length;
   const filesArrayEnd = findMatching(text, filesArrayStart, '[', ']');
   if (filesArrayEnd < 0) throw new Error(`Could not locate files array end for ${slug}`);
