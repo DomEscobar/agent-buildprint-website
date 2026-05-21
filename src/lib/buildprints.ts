@@ -384,6 +384,7 @@ export const buildprints: Buildprint[] = [
       { path: 'evals/golden-projects/large-monorepo/package.json', purpose: 'golden mapper eval file', required: true },
       { path: 'evals/golden-projects/large-monorepo/packages/worker/src/content-agent.ts', purpose: 'golden mapper eval file', required: true },
       { path: 'evals/golden-projects/large-monorepo/prisma/schema.prisma', purpose: 'golden mapper eval file', required: true },
+      { path: 'evals/golden-projects/malicious-secrets/.env.example', purpose: 'evaluation harness artifact', required: true },
       { path: 'evals/golden-projects/malicious-secrets/expected-signals.json', purpose: 'golden mapper fixture expected signals', required: true },
       { path: 'evals/golden-projects/malicious-secrets/package.json', purpose: 'golden mapper eval file', required: true },
       { path: 'evals/golden-projects/malicious-secrets/README.md', purpose: 'golden mapper eval file', required: true },
