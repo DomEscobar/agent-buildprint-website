@@ -1,45 +1,33 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import TechName from '@/components/TechName.astro';
 import { repoUrl } from '@/lib/buildprints';
-const submitIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent('[submission] <your buildprint title>')}&body=${encodeURIComponent(`Submit a free Buildprint for review.\n\nRepository URL:\nPackage path, if not repo root:\nCreator name/profile:\nBuildprint title:\nCategory: Product OS / Feature / Extension / Framework / Architecture / Workflow OS\nLicense:\n\nWhat it helps people build:\n\nVerification checklist:\n- [ ] BUILDPRINT.md exists\n- [ ] SPEC.md or equivalent behavior spec exists, if applicable\n- [ ] PLAN.md or phased steps exist\n- [ ] VERIFICATION.md, TEST_MATRIX.md, or quality checks exist\n- [ ] No secrets, private keys, tokens, or env values are included\n- [ ] Links resolve\n- [ ] License is clear\n\nNotes for reviewer:\n`)}`;
-const creatorPrompt = `You are helping me turn an existing software project into an Agent Buildprint: a reusable implementation plan that humans can review and AI coding agents can follow.
+const submitIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent('[submission] <your buildprint title>')}&body=${encodeURIComponent(`Submit a free Buildprint for review.
 
-Use a two-stage process. Do not modify application code. Do not copy secrets, tokens, private keys, .env values, credentials, customer data, or private production URLs. If you see env vars, record only variable names and purpose.
+Repository URL:
+Package path, if not repo root:
+Creator name/profile:
+Buildprint title:
+Generated with Mapper OS? yes/no
+Mapper OS output path or PR, if applicable:
+Category: Product OS / Feature / Extension / Framework / Architecture / Workflow OS
+License:
 
-STAGE 1 — Discover candidates first
-Inspect the repo and create discovery outputs only:
-- SYSTEM_MAP.md — architecture zones, key flows, integrations, data stores, side effects, tests, unknowns
-- BUILDPRINT_CANDIDATES.md — 3-7 possible reusable Buildprints with title, scope, included paths, excluded paths, why reusable, risks, questions, estimated tier
-- questions.md — human decisions needed
+What it helps people build:
 
-If the project is large, stop after Stage 1 and ask me which candidate to extract, or whether to create a full hierarchical System Buildprint. Do not flatten the whole repo into one vague document.
+Verification checklist:
+- [ ] BUILDPRINT.md exists
+- [ ] SPEC.md or equivalent behavior spec exists, if applicable
+- [ ] PLAN.md or phased steps exist
+- [ ] VERIFICATION.md, TEST_MATRIX.md, or quality checks exist
+- [ ] No secrets, private keys, tokens, or env values are included
+- [ ] Links resolve
+- [ ] License is clear
 
-STAGE 2 — Extract only the chosen scope
-After I choose a candidate or provide a clear scope, create a clean package in buildprint-submission/. If I explicitly choose full-system mode, create project.buildprint/ with modules/.
+Notes for reviewer:
 
-For a normal scoped Buildprint, create:
-- BUILDPRINT.md — architecture, purpose, intended build outcome, non-goals
-- SPEC.md — behavior requirements, must/must-not rules, edge cases
-- PLAN.md — implementation phases another agent could follow
-- CONTRACTS.md — interfaces, data models, APIs, integrations, side effects
-- EXECUTION_PROTOCOL.md — how a coding agent should execute the package
-- IMPLEMENTATION_PLAN.md — implementation phases another agent could follow
-- VERIFICATION.md — quality gates, acceptance checks, evidence, and blockers
-- questions.md — unknowns that require human/creator review
-- README.md — marketplace-facing overview: what this helps people build, who it is for, stack, license, and usage notes
-- SUBMISSION_CHECKLIST.md — files created, scope, included/excluded paths, known gaps, commands run, secrets check result, and estimated tier
-
-Output rules:
-1. Label important claims as OBSERVED, INFERRED, or QUESTION.
-2. Do not invent validation results.
-3. Do not claim tests pass unless you actually ran them.
-4. Prefer concise, practical Markdown over long essays.
-5. Make the Buildprint useful for Codex, Cursor, Claude Code, or other coding agents.
-6. Mark unrelated systems as OUT_OF_SCOPE for the selected Buildprint.
-
-Start with Stage 1 now.`;
----
+If you are converting an existing repo, use Mapper OS first:
+https://agent-buildprint.com/buildprints/buildprint-mapper-os/
+`)}`;---
 <BaseLayout title="Submit a Buildprint — Agent Buildprint" description="Submit a free Buildprint for review and validation.">
   <main>
     <section class="container hero compact-hero">
@@ -51,16 +39,16 @@ Start with Stage 1 now.`;
 
     <section class="container section submission-prompt-section">
       <div class="panel code-card prompt-card">
-        <div class="panel-row"><div><span class="eyebrow"><b>✎</b> Creator prompt</span><h2>Turn your project into scoped Buildprint candidates.</h2></div><button class="btn copy-btn" data-copy={creatorPrompt}>Copy prompt</button></div>
-        <p>Paste this into Codex, Cursor, Claude Code, or another coding agent inside your repo. Large projects should first produce candidate Buildprints and ask for scope before final extraction.</p>
-        <code class="code-block-text">{creatorPrompt}</code>
+        <div class="panel-row"><div><span class="eyebrow"><b>✎</b> Mapper OS</span><h2>Converting an existing repo? Start with Mapper OS.</h2></div><a class="btn primary" href="/buildprints/buildprint-mapper-os/">Open Mapper OS</a></div>
+        <p>Mapper OS is the canonical workflow for turning a working codebase into scoped Buildprint candidates, selecting one, extracting a source-independent package, and recording proof-ledger evidence. Use that page instead of copying a stale submission prompt.</p>
+        <div class="actions"><a class="btn" href="/buildprints/buildprint-mapper-os/agent.md">Agent guide</a><a class="btn" href="/buildprints/buildprint-mapper-os/package.json">Package JSON</a><a class="btn" href="/buildprints/buildprint-mapper-os/prompt.txt">Prompt text</a></div>
       </div>
     </section>
 
     <section class="container section submission-flow">
       <div class="section-head simple"><div><span class="eyebrow"><b>✓</b> Verification</span><h2>GitHub is the first identity and review layer.</h2><p>No marketplace auth yet. For now, creator identity comes from the GitHub account/repo that submits the package, and every Buildprint is reviewed before listing.</p></div></div>
       <div class="grid how-grid">
-        <div class="panel quiet"><span class="step-number">1</span><h3>Map or discover scope</h3><p>For large repos, use Mapper OS or the creator prompt to produce candidates before extraction. No CLI is required.</p></div>
+        <div class="panel quiet"><span class="step-number">1</span><h3>Map or discover scope</h3><p>For existing repos, use <a href="/buildprints/buildprint-mapper-os/">Mapper OS</a> to produce scoped candidates before extraction. No separate mapper CLI is required.</p></div>
         <div class="panel quiet"><span class="step-number">2</span><h3>Extract selected Buildprint</h3><p>Create one scoped package, or a hierarchical System Buildprint with modules. Avoid whole-repo sludge.</p></div>
         <div class="panel quiet"><span class="step-number">3</span><h3>Submit for review</h3><p>Open a GitHub issue with repo URL, package path, creator profile, license, scope, and checklist.</p></div>
       </div>
