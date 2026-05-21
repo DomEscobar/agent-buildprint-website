@@ -77,6 +77,22 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
           </section>
         </div>
 
+        {bp.howToUse?.length ? <>
+          <h2>How to use it</h2>
+          <div class="grid how-grid" aria-label="How to use this Buildprint">
+            {bp.howToUse.map((step) => <section class="panel quiet">
+              <h3>{step.title}</h3>
+              <p>{step.detail}</p>
+            </section>)}
+          </div>
+          {bp.resultChecklist?.length ? <>
+            <h2>What the agent should produce</h2>
+            <ul class="verification-list" aria-label="Expected Mapper OS outputs">
+              {bp.resultChecklist.map((item) => <li>{item}</li>)}
+            </ul>
+          </> : null}
+        </> : null}
+
         <h2>Agent packet</h2>
         <div class="agent-packet-list" aria-label="Files the agent receives">
           {packetFiles.map((file) => <a href={`${bp.rawBaseUrl}/${file.path}`}>

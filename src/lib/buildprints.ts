@@ -26,6 +26,8 @@ export type Buildprint = {
   whatYouGet?: string[];
   whatYouNeed?: string[];
   architectureFlow?: string[];
+  howToUse?: { title: string; detail: string }[];
+  resultChecklist?: string[];
   copyPrompt: string;
   githubUrl: string;
   originGithubUrl?: string;
@@ -336,12 +338,20 @@ export const buildprints: Buildprint[] = [
     iconKeys: ['md', 'json', 'typescript'],
     difficulty: 'Advanced',
     featured: true,
-    summary: 'Agent-session workflow for turning an existing repo into scoped, source-independent Buildprints with capability packs, execution protocol, proof-ledger gates, and verification evidence.',
-    plainDescription: 'A blueprint for turning a repo into useful Buildprints: scan the codebase, find good product or feature slices, choose one, and extract an agent-executable package that can be implemented without handing the original source to the coding agent.',
-    whatYouGet: ['Repo-to-Buildprint mapping workflow', 'System map of an existing codebase', 'Scoped product/feature blueprint candidates', 'Source-independent selected package', 'Capability packs with contracts and checks', 'Execution protocol for coding agents', 'Current-state handoff file', 'Verification ledger and reversal report templates', 'No-fake implementation checklist', 'Submission/review checklist'],
-    whatYouNeed: ['Nothing for public repos', 'GitHub/private repo access if the source is private', 'A human scope choice when multiple candidates exist', 'Permission to use any private source code'],
-    architectureFlow: ['Repo', 'System map', 'Candidates', 'Selection', 'Package', 'Proof'],
-    promise: 'An official workflow Buildprint for creator submissions: evidence-backed discovery, scoped candidate selection, source-independent extraction, execution-ready capability packs, reversal validation, no-fake checks, and an honest gap report.',
+    summary: 'The easiest way to turn an existing repo into a reviewable Agent Buildprint: copy the prompt, run it in your coding agent at the repo root, pick one scoped candidate, then submit the generated package.',
+    plainDescription: 'Use Mapper OS when you already have a working project and want to convert it into a clean Buildprint submission. Click “Copy agent prompt”, paste it into Codex, Cursor, Claude Code, or another coding agent at the repo root, let it map the codebase, choose one suggested scope, then submit the generated buildprint-submission/ package for review.',
+    whatYouGet: ['Copy-paste agent prompt for repo mapping', 'SYSTEM_MAP.md and scoped Buildprint candidates', 'Selected buildprint-submission/ package', 'Source-independent agent instructions', 'Capability proof ledger and verification gates', 'Submission checklist for review'],
+    whatYouNeed: ['A repo your coding agent can read', 'GitHub/private repo access if the source is private', 'Permission to map the source code', 'A human scope choice when Mapper OS presents candidates'],
+    architectureFlow: ['Copy prompt', 'Paste in repo', 'Map repo', 'Pick scope', 'Extract package', 'Submit'],
+    promise: 'A practical submission workflow: Mapper OS turns a real repo into candidate Buildprints first, waits for a scope choice, extracts only that selected scope, and forces evidence/proof gaps to be documented instead of hidden.',
+    howToUse: [
+      { title: '1. Open your existing project', detail: 'Open the repo in Codex, Cursor, Claude Code, or another coding agent. Start from the repository root so the agent can inspect the real files.' },
+      { title: '2. Copy the Mapper OS agent prompt', detail: 'Use the “Copy agent prompt” button on this page. If you prefer bootstrapped package files, run: agb start https://agent-buildprint.com/buildprints/buildprint-mapper-os/package.json .' },
+      { title: '3. Paste it into the agent and let it discover', detail: 'Mapper OS should create SYSTEM_MAP.md and BUILDPRINT_CANDIDATES.md first. For large projects, it must stop and ask which candidate you want before extracting anything.' },
+      { title: '4. Pick one candidate', detail: 'Choose the product, feature, workflow, or integration you actually want to submit. Do not let the agent flatten a whole large repo into one vague Buildprint.' },
+      { title: '5. Submit the generated package', detail: 'The selected output should land in buildprint-submission/ or an equivalent package folder. Submit that path through the Buildprint submission issue.' },
+    ],
+    resultChecklist: ['SYSTEM_MAP.md explaining architecture, flows, data, integrations, side effects, tests, and unknowns', 'BUILDPRINT_CANDIDATES.md with 3–7 scoped reusable options', 'A selected package with BUILDPRINT.md, SPEC.md, PLAN.md, CONTRACTS.md, EXECUTION_PROTOCOL.md, IMPLEMENTATION_PLAN.md, VERIFICATION.md, and manifest/check files', 'Capability proof ledger with evidence, commands, artifacts, negative tests, blockers, and honest CONTRACT_SEAM_ONLY/BLOCKED_WITH_REASON statuses where proof is missing', 'Final handover explaining selected scope, files generated, commands run, known gaps, and next recommended action'],
     includes: ['Safety and secrets boundary', 'Machine-readable buildprint/phases/acceptance/claims rails', 'Minimal preflight questions', 'Repo census', 'SYSTEM_MAP.md', 'BUILDPRINT_CANDIDATES.md', 'Human scope decision gate', 'Dynamic post-discovery questions.md', 'Capability-oriented templates', 'EXECUTION_PROTOCOL.md', 'IMPLEMENTATION_PLAN.md', 'CURRENT_STATE.md', 'VERIFICATION.md', 'Clean-room REVERSAL_REPORT.md', 'QA_REPORT.md', 'Single Buildprint extraction', 'Hierarchical System Buildprint extraction', 'Submission checklist', 'Final chat handover', 'Fixture review guidance'],
     risks: ['Whole-repo sludge', 'Secret leakage', 'Hallucinated intent', 'Invented validation results', 'Missing scope', 'Vague marketplace submissions', 'Unclear capability boundaries', 'Generic QA plans', 'Source-dependent implementation instructions', 'Missing verification evidence'],
     files: [
