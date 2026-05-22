@@ -44,18 +44,31 @@ save('live-package.json', JSON.stringify(manifest, null, 2) + '\n');
 save('live-README.md', readme);
 save('live-buildprint.json', JSON.stringify(buildprintJson, null, 2) + '\n');
 
-assert(prompt.includes('Read `BUILDPRINT.md` first'), 'prompt tells agents to read BUILDPRINT.md first');
+const isExecutablePacket = manifest.files?.some((file) => file.path === 'START_HERE.md')
+  && manifest.files?.some((file) => file.path === 'blueprint.yaml');
+const expectedReadOrder = isExecutablePacket ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml'] : ['BUILDPRINT.md'];
+const expectedCanonicalStart = isExecutablePacket ? 'START_HERE.md' : 'BUILDPRINT.md';
+
 assert(!prompt.includes('Read the package files in the manifest order'), 'prompt does not instruct manifest-order reading');
-assert(agent.includes('Read `BUILDPRINT.md` first'), 'agent guide tells agents to read BUILDPRINT.md first');
-assert(!agent.includes('Read files in order:'), 'agent guide does not render a competing read-order list');
-assert(manifest.instructions?.canonicalStart === 'BUILDPRINT.md', 'manifest canonicalStart is BUILDPRINT.md', { canonicalStart: manifest.instructions?.canonicalStart });
-assert(Array.isArray(manifest.instructions?.readOrder) && manifest.instructions.readOrder.length === 1 && manifest.instructions.readOrder[0] === 'BUILDPRINT.md', 'manifest readOrder only points to BUILDPRINT.md', { readOrder: manifest.instructions?.readOrder });
-assert(manifest.files?.[0]?.path === 'BUILDPRINT.md', 'manifest files list starts with BUILDPRINT.md', { firstFile: manifest.files?.[0]?.path });
-assert(readme.includes('This README is only a package overview') && !readme.includes('## V2 Read Order'), 'README does not contain a competing V2 read-order list');
-assert(buildprintJson.canonicalStart === 'BUILDPRINT.md', 'buildprint.json canonicalStart is BUILDPRINT.md');
-assert(buildprintJson.authoritySpine === 'BUILDPRINT.md', 'buildprint.json uses authoritySpine instead of co-equal authority list', { authoritySpine: buildprintJson.authoritySpine });
-assert(!Object.prototype.hasOwnProperty.call(buildprintJson, 'authority'), 'buildprint.json has no ambiguous authority array');
-assert(Array.isArray(buildprintJson.mirrorFiles) && buildprintJson.mirrorFiles.includes('phases.yaml'), 'buildprint.json declares structured files as mirrors');
+assert(!agent.includes('Read files in order:'), 'agent guide does not render a competing legacy read-order list');
+assert(prompt.includes(`Read order: ${expectedReadOrder.map((file) => `\`${file}\``).join(' -> ')}`), 'prompt renders expected package read order', { expectedReadOrder });
+assert(agent.includes(`Read order: ${expectedReadOrder.map((file) => `\`${file}\``).join(' -> ')}`), 'agent guide renders expected package read order', { expectedReadOrder });
+assert(manifest.instructions?.canonicalStart === expectedCanonicalStart, 'manifest canonicalStart matches packet type', { canonicalStart: manifest.instructions?.canonicalStart, expectedCanonicalStart });
+assert(JSON.stringify(manifest.instructions?.readOrder) === JSON.stringify(expectedReadOrder), 'manifest readOrder matches packet type', { readOrder: manifest.instructions?.readOrder, expectedReadOrder });
+assert(manifest.files?.[0]?.path === 'BUILDPRINT.md', 'manifest files list starts with BUILDPRINT.md compatibility bootstrap', { firstFile: manifest.files?.[0]?.path });
+if (isExecutablePacket) {
+  assert(readme.includes('START_HERE.md') && readme.includes('blueprint.yaml'), 'README routes executable packet readers to START_HERE.md and blueprint.yaml');
+  assert(buildprintJson.schema === 'agent-buildprint/v2', 'buildprint.json declares executable packet v2 schema', { schema: buildprintJson.schema });
+  assert(buildprintJson.packet === 'blueprint.yaml', 'buildprint.json points to blueprint.yaml packet', { packet: buildprintJson.packet });
+  assert(buildprintJson.canonicalStart === 'BUILDPRINT.md', 'buildprint.json keeps BUILDPRINT.md as compatibility bootstrap', { canonicalStart: buildprintJson.canonicalStart });
+  assert(!Object.prototype.hasOwnProperty.call(buildprintJson, 'authority'), 'buildprint.json has no ambiguous authority array');
+} else {
+  assert(readme.includes('This README is only a package overview') && !readme.includes('## V2 Read Order'), 'README does not contain a competing V2 read-order list');
+  assert(buildprintJson.canonicalStart === 'BUILDPRINT.md', 'buildprint.json canonicalStart is BUILDPRINT.md');
+  assert(buildprintJson.authoritySpine === 'BUILDPRINT.md', 'buildprint.json uses authoritySpine instead of co-equal authority list', { authoritySpine: buildprintJson.authoritySpine });
+  assert(!Object.prototype.hasOwnProperty.call(buildprintJson, 'authority'), 'buildprint.json has no ambiguous authority array');
+  assert(Array.isArray(buildprintJson.mirrorFiles) && buildprintJson.mirrorFiles.includes('phases.yaml'), 'buildprint.json declares structured files as mirrors');
+}
 
 if (runCodex) {
   const task = `You are a coding agent drift test-runner. Run the live website Agent Buildprint prompt below as a real coding agent would, but STOP after bootstrap and authority/read-order inspection. Do not implement the app.\n\nRequired actions:\n1. Follow the prompt's bootstrap instruction.\n2. Read .buildprint/next-agent.md and .buildprint/snapshots/BUILDPRINT.md.\n3. Inspect enough mirror/lower-authority files to judge if they compete.\n4. Write CODEX_READ_ORDER_REPORT.md with exact commands, files read, authority verdict, mirror verdict, lower-authority verdict, and any confusion/blockers.\n\n--- LIVE WEBSITE PROMPT START ---\n${prompt}\n--- LIVE WEBSITE PROMPT END ---\n`;
