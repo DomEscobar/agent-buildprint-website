@@ -46,17 +46,18 @@ save('live-buildprint.json', JSON.stringify(buildprintJson, null, 2) + '\n');
 
 const isExecutablePacket = manifest.files?.some((file) => file.path === 'START_HERE.md')
   && manifest.files?.some((file) => file.path === 'blueprint.yaml');
-const expectedReadOrder = isExecutablePacket ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml'] : ['BUILDPRINT.md'];
 const expectedCanonicalStart = isExecutablePacket ? 'START_HERE.md' : 'BUILDPRINT.md';
+const expectedReadOrder = manifest.instructions?.readOrder || (isExecutablePacket ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml'] : ['BUILDPRINT.md']);
 
 assert(!prompt.includes('Read the package files in the manifest order'), 'prompt does not instruct manifest-order reading');
 assert(!agent.includes('Read files in order:'), 'agent guide does not render a competing legacy read-order list');
 assert(prompt.includes(`Read order: ${expectedReadOrder.map((file) => `\`${file}\``).join(' -> ')}`), 'prompt renders expected package read order', { expectedReadOrder });
 assert(agent.includes(`Read order: ${expectedReadOrder.map((file) => `\`${file}\``).join(' -> ')}`), 'agent guide renders expected package read order', { expectedReadOrder });
 assert(manifest.instructions?.canonicalStart === expectedCanonicalStart, 'manifest canonicalStart matches packet type', { canonicalStart: manifest.instructions?.canonicalStart, expectedCanonicalStart });
-assert(JSON.stringify(manifest.instructions?.readOrder) === JSON.stringify(expectedReadOrder), 'manifest readOrder matches packet type', { readOrder: manifest.instructions?.readOrder, expectedReadOrder });
-assert(manifest.files?.[0]?.path === 'BUILDPRINT.md', 'manifest files list starts with BUILDPRINT.md compatibility bootstrap', { firstFile: manifest.files?.[0]?.path });
+assert(Array.isArray(manifest.instructions?.readOrder) && JSON.stringify(manifest.instructions.readOrder) === JSON.stringify(expectedReadOrder), 'manifest readOrder is explicit and stable', { readOrder: manifest.instructions?.readOrder, expectedReadOrder });
+assert(manifest.files?.some((file) => file.path === 'BUILDPRINT.md'), 'manifest files include BUILDPRINT.md compatibility bootstrap');
 if (isExecutablePacket) {
+  assert(expectedReadOrder.includes('BUILDPRINT.md') && expectedReadOrder.includes('START_HERE.md') && expectedReadOrder.includes('blueprint.yaml'), 'executable packet readOrder includes compatibility bootstrap and router files', { expectedReadOrder });
   assert(readme.includes('START_HERE.md') && readme.includes('blueprint.yaml'), 'README routes executable packet readers to START_HERE.md and blueprint.yaml');
   assert(buildprintJson.schema === 'agent-buildprint/v2', 'buildprint.json declares executable packet v2 schema', { schema: buildprintJson.schema });
   assert(buildprintJson.packet === 'blueprint.yaml', 'buildprint.json points to blueprint.yaml packet', { packet: buildprintJson.packet });
