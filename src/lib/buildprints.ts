@@ -483,7 +483,7 @@ export const buildprints: Buildprint[] = [
     originGithubUrl: 'https://github.com/HBAI-Ltd/Toonflow-app',
     originLabel: 'HBAI-Ltd/Toonflow-app',
     rawBaseUrl: rawFor('toonflow-app'),
-    copyPrompt: `${localPrompt('toonflow-app', 'Toonflow Full-Suite Source-Independent Mapping')} Build from the selected Toonflow Buildprint package, not from the source repo. Start at BUILDPRINT.md, follow SOURCE_SURFACE_COVERAGE.md, CAPABILITY_INDEX.md, and CURRENT_STATE.md, load TEAM_STACK.md, and execute one capability pack at a time. Preserve SELECTED_UNQUALIFIED claim boundaries until browser/app runtime, provider, persistence, security, and clean-room proof gates are closed. UI work must satisfy UX_CONTRACT.md and DESIGN_QUALITY_BAR.md; do not ship a generic dashboard or static mock.`
+    copyPrompt: `${localPrompt('toonflow-app', 'Toonflow Full-Suite Source-Independent Mapping')} Build from the selected Toonflow Buildprint package, not from the source repo. Start with CURRENT_STATE.md, load only the active capability pack, prove it, then continue through the full suite one dependency-ready capability pack at a time after each proof gate; do not inhale every capability pack upfront. Stop only on an explicit blocker, missing proof, provider/runtime uncertainty, destructive safety issue, secret exposure, user interruption, or context/tooling limit. Preserve SELECTED_UNQUALIFIED claim boundaries until browser/app runtime, provider, persistence, security, and clean-room proof gates are closed. UI work must satisfy UX_CONTRACT.md and DESIGN_QUALITY_BAR.md; do not ship a generic dashboard, static mock, no-op control, or in-memory-only claimed product behavior.`
   },
   {
     slug: 'buildprint-mapper-os',
