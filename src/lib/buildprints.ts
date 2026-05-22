@@ -120,6 +120,7 @@ const portableAiSwarmSimulationFiles = selectedOutputFiles([
 const toonflowAppFiles = selectedOutputFiles([
   'BUILDPRINT.md',
   'CAPABILITY_INDEX.md',
+  'SOURCE_SURFACE_COVERAGE.md',
   'CONTRACTS.md',
   'CURRENT_STATE.md',
   'DATA_LIFECYCLE.md',
@@ -132,7 +133,6 @@ const toonflowAppFiles = selectedOutputFiles([
   'PROVIDERS.md',
   'README.md',
   'SECURITY.md',
-  'SOURCE_SURFACE_COVERAGE.md',
   'SPEC.md',
   'TEAM_STACK.md',
   'UX_CONTRACT.md',

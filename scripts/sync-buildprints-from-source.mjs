@@ -76,6 +76,15 @@ function orderFiles(files) {
   });
 }
 
+
+function manifestFiles(sourceBuildprints, slug) {
+  const manifestPath = path.join(sourceBuildprints, slug, 'manifest.json');
+  if (!fs.existsSync(manifestPath)) return null;
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  if (!Array.isArray(manifest.files)) return null;
+  return manifest.files.map((file) => String(file).split(path.sep).join('/')).filter(Boolean);
+}
+
 function gitTrackedFiles(sourceRoot, slug) {
   const gitDir = path.join(sourceRoot, '.git');
   if (!fs.existsSync(gitDir)) return null;
@@ -140,6 +149,26 @@ function parseExistingFiles(block) {
   return map;
 }
 
+function renderSelectedOutputPathArray(files) {
+  return `[
+${files.map((file) => `  '${file}',`).join('\n')}
+]`;
+}
+
+function syncSelectedOutputFilesConst(text, name, sourceFiles) {
+  const declaration = `const ${name} = selectedOutputFiles(`;
+  const declarationIndex = text.indexOf(declaration);
+  if (declarationIndex < 0) throw new Error(`Could not locate selectedOutputFiles declaration for ${name}`);
+  const arrayStart = text.indexOf('[', declarationIndex + declaration.length);
+  if (arrayStart < 0) throw new Error(`Could not locate selectedOutputFiles array for ${name}`);
+  const arrayEnd = findMatching(text, arrayStart, '[', ']');
+  if (arrayEnd < 0) throw new Error(`Could not locate selectedOutputFiles array end for ${name}`);
+  const oldArray = text.slice(arrayStart, arrayEnd + 1);
+  const newArray = renderSelectedOutputPathArray(sourceFiles);
+  if (oldArray === newArray) return { text, changed: false };
+  return { text: text.slice(0, arrayStart) + newArray + text.slice(arrayEnd + 1), changed: true };
+}
+
 let text = fs.readFileSync(targetPath, 'utf8');
 const sourceSlugs = fs.readdirSync(sourceBuildprints, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
@@ -160,9 +189,21 @@ for (const slug of sourceSlugs) {
   const objectEnd = findMatching(text, objectStart + 2, '{', '}');
   if (objectStart < 0 || objectEnd < 0) throw new Error(`Could not locate object for ${slug}`);
   const objectText = text.slice(objectStart, objectEnd + 1);
+  const manifestFileList = manifestFiles(sourceBuildprints, slug);
+  const trackedFiles = manifestFileList ? null : gitTrackedFiles(sourceRoot, slug);
+  const sourceFiles = manifestFileList ?? orderFiles(trackedFiles ?? walkFiles(path.join(sourceBuildprints, slug)));
   const filesKey = objectText.indexOf('files: [');
   if (filesKey < 0) {
-    console.warn(`Website registry entry for ${slug} uses a shared/generated files expression; skipping file array sync.`);
+    const filesExpr = objectText.match(/files:\s*([A-Za-z_$][\w$]*)\s*,/);
+    if (!filesExpr) {
+      console.warn(`Website registry entry for ${slug} uses an unsupported files expression; skipping file array sync.`);
+      continue;
+    }
+    const constName = filesExpr[1];
+    const result = syncSelectedOutputFilesConst(text, constName, sourceFiles);
+    text = result.text;
+    if (result.changed) changed = true;
+    touched++;
     continue;
   }
   const filesArrayStart = objectStart + filesKey + 'files: '.length;
@@ -170,8 +211,6 @@ for (const slug of sourceSlugs) {
   if (filesArrayEnd < 0) throw new Error(`Could not locate files array end for ${slug}`);
   const oldArray = text.slice(filesArrayStart, filesArrayEnd + 1);
   const previous = parseExistingFiles(oldArray);
-  const trackedFiles = gitTrackedFiles(sourceRoot, slug);
-  const sourceFiles = orderFiles(trackedFiles ?? walkFiles(path.join(sourceBuildprints, slug)));
   const lines = sourceFiles.map((file) => {
     const prev = previous.get(file);
     return `      { path: '${file}', purpose: ${purposeExpr(file, prev)}, required: ${requiredFor(file, prev)} },`;
