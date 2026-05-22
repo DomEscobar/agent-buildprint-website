@@ -1,4 +1,4 @@
-import { buildprints, getBuildprint, buildprintUrls } from '@/lib/buildprints';
+import { buildprints, getBuildprint, buildprintUrls, packageManifest } from '@/lib/buildprints';
 
 export function getStaticPaths() {
   return buildprints.map((bp) => ({ params: { slug: bp.slug } }));
@@ -8,11 +8,14 @@ export function GET({ params }: { params: { slug: string } }) {
   const bp = getBuildprint(params.slug);
   if (!bp) return new Response('not found\n', { status: 404 });
   const urls = buildprintUrls(bp);
+  const manifest = packageManifest(bp);
+  const readOrder = manifest.instructions.readOrder.length ? manifest.instructions.readOrder : [manifest.instructions.canonicalStart];
+  const formattedReadOrder = readOrder.map((file) => `\`${file}\``).join(' -> ');
   const prompt = `Use the Agent Buildprint at ${urls.agent}.
 
 Fetch ${urls.manifest}.
-Read \`BUILDPRINT.md\` first; it is the canonical authority and owns the required read order, phase gates, and acceptance gates.
-Use structured control files only as machine-readable mirrors, not competing instructions.
+Read order: ${formattedReadOrder}.
+${manifest.instructions.rule}
 Follow alignment/question rules before implementation.
 Do not scrape human UI cards.
 If the Buildprint requires it, finish with a chat handover summarizing outcome, evidence, known gaps, and recommended next direction.
