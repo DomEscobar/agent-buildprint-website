@@ -5,6 +5,10 @@ import { iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
 import TechName from '@/components/TechName.astro';
 
 const featured = liveBuildprints.filter((bp) => bp.featured).slice(0, 4);
+const isWorkflow = (bp) => bp.category === 'Workflow OS';
+const cardVerb = (bp) => isWorkflow(bp) ? 'Produces' : 'Builds';
+const cardAgentLabel = (bp) => isWorkflow(bp) ? 'Agent uses' : 'Agent receives';
+const cardEstimateSuffix = (bp) => isWorkflow(bp) ? 'workflow pass' : 'implementation pass';
 const packetParts = [
   { code: 'ARCH', label: 'Architecture', detail: 'Boundaries, runtime shape, and what the agent must not replace.' },
   { code: 'SPEC', label: 'Spec', detail: 'Behavior, inputs, outputs, defaults, and claim limits.' },
@@ -46,7 +50,7 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
       <div class="hero-copy">
         <span class="pill dossier-pill"><b>The planning layer before AI writes code</b></span>
         <h1>Stop asking agents to improvise your architecture.</h1>
-        <p class="lead">Buildprints turn reusable implementation knowledge into packets an agent can bootstrap, follow, and prove.</p>
+        <p class="lead">Buildprints turn reusable implementation knowledge — and repo-mapping workflows — into packets an agent can bootstrap, follow, and prove.</p>
         <div class="agent-compat" aria-label="Compatible coding agents">
           <span>Works with</span>
           <TechName name="Codex" />
@@ -152,7 +156,7 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
       <div class="section-head simple">
         <div>
           <span class="eyebrow"><b>03</b> Featured</span>
-          <h2 id="featured-title">Pick a plan before your agent opens the editor.</h2>
+          <h2 id="featured-title">Pick the right packet before your agent starts.</h2>
         </div>
         <a class="link" href="/buildprints/">View registry</a>
       </div>
@@ -163,15 +167,15 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
             <b title={trustTip(bp)}>{trustLabel(bp)}</b>
           </div>
           <h3>{bp.title}</h3>
-          <p><strong>Builds:</strong> {cardCopy(bp)}</p>
+          <p><strong>{cardVerb(bp)}:</strong> {cardCopy(bp)}</p>
           <p><strong>Needs:</strong> {practicalNeed(bp)}</p>
-          <div class="agent-receives" aria-label={`${bp.title} agent receives`}>
-            <span>Agent receives</span>
+          <div class="agent-receives" aria-label={`${bp.title} agent packet`}>
+            <span>{cardAgentLabel(bp)}</span>
             <div>{agentReceives.map((part) => <em>{part}</em>)}</div>
           </div>
           <div class="card-tech-footer" title={bp.stack.join(' / ')}>
             <span>{bp.stack.slice(0, 3).join(' / ')}</span>
-            <span class="card-tech-side"><em>{implementationEstimate(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span>
+            <span class="card-tech-side"><em>{implementationEstimate(bp)} {cardEstimateSuffix(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span>
           </div>
         </a>)}
       </div>
@@ -198,7 +202,7 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
         </div>
       </div>
       <div class="grid how-grid">
-        <div class="panel quiet"><span class="step-number">1</span><h3>Choose a Buildprint</h3><p>Pick the product, feature, workflow, or architecture you want the agent to implement.</p></div>
+        <div class="panel quiet"><span class="step-number">1</span><h3>Choose a Buildprint</h3><p>Pick the product, feature, workflow, architecture, or repo-mapping packet you want the agent to run.</p></div>
         <div class="panel quiet"><span class="step-number">2</span><h3>Bootstrap or copy it</h3><pre>npx --yes github:DomEscobar/agent-buildprint start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json</pre></div>
         <div class="panel quiet"><span class="step-number">3</span><h3>Agent follows phases</h3><p>Tell <TechName name="Codex" />, <TechName name="Cursor" />, or <TechName name="Claude Code" /> to follow the package, not improvise from a vague prompt.</p></div>
         <div class="panel quiet"><span class="step-number">4</span><h3>Review the evidence</h3><p>The agent runs checks, reports blockers, and leaves proof you can inspect before you call the build done.</p></div>
@@ -209,11 +213,11 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
       <div class="panel quiet">
         <span class="eyebrow"><b>Mapper</b></span>
         <h2>Already have a repo?</h2>
-        <p>Use Mapper OS to turn a working system into scoped Buildprint candidates, choose one, extract the packet, and reversal-test it.</p>
-        <pre>Map system
+        <p>Use Mapper OS to map a working repo, produce scoped Buildprint candidates, choose one, and extract a source-independent executable packet with proof gates.</p>
+        <pre>Map repo
 Select candidate
-Extract Buildprint
-Run reversal proof</pre>
+Extract packet
+Record proof/blockers</pre>
       </div>
       <div class="panel quiet">
         <span class="eyebrow"><b>Publish</b></span>
