@@ -132,6 +132,7 @@ const toonflowAppFiles = selectedOutputFiles([
   'PROVIDERS.md',
   'README.md',
   'SECURITY.md',
+  'SOURCE_SURFACE_COVERAGE.md',
   'SPEC.md',
   'TEAM_STACK.md',
   'UX_CONTRACT.md',
@@ -464,15 +465,16 @@ export const buildprints: Buildprint[] = [
     featured: true,
     summary: 'Selected Mapper OS output for Toonflow: a source-independent full-suite mapping of the local AI short-drama/comic production workbench, preserved as SELECTED_UNQUALIFIED until runtime, provider, persistence, security, and clean-room proof gates close.',
     plainDescription: 'A source-backed, selected Buildprint package for rebuilding Toonflow’s product surface without copying source: login/API shell, project setup, novel import, script and production agents, asset libraries, storyboard/image/video workbench, provider configuration, local memory/RAG, backups, and desktop/container packaging.',
-    whatYouGet: ['Full-suite selected output with 15 capability packs', 'Selected team stack for architecture, UX, verification, runtime, security, and persistence', 'UX_CONTRACT.md and DESIGN_QUALITY_BAR.md for the user-facing creative workbench', 'Provider, security, and data-lifecycle contracts', 'Qualification boundary that keeps claims at SELECTED_UNQUALIFIED until proof exists'],
+    whatYouGet: ['Full-suite selected output with 15 capability packs', 'SOURCE_SURFACE_COVERAGE.md loss detector for high-signal routes, tables, sockets, providers, runtime, and file stores', 'Selected team stack for architecture, UX, verification, runtime, security, and persistence', 'UX_CONTRACT.md and DESIGN_QUALITY_BAR.md for the user-facing creative workbench', 'Provider, security, and data-lifecycle contracts', 'Qualification boundary that keeps claims at SELECTED_UNQUALIFIED until proof exists'],
     whatYouNeed: ['A target implementation repo/runtime decision', 'Provider choices for LLM, image, video, memory/RAG, and storage', 'Browser/app runtime proof', 'Persistence restart/readback proof', 'Security review for local auth, destructive admin, backups, and provider secrets'],
     architectureFlow: ['Project', 'Novel', 'Script', 'Assets', 'Storyboard', 'Video', 'Desktop'],
-    promise: 'A current Mapper OS selected-output package for Toonflow that preserves full requested scope and routes product quality through TEAM_STACK.md, UX_CONTRACT.md, DESIGN_QUALITY_BAR.md, provider, security, data, and capability-pack gates before any qualification upgrade.',
-    includes: ['Pinned Toonflow source commit: 122d2aa431d3240fea3eab491e6fbc690bb088cb', 'CAPABILITY_INDEX.md with Required teams routing', 'TEAM_STACK.md selected team-pack gates', 'UX_CONTRACT.md workflow/browser proof obligations', 'DESIGN_QUALITY_BAR.md visual quality bar', 'PROVIDERS.md provider boundaries', 'SECURITY.md boundary review', 'DATA_LIFECYCLE.md persistence and backup lifecycle', '15 full-suite capability packs'],
+    promise: 'A current Mapper OS selected-output package for Toonflow that preserves full requested scope and high-signal source-surface accountability, then routes product quality through TEAM_STACK.md, UX_CONTRACT.md, DESIGN_QUALITY_BAR.md, provider, security, data, and capability-pack gates before any qualification upgrade.',
+    includes: ['Pinned Toonflow source commit: 122d2aa431d3240fea3eab491e6fbc690bb088cb', 'SOURCE_SURFACE_COVERAGE.md coverage table with owned/merged/ignored dispositions', 'CAPABILITY_INDEX.md with Required teams and Owned source surfaces routing', 'TEAM_STACK.md selected team-pack gates', 'UX_CONTRACT.md workflow/browser proof obligations', 'DESIGN_QUALITY_BAR.md visual quality bar', 'PROVIDERS.md provider boundaries', 'SECURITY.md boundary review', 'DATA_LIFECYCLE.md persistence and backup lifecycle', '15 full-suite capability packs'],
     risks: ['Calling SELECTED_UNQUALIFIED work production-ready', 'Counting contract seams as runtime proof', 'Generic dashboard UI instead of creative production workbench', 'Static storyboard/media data presented as generated behavior', 'No-op controls for destructive admin or long-running jobs', 'Provider secrets leaked into logs or persisted state'],
     files: toonflowAppFiles,
-    checks: ['Source repo spine validation passed after team-stack validator patch', 'Mapper selected-output detection uses CAPABILITY_INDEX.md plus capabilities/', 'TEAM_STACK.md, teamStack.teams, and Required teams column are required', 'UI outputs require UX_CONTRACT.md and DESIGN_QUALITY_BAR.md', 'Qualification remains SELECTED_UNQUALIFIED until browser/app runtime, provider, persistence, security, and clean-room reversal proof exist'],
+    checks: ['Source repo spine validation passed after team-stack validator patch', 'Source-surface coverage remap passed after Mapper OS coverage patch', 'Mapper selected-output detection uses CAPABILITY_INDEX.md plus capabilities/', 'TEAM_STACK.md, teamStack.teams, Required teams, and Owned source surfaces are required for this selected output', 'UI outputs require UX_CONTRACT.md and DESIGN_QUALITY_BAR.md', 'Qualification remains SELECTED_UNQUALIFIED until browser/app runtime, provider, persistence, security, and clean-room reversal proof exist'],
     trustBadges: [
+      { label: 'Source-surface coverage', detail: 'High-signal route/table/socket/provider/runtime surfaces are owned, merged, or explicitly ignored with reason.', tone: 'success' },
       { label: 'Selected team stack', detail: 'Routes through product-architect, ux-ui-craft, test-and-verification, integration-runtime, security-boundary, and data-persistence.', tone: 'info' },
       { label: 'UX/UI quality gate', detail: 'UX_CONTRACT.md and DESIGN_QUALITY_BAR.md are required for this user-facing selected output.', tone: 'success' },
       { label: 'Selected-unqualified', detail: 'Source-backed mapping exists, but runtime/provider/persistence/security proof is not yet closed.', tone: 'warning' },
@@ -481,7 +483,7 @@ export const buildprints: Buildprint[] = [
     originGithubUrl: 'https://github.com/HBAI-Ltd/Toonflow-app',
     originLabel: 'HBAI-Ltd/Toonflow-app',
     rawBaseUrl: rawFor('toonflow-app'),
-    copyPrompt: `${localPrompt('toonflow-app', 'Toonflow Full-Suite Source-Independent Mapping')} Build from the selected Toonflow Buildprint package, not from the source repo. Start at BUILDPRINT.md, follow CAPABILITY_INDEX.md and CURRENT_STATE.md, load TEAM_STACK.md, and execute one capability pack at a time. Preserve SELECTED_UNQUALIFIED claim boundaries until browser/app runtime, provider, persistence, security, and clean-room proof gates are closed. UI work must satisfy UX_CONTRACT.md and DESIGN_QUALITY_BAR.md; do not ship a generic dashboard or static mock.`
+    copyPrompt: `${localPrompt('toonflow-app', 'Toonflow Full-Suite Source-Independent Mapping')} Build from the selected Toonflow Buildprint package, not from the source repo. Start at BUILDPRINT.md, follow SOURCE_SURFACE_COVERAGE.md, CAPABILITY_INDEX.md, and CURRENT_STATE.md, load TEAM_STACK.md, and execute one capability pack at a time. Preserve SELECTED_UNQUALIFIED claim boundaries until browser/app runtime, provider, persistence, security, and clean-room proof gates are closed. UI work must satisfy UX_CONTRACT.md and DESIGN_QUALITY_BAR.md; do not ship a generic dashboard or static mock.`
   },
   {
     slug: 'buildprint-mapper-os',
