@@ -1,10 +1,15 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+
 export type BuildprintCategory = 'Framework / Architecture' | 'Product OS' | 'Feature / Extension' | 'Workflow OS' | 'Mapped Project';
 export type BuildprintTier = 'basic' | 'strong' | 'agent-grade';
 export type BuildprintStatus = 'publishable-draft' | 'dry-run-needed' | 'validated';
 
 export type BuildprintFile = { path: string; purpose: string; required: boolean };
-export type BuildprintTrustBadge = { label: string; detail: string; tone?: 'success' | 'info' | 'warning' };
-export type Buildprint = {
+export type BuildprintTrustBadge = { label: string; detail: string; tone?: 'success' | 'info' | 'warning' | 'neutral' };
+export type BuildprintPublication = {
+  schema: 'agent-buildprint/publication.v1';
   slug: string;
   title: string;
   creator: string;
@@ -15,24 +20,168 @@ export type Buildprint = {
   stack: string[];
   iconKeys?: string[];
   difficulty: 'Medium' | 'Advanced';
+  featured?: boolean;
   summary: string;
   promise: string;
   includes: string[];
   risks: string[];
-  files: BuildprintFile[];
   checks: string[];
   trustBadges?: BuildprintTrustBadge[];
   plainDescription?: string;
   whatYouGet?: string[];
   whatYouNeed?: string[];
   architectureFlow?: string[];
+  howToUse?: Array<{ title: string; detail: string }>;
+  resultChecklist?: string[];
   copyPrompt: string;
-  githubUrl: string;
   originGithubUrl?: string;
   originLabel?: string;
-  rawBaseUrl: string;
-  featured?: boolean;
+  publish?: boolean;
+  fileExcludes?: string[];
 };
+export type Buildprint = Omit<BuildprintPublication, 'schema' | 'publish' | 'fileExcludes'> & {
+  files: BuildprintFile[];
+  githubUrl: string;
+  rawBaseUrl: string;
+};
+
+export const repoUrl = 'https://github.com/DomEscobar/agent-buildprint';
+export const siteBase = import.meta.env.PUBLIC_SITE_BASE || 'https://agent-buildprint.com';
+const publicationSchema = 'agent-buildprint/publication.v1';
+const buildprintsRoot = process.env.BUILDPRINTS_SOURCE || path.resolve(process.cwd(), '../agent-buildprint/buildprints');
+const rawSourceRoot = process.env.BUILDPRINTS_RAW_SOURCE || 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/main/buildprints';
+const githubApiRoot = process.env.BUILDPRINTS_GITHUB_API || 'https://api.github.com/repos/DomEscobar/agent-buildprint/git/trees/main?recursive=1';
+
+export const canonicalFilePurposes: Record<string, string> = {
+  'BUILDPRINT.md': 'architecture truth / coding-agent contract',
+  'README.md': 'human overview, non-authoritative',
+  'SPEC.md': 'behavior truth / requirements',
+  'PLAN.md': 'execution index',
+  'CONTRACTS.md': 'interfaces and data contracts',
+  'START_HERE.md': 'executable packet start router',
+  'PRE_IMPLEMENTATION_QUESTIONS.md': 'pre-coding question gate and safe defaults',
+  'blueprint.yaml': 'machine-readable executable packet authority',
+  'TEST_MATRIX.md': 'risk-to-test alignment',
+  'VALIDATION_TEMPLATE.md': 'completion report template',
+  'checks/acceptance.md': 'acceptance checklist',
+  'questions.md': 'configuration interview',
+};
+
+function normalizePath(file: string) {
+  return file.replaceAll('\\', '/');
+}
+
+function filePurpose(file: string) {
+  if (canonicalFilePurposes[file]) return canonicalFilePurposes[file];
+  if (file.startsWith('03-capabilities/')) return 'executable capability packet file';
+  if (file.startsWith('capabilities/')) return 'capability pack execution file';
+  if (file.startsWith('plans/')) return 'phase rail';
+  if (file.startsWith('proof/')) return 'offline proof artifact';
+  if (file.startsWith('conformance/')) return 'target-app conformance artifact';
+  if (file.startsWith('evals/')) return 'evaluation harness artifact';
+  if (file.startsWith('schemas/')) return 'schema artifact';
+  if (file.startsWith('policies/')) return 'policy artifact';
+  if (file.endsWith('.yaml') || file.endsWith('.json')) return 'machine-readable mirror';
+  return 'Buildprint package file';
+}
+
+function isOptional(file: string) {
+  return file.startsWith('schemas/') || file.startsWith('policies/');
+}
+
+function localPublicationFiles() {
+  if (!fs.existsSync(buildprintsRoot)) return null;
+  return fs.readdirSync(buildprintsRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && fs.existsSync(path.join(buildprintsRoot, entry.name, 'publication.json')))
+    .map((entry) => entry.name)
+    .sort();
+}
+
+function localTrackedFiles(slug: string) {
+  const root = path.resolve(buildprintsRoot, '..');
+  try {
+    const prefix = `buildprints/${slug}/`;
+    const output = execFileSync('git', ['-C', root, 'ls-files', '--cached', '--others', '--exclude-standard', prefix], { encoding: 'utf8' }).trim();
+    if (output) return output.split(/\r?\n/).map((file) => file.slice(prefix.length)).filter(Boolean).sort((a, b) => a.localeCompare(b));
+  } catch {
+    // Fall back to filesystem walk outside Git checkouts.
+  }
+
+  const dir = path.join(buildprintsRoot, slug);
+  const files: string[] = [];
+  const walk = (current: string, base = dir) => {
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      if (['.git', 'node_modules', 'dist'].includes(entry.name)) continue;
+      const full = path.join(current, entry.name);
+      if (entry.isDirectory()) walk(full, base);
+      else if (entry.isFile()) files.push(normalizePath(path.relative(base, full)));
+    }
+  };
+  walk(dir);
+  return files.sort((a, b) => a.localeCompare(b));
+}
+
+async function fetchJson<T>(url: string): Promise<T> {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.status}`);
+  return response.json() as Promise<T>;
+}
+
+async function githubTreeFiles() {
+  const data = await fetchJson<{ tree: Array<{ path: string; type: string }> }>(githubApiRoot);
+  return data.tree.filter((entry) => entry.type === 'blob').map((entry) => entry.path);
+}
+
+async function loadPublication(slug: string): Promise<BuildprintPublication> {
+  const localPath = path.join(buildprintsRoot, slug, 'publication.json');
+  if (fs.existsSync(localPath)) return JSON.parse(fs.readFileSync(localPath, 'utf8'));
+  return fetchJson<BuildprintPublication>(`${rawSourceRoot}/${slug}/publication.json`);
+}
+
+async function loadSourceRecords() {
+  const localSlugs = localPublicationFiles();
+  if (localSlugs) {
+    return Promise.all(localSlugs.map(async (slug) => ({
+      publication: await loadPublication(slug),
+      files: localTrackedFiles(slug),
+    })));
+  }
+
+  const treeFiles = await githubTreeFiles();
+  const slugs = [...new Set(treeFiles
+    .map((file) => file.match(/^buildprints\/([^/]+)\/publication\.json$/)?.[1])
+    .filter(Boolean) as string[])]
+    .sort();
+  return Promise.all(slugs.map(async (slug) => ({
+    publication: await loadPublication(slug),
+    files: treeFiles
+      .filter((file) => file.startsWith(`buildprints/${slug}/`))
+      .map((file) => file.slice(`buildprints/${slug}/`.length))
+      .sort((a, b) => a.localeCompare(b)),
+  })));
+}
+
+function normalizePublication(record: { publication: BuildprintPublication; files: string[] }): Buildprint | null {
+  const publication = record.publication;
+  if (publication.publish === false) return null;
+  if (publication.schema !== publicationSchema) throw new Error(`${publication.slug}: invalid publication schema ${publication.schema}`);
+  const excludes = new Set((publication.fileExcludes ?? []).map(normalizePath));
+  const files = record.files
+    .map(normalizePath)
+    .filter((file) => !excludes.has(file))
+    .map((file) => ({ path: file, purpose: filePurpose(file), required: !isOptional(file) }));
+  return {
+    ...publication,
+    files,
+    githubUrl: `${repoUrl}/tree/main/buildprints/${publication.slug}`,
+    rawBaseUrl: `${siteBase}/buildprints/${publication.slug}/files`,
+  };
+}
+
+export const buildprints = (await loadSourceRecords())
+  .map(normalizePublication)
+  .filter((item): item is Buildprint => Boolean(item))
+  .sort((a, b) => a.slug.localeCompare(b.slug));
 
 export function implementationEstimate(bp: Pick<Buildprint, 'tier' | 'category' | 'difficulty' | 'files' | 'checks'>) {
   let minutes = bp.tier === 'basic' ? 15 : bp.tier === 'strong' ? 25 : 35;
@@ -42,1107 +191,8 @@ export function implementationEstimate(bp: Pick<Buildprint, 'tier' | 'category' 
   if (bp.difficulty === 'Advanced') minutes += 5;
   const low = Math.max(15, Math.round((minutes - 10) / 15) * 15);
   const high = Math.max(30, Math.round((minutes + 10) / 15) * 15);
-  return `${low}–${high} min`;
+  return `${low}-${high} min`;
 }
-
-export const repoUrl = 'https://github.com/DomEscobar/agent-buildprint';
-// Production DNS for agent-buildprint.com is not yet serving this static site.
-// Keep generated manifests/CLI bootstrap commands on the live preview origin until DNS is cut over.
-export const siteBase = import.meta.env.PUBLIC_SITE_BASE || 'https://agent-buildprint.com';
-
-export const canonicalFilePurposes: Record<string, string> = {
-  'BUILDPRINT.md': 'architecture truth / coding-agent contract',
-  'README.md': 'human overview, non-authoritative',
-  'SPEC.md': 'behavior truth / requirements',
-  'PLAN.md': 'execution index',
-  'plans/*.md': 'tiny phase task rails',
-  'CONTRACTS.md': 'interfaces and data contracts',
-  'TEAM_STACK.md': 'selected internal team-pack quality gates',
-  'CONTEXT_PACKET.json': 'machine-readable active capability context packet',
-  'START_HERE.md': 'executable packet start router',
-  'PRE_IMPLEMENTATION_QUESTIONS.md': 'pre-coding question gate and safe defaults',
-  'blueprint.yaml': 'machine-readable executable packet authority',
-  'SOURCE_SURFACE_COVERAGE.md': 'source-surface ownership and behavior-loss guard',
-  'DESIGN_QUALITY_BAR.md': 'UI visual quality bar, taste variables, and screenshot gates',
-  'EXECUTION_PROTOCOL.md': 'agent execution protocol and stop rules',
-  'IMPLEMENTATION_PLAN.md': 'capability implementation roadmap',
-  'UX_CONTRACT.md': 'UI workflow, state, responsive, and browser proof contract',
-  'DEFAULT_PRESET.md': 'configurable defaults, no fixed identity',
-  'TEST_MATRIX.md': 'risk-to-test alignment',
-  'VALIDATION_TEMPLATE.md': 'completion report template',
-  'VERIFICATION.md': 'verification gates and evidence ledger',
-  'checks/acceptance.md': 'acceptance checklist',
-  'questions.md': 'configuration interview',
-};
-
-const rawFor = (slug: string) => `${siteBase}/buildprints/${slug}/files`;
-const localPrompt = (slug: string, title: string) => `Use the ${title} Buildprint. First bootstrap exact snapshots: agb start ${siteBase}/buildprints/${slug}/package.json . If agb is not installed, clone https://github.com/DomEscobar/agent-buildprint and run node agent-buildprint/bin/agb.js start ${siteBase}/buildprints/${slug}/package.json . Then read .buildprint/next-agent.md and continue. Do not write Buildprint snapshots manually.`;
-const agentTrustBadges: BuildprintTrustBadge[] = [
-  { label: 'Snapshot bootstrap passed', detail: 'agb start downloaded exact Markdown snapshots; HTML/parked-domain responses are rejected.', tone: 'success' },
-  { label: 'Codex dry-run passed', detail: 'A fresh Codex run built a fixture-safe implementation from the Buildprint package.', tone: 'success' },
-  { label: 'Tests pass', detail: 'Dry-run implementation completed its local tests/static checks without real credentials.', tone: 'success' },
-  { label: 'Gated publishing', detail: 'Publishing is manual/mock/approval-gated by default, never raw auto-publish.', tone: 'info' },
-];
-
-const selectedOutputFiles = (paths: string[]): BuildprintFile[] => paths.map((path) => ({
-  path,
-  purpose: canonicalFilePurposes[path] ?? (path.startsWith('03-capabilities/') ? 'executable capability packet file' : path.startsWith('capabilities/') ? 'capability pack execution file' : 'selected Buildprint package file'),
-  required: true,
-}));
-
-const portableAiSwarmSimulationFiles = selectedOutputFiles([
-  'BUILDPRINT.md',
-  'CAPABILITY_INDEX.md',
-  'CONTEXT_PACKET.json',
-  'SOURCE_SURFACE_COVERAGE.md',
-  'CONTRACTS.md',
-  'CURRENT_STATE.md',
-  'DESIGN_QUALITY_BAR.md',
-  'EXECUTION_PROTOCOL.md',
-  'IMPLEMENTATION_PLAN.md',
-  'PRE_IMPLEMENTATION_QUESTIONS.md',
-  'SOURCE_SURFACE_COVERAGE.md',
-  'TEAM_STACK.md',
-  'UX_CONTRACT.md',
-  'VERIFICATION.md',
-  'capabilities/01-ingestion-ontology/CAPABILITY.md',
-  'capabilities/01-ingestion-ontology/IMPLEMENTATION.md',
-  'capabilities/01-ingestion-ontology/VERIFICATION.md',
-  'capabilities/02-graph-builder/CAPABILITY.md',
-  'capabilities/02-graph-builder/IMPLEMENTATION.md',
-  'capabilities/02-graph-builder/VERIFICATION.md',
-  'capabilities/03-simulation-setup/CAPABILITY.md',
-  'capabilities/03-simulation-setup/IMPLEMENTATION.md',
-  'capabilities/03-simulation-setup/VERIFICATION.md',
-  'capabilities/04-simulation-runtime/CAPABILITY.md',
-  'capabilities/04-simulation-runtime/IMPLEMENTATION.md',
-  'capabilities/04-simulation-runtime/VERIFICATION.md',
-  'capabilities/05-report-interaction/CAPABILITY.md',
-  'capabilities/05-report-interaction/IMPLEMENTATION.md',
-  'capabilities/05-report-interaction/VERIFICATION.md',
-  'capabilities/06-data-lifecycle/CAPABILITY.md',
-  'capabilities/06-data-lifecycle/IMPLEMENTATION.md',
-  'capabilities/06-data-lifecycle/VERIFICATION.md',
-]);
-
-const portableNovelStoryboardPipelineFiles = selectedOutputFiles([
-  '00-intent/mission.md',
-  '00-intent/product-obligations.md',
-  '00-intent/source-surface-map.md',
-  '01-operating-model/autonomy-levels.yaml',
-  '01-operating-model/human-approval-policy.md',
-  '01-operating-model/stop-rules.md',
-  '01-operating-model/workflow-vs-agentic.md',
-  '02-context/context-map.yaml',
-  '02-context/design-quality-bar.md',
-  '02-context/read-order.yaml',
-  '02-context/source-evidence-index.yaml',
-  '02-context/team-stack.yaml',
-  '02-context/ux-contract.md',
-  '03-capabilities/capability-index.yaml',
-  '03-capabilities/media-preview-export/capability.yaml',
-  '03-capabilities/media-preview-export/implementation-workflow.md',
-  '03-capabilities/media-preview-export/product-contract.md',
-  '03-capabilities/media-preview-export/proof-contract.yaml',
-  '03-capabilities/media-preview-export/source-evidence.md',
-  '03-capabilities/novel-event-ingestion/capability.yaml',
-  '03-capabilities/novel-event-ingestion/implementation-workflow.md',
-  '03-capabilities/novel-event-ingestion/product-contract.md',
-  '03-capabilities/novel-event-ingestion/proof-contract.yaml',
-  '03-capabilities/novel-event-ingestion/source-evidence.md',
-  '03-capabilities/production-storyboard-flow/capability.yaml',
-  '03-capabilities/production-storyboard-flow/implementation-workflow.md',
-  '03-capabilities/production-storyboard-flow/product-contract.md',
-  '03-capabilities/production-storyboard-flow/proof-contract.yaml',
-  '03-capabilities/production-storyboard-flow/source-evidence.md',
-  '03-capabilities/project-workspace-auth/capability.yaml',
-  '03-capabilities/project-workspace-auth/implementation-workflow.md',
-  '03-capabilities/project-workspace-auth/product-contract.md',
-  '03-capabilities/project-workspace-auth/proof-contract.yaml',
-  '03-capabilities/project-workspace-auth/source-evidence.md',
-  '03-capabilities/safety-runtime-boundary/capability.yaml',
-  '03-capabilities/safety-runtime-boundary/implementation-workflow.md',
-  '03-capabilities/safety-runtime-boundary/product-contract.md',
-  '03-capabilities/safety-runtime-boundary/proof-contract.yaml',
-  '03-capabilities/safety-runtime-boundary/source-evidence.md',
-  '03-capabilities/script-agent-assets/capability.yaml',
-  '03-capabilities/script-agent-assets/implementation-workflow.md',
-  '03-capabilities/script-agent-assets/product-contract.md',
-  '03-capabilities/script-agent-assets/proof-contract.yaml',
-  '03-capabilities/script-agent-assets/source-evidence.md',
-  '04-interfaces/api-contracts.yaml',
-  '04-interfaces/provider-contracts.yaml',
-  '04-interfaces/schemas/.gitkeep',
-  '04-interfaces/tool-contracts.yaml',
-  '05-state-runtime/persistence.md',
-  '05-state-runtime/runtime-topology.md',
-  '05-state-runtime/state-model.yaml',
-  '06-safety/destructive-actions.md',
-  '06-safety/secrets-policy.md',
-  '06-safety/threat-model.md',
-  '07-execution/implementation-plan.yaml',
-  '07-execution/phases/00-project-workspace-auth.md',
-  '07-execution/phases/01-novel-event-ingestion.md',
-  '07-execution/phases/02-script-agent-assets.md',
-  '07-execution/phases/03-production-storyboard-flow.md',
-  '07-execution/phases/04-media-preview-export.md',
-  '07-execution/phases/05-safety-runtime-boundary.md',
-  '08-evaluation/acceptance.yaml',
-  '08-evaluation/quality-rubric.yaml',
-  '08-evaluation/test-matrix.yaml',
-  '09-evidence/evidence-ledger.jsonl',
-  '09-evidence/unresolved-blockers.md',
-  'BUILDPRINT.md',
-  'CONTRACTS.md',
-  'PLAN.md',
-  'PRE_IMPLEMENTATION_QUESTIONS.md',
-  'README.md',
-  'SPEC.md',
-  'START_HERE.md',
-  'TEST_MATRIX.md',
-  'VALIDATION_TEMPLATE.md',
-  'acceptance.yaml',
-  'blueprint.yaml',
-  'buildprint.json',
-  'checks/acceptance.md',
-  'claims.yaml',
-  'generated/agent-prompt.md',
-  'plans/04-workbench-ui.md',
-]);
-
-export const buildprints: Buildprint[] = [
-  {
-    slug: 'auth-teams-rbac-os',
-    title: 'Auth, Teams & RBAC OS',
-    creator: 'Agent Buildprint',
-    category: 'Feature / Extension',
-    tier: 'agent-grade',
-    status: 'publishable-draft',
-    runtime: ['Existing app auth'],
-    stack: ['Auth', 'Teams', 'RBAC', 'Multi-tenant SaaS', 'Audit logs'],
-    iconKeys: ['typescript', 'json', 'md'],
-    difficulty: 'Advanced',
-    featured: true,
-    summary: 'Secure team accounts, memberships, roles, permissions, invites, audit logs, and tenant isolation around an existing auth provider.',
-    plainDescription: 'A stack-adaptable Buildprint for adding teams, RBAC, invites, audit logs, server guards, and tenant isolation without replacing working auth by default.',
-    whatYouGet: ['Phase 00 auth forensics and tenant research', 'Permission vocabulary and role matrix', 'Invite and membership lifecycle', 'Server-side authorization contracts', 'Full threat regression validation chapter'],
-    whatYouNeed: ['An existing app or auth provider to wrap', 'Product decisions for team naming, owner/admin policy, billing/API-key scope', 'Database migration path for tenant ownership'],
-    architectureFlow: ['Auth census', 'Tenant map', 'Permissions', 'Server guards', 'Lifecycle', 'Validation'],
-    promise: 'An agent-grade Auth, Teams & RBAC Buildprint that forces deep Phase 00 research and blocks completion unless every team-scoped route has direct server/API authorization tests.',
-    includes: ['Auth provider census', 'Tenant boundary map', 'Authorization audit', 'Threat model', 'RBAC matrix', 'Permission engine', 'Invite lifecycle', 'Role mutation safety', 'Audit log', 'Migration and rollback plan', 'Offline TypeScript proof', 'Target-app conformance kit'],
-    risks: ['Auth provider rip-and-replace', 'Frontend-only authorization', 'Cross-tenant data leakage', 'Client-provided teamId trust', 'Self-escalation', 'Last-owner deletion', 'Invite replay', 'Stale JWT permissions', 'Audit logs leaking secrets'],
-    files: [
-      { path: 'BUILDPRINT.md', purpose: 'Buildprint package file', required: true },
-      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
-      { path: 'SPEC.md', purpose: 'Buildprint package file', required: true },
-      { path: 'CONTRACTS.md', purpose: 'Buildprint package file', required: true },
-      { path: 'PLAN.md', purpose: 'Buildprint package file', required: true },
-      { path: 'TEST_MATRIX.md', purpose: 'Buildprint package file', required: true },
-      { path: 'VALIDATION_TEMPLATE.md', purpose: 'Buildprint package file', required: true },
-      { path: 'checks/acceptance.md', purpose: 'Buildprint package file', required: true },
-      { path: 'API_ROUTES.md', purpose: 'Buildprint package file', required: true },
-      { path: 'conformance/examples/adapter.stub.ts', purpose: 'non-passing adapter stub documenting required implementation shape', required: true },
-      { path: 'conformance/package.json', purpose: 'target-app conformance package manifest', required: true },
-      { path: 'conformance/README.md', purpose: 'target-app conformance kit instructions', required: true },
-      { path: 'conformance/src/adapter-contract.ts', purpose: 'adapter interface for real target app DB/API/service validation', required: true },
-      { path: 'conformance/src/load-adapter.ts', purpose: 'runtime adapter loader for target-app conformance tests', required: true },
-      { path: 'conformance/test/auth-rbac.conformance.test.ts', purpose: 'black-box tenant/RBAC/invite/billing/audit conformance suite', required: true },
-      { path: 'conformance/test/node-builtins.d.ts', purpose: 'minimal Node built-in type declarations for conformance tests', required: true },
-      { path: 'conformance/tsconfig.json', purpose: 'target-app conformance TypeScript contract', required: true },
-      { path: 'MIGRATION_GUIDE.md', purpose: 'Buildprint package file', required: true },
-      { path: 'plans/00-auth-forensics-tenant-research.md', purpose: 'phase rail', required: true },
-      { path: 'plans/01-data-model-tenant-boundary.md', purpose: 'phase rail', required: true },
-      { path: 'plans/02-permission-model-engine.md', purpose: 'phase rail', required: true },
-      { path: 'plans/03-server-guards-context.md', purpose: 'phase rail', required: true },
-      { path: 'plans/04-invite-membership-lifecycle.md', purpose: 'phase rail', required: true },
-      { path: 'plans/05-role-management-owner-safety.md', purpose: 'phase rail', required: true },
-      { path: 'plans/06-ui-flows.md', purpose: 'phase rail', required: true },
-      { path: 'plans/07-audit-log.md', purpose: 'phase rail', required: true },
-      { path: 'plans/08-billing-admin-boundary.md', purpose: 'phase rail', required: true },
-      { path: 'plans/09-full-security-product-validation.md', purpose: 'phase rail', required: true },
-      { path: 'plans/10-migration-rollout.md', purpose: 'phase rail', required: true },
-      { path: 'proof/package.json', purpose: 'offline TypeScript proof package manifest', required: true },
-      { path: 'proof/src/index.ts', purpose: 'offline permission and lifecycle proof implementation', required: true },
-      { path: 'proof/test/node-builtins.d.ts', purpose: 'minimal Node built-in type declarations for dependency-light proof tests', required: true },
-      { path: 'proof/test/rbac.test.ts', purpose: 'offline proof artifact', required: true },
-      { path: 'proof/tsconfig.json', purpose: 'offline TypeScript proof compiler contract', required: true },
-      { path: 'questions.md', purpose: 'Buildprint package file', required: true },
-      { path: 'RBAC_MATRIX.md', purpose: 'Buildprint package file', required: true },
-      { path: 'schemas/buildprint.meta.json', purpose: 'Buildprint package file', required: false },
-      { path: 'SECURITY_POLICY.md', purpose: 'Buildprint package file', required: true },
-      { path: 'UI_FLOWS.md', purpose: 'Buildprint package file', required: true },
-    ],
-    checks: ['Phase 00 artifacts exist before implementation', 'Existing auth is reused by default', 'Permission engine denies unknown/missing access by default', 'Every team-scoped route has direct API authorization tests', 'Invite expiry/revoke/single-use/exact-email policies are tested', 'Role mutation blocks self-escalation and last-owner loss', 'Audit metadata is redacted', 'Offline proof harness is included in the manifest and passes npm --prefix proof test', 'Target-app conformance kit is included and typechecks; completion requires it to pass against a real adapter or record blockers', 'Migration/backfill/rollback/recovery path is documented'],
-    trustBadges: [
-      { label: 'Phase 00 heavy', detail: 'Starts with auth forensics, tenant mapping, authz audit, threat model, and decision gate.', tone: 'success' },
-      { label: 'Offline proof included', detail: 'TypeScript proof covers deny-by-default, tenant isolation, invites, owner safety, and audit redaction.', tone: 'success' },
-      { label: 'Server-side authz', detail: 'Frontend visibility is never treated as security.', tone: 'warning' },
-    ],
-    githubUrl: `${repoUrl}/tree/main/buildprints/auth-teams-rbac-os`,
-    rawBaseUrl: rawFor('auth-teams-rbac-os'),
-    copyPrompt: `${localPrompt('auth-teams-rbac-os', 'Auth, Teams & RBAC OS')} Do Phase 00 auth forensics and tenant research before coding. Reuse existing auth by default. Do not claim done while any team-scoped route lacks direct server/API authorization tests.`,
-  },
-  {
-    slug: 'ai-influencer-os',
-    title: 'AI Influencer OS',
-    creator: 'Agent Buildprint',
-    category: 'Product OS',
-    tier: 'agent-grade',
-    status: 'validated',
-    runtime: ['OpenClaw'],
-    stack: ['OpenClaw', 'Persona memory', 'Wavespeed', 'Social publishing', 'Docker'],
-    iconKeys: ['openclaw', 'json', 'docker'],
-    difficulty: 'Advanced',
-    featured: true,
-    summary: 'OpenClaw AI creator system with configurable persona, memory, life continuity, Wavespeed images, social drafts, QA, and publishing handoff.',
-    plainDescription: 'A blueprint for building an AI creator/influencer system with persona memory, image generation, content planning, draft queues, QA, and controlled publishing handoff.',
-    whatYouGet: ['AI creator/influencer operating system', 'Configurable persona and memory model', 'Image generation workflow', 'Social draft and media queue', 'Approval-gated publishing handoff', 'Manager audit and safety checks'],
-    whatYouNeed: ['Nothing for local/mock mode', 'Image provider key, such as Wavespeed, for real image generation', 'Social account/browser access if you want real publishing', 'Brand/persona decisions and media policy from the human'],
-    architectureFlow: ['Persona', 'Ideas', 'Images', 'Drafts', 'Approval', 'Publish'],
-    promise: 'An agent-grade Buildprint package for a full AI influencer system. The architecture is fixed; persona, voice, channels, content lanes, and approval policy stay configurable.',
-    includes: ['OpenClaw runtime shape', 'Configurable persona preset', 'Relationship memory', 'Life state and journal', 'Wavespeed image skill', 'Social drafts and media queue', 'Manager audit', 'Browser/noVNC publishing handoff'],
-    risks: ['Generic chatbot drift', 'Fixed persona/name leakage', 'Ungrounded public claims', 'Unsafe media requests', 'Image provider drift', 'Auto-publishing by default'],
-    files: [
-      { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
-      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
-      { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
-      { path: 'CONTRACTS.md', purpose: canonicalFilePurposes['CONTRACTS.md'], required: true },
-      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
-      { path: 'TEST_MATRIX.md', purpose: canonicalFilePurposes['TEST_MATRIX.md'], required: true },
-      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
-      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
-      { path: 'DEFAULT_PRESET.md', purpose: canonicalFilePurposes['DEFAULT_PRESET.md'], required: true },
-      { path: 'plans/00-alignment.md', purpose: 'phase 00 alignment rail', required: true },
-      { path: 'plans/01-openclaw-runtime-shape.md', purpose: 'phase 01 OpenClaw runtime shape rail', required: true },
-      { path: 'plans/02-persona-runtime.md', purpose: 'phase 02 persona runtime rail', required: true },
-      { path: 'plans/03-memory-life-state.md', purpose: 'phase 03 memory/life rail', required: true },
-      { path: 'plans/04-wavespeed-image.md', purpose: 'phase 04 Wavespeed image rail', required: true },
-      { path: 'plans/05-social-planner.md', purpose: 'phase 05 social planner rail', required: true },
-      { path: 'plans/06-publisher-handoff.md', purpose: 'phase 06 publisher handoff rail', required: true },
-      { path: 'plans/07-manager-audit.md', purpose: 'phase 07 manager audit rail', required: true },
-      { path: 'plans/08-tests-validation.md', purpose: 'phase 08 tests and validation rail', required: true },
-      { path: 'policies/media.md', purpose: 'policy artifact', required: false },
-      { path: 'policies/safety.md', purpose: 'policy artifact', required: false },
-      { path: 'questions.md', purpose: canonicalFilePurposes['questions.md'], required: true },
-      { path: 'schemas/buildprint.meta.json', purpose: 'schema artifact', required: false },
-    ],
-    checks: ['OpenClaw runtime command/blocker exists', 'LLM analyzer adapter prevents keyword-only drift', 'Wavespeed real adapter shape exists', 'Tests use mock image mode without external APIs', 'User memory and self-state are separate', 'noVNC handoff service shape exists', 'Publishing is mock/manual-gated by default'],
-    trustBadges: agentTrustBadges,
-    githubUrl: `${repoUrl}/tree/main/buildprints/ai-influencer-os`,
-    rawBaseUrl: rawFor('ai-influencer-os'),
-    copyPrompt: `${localPrompt('ai-influencer-os', 'AI Influencer OS')} Do not auto-publish by default.`,
-  },
-  {
-    slug: 'automated-ai-blog-os',
-    title: 'Automated AI Blog OS',
-    creator: 'Agent Buildprint',
-    category: 'Product OS',
-    tier: 'agent-grade',
-    status: 'validated',
-    runtime: ['Astro/MDX'],
-    stack: ['Astro/MDX', 'Research scanner', 'Idea scoring', 'SEO checks', 'Approval queue'],
-    iconKeys: ['astro', 'md', 'json'],
-    difficulty: 'Advanced',
-    featured: true,
-    summary: 'Approval-gated AI blog publishing system that researches topics, scores ideas, drafts visual posts, validates SEO/build output, and publishes only through configured gates.',
-    plainDescription: 'A blueprint for an automated blog workflow that finds ideas, drafts posts, validates claims and SEO, then waits for approval before publishing.',
-    whatYouGet: ['AI-assisted blog publishing workflow', 'Source scanning and idea scoring', 'Draft generation with claim/source tracking', 'SEO, metadata, sitemap, RSS, and llms.txt checks', 'Approval queue before publishing', 'Manager audit for stale or weak drafts'],
-    whatYouNeed: ['Nothing for local/mock mode', 'AI provider key for real drafting/research assistance', 'Website/repo access for real publishing', 'Human approval policy and editorial taste'],
-    architectureFlow: ['Sources', 'Ideas', 'Drafts', 'SEO checks', 'Approval', 'Publish'],
-    promise: 'An agent-grade Buildprint package for automated AI blogging: source scanning, idea scoring, content memory, draft generation, visual plans, claim grounding, SEO validation, approval queue, and gated publishing/scheduling.',
-    includes: ['Source scanner', 'Rubric-based idea scoring', 'Content memory', 'Draft generator with source/claim maps', 'Visual post templates', 'Claim grounding validator', 'SEO/build/feed validator', 'Approval queue', 'Gated publisher/scheduler', 'Manager audit'],
-    risks: ['Generic SEO filler', 'Unsourced claims', 'Source laundering', 'Repeated content angles', 'Fake expertise', 'Broken metadata/RSS/sitemap/llms outputs', 'Publishing without approval', 'External API calls in tests'],
-    files: [
-      { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
-      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
-      { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
-      { path: 'CONTRACTS.md', purpose: canonicalFilePurposes['CONTRACTS.md'], required: true },
-      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
-      { path: 'TEST_MATRIX.md', purpose: canonicalFilePurposes['TEST_MATRIX.md'], required: true },
-      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
-      { path: 'checks/acceptance.md', purpose: 'acceptance checklist', required: true },
-      { path: 'DEFAULT_PRESET.md', purpose: canonicalFilePurposes['DEFAULT_PRESET.md'], required: true },
-      { path: 'plans/00-alignment.md', purpose: 'phase 00 alignment rail', required: true },
-      { path: 'plans/01-content-structure.md', purpose: 'phase 01 content structure rail', required: true },
-      { path: 'plans/02-source-scanner.md', purpose: 'phase 02 source scanner rail', required: true },
-      { path: 'plans/03-idea-scoring.md', purpose: 'phase 03 idea scoring rail', required: true },
-      { path: 'plans/04-drafting-visuals.md', purpose: 'phase 04 drafting and visuals rail', required: true },
-      { path: 'plans/05-seo-claim-validation.md', purpose: 'phase 05 SEO and claim validation rail', required: true },
-      { path: 'plans/06-approval-publishing.md', purpose: 'phase 06 approval and publishing rail', required: true },
-      { path: 'plans/07-manager-audit.md', purpose: 'phase 07 manager audit rail', required: true },
-      { path: 'plans/08-tests-validation.md', purpose: 'phase 08 tests and validation rail', required: true },
-      { path: 'policies/publishing.md', purpose: 'publishing safety policy', required: true },
-      { path: 'questions.md', purpose: canonicalFilePurposes['questions.md'], required: true },
-      { path: 'schemas/buildprint.meta.json', purpose: 'package metadata schema example', required: false },
-    ],
-    checks: ['Sources are captured as records, not invented', 'Ideas use explicit scoring rubric', 'Drafts include source map and claim map', 'Ungrounded factual claims block publishing', 'SEO metadata, structured data, sitemap/RSS/llms, and build are validated', 'Unapproved drafts cannot publish by default', 'Tests run without real network/publishing credentials', 'Manager audit reports stale/weak/blocked items'],
-    trustBadges: agentTrustBadges,
-    githubUrl: `${repoUrl}/tree/main/buildprints/automated-ai-blog-os`,
-    rawBaseUrl: rawFor('automated-ai-blog-os'),
-    copyPrompt: `${localPrompt('automated-ai-blog-os', 'Automated AI Blog OS')} Build the approval-gated AI blog pipeline with source scanning, idea scoring, draft generation, claim/SEO validation, approval queue, gated publishing/scheduling, manager audit, and tests. Do not auto-publish by default.`,
-  },
-  {
-    slug: 'portable-novel-storyboard-pipeline',
-    title: 'Portable Novel-to-Storyboard Pipeline',
-    creator: 'Agent Buildprint',
-    category: 'Mapped Project',
-    tier: 'agent-grade',
-    status: 'validated',
-    runtime: ['Executable packet v2', 'Mock-first AI providers', 'Browser QA'],
-    stack: ['START_HERE router', 'Context map', 'Capability packets', 'Evidence ledger', 'Preview manifest export'],
-    iconKeys: ['typescript', 'json', 'md'],
-    difficulty: 'Advanced',
-    featured: true,
-    summary: 'Executable-packet remap of the Toonflow-inspired portable creative pipeline: project workspace, ordered novel ingestion, event extraction, scripts/assets, storyboard flow, media tasks, preview export, and safety gates.',
-    plainDescription: 'A router-first Buildprint for a novel-to-storyboard workbench. Agents start at START_HERE.md and blueprint.yaml, load one active capability packet at a time, write proof to an evidence ledger, and keep claims unqualified until proof exists.',
-    whatYouGet: ['Executable packet v2 shape', 'START_HERE.md and blueprint.yaml router', 'Context map that names the active capability', 'Six capability packets with product contracts and proof contracts', 'Source-surface map tied to product obligations', 'Provider, state, runtime, safety, acceptance, and evidence ledgers'],
-    whatYouNeed: ['Nothing for deterministic no-network proof mode', 'Browser runtime proof for qualification', 'Optional AI/image/video provider keys only for live-provider upgrade proof', 'Security review before public deployment or destructive/admin claims'],
-    architectureFlow: ['Router', 'Project', 'Novel', 'Script', 'Storyboard', 'Media', 'Safety'],
-    promise: 'A Mapper OS executable packet for rebuilding the portable novel-to-storyboard workflow without copying Toonflow source or claiming clone, Electron, live-provider, exact UI/canvas, or final stitched-video parity.',
-    includes: ['BUILDPRINT.md compatibility router', 'START_HERE.md executable start file', 'blueprint.yaml authority packet', '00-intent mission, obligations, and source-surface map', '01-operating-model stop rules and autonomy policy', '02-context active context map and read order', '03-capabilities capability index and six capability packets', '04-interfaces API/tool/provider contracts', '05-state-runtime persistence and topology contracts', '06-safety threat model and secrets/destructive-action policy', '07-execution implementation plan', '08-evaluation acceptance/test/quality gates', '09-evidence ledger and unresolved blockers', 'Generated prompt'],
-    risks: ['Treating generated/agent-prompt.md as source of truth', 'Reading all capability packets upfront', 'Claiming qualification without evidence-ledger rows', 'Counting deterministic providers as live provider proof', 'Generic dashboard UI instead of storyboard-first workbench', 'Using Toonflow source as implementation input'],
-    files: portableNovelStoryboardPipelineFiles,
-    checks: ['Mapper executable packet validator passes', 'START_HERE.md routes to blueprint.yaml, team/UX gates, and active capability packet', '02-context/context-map.yaml blocks reading unrelated capability packets upfront', '02-context/team-stack.yaml, ux-contract.md, and design-quality-bar.md gate UI-bearing capabilities', 'Each capability packet has capability.yaml, product-contract.md, implementation-workflow.md, source-evidence.md, and proof-contract.yaml', '09-evidence/evidence-ledger.jsonl is the claim-promotion authority', 'Claim status remains SELECTED_UNQUALIFIED until browser, provider, persistence, security, and clean-room proof rows pass'],
-    trustBadges: [
-      { label: 'Executable packet v2', detail: 'Router, context map, capability packets, acceptance gates, and evidence ledger are separated.', tone: 'success' },
-      { label: 'One-pack-at-a-time execution', detail: 'Agents load the active capability packet first and consult the capability index only after proof.', tone: 'success' },
-      { label: 'Clean-room boundary', detail: 'Derived from Toonflow evidence, but implementation must not use Toonflow source as input.', tone: 'info' },
-      { label: 'Selected-unqualified', detail: 'Runtime/provider/persistence/security/clean-room proof still gates any qualification claim.', tone: 'warning' },
-    ],
-    githubUrl: `${repoUrl}/tree/main/buildprints/portable-novel-storyboard-pipeline`,
-    originGithubUrl: 'https://github.com/HBAI-Ltd/Toonflow-app',
-    originLabel: 'HBAI-Ltd/Toonflow-app',
-    rawBaseUrl: rawFor('portable-novel-storyboard-pipeline'),
-    copyPrompt: `${localPrompt('portable-novel-storyboard-pipeline', 'Portable Novel-to-Storyboard Pipeline')} Treat the downloaded package as a Mapper OS executable packet. Read START_HERE.md, then blueprint.yaml, then 02-context/context-map.yaml, then PRE_IMPLEMENTATION_QUESTIONS.md, then 02-context/team-stack.yaml. Ask unresolved blockers or apply the safe defaults before coding. For UI-bearing active capabilities, also read 02-context/ux-contract.md and 02-context/design-quality-bar.md; they are blocking gates, not optional polish. Load only the active capability packet named there, starting with 03-capabilities/project-workspace-auth/. Implement and prove that packet, append proof or blocker rows to .buildprint/evidence/evidence-ledger.jsonl, then consult 03-capabilities/capability-index.yaml and continue one dependency-ready packet at a time. Do not write into .buildprint/snapshots/**. Do not read every capability packet upfront. Use deterministic no-network providers by default. Do not use Toonflow source as implementation input. Keep claims scoped to SELECTED_UNQUALIFIED until browser runtime, provider, persistence, security, and clean-room proof rows pass. Do not claim Toonflow clone, live provider parity, Electron parity, exact UI/canvas parity, or final stitched-video export parity.`,
-  },
-  {
-    slug: 'buildprint-mapper-os',
-    title: 'Buildprint Mapper OS',
-    creator: 'Agent Buildprint',
-    category: 'Workflow OS',
-    tier: 'agent-grade',
-    status: 'validated',
-    runtime: ['Codex/Cursor/Claude Code', 'optional agb start bootstrap'],
-    stack: ['Repository census', 'Capability packs', 'Team-pack routing', 'UX gates', 'Verification rails'],
-    iconKeys: ['md', 'json', 'typescript'],
-    difficulty: 'Advanced',
-    featured: true,
-    summary: 'Agent-session workflow for turning an existing repo into scoped, source-independent Buildprints with capability packs, team-pack quality gates, UX contracts, execution protocol, and verification evidence.',
-    plainDescription: 'A blueprint for turning a repo into useful Buildprints: scan the codebase, find good product or feature slices, choose one, and extract an agent-executable package with team-pack gates that can be implemented without handing the original source to the coding agent.',
-    whatYouGet: ['Repo-to-Buildprint mapping workflow', 'System map of an existing codebase', 'Scoped product/feature blueprint candidates', 'Source-independent selected package', 'Executable capability packets with product contracts and proof contracts', 'v2 team-stack router for architecture, UX, runtime, security, persistence, and verification', 'v2 UX and design contracts for UI-bearing outputs', 'START_HERE and context-map routing for coding agents', 'Evidence-ledger proof rail', 'No-fake implementation checklist', 'Submission/review checklist'],
-    whatYouNeed: ['Nothing for public repos', 'GitHub/private repo access if the source is private', 'A human scope choice when multiple candidates exist', 'Permission to use any private source code'],
-    architectureFlow: ['Repo', 'System map', 'Candidates', 'Selection', 'Teams', 'Package', 'Proof'],
-    promise: 'An official workflow Buildprint for creator submissions: evidence-backed discovery, scoped candidate selection, source-independent extraction, team-pack quality routing, execution-ready capability packs, reversal validation, no-fake checks, and an honest gap report.',
-    howToUse: [
-      { title: '1. Open your existing project', detail: 'Open the repo in Codex, Cursor, Claude Code, or another coding agent. Start from the repository root so the agent can inspect the real files. If you are not already in the repo, give the agent the repo URL or local path.' },
-      { title: '2. Copy the Mapper OS agent prompt', detail: 'Use the "Copy agent prompt" button on this page. If you prefer bootstrapped package files, run: agb start https://agent-buildprint.com/buildprints/buildprint-mapper-os/package.json .' },
-      { title: '3. Paste it into the agent and let it discover', detail: 'Mapper OS should create SYSTEM_MAP.md and BUILDPRINT_CANDIDATES.md first. For large projects, it must stop and ask which candidate you want before extracting anything.' },
-      { title: '4. Pick one candidate', detail: 'Choose the product, feature, workflow, or integration you actually want to submit. Do not let the agent flatten a whole large repo into one vague Buildprint.' },
-      { title: '5. Submit the generated package', detail: 'The selected output should land in selected-buildprint/ or an equivalent package folder. Submit that path through the Buildprint submission issue.' },
-    ],
-    resultChecklist: ['SYSTEM_MAP.md explaining architecture, flows, data, integrations, side effects, tests, and unknowns', 'BUILDPRINT_CANDIDATES.md with 3-7 scoped reusable options', 'A selected executable packet with START_HERE.md, PRE_IMPLEMENTATION_QUESTIONS.md, blueprint.yaml, 02-context routing/team/UX gates, 03-capabilities packets, 08-evaluation gates, and 09-evidence ledger', '02-context/ux-contract.md and 02-context/design-quality-bar.md when the selected scope has user-facing UI', 'Proof contracts and evidence-ledger rules with commands, artifacts, negative tests, blockers, and honest SELECTED_UNQUALIFIED/BLOCKED_WITH_REASON statuses where proof is missing', 'Final handover explaining selected scope, files generated, commands run, known gaps, and next recommended action'],
-    includes: ['Safety and secrets boundary', 'Machine-readable buildprint/phases/acceptance/claims rails', 'Minimal preflight questions', 'Repo census', 'SYSTEM_MAP.md', 'BUILDPRINT_CANDIDATES.md', 'Human scope decision gate', 'Dynamic post-discovery questions.md', 'Executable-packet templates', '02-context/team-stack.yaml team-pack routing', '02-context UX/design contracts', 'proof-contract.yaml and evidence-ledger rules', 'Clean-room REVERSAL_REPORT.md', 'QA_REPORT.md', 'Single Buildprint extraction', 'Hierarchical System Buildprint extraction', 'Submission checklist', 'Final chat handover', 'Fixture review guidance'],
-    risks: ['Whole-repo sludge', 'Secret leakage', 'Hallucinated intent', 'Invented validation results', 'Missing scope', 'Vague marketplace submissions', 'Unclear capability boundaries', 'Generic QA plans', 'Source-dependent implementation instructions', 'Missing verification evidence', 'Lazy architecture without product-architect gate', 'Ugly or static UI without ux-ui-craft and browser proof'],
-    files: [
-      { path: 'BUILDPRINT.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'CONTRACTS.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'CURRENT_STATE.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'EXECUTION_PROTOCOL.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'IMPLEMENTATION_PLAN.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'PLAN.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'README.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'SPEC.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'VERIFICATION.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'acceptance.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'buildprint.json', purpose: 'Mapper OS package file', required: true },
-      { path: 'checks/acceptance.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'claims.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/README.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/admin-dashboard/.env.example', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/admin-dashboard/app/admin/users/page.tsx', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/admin-dashboard/app/api/admin/users/route.ts', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/admin-dashboard/expected-signals.json', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/admin-dashboard/package.json', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/admin-dashboard/src/models/db.ts', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/admin-dashboard/src/routes/auth/session.ts', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/admin-dashboard/tests/admin-auth.test.js', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/large-monorepo/.github/workflows/ci.yml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/large-monorepo/apps/web/src/app/admin/page.tsx', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/large-monorepo/apps/web/src/app/api/admin/users/route.ts', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/large-monorepo/apps/web/src/app/api/billing/webhook/route.ts', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/large-monorepo/expected-signals.json', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/large-monorepo/package.json', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/large-monorepo/packages/worker/src/content-agent.ts', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/large-monorepo/prisma/schema.prisma', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/malicious-secrets/.env.example', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/malicious-secrets/README.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/malicious-secrets/expected-signals.json', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/malicious-secrets/package.json', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/malicious-secrets/src/agent.ts', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/route-patterns/.env.example', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/route-patterns/app/(auth)/login/page.tsx', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/route-patterns/app/(chat)/api/chat/route.ts', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/route-patterns/expected-signals.json', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/route-patterns/package.json', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/route-patterns/src/routes/api/tasks/index.ts', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/stripe-saas/expected-signals.json', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/stripe-saas/package.json', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/stripe-saas/src/app/api/billing/checkout/route.ts', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/stripe-saas/src/app/api/stripe/webhook/route.ts', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/stripe-saas/src/lib/stripe.ts', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/stripe-saas/src/models/subscription.ts', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/golden-projects/stripe-saas/tests/billing.test.js', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/00-intent/mission.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/00-intent/product-obligations.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/00-intent/source-surface-map.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/01-operating-model/autonomy-levels.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/01-operating-model/human-approval-policy.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/01-operating-model/stop-rules.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/01-operating-model/workflow-vs-agentic.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/02-context/context-map.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/02-context/design-quality-bar.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/02-context/read-order.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/02-context/source-evidence-index.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/02-context/team-stack.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/02-context/ux-contract.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/03-capabilities/capability-index.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/03-capabilities/ingest-record/capability.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/03-capabilities/ingest-record/implementation-workflow.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/03-capabilities/ingest-record/product-contract.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/03-capabilities/ingest-record/proof-contract.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/03-capabilities/ingest-record/source-evidence.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/04-interfaces/api-contracts.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/04-interfaces/provider-contracts.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/04-interfaces/schemas/.gitkeep', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/04-interfaces/tool-contracts.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/05-state-runtime/persistence.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/05-state-runtime/runtime-topology.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/05-state-runtime/state-model.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/06-safety/destructive-actions.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/06-safety/secrets-policy.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/06-safety/threat-model.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/07-execution/implementation-plan.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/07-execution/phases/00-ingest.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/08-evaluation/acceptance.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/08-evaluation/quality-rubric.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/08-evaluation/test-matrix.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/09-evidence/evidence-ledger.jsonl', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/09-evidence/unresolved-blockers.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/BUILDPRINT.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/PRE_IMPLEMENTATION_QUESTIONS.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/START_HERE.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/blueprint.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/executable-packet-good/selected-buildprint/generated/agent-prompt.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-claimed-proof-without-evidence/selected-buildprint/00-intent/product-obligations.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-claimed-proof-without-evidence/selected-buildprint/00-intent/source-surface-map.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-claimed-proof-without-evidence/selected-buildprint/03-capabilities/bad/capability.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-claimed-proof-without-evidence/selected-buildprint/03-capabilities/bad/proof-contract.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-claimed-proof-without-evidence/selected-buildprint/03-capabilities/capability-index.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-claimed-proof-without-evidence/selected-buildprint/09-evidence/evidence-ledger.jsonl', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-claimed-proof-without-evidence/selected-buildprint/BUILDPRINT.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-claimed-proof-without-evidence/selected-buildprint/START_HERE.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-claimed-proof-without-evidence/selected-buildprint/blueprint.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-claimed-proof-without-evidence/selected-buildprint/generated/agent-prompt.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-obligation-routing/selected-buildprint/00-intent/product-obligations.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-obligation-routing/selected-buildprint/00-intent/source-surface-map.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-obligation-routing/selected-buildprint/02-context/source-evidence-index.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-obligation-routing/selected-buildprint/03-capabilities/bad/capability.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-obligation-routing/selected-buildprint/03-capabilities/bad/proof-contract.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-obligation-routing/selected-buildprint/03-capabilities/capability-index.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-obligation-routing/selected-buildprint/09-evidence/evidence-ledger.jsonl', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-obligation-routing/selected-buildprint/BUILDPRINT.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-obligation-routing/selected-buildprint/START_HERE.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-obligation-routing/selected-buildprint/blueprint.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-obligation-routing/selected-buildprint/generated/agent-prompt.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/00-intent/mission.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/00-intent/product-obligations.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/00-intent/source-surface-map.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/01-operating-model/autonomy-levels.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/01-operating-model/human-approval-policy.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/01-operating-model/stop-rules.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/01-operating-model/workflow-vs-agentic.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/02-context/context-map.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/02-context/read-order.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/02-context/source-evidence-index.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/03-capabilities/capability-index.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/03-capabilities/ingest-record/capability.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/03-capabilities/ingest-record/implementation-workflow.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/03-capabilities/ingest-record/product-contract.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/03-capabilities/ingest-record/proof-contract.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/03-capabilities/ingest-record/source-evidence.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/04-interfaces/api-contracts.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/04-interfaces/provider-contracts.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/04-interfaces/schemas/.gitkeep', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/04-interfaces/tool-contracts.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/05-state-runtime/persistence.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/05-state-runtime/runtime-topology.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/05-state-runtime/state-model.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/06-safety/destructive-actions.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/06-safety/secrets-policy.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/06-safety/threat-model.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/07-execution/implementation-plan.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/07-execution/phases/00-ingest.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/08-evaluation/acceptance.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/08-evaluation/quality-rubric.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/08-evaluation/test-matrix.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/09-evidence/evidence-ledger.jsonl', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/09-evidence/unresolved-blockers.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/BUILDPRINT.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/START_HERE.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/blueprint.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-pre-questions/selected-buildprint/generated/agent-prompt.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-proof-contract/selected-buildprint/00-intent/product-obligations.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-proof-contract/selected-buildprint/00-intent/source-surface-map.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-proof-contract/selected-buildprint/03-capabilities/bad/capability.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-proof-contract/selected-buildprint/03-capabilities/capability-index.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-proof-contract/selected-buildprint/09-evidence/evidence-ledger.jsonl', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-proof-contract/selected-buildprint/BUILDPRINT.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-proof-contract/selected-buildprint/START_HERE.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-proof-contract/selected-buildprint/blueprint.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-missing-proof-contract/selected-buildprint/generated/agent-prompt.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-stale-generated-prompt/selected-buildprint/00-intent/product-obligations.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-stale-generated-prompt/selected-buildprint/00-intent/source-surface-map.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-stale-generated-prompt/selected-buildprint/03-capabilities/bad/capability.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-stale-generated-prompt/selected-buildprint/03-capabilities/bad/proof-contract.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-stale-generated-prompt/selected-buildprint/03-capabilities/capability-index.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-stale-generated-prompt/selected-buildprint/09-evidence/evidence-ledger.jsonl', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-stale-generated-prompt/selected-buildprint/BUILDPRINT.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-stale-generated-prompt/selected-buildprint/START_HERE.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-stale-generated-prompt/selected-buildprint/blueprint.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-stale-generated-prompt/selected-buildprint/generated/agent-prompt.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/00-intent/mission.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/00-intent/product-obligations.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/00-intent/source-surface-map.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/01-operating-model/autonomy-levels.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/01-operating-model/human-approval-policy.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/01-operating-model/stop-rules.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/01-operating-model/workflow-vs-agentic.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/02-context/context-map.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/02-context/read-order.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/02-context/source-evidence-index.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/03-capabilities/capability-index.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/03-capabilities/ingest-record/capability.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/03-capabilities/ingest-record/implementation-workflow.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/03-capabilities/ingest-record/product-contract.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/03-capabilities/ingest-record/proof-contract.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/03-capabilities/ingest-record/source-evidence.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/04-interfaces/api-contracts.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/04-interfaces/provider-contracts.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/04-interfaces/schemas/.gitkeep', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/04-interfaces/tool-contracts.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/05-state-runtime/persistence.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/05-state-runtime/runtime-topology.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/05-state-runtime/state-model.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/06-safety/destructive-actions.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/06-safety/secrets-policy.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/06-safety/threat-model.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/07-execution/implementation-plan.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/07-execution/phases/00-ingest.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/08-evaluation/acceptance.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/08-evaluation/quality-rubric.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/08-evaluation/test-matrix.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/09-evidence/evidence-ledger.jsonl', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/09-evidence/unresolved-blockers.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/BUILDPRINT.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/PRE_IMPLEMENTATION_QUESTIONS.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/START_HERE.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/blueprint.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'evals/selected-output-fixtures/v2-ui-missing-team-ux/selected-buildprint/generated/agent-prompt.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'phases.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'plans/00-safety-boundaries.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'plans/01-repo-census.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'plans/02-system-map.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'plans/03-candidate-buildprints.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'plans/04-scope-decision.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'plans/05-single-extraction.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'plans/06-system-extraction.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'plans/07-validation-submission.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'policies/quality.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'policies/questions.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'policies/safety.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'prompts/discover.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'prompts/extract-selected.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'questions.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'schemas/candidate.schema.json', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/00-intent/source-surface-map.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/02-context/design-quality-bar.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/02-context/source-evidence-index.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/02-context/team-stack.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/02-context/ux-contract.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/03-capabilities/_template/capability.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/03-capabilities/_template/implementation-workflow.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/03-capabilities/_template/product-contract.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/03-capabilities/_template/proof-contract.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/03-capabilities/_template/source-evidence.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/03-capabilities/capability-index.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/08-evaluation/acceptance.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/09-evidence/evidence-ledger.jsonl', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/BUILDPRINT.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/PRE_IMPLEMENTATION_QUESTIONS.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/START_HERE.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/blueprint.yaml', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/executable-packet/generated/agent-prompt.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/teams/data-persistence.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/teams/integration-runtime.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/teams/product-architect.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/teams/security-boundary.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/teams/test-and-verification.md', purpose: 'Mapper OS package file', required: true },
-      { path: 'templates/teams/ux-ui-craft.md', purpose: 'Mapper OS package file', required: true },
-    ],
-    checks: ['Minimal questions happen before discovery; deeper questions are deferred until evidence exists', 'Large repos produce candidates before final package unless full-system mode is selected', 'Generated discovery output is labeled scaffold unless a selected candidate is confirmed', 'Generated files contain no secret values', 'Claims are labeled OBSERVED/INFERRED/QUESTION/OUT_OF_SCOPE', 'Scope includes included/excluded paths', 'Output is source-independent: implementation agents do not need original source access', 'Executable capability packets define behavior, contracts, implementation order, and verification gates', '02-context/team-stack.yaml is generated for selected outputs and required teams are inferred from product signals', '02-context/ux-contract.md and 02-context/design-quality-bar.md are required for UI-bearing selected outputs', 'START_HERE.md, blueprint.yaml, context-map.yaml, capability-index.yaml, proof contracts, and evidence ledger exist', 'Mocks/fixtures are not counted as product implementation', 'Included routes/services/providers/persistence/jobs/exports are real or explicitly excluded', 'Verification is derived from mapped flows and capability contracts', 'Capability proof ledger includes proof commands, artifacts, negative tests, runtime/browser evidence, and promotion blockers', 'Reversal report and QA report state commands run, evidence, blockers, and known gaps', 'No validation results are invented', 'Final chat handover states outcome, selected scope, evidence inspected, files generated, commands run, gaps, and next direction', 'No agb map CLI is required or advertised'],
-    trustBadges: [
-      { label: 'Submission workflow', detail: 'Defines the official reviewable path from existing repo to scoped Buildprint package.', tone: 'info' },
-      { label: 'Safety-first extraction', detail: 'Requires no app-code changes, no secret copying, and explicit unknowns.', tone: 'success' },
-      { label: 'Agent-session workflow', detail: 'The mapper runs as coding-agent instructions from the Buildprint package; there is no agb map command.', tone: 'success' },
-      { label: 'Source-independent output', detail: 'The generated package must be enough for a fresh implementing agent without original source access.', tone: 'success' },
-      { label: 'Team-pack gates', detail: 'Selected outputs route through product-architect, ux-ui-craft, integration/runtime, persistence, security, and verification lenses as applicable.', tone: 'success' },
-      { label: 'Traceable QA', detail: 'Requires source evidence to capability contracts to reversal/QA checks instead of generic demo validation.', tone: 'success' },
-      { label: 'No fake MVPs', detail: 'Scope may be small, but included capabilities must be real, wired, persistent where relevant, and QA-tested.', tone: 'warning' },
-      { label: 'Fixture review guidance', detail: 'Fixture projects remain for manual workflow review; they are not an agb map eval harness.', tone: 'info' },
-      { label: 'Dogfood proof passed', detail: 'Mapped Seanium/FeedMe with Codex, extracted a static RSS pipeline Buildprint, and passed reversal checks.', tone: 'success' },
-    ],
-    githubUrl: `${repoUrl}/tree/main/buildprints/buildprint-mapper-os`,
-    rawBaseUrl: rawFor('buildprint-mapper-os'),
-    copyPrompt: `${localPrompt('buildprint-mapper-os', 'Buildprint Mapper OS')} Use it to map the target repo in the current agent session. First resolve the target: if the user has not clearly provided a repository URL, local path, or already-opened current working repo, ask exactly one blocking question: 'Which repo URL or local path should I map?' Do not start discovery until the target is explicit. Do not run agb map; that CLI does not exist. Ask only minimal safety/scope questions before discovery, then inspect the resolved repo and create SYSTEM_MAP.md and BUILDPRINT_CANDIDATES.md before selected extraction unless I already picked a scope. Ask me to choose one candidate, then extract only that selected scope into selected-buildprint/ as executable-packet v2 with START_HERE.md, PRE_IMPLEMENTATION_QUESTIONS.md, blueprint.yaml, 02-context/context-map.yaml, 02-context/team-stack.yaml, 03-capabilities/capability-index.yaml, per-capability YAML/proof packets, 08-evaluation gates, and 09-evidence/evidence-ledger.jsonl. If the selected scope has a user-facing UI, include 02-context/ux-contract.md, 02-context/design-quality-bar.md, and route ux-ui-craft in 02-context/team-stack.yaml. Infer team packs from product signals; do not ask me to choose a quality tier or team. The package must be source-independent enough for a fresh coding agent to implement without original source access. Default to production-grade selected scope: smaller scope is OK, but do not create a lazy MVP, mock services as product behavior, placeholder routes, no-op controls, skeleton adapters, static UI shells, or in-memory-only persistence when durability is claimed. Do not copy secrets, do not invent validation results, and do not flatten the repo into one vague document. Finish with a chat handover containing outcome, selected scope, evidence inspected, files generated, commands run, known gaps, and recommended next direction.`,
-  },
-
-
-  {
-    slug: 'superpowers-skill-methodology-harness',
-    title: 'Superpowers Skill Methodology Harness',
-    creator: 'Agent Buildprint',
-    category: 'Workflow OS',
-    tier: 'agent-grade',
-    status: 'validated',
-    runtime: ['Claude Code', 'Codex', 'OpenCode', 'Gemini', 'Cursor', 'Copilot CLI'],
-    stack: ['Session bootstrap', 'Skill routing', 'TDD', 'Subagents', 'Transcript evals'],
-    iconKeys: ['md', 'json', 'typescript'],
-    difficulty: 'Advanced',
-    featured: true,
-    summary: 'Validated Superpowers-inspired skill-methodology harness: bootstrap skill use before action, route to process skills, enforce design/planning/TDD, execute via subagents, and validate with transcripts.',
-    plainDescription: 'A blueprint for building an actual coding-agent skill setup harness, not a manager: startup bootstrap, skill activation, methodology gates, subagent execution, code review, branch finishing, and transcript tests.',
-    whatYouGet: ['Session-start bootstrap contract', 'Skill metadata and routing model', 'Brainstorming-before-code workflow', 'Spec and implementation-plan artifacts', 'TDD hard gate', 'Systematic debugging gate', 'Subagent implementation/review loop', 'Transcript acceptance test matrix'],
-    whatYouNeed: ['One target agent runtime to support first', 'A skill loading mechanism or plugin adapter', 'A transcript/eval runner', 'A safe subagent/task interface', 'Human policy for exceptions to TDD/design gates'],
-    architectureFlow: ['Bootstrap', 'Skill lookup', 'Design', 'Plan', 'TDD', 'Subagents', 'Review', 'Finish'],
-    promise: 'A source-backed Buildprint for reconstructing the architecture and behavior contracts behind obra/superpowers as a portable skill-methodology harness.',
-    includes: ['Pinned source trace', 'System map', 'Bootstrap and routing contract', 'Skill library map', 'Canonical workflow', 'Subagent orchestration contract', 'Plan/spec/test contracts', 'Transcript-based test matrix', 'Validation status and next proof plan'],
-    risks: ['Confusing skill files with a working harness', 'Skipping bootstrap injection', 'Skills not auto-triggering', 'Implementation before design approval', 'TDD theatre without observed red phase', 'Subagent context pollution', 'Reviewer trusting implementer summaries', 'Overclaiming official Superpowers compatibility'],
-    files: [
-      { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
-      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
-      { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
-      { path: 'CONTRACTS.md', purpose: canonicalFilePurposes['CONTRACTS.md'], required: true },
-      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
-      { path: 'TEST_MATRIX.md', purpose: canonicalFilePurposes['TEST_MATRIX.md'], required: true },
-      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
-      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
-      { path: 'BOOTSTRAP_AND_ROUTING.md', purpose: 'session bootstrap and skill routing contract', required: true },
-      { path: 'proof/package.json', purpose: 'clean-room proof package scripts', required: false },
-      { path: 'proof/src/eval.js', purpose: 'transcript eval runner', required: false },
-      { path: 'proof/src/harness.js', purpose: 'neutral methodology harness proof', required: false },
-      { path: 'proof/src/run-evals.js', purpose: 'eval CLI entrypoint', required: false },
-      { path: 'proof/src/skills.js', purpose: 'machine-readable skill registry proof', required: false },
-      { path: 'proof/src/subagents.js', purpose: 'subagent packet and review-loop proof', required: false },
-      { path: 'proof/src/transcript.js', purpose: 'transcript event recorder', required: false },
-      { path: 'proof/tests/harness.test.js', purpose: '6-subtest Node proof test suite', required: false },
-      { path: 'SKILL_LIBRARY.md', purpose: 'core skills and hard gates to reproduce', required: true },
-      { path: 'SOURCE_TRACE.md', purpose: 'pinned obra/superpowers source evidence', required: true },
-      { path: 'SUBAGENT_ORCHESTRATION.md', purpose: 'fresh subagent per task and two-stage review model', required: true },
-      { path: 'SYSTEM_MAP.md', purpose: 'skill-methodology harness architecture layers', required: true },
-      { path: 'VALIDATION_REPORT.md', purpose: 'proof validation status and remaining hardening', required: true },
-      { path: 'WORKFLOW.md', purpose: 'design/plan/TDD/debug/review/finish workflow', required: true },
-    ],
-    checks: ['Pinned Superpowers commit recorded', 'Source trace cites README, skill files, plugin manifests, OpenCode bootstrap, and eval/test docs', 'Buildprint distinguishes manager tooling from methodology harness behavior', 'Bootstrap/skill activation is treated as required runtime behavior', 'Acceptance prompt requires brainstorming before code', 'Clean-room proof passes npm test 6/6 and transcript evals 5/5'],
-    trustBadges: [
-      { label: 'Source-backed mapping', detail: 'Mapped from obra/superpowers at commit f2cbfbefebbfef77321e4c9abc9e949826bea9d7.', tone: 'success' },
-      { label: 'Actual skill harness', detail: 'Focuses on bootstrap, activation, methodology gates, subagents, and transcripts—not dashboards or managers.', tone: 'info' },
-      { label: 'Clean-room proof passed', detail: 'Codex built a neutral Node.js proof from snapshots; npm test passed 6/6 and transcript evals passed 5/5.', tone: 'success' },
-      { label: 'Scoped validation', detail: 'Validated as an inspired/adaptive methodology harness proof, not a production runtime adapter or official clone.', tone: 'warning' },
-    ],
-    githubUrl: `${repoUrl}/tree/main/buildprints/superpowers-skill-methodology-harness`,
-    originGithubUrl: 'https://github.com/obra/superpowers',
-    originLabel: 'obra/superpowers',
-    rawBaseUrl: rawFor('superpowers-skill-methodology-harness'),
-    copyPrompt: `${localPrompt('superpowers-skill-methodology-harness', 'Superpowers Skill Methodology Harness')} Build a clean-room skill-methodology harness proof. Do not make a dashboard/manager. Implement session bootstrap, skill lookup before action, brainstorming-before-code, TDD gate, subagent/review loop contracts, and transcript evals. Keep claims Superpowers-inspired unless installing the official plugin.`,
-  },
-
-
-  {
-    slug: 'complete-agent-skills-evaluation-os',
-    title: 'Complete Agent Skills Evaluation OS',
-    creator: 'Agent Buildprint',
-    category: 'Workflow OS',
-    tier: 'agent-grade',
-    status: 'validated',
-    runtime: ['Any coding agent', 'JavaScript proof', 'CI-ready adapters'],
-    stack: ['Static lint', 'Loadout inventory', 'Skill tests', 'Activation evals', 'Transcript checks', 'Multi-agent safety'],
-    iconKeys: ['json', 'md', 'typescript'],
-    difficulty: 'Advanced',
-    featured: true,
-    summary: 'Complete evaluation stack for agent skill setups: validate config, measure loadout cost, test skills, check activation, enforce transcript process, and score multi-agent safety.',
-    plainDescription: 'A blueprint for evaluating an entire coding-agent setup, not just one skill: installed skills, agents, commands, hooks, MCP, routers, subagents, workflow discipline, token cost, safety, and CI evidence.',
-    whatYouGet: ['Setup snapshot and install parity model', 'Static lint gates for agent config files', 'Loadout and token-cost inventory', 'Skill unit/regression test harness pattern', 'Activation and routing eval pattern', 'Transcript/process invariant checks', 'E2E task benchmark model', 'Multi-agent/subagent safety gates', 'Weighted scorecard and CI report contract'],
-    whatYouNeed: ['A target agent setup to evaluate', 'Offline fixture cases for deterministic mode', 'Optional live agent/provider credentials for live adapters', 'A safety policy for external/destructive actions', 'A list of critical workflow invariants'],
-    architectureFlow: ['Snapshot', 'Lint', 'Inventory', 'Skill tests', 'Activation', 'Transcript', 'Scorecard'],
-    promise: 'A validated Buildprint for evaluating complete agent+skills installations from static validity through real behavior, with skill-eval-runner as the core module but not the whole system.',
-    includes: ['Deep tool comparison', 'Static lint layer', 'Loadout inventory layer', 'Skill unit eval layer', 'Activation eval layer', 'Transcript process eval layer', 'E2E task bench', 'Multi-agent safety layer', 'Safety policy', 'Weighted scorecard', 'Offline JavaScript proof'],
-    risks: ['Mistaking per-skill tests for full setup proof', 'Ignoring activation failures', 'Skipping transcript/order evidence', 'Measuring a drifted install', 'Token bloat from unused loadout', 'Unsafe external actions in live tests', 'Subagent file ownership collisions'],
-    files: [
-      { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
-      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
-      { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
-      { path: 'CONTRACTS.md', purpose: canonicalFilePurposes['CONTRACTS.md'], required: true },
-      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
-      { path: 'TEST_MATRIX.md', purpose: canonicalFilePurposes['TEST_MATRIX.md'], required: true },
-      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
-      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
-      { path: 'ACTIVATION_EVALS.md', purpose: 'Buildprint package file', required: true },
-      { path: 'E2E_TASK_BENCH.md', purpose: 'complete repo-task benchmark classes and scoring', required: true },
-      { path: 'LOADOUT_INVENTORY.md', purpose: 'token/context footprint and dormant artifact diagnostics', required: true },
-      { path: 'MULTI_AGENT_SAFETY.md', purpose: 'Buildprint package file', required: true },
-      { path: 'proof/package-lock.json', purpose: 'offline proof lockfile', required: false },
-      { path: 'proof/package.json', purpose: 'offline proof scripts', required: false },
-      { path: 'proof/src/eval-os.mjs', purpose: 'deterministic evaluation pipeline/scoring proof', required: false },
-      { path: 'proof/test/eval-os.test.mjs', purpose: 'offline proof tests for snapshot/lint/loadout/skill/activation/transcript/multi-agent scoring', required: false },
-      { path: 'SAFETY_POLICY.md', purpose: 'Buildprint package file', required: true },
-      { path: 'SCORECARD.md', purpose: 'weighted scoring model and status bands', required: true },
-      { path: 'SKILL_UNIT_EVALS.md', purpose: 'per-skill sandbox regression test design', required: true },
-      { path: 'STATIC_LINT.md', purpose: 'static validation for SKILL/AGENTS/CLAUDE/hooks/MCP/plugin files', required: true },
-      { path: 'TRANSCRIPT_PROCESS_EVALS.md', purpose: 'order-of-operations and workflow compliance checks', required: true },
-      { path: 'VALIDATION_REPORT.md', purpose: 'proof and package validation status', required: true },
-    ],
-    checks: ['Static-invalid setups fail before expensive behavior tests', 'Loadout inventory exposes loaded token tax and dormant artifacts', 'Skill unit tests are separated from activation tests', 'Activation evals include positive and negative prompts', 'Transcript checks enforce skill-before-action and approval-before-risky-action invariants', 'Multi-agent cases check parent context, output schema, and file ownership', 'Safety hard-fails override good final outputs', 'Offline proof passes 8/8 tests without live agents, providers, or network calls'],
-    trustBadges: [
-      { label: 'Deep stack design', detail: 'Combines skill-eval-runner, cc-plugin-eval, Superpowers-style transcripts, agnix, loadout inventory, and multi-agent safety layers.', tone: 'success' },
-      { label: 'Offline proof passed', detail: 'Deterministic JavaScript proof validates snapshot, lint, loadout, activation, transcript, and multi-agent scoring.', tone: 'success' },
-      { label: 'Not just skill tests', detail: 'Skill unit tests are one module; activation, process compliance, safety, and loadout cost are separate gates.', tone: 'info' },
-      { label: 'Safety hard-fails', detail: 'Secrets, external writes, destructive actions, and fabricated evidence override aggregate scores.', tone: 'warning' },
-    ],
-    githubUrl: `${repoUrl}/tree/main/buildprints/complete-agent-skills-evaluation-os`,
-    originGithubUrl: 'https://github.com/balyakin/skill-eval-runner',
-    originLabel: 'balyakin/skill-eval-runner + eval stack',
-    rawBaseUrl: rawFor('complete-agent-skills-evaluation-os'),
-    copyPrompt: `${localPrompt('complete-agent-skills-evaluation-os', 'Complete Agent Skills Evaluation OS')} Build a complete evaluation stack for my coding-agent setup. Treat skill-eval-runner-style per-skill tests as one module only. Include setup snapshot, static lint, loadout/token inventory, activation/routing evals with positive and negative prompts, transcript/process checks, E2E task bench, multi-agent safety, safety hard-fails, and CI scorecard. Use offline fixtures by default; do not perform live external actions without approval.`,
-  },
-
-
-  {
-    slug: 'portable-personal-agent-chat-os',
-    title: 'Portable Personal Agent Chat OS',
-    creator: 'Agent Buildprint',
-    category: 'Mapped Project',
-    tier: 'agent-grade',
-    status: 'validated',
-    runtime: ['Any backend', 'TypeScript proof', 'Mock-first providers'],
-    stack: ['Streaming chat', 'Provider router', 'Tools / Skills / MCP', 'Memory', 'Subagents', 'Telemetry'],
-    iconKeys: ['typescript', 'json', 'md'],
-    difficulty: 'Advanced',
-    featured: true,
-    summary: 'Clean-room, Emperor Agent-inspired personal agent chatbot OS with streaming chat, provider routing, tools, skills, MCP, memory, subagents, and token telemetry.',
-    plainDescription: 'A blueprint for building a self-hosted personal AI assistant that behaves like a small chatbot operating system: chat UI, model router, tool dispatcher, skill registry, MCP adapter, memory, delegation, and usage telemetry.',
-    whatYouGet: ['Personal agent chatbot OS architecture', 'Streaming runtime event contract', 'Provider router and fake-provider proof', 'Tool/skill/MCP policy boundaries', 'Three-tier memory and compaction model', 'Subagent/team delegation events', 'Token telemetry and head-to-foot QA'],
-    whatYouNeed: ['Nothing for local deterministic proof mode', 'Provider keys only for optional live model adapters', 'A workspace/tool safety policy', 'Persistence choice for memory/history', 'MCP servers only if you want real external tools'],
-    architectureFlow: ['Chat', 'Context + memory', 'Provider router', 'Tools / skills / MCP', 'Subagents', 'Telemetry'],
-    promise: 'A validated mapped-project Buildprint for rebuilding a portable personal agent chatbot OS without copying Emperor Agent source or claiming exact clone/provider/tool parity.',
-    includes: ['Clean-room source mapping', 'Streaming runtime contract', 'Provider router', 'Tool registry and safety policy', 'Skill registry', 'MCP adapter boundary', 'Memory/context compaction', 'Subagent/team bus', 'Token telemetry', 'Streaming WebUI map', 'Head-to-foot QA gate', 'Parity claims', 'Offline TypeScript proof'],
-    risks: ['Overclaiming full Emperor Agent clone parity', 'Unsafe shell/filesystem/network tools', 'Provider API drift', 'Context truncation losing user instructions', 'Skill injection bloat', 'MCP timeout/security failures', 'Telemetry hidden from UI'],
-    files: [
-      { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
-      { path: 'README.md', purpose: 'package overview and clean-room scope boundary', required: true },
-      { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
-      { path: 'CONTRACTS.md', purpose: canonicalFilePurposes['CONTRACTS.md'], required: true },
-      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
-      { path: 'TEST_MATRIX.md', purpose: canonicalFilePurposes['TEST_MATRIX.md'], required: true },
-      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
-      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
-      { path: 'AGENT_RUNTIME.md', purpose: 'Buildprint package file', required: true },
-      { path: 'HEAD_TO_FOOT_QA.md', purpose: 'canonical acceptance gate for generated agent OS proofs', required: true },
-      { path: 'MEMORY_CONTEXT.md', purpose: 'Buildprint package file', required: true },
-      { path: 'PARITY_CLAIMS.md', purpose: 'Buildprint package file', required: true },
-      { path: 'proof/package-lock.json', purpose: 'offline proof dependency lockfile', required: false },
-      { path: 'proof/package.json', purpose: 'offline proof scripts', required: false },
-      { path: 'proof/src/index.ts', purpose: 'offline proof module exports', required: false },
-      { path: 'proof/src/runtime.ts', purpose: 'deterministic personal agent runtime proof', required: false },
-      { path: 'proof/test/node-builtins.d.ts', purpose: 'offline proof local Node type shims', required: false },
-      { path: 'proof/test/runtime.test.ts', purpose: 'offline proof artifact', required: true },
-      { path: 'proof/tsconfig.json', purpose: 'offline proof TypeScript config', required: false },
-      { path: 'PROVIDER_ROUTER.md', purpose: 'Buildprint package file', required: true },
-      { path: 'SECURITY_POLICY.md', purpose: 'tool/MCP/secrets/sandbox safety policy', required: true },
-      { path: 'STREAMING_WEBUI.md', purpose: 'WebUI views and runtime event transport expectations', required: true },
-      { path: 'SUBAGENTS_TEAM.md', purpose: 'subagent/team task contract and event bus', required: true },
-      { path: 'TOKEN_TELEMETRY.md', purpose: 'Buildprint package file', required: true },
-      { path: 'TOOL_SKILL_MCP.md', purpose: 'Buildprint package file', required: true },
-      { path: 'TRACEABILITY_MATRIX.md', purpose: 'source evidence to portable requirement mapping', required: true },
-    ],
-    checks: ['Clean-room mapped-project scope; not a full Emperor Agent clone', 'Offline TypeScript proof builds without live providers or network calls', 'Proof streams deltas before completion', 'Tool policy denies shell by default', 'Skill selection and subagent delegation are traceable events', 'MCP fake tool maps through same ToolSpec boundary', 'Memory compacts under context pressure while retaining recent messages', 'Token telemetry is emitted and asserted'],
-    trustBadges: [
-      { label: 'Mapped from a real small OS chatbot', detail: 'Primary architecture source is TheSyart/emperor-agent, with JARVIS/ToFu used only as comparison pressure.', tone: 'success' },
-      { label: 'Offline proof', detail: 'Deterministic TypeScript proof validates runtime contracts without live model, MCP, shell, or network calls.', tone: 'success' },
-      { label: 'Safety-gated tools', detail: 'Shell/network/write risk is explicit; dangerous tools are denied unless policy allows them.', tone: 'info' },
-      { label: 'Explicit parity boundary', detail: 'Claims stop at clean-room workflow/contract/mock-runtime proof unless upgraded with live evidence.', tone: 'warning' },
-    ],
-    githubUrl: `${repoUrl}/tree/main/buildprints/portable-personal-agent-chat-os`,
-    originGithubUrl: 'https://github.com/TheSyart/emperor-agent',
-    originLabel: 'TheSyart/emperor-agent',
-    rawBaseUrl: rawFor('portable-personal-agent-chat-os'),
-    copyPrompt: `${localPrompt('portable-personal-agent-chat-os', 'Portable Personal Agent Chat OS')} Build a clean-room personal agent chatbot OS with streaming chat, provider routing, tools, skills, MCP adapter, memory/compaction, subagent delegation, token telemetry, and safety-gated tool policy. Use fake providers/tools by default. Do not claim Emperor Agent clone, exact UI parity, live provider parity, shell parity, or real MCP parity unless separately validated.`,
-  },
-
-  {
-    slug: 'perfect-rag-retrieval-os',
-    title: 'Perfect RAG / Retrieval OS',
-    creator: 'Agent Buildprint',
-    category: 'Workflow OS',
-    tier: 'agent-grade',
-    status: 'validated',
-    runtime: ['Any backend', 'TypeScript proof'],
-    stack: ['Hybrid retrieval', 'Reranking', 'Citations', 'RAG evals'],
-    iconKeys: ['typescript', 'json', 'md'],
-    difficulty: 'Advanced',
-    featured: true,
-    summary: 'Production-grade RAG blueprint with ingestion, chunking, hybrid retrieval, reranking, grounded citations, refusal behavior, permission filtering, and eval gates.',
-    plainDescription: 'A stack-adaptable blueprint for building a serious RAG system: not just vector search, but measurable retrieval quality, reranking, grounded answers, and regression tests.',
-    whatYouGet: ['Document ingestion and chunk contracts', 'Hybrid lexical/dense retrieval', 'Candidate fusion and dedupe', 'Reranker / late-interaction boundary', 'Citation-grounded answer generation', 'Refusal and permission-filter tests', 'Retrieval and answer-quality eval harness'],
-    whatYouNeed: ['Nothing for local deterministic proof mode', 'Your document corpus and permission model', 'Search/vector infrastructure for production mode', 'Embedding/reranker/LLM provider keys only for live adapters', 'Eval cases that represent your real user questions'],
-    architectureFlow: ['Documents', 'Chunks', 'Hybrid retrieve', 'Rerank', 'Grounded answer', 'Eval gates'],
-    promise: 'An agent-grade workflow Buildprint for building benchmark-informed RAG systems with hybrid retrieval, reranking, citations, refusal behavior, tenant-safe retrieval, and measurable quality gates.',
-    includes: ['Source and chunk contracts', 'Dense plus lexical/sparse retrieval architecture', 'Fusion and dedupe policy', 'Permission and tenant filters', 'Reranker adapter boundary', 'Grounded answer contract', 'RAG eval harness', 'Advanced technique guidance for HyDE, SPLADE, ColBERT, RAPTOR, GraphRAG, Self-RAG, and CRAG', 'Offline TypeScript proof'],
-    risks: ['Vector-only false confidence', 'Hallucinated uncited answers', 'Permission leakage', 'Eval-free quality drift', 'Reranker latency/cost creep', 'Advanced-tech hype without measured gain'],
-    files: [
-      { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
-      { path: 'README.md', purpose: 'package overview and research basis', required: true },
-      { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
-      { path: 'CONTRACTS.md', purpose: canonicalFilePurposes['CONTRACTS.md'], required: true },
-      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
-      { path: 'TEST_MATRIX.md', purpose: canonicalFilePurposes['TEST_MATRIX.md'], required: true },
-      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
-      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
-      { path: 'EVAL_HARNESS.md', purpose: 'Buildprint package file', required: true },
-      { path: 'proof/package-lock.json', purpose: 'offline proof dependency lockfile', required: false },
-      { path: 'proof/package.json', purpose: 'offline proof scripts', required: false },
-      { path: 'proof/src/index.ts', purpose: 'offline proof module exports', required: false },
-      { path: 'proof/src/rag.ts', purpose: 'offline deterministic RAG pipeline proof', required: false },
-      { path: 'proof/test/node-builtins.d.ts', purpose: 'offline proof artifact', required: true },
-      { path: 'proof/test/rag.test.ts', purpose: 'offline proof artifact', required: true },
-      { path: 'proof/tsconfig.json', purpose: 'offline proof TypeScript config', required: false },
-      { path: 'TARGET_STACK_ADAPTERS.md', purpose: 'Buildprint package file', required: true },
-    ],
-    checks: ['Research report validated with 18 sources and 16 evidence-backed claims', 'Offline TypeScript proof builds without network or provider keys', 'Proof compares lexical, dense-like, hybrid, and reranked retrieval paths', 'Grounded answer includes citations from selected chunks', 'Unsupported query refuses with insufficient-evidence', 'Tenant/private retrieval filter blocks unauthorized chunks', 'Eval harness emits machine-readable recall@5 and MRR-style metrics'],
-    trustBadges: [
-      { label: 'Benchmark-informed', detail: 'Research cross-checked BEIR, MTEB, ColBERT, SPLADE, HyDE, RAPTOR, Self-RAG, CRAG, GraphRAG, Ragas, and retrieval-eval docs.', tone: 'success' },
-      { label: 'Hybrid + rerank by default', detail: 'Blueprint avoids vector-only RAG and makes reranking/eval gates first-class.', tone: 'success' },
-      { label: 'Offline proof', detail: 'Deterministic TypeScript proof runs without live model, vector DB, or provider credentials.', tone: 'info' },
-      { label: 'Permission-safe retrieval', detail: 'Tenant/private filters are part of the proof and acceptance tests.', tone: 'success' },
-    ],
-    githubUrl: `${repoUrl}/tree/main/buildprints/perfect-rag-retrieval-os`,
-    rawBaseUrl: rawFor('perfect-rag-retrieval-os'),
-    copyPrompt: `${localPrompt('perfect-rag-retrieval-os', 'Perfect RAG / Retrieval OS')} First identify my corpus, permissions, backend stack, search/vector infrastructure, latency/cost budget, and eval cases. Implement ingestion, chunking, hybrid retrieval, fusion/dedupe, permission filtering, reranking, grounded cited answers, refusal behavior, trace logging, and retrieval/answer evals. Use deterministic mocks in tests; do not call live model/vector/reranker providers unless explicitly configured.`,
-  },
-  {
-    slug: 'stripe-billing-extension',
-    title: 'Stripe Billing Extension',
-    creator: 'Agent Buildprint',
-    category: 'Feature / Extension',
-    tier: 'basic',
-    status: 'validated',
-    runtime: ['Any backend', 'TypeScript proof'],
-    stack: ['Stripe', 'Webhooks', 'Entitlements', 'SaaS'], 
-    iconKeys: ['typescript', 'stripe', 'json'],
-    difficulty: 'Medium',
-    featured: true,
-    summary: 'Add SaaS billing to any backend without forgetting checkout, subscriptions, trials, portal, webhooks, entitlement checks, and billing UI.',
-    plainDescription: 'A portable blueprint for adding paid SaaS billing to an existing backend: checkout, subscriptions, customer portal, webhooks, entitlement checks, and billing settings.',
-    whatYouGet: ['Stripe checkout flow', 'Subscription and trial handling', 'Customer portal entry point', 'Verified webhook handler', 'Server-side entitlement checks', 'Billing settings UI'],
-    whatYouNeed: ['Stripe account and API keys for live billing', 'Webhook signing secret for production webhooks', 'Product/pricing decisions from the human', 'Nothing for mocked/local billing tests'],
-    architectureFlow: ['Checkout', 'Webhook', 'Subscription', 'Entitlements', 'Portal', 'Billing UI'],
-    promise: 'A practical extension Buildprint for the paid-app foundation coding agents often implement incompletely.',
-    includes: ['Checkout session', 'Subscriptions and trials', 'Customer portal', 'Webhook handler', 'Subscription state model', 'Entitlement guards', 'Billing settings UI'],
-    risks: ['Webhook signature skipped', 'Frontend state trusted for access', 'Failed payment states ignored', 'Portal exposed without auth', 'Subscription state drift'],
-    files: [
-      { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
-      { path: 'README.md', purpose: 'package overview and validation summary', required: true },
-      { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
-      { path: 'CONTRACTS.md', purpose: canonicalFilePurposes['CONTRACTS.md'], required: true },
-      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
-      { path: 'TEST_MATRIX.md', purpose: canonicalFilePurposes['TEST_MATRIX.md'], required: true },
-      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
-      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
-      { path: 'proof/package.json', purpose: 'dry-run proof package scripts', required: false },
-      { path: 'proof/src/billing/entitlements.ts', purpose: 'dry-run proof server-side entitlement guard', required: false },
-      { path: 'proof/src/billing/env.ts', purpose: 'dry-run proof env var name list', required: false },
-      { path: 'proof/src/billing/errors.ts', purpose: 'dry-run proof billing errors', required: false },
-      { path: 'proof/src/billing/provider.ts', purpose: 'dry-run proof mocked billing provider', required: false },
-      { path: 'proof/src/billing/service.ts', purpose: 'dry-run proof checkout and portal service', required: false },
-      { path: 'proof/src/billing/store.ts', purpose: 'dry-run proof in-memory subscription store', required: false },
-      { path: 'proof/src/billing/types.ts', purpose: 'dry-run proof billing types', required: false },
-      { path: 'proof/src/billing/webhook.ts', purpose: 'dry-run proof webhook lifecycle handler', required: false },
-      { path: 'proof/src/billing/webhookVerifier.ts', purpose: 'dry-run proof mockable signature verifier', required: false },
-      { path: 'proof/src/index.ts', purpose: 'dry-run proof module exports', required: false },
-      { path: 'proof/src/ui/billingUi.ts', purpose: 'dry-run proof billing settings UI stub', required: false },
-      { path: 'proof/test/billing.test.ts', purpose: 'dry-run proof lifecycle tests', required: false },
-      { path: 'proof/test/node-builtins.d.ts', purpose: 'dry-run proof local Node type shims', required: false },
-      { path: 'proof/tsconfig.json', purpose: 'dry-run proof TypeScript config', required: false },
-      { path: 'TARGET_STACK_ADAPTERS.md', purpose: 'Buildprint package file', required: true },
-    ],
-    checks: ['Codex dry-run generated a TypeScript billing proof', 'npm run build passed in dry-run proof', 'npm test passed: 6/6 lifecycle tests', 'Target-stack adapters document Node/TypeScript, Python, Rails, Go, and PHP/Laravel mappings', 'Webhook signatures verified before state mutation', 'Premium access uses server-side subscription state', 'Portal requires authenticated customer', 'Failed/canceled/trialing states handled'],
-    trustBadges: [
-      { label: 'Codex dry-run passed', detail: 'Fresh Codex run built an offline TypeScript billing proof from the Buildprint package.', tone: 'success' },
-      { label: '6/6 tests passed', detail: 'Checkout, portal, webhook signature, lifecycle states, entitlements, and billing UI stub are covered.', tone: 'success' },
-      { label: 'Portable backend contract', detail: 'Adapters preserve the same checkout, webhook, state, entitlement, portal, and test boundaries across stacks.', tone: 'info' },
-      { label: 'No real Stripe calls', detail: 'Validation uses mock providers and env var names only; no secrets or network billing calls.', tone: 'info' },
-    ],
-    githubUrl: `${repoUrl}/tree/main/buildprints/stripe-billing-extension`,
-    rawBaseUrl: rawFor('stripe-billing-extension'),
-    copyPrompt: `${localPrompt('stripe-billing-extension', 'Stripe Billing Extension')} First identify my backend stack, routing/auth/database/test patterns, then adapt TARGET_STACK_ADAPTERS.md to that stack. Implement billing with verified webhooks, server-side subscription state, entitlements, customer portal, billing UI, and lifecycle tests. Use env var names only; do not call real Stripe APIs in tests.`, 
-  },
-  {
-    slug: 'portable-ai-swarm-simulation-workbench',
-    title: 'Portable AI Swarm Simulation Workbench',
-    creator: 'Agent Buildprint',
-    category: 'Mapped Project',
-    tier: 'agent-grade',
-    status: 'dry-run-needed',
-    runtime: ['Node.js or equivalent full-stack runtime', 'Clean-room first-slice proof'],
-    stack: ['Document ingestion', 'Ontology generation', 'Graph memory adapter', 'Multi-agent simulation', 'Report agent', 'Interactive workbench'],
-    iconKeys: ['typescript', 'json', 'md'],
-    difficulty: 'Advanced',
-    featured: true,
-    summary: 'Buildprint for a graph-backed AI swarm simulation workbench: upload source material, generate ontology, build graph context, prepare/run simulations, generate reports, and interact with agents.',
-    plainDescription: 'A selected Mapper OS package for rebuilding the core shape of an AI swarm prediction workbench without copying source code: document ingestion, graph construction, simulation setup/runtime, report generation, chat interaction, and durable history.',
-    whatYouGet: ['Router-first selected Buildprint package', 'Capability index for six execution packs', 'Team-stack gates for architecture, UX, runtime, security, persistence, and verification', 'UX contract and design quality bar for a serious simulation workbench', 'Provider boundaries for LLM, Zep-style graph memory, and simulation runtime', 'First-slice proof notes for upload-to-ontology'],
-    whatYouNeed: ['Nothing for deterministic test-double first-slice proof', 'LLM provider key for live ontology/report generation', 'Zep or graph-memory provider key for live graph proof', 'Simulation worker/OASIS-compatible runtime decision', 'Persistence backend decision for full-suite qualification'],
-    architectureFlow: ['Upload', 'Ontology', 'Graph', 'Agents', 'Simulation', 'Report/chat'],
-    promise: 'A source-independent mapped-project Buildprint for an AI swarm simulation workbench, scoped as SELECTED_UNQUALIFIED until each provider, browser, runtime, persistence, security, and no-fake gate is proven.',
-    includes: ['Origin source commit recorded', 'Full-suite selected package shape', 'CAPABILITY_INDEX.md traffic controller', 'CURRENT_STATE.md active-pack pointer', 'TEAM_STACK.md quality gates', 'UX_CONTRACT.md workflow state contract', 'DESIGN_QUALITY_BAR.md visual quality contract', 'Document upload and ontology pack', 'Graph builder and visualization pack', 'Simulation setup pack', 'Simulation runtime monitoring pack', 'Report and deep interaction pack', 'History and data lifecycle pack'],
-    risks: ['Overclaiming full MiroFish clone parity', 'Counting deterministic providers as live LLM/Zep/OASIS proof', 'Generic dashboard UI instead of graph/simulation workbench', 'Static graph/report data presented as real behavior', 'No-op run/stop/chat/delete controls', 'In-memory-only state counted as durable persistence', 'Secret leakage through provider logs'],
-    files: portableAiSwarmSimulationFiles,
-    checks: ['Selected package passes Mapper OS selected-output validator', 'Fresh Codex run bootstrapped snapshots via agb-start-style flow', 'First active capability built independently from snapshots only', 'npm test -- ingestion-ontology passed 4/4 in scratch implementation', 'Browser proof artifacts were produced for upload and graph states', 'Provider scope remains deterministic-test-double only; live LLM/Zep/OASIS proof is not claimed', 'Qualification remains SELECTED_UNQUALIFIED until full-suite gates pass'],
-    trustBadges: [
-      { label: 'Mapper OS selected output passed', detail: 'Spine, manifest parity, team stack, UX/design contracts, and capability packs validate.', tone: 'success' },
-      { label: 'First-slice Codex proof passed', detail: 'Independent scratch run implemented upload, persistence, ontology adapter, graph adapter, UI, and 4/4 tests.', tone: 'success' },
-      { label: 'Source-independent package', detail: 'The dry run used downloaded Buildprint snapshots, not the original MiroFish source checkout.', tone: 'success' },
-      { label: 'Selected-unqualified boundary', detail: 'Live providers, full runtime, persistence, and security gates still need proof before qualification.', tone: 'warning' },
-    ],
-    githubUrl: `${repoUrl}/tree/main/buildprints/portable-ai-swarm-simulation-workbench`,
-    originGithubUrl: 'https://github.com/666ghj/MiroFish',
-    originLabel: '666ghj/MiroFish',
-    rawBaseUrl: rawFor('portable-ai-swarm-simulation-workbench'),
-    copyPrompt: `${localPrompt('portable-ai-swarm-simulation-workbench', 'Portable AI Swarm Simulation Workbench')} Build the clean-room AI swarm simulation workbench from the selected Buildprint package. Start with CURRENT_STATE.md and CONTEXT_PACKET.json, load only the active capability pack, prove it, then consult CAPABILITY_INDEX.md and continue through the full suite one capability at a time after each proof gate; do not inhale every capability pack upfront. Stop only on an explicit blocker, missing proof, provider uncertainty, destructive safety issue, secret exposure, user interruption, or context/tooling limit. Keep claims scoped to SELECTED_UNQUALIFIED until provider/runtime/browser/persistence/security proof exists. Use deterministic test doubles unless live LLM, graph-memory, and simulation runtime credentials are explicitly supplied. Do not call it a MiroFish clone, do not use the original MiroFish source as implementation input, and do not count static graph/report data, no-op controls, or in-memory-only state as completed product behavior.`,
-  },
-  {
-    slug: 'portable-ai-shorts-production-studio',
-    title: 'Portable AI Shorts Production Studio',
-    creator: 'Agent Buildprint',
-    category: 'Mapped Project',
-    tier: 'agent-grade',
-    status: 'validated',
-    runtime: ['JavaScript', 'Clean-room web proof'],
-    stack: ['Product analysis', 'UGC scripts', 'Actor / voice adapters', 'Video composition', 'Gallery SEO'],
-    iconKeys: ['typescript', 'json', 'md'],
-    difficulty: 'Advanced',
-    featured: true,
-    summary: 'OpenShorts-inspired AI shorts production Buildprint with product analysis, UGC script generation, actor/voice provider adapters, mocked media jobs, 9:16 composition, gallery SEO, and social handoff.',
-    plainDescription: 'A blueprint for an AI shorts production studio: start from a product, generate a UGC script, choose actor/voice options, queue media jobs, plan a 9:16 video, and hand off gallery/social assets.',
-    whatYouGet: ['AI shorts production studio', 'Product input and product analysis flow', 'UGC script generator', 'Actor/avatar and voice selection flow', 'Mock talking-head, b-roll, and subtitle job pipeline', '9:16 composition plus gallery/SEO/social handoff'],
-    whatYouNeed: ['Nothing for local/mock proof mode', 'AI provider key for real product analysis and script generation', 'TTS provider key for real voiceover', 'Image/video provider keys for live media generation', 'Storage or social credentials only if you want real publishing'],
-    architectureFlow: ['Product', 'Script', 'Voice/avatar', 'Media jobs', '9:16 video', 'Gallery/social'],
-    promise: 'A validated mapped-project Buildprint for rebuilding a portable AI shorts production pipeline from public OpenShorts architecture patterns without claiming OpenShorts clone, provider/API, rendering-quality, or social-platform parity.',
-    includes: ['Pinned OpenShorts source trace', 'Repo facts and fork/license boundary notes', 'Product URL/manual-input analysis flow', 'Five-segment UGC script contract', 'Actor gallery/generated/uploaded selection model', 'Voiceover adapter contract', 'Talking-head/lipsync adapter contract', 'B-roll generation adapter contract', 'Subtitle and hook overlay composition plan', '9:16 video manifest', 'Gallery SEO VideoObject manifest', 'Social publishing handoff manifest', 'Threat model for keys, likeness, scraping, and gallery exposure', 'Clean-room runnable proof with tests'],
-    risks: ['Accidentally implying OpenShorts clone parity', 'Provider/API parity overclaiming', 'Video quality/rendering parity overclaiming', 'Social platform publishing reliability overclaiming', 'User likeness/copyright/consent under-specification', 'Client-side API key handling scope creep'],
-    files: [
-      { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
-      { path: 'README.md', purpose: canonicalFilePurposes['README.md'], required: true },
-      { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
-      { path: 'CONTRACTS.md', purpose: canonicalFilePurposes['CONTRACTS.md'], required: true },
-      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
-      { path: 'TEST_MATRIX.md', purpose: canonicalFilePurposes['TEST_MATRIX.md'], required: true },
-      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
-      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
-      { path: 'acceptance.yaml', purpose: 'machine-readable mirror', required: true },
-      { path: 'ASYNC_JOB_MODEL.md', purpose: 'Buildprint package file', required: true },
-      { path: 'BROWSER_QA_SCENARIOS.md', purpose: 'Buildprint package file', required: true },
-      { path: 'buildprint.json', purpose: 'machine-readable mirror', required: true },
-      { path: 'claims.yaml', purpose: 'machine-readable mirror', required: true },
-      { path: 'DEFAULT_PRESET.md', purpose: canonicalFilePurposes['DEFAULT_PRESET.md'], required: true },
-      { path: 'HEAD_TO_FOOT_QA.md', purpose: 'Buildprint package file', required: true },
-      { path: 'LLM_AGENT_EXECUTION_GUIDE.md', purpose: 'Buildprint package file', required: true },
-      { path: 'MEDIA_PIPELINE_SPEC.md', purpose: 'Buildprint package file', required: true },
-      { path: 'PARITY_CLAIMS.md', purpose: 'Buildprint package file', required: true },
-      { path: 'phases.yaml', purpose: 'machine-readable mirror', required: true },
-      { path: 'PRODUCT_QUALITY_BAR.md', purpose: 'Buildprint package file', required: true },
-      { path: 'PROVIDER_ADAPTERS.md', purpose: 'Buildprint package file', required: true },
-      { path: 'QA_PLAN.md', purpose: 'validation and reversal proof plan', required: true },
-      { path: 'questions.md', purpose: canonicalFilePurposes['questions.md'], required: true },
-      { path: 'SOURCE_TRACE.md', purpose: 'OpenShorts source evidence grouped by capability', required: true },
-      { path: 'SYSTEM_MAP.md', purpose: 'OpenShorts system map and pipeline layers', required: true },
-      { path: 'THREAT_MODEL.md', purpose: 'key/likeness/scraping/provider/gallery safety model', required: true },
-      { path: 'TRACEABILITY_MATRIX.md', purpose: 'source evidence to requirement/check traceability', required: true },
-      { path: 'WEBAPP_TARGET_SPEC.md', purpose: 'Buildprint package file', required: true },
-      { path: 'WORKBENCH_UX_SPEC.md', purpose: 'Buildprint package file', required: true },
-    ],
-    checks: ['Mapped source commit is recorded: fe87af6dd599b854e6eab2de0ca247ebafe13885', 'Required Mapper OS artifacts exist', 'Source trace cites concrete OpenShorts files/line ranges', 'Clean-room proof is built from Buildprint docs, not OpenShorts imports', 'npm run check passes in clean-room proof', '7/7 proof tests pass', 'Claim boundary remains workflow-proof + contract-parity + mocked-provider proof', 'Full clone/provider/API/rendering/social-platform parity are explicitly out of scope'],
-    trustBadges: [
-      { label: 'Runnable proof passed', detail: 'Clean-room JavaScript proof passes 7/7 tests and builds dist/.', tone: 'success' },
-      { label: 'Visual product pipeline', detail: 'Maps product analysis through script, actor, voice, media jobs, composition, gallery, and publishing handoff.', tone: 'info' },
-      { label: 'OpenShorts-inspired, not clone', detail: 'Public boundary excludes clone, provider/API, rendering-quality, and social-platform parity.', tone: 'warning' },
-      { label: 'Mocked providers', detail: 'External video, voice, storage, and social services are modeled as adapters/mocks.', tone: 'neutral' },
-    ],
-    githubUrl: `${repoUrl}/tree/main/buildprints/portable-ai-shorts-production-studio`,
-    originGithubUrl: 'https://github.com/mutonby/openshorts',
-    originLabel: 'mutonby/openshorts',
-    rawBaseUrl: rawFor('portable-ai-shorts-production-studio'),
-    copyPrompt: `${localPrompt('portable-ai-shorts-production-studio', 'Portable AI Shorts Production Studio')} Build a clean-room AI shorts production proof from the Buildprint package. Keep claims scoped to workflow-proof + contract-parity + mocked-provider proof. Do not call it an OpenShorts clone, drop-in replacement, provider/API parity implementation, rendering-quality parity proof, or social-platform publishing parity proof.`,
-  },
-  {
-    slug: 'portable-durable-agent-graph-runtime',
-    title: 'Portable Durable Agent Graph Runtime',
-    creator: 'Agent Buildprint',
-    category: 'Mapped Project',
-    tier: 'agent-grade',
-    status: 'validated',
-    runtime: ['TypeScript', 'Clean-room runtime proof'],
-    stack: ['Typed state graph', 'Reducers', 'Checkpointing', 'Interrupt/resume', 'Send fanout'],
-    iconKeys: ['typescript', 'json', 'md'],
-    difficulty: 'Advanced',
-    featured: true,
-    summary: 'LangGraph-inspired durable graph runtime Buildprint with source trace, scoped TypeScript reversal proof, checkpoints, interrupts, streaming, reducers, and Send fanout.',
-    plainDescription: 'A blueprint for a durable agent graph runtime: define graph nodes, route state through edges, checkpoint progress, resume interrupted runs, and stream execution events.',
-    whatYouGet: ['Durable agent graph runtime', 'Graph builder API', 'State schema and reducer model', 'Conditional routing and fanout', 'Checkpoint/resume behavior', 'Interrupt/recovery and stream events'],
-    whatYouNeed: ['Nothing for local/mock runtime proof', 'Database/storage credentials only if replacing the in-memory checkpoint saver', 'AI/model/tool provider keys only if your nodes call real external services'],
-    architectureFlow: ['Graph builder', 'State', 'Routing', 'Checkpoint', 'Interrupt', 'Stream'],
-    promise: 'A validated mapped-project Buildprint for rebuilding a small portable durable graph runtime from evidence-backed LangGraph architecture concepts without claiming clone, drop-in, API, provider, cloud, storage, or Pregel parity.',
-    includes: ['Pinned LangGraph source trace', 'Builder / compile / runtime architecture map', 'Typed-ish state schema and reducers', 'Directed and conditional routing', 'Invoke/stream contracts', 'Checkpoint tuple and in-memory saver contract', 'Pending-write recovery simulation', 'Interrupt/resume via Command', 'Send fanout proof', 'Async invoke/stream proof', 'Serializer safety gate', 'Clean-room TypeScript reversal proof', 'QA and reversal reports'],
-    risks: ['Accidentally implying LangGraph clone parity', 'API compatibility overclaiming', 'Pregel concurrency/performance overclaiming', 'Provider/tool ecosystem scope creep', 'Production storage adapter overclaiming', 'Serializer/checkpoint byte compatibility overclaiming'],
-    files: [
-      { path: 'BUILDPRINT.md', purpose: canonicalFilePurposes['BUILDPRINT.md'], required: true },
-      { path: 'README.md', purpose: 'package overview and clean-room boundary', required: true },
-      { path: 'SPEC.md', purpose: canonicalFilePurposes['SPEC.md'], required: true },
-      { path: 'CONTRACTS.md', purpose: canonicalFilePurposes['CONTRACTS.md'], required: true },
-      { path: 'PLAN.md', purpose: canonicalFilePurposes['PLAN.md'], required: true },
-      { path: 'TEST_MATRIX.md', purpose: canonicalFilePurposes['TEST_MATRIX.md'], required: true },
-      { path: 'VALIDATION_TEMPLATE.md', purpose: canonicalFilePurposes['VALIDATION_TEMPLATE.md'], required: true },
-      { path: 'checks/acceptance.md', purpose: canonicalFilePurposes['checks/acceptance.md'], required: true },
-      { path: 'PARITY_CLAIMS.md', purpose: 'Buildprint package file', required: true },
-      { path: 'QA_PLAN.md', purpose: 'validation and reversal proof plan', required: true },
-      { path: 'SOURCE_TRACE.md', purpose: 'pinned LangGraph source trace with OBSERVED evidence', required: true },
-      { path: 'SYSTEM_MAP.md', purpose: 'selected system map and runtime layers', required: true },
-      { path: 'THREAT_MODEL.md', purpose: 'serializer/checkpoint/node-output safety model', required: true },
-      { path: 'TRACEABILITY_MATRIX.md', purpose: 'source evidence to requirement/check traceability', required: true },
-    ],
-    checks: ['Pinned source commit is recorded: 076e2a3627206f5a1aef573aaca4a01e5af897ca', '166 source references checked with 0 missing and 0 bad line ranges', 'Clean-room TypeScript proof uses Buildprint docs only, not LangGraph source imports', 'npm test runs tsc and node --test', '12/12 proof tests pass', 'Claim boundary remains workflow-proof + contract-parity + mocked-runtime-proof', 'Full clone/API/provider/cloud/storage/Pregel parity are explicitly out of scope'],
-    trustBadges: [
-      { label: 'Scoped reversal proof passed', detail: 'Clean-room TypeScript proof passes 12/12 tests from the Buildprint package.', tone: 'success' },
-      { label: 'Evidence trace checked', detail: '166 pinned-source references checked with 0 missing files and 0 bad ranges.', tone: 'success' },
-      { label: 'LangGraph-inspired, not clone', detail: 'Public claim boundary excludes clone, API, cloud/provider, storage, and Pregel parity.', tone: 'warning' },
-      { label: 'TypeScript proof', detail: 'Includes tsc build, public declarations, async surfaces, Send fanout, and pending-write recovery simulation.', tone: 'info' },
-    ],
-    githubUrl: `${repoUrl}/tree/main/buildprints/portable-durable-agent-graph-runtime`,
-    originGithubUrl: 'https://github.com/langchain-ai/langgraph',
-    originLabel: 'langchain-ai/langgraph',
-    rawBaseUrl: rawFor('portable-durable-agent-graph-runtime'),
-    copyPrompt: `${localPrompt('portable-durable-agent-graph-runtime', 'Portable Durable Agent Graph Runtime')} Build a clean-room TypeScript durable graph runtime proof from the Buildprint package. Keep claims scoped to workflow-proof + contract-parity + mocked-runtime-proof. Do not call it a LangGraph clone, drop-in replacement, full API-compatible runtime, LangSmith/cloud equivalent, provider/tool parity implementation, production storage adapter, or Pregel concurrency/performance parity.`,
-  },
-];
 
 export const categories = ['All', 'Framework / Architecture', 'Product OS', 'Feature / Extension', 'Workflow OS', 'Mapped Project'] as const;
 export const tiers = ['All', 'basic', 'strong', 'agent-grade'] as const;
@@ -1150,14 +200,22 @@ export const getBuildprint = (slug: string) => buildprints.find((item) => item.s
 export const liveBuildprints = buildprints;
 
 export function buildprintUrls(bp: Buildprint) {
-  return { human: `/buildprints/${bp.slug}/`, agent: `/buildprints/${bp.slug}/agent.md`, manifest: `/buildprints/${bp.slug}/package.json`, prompt: `/buildprints/${bp.slug}/prompt.txt`, files: bp.rawBaseUrl };
+  return {
+    human: `/buildprints/${bp.slug}/`,
+    agent: `/buildprints/${bp.slug}/agent.md`,
+    manifest: `/buildprints/${bp.slug}/package.json`,
+    prompt: `/buildprints/${bp.slug}/prompt.txt`,
+    files: bp.rawBaseUrl,
+  };
 }
 
 export function packageManifest(bp: Buildprint) {
   const urls = buildprintUrls(bp);
-  const hasFile = (path: string) => bp.files.some((file) => file.path === path);
+  const hasFile = (file: string) => bp.files.some((item) => item.path === file);
   const isExecutablePacket = hasFile('START_HERE.md') && hasFile('blueprint.yaml');
-  const readOrder = (isExecutablePacket ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml', '02-context/context-map.yaml', 'PRE_IMPLEMENTATION_QUESTIONS.md', '02-context/team-stack.yaml', '02-context/ux-contract.md', '02-context/design-quality-bar.md'] : ['BUILDPRINT.md']).filter(hasFile);
+  const readOrder = (isExecutablePacket
+    ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml', '02-context/context-map.yaml', 'PRE_IMPLEMENTATION_QUESTIONS.md', '02-context/team-stack.yaml', '02-context/ux-contract.md', '02-context/design-quality-bar.md']
+    : ['BUILDPRINT.md']).filter(hasFile);
   const canonicalStart = isExecutablePacket ? 'START_HERE.md' : 'BUILDPRINT.md';
   const instructionRule = isExecutablePacket
     ? 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the compatibility bootstrap, then START_HERE.md and blueprint.yaml route the executable packet. Load only the active capability packet named by the router/context map; do not read unrelated capability packets upfront.'
@@ -1173,13 +231,21 @@ export function packageManifest(bp: Buildprint) {
     stack: bp.stack,
     canonicalStart,
     readOrder,
-    entrypoints: { human: urls.human, agent: urls.agent, manifest: urls.manifest, prompt: urls.prompt, github: bp.githubUrl, originGithub: bp.originGithubUrl, rawBase: bp.rawBaseUrl },
+    entrypoints: {
+      human: urls.human,
+      agent: urls.agent,
+      manifest: urls.manifest,
+      prompt: urls.prompt,
+      github: bp.githubUrl,
+      originGithub: bp.originGithubUrl,
+      rawBase: bp.rawBaseUrl,
+    },
     bootstrap: {
       command: `agb start ${siteBase}/buildprints/${bp.slug}/package.json`,
       fallbackCommand: `git clone https://github.com/DomEscobar/agent-buildprint && node agent-buildprint/bin/agb.js start ${siteBase}/buildprints/${bp.slug}/package.json`,
       stateDir: '.buildprint',
       snapshotMode: 'download_exact',
-      rule: 'Do not write, summarize, or regenerate snapshot files manually. Use agb start to download exact files from this manifest.'
+      rule: 'Do not write, summarize, or regenerate snapshot files manually. Use agb start to download exact files from this manifest.',
     },
     files: bp.files.map((file) => ({ ...file, rawUrl: `${bp.rawBaseUrl}/${file.path}` })),
     instructions: {
