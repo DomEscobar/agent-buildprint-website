@@ -25,11 +25,13 @@ const architectureFlow = bp.architectureFlow?.length ? bp.architectureFlow : bp.
 const proofItems = bp.trustBadges?.length
   ? bp.trustBadges.slice(0, 4).map((badge) => badge.label)
   : bp.checks.slice(0, 4);
-const packetOrder = ['BUILDPRINT.md', 'SPEC.md', 'PLAN.md', 'CONTRACTS.md', 'EXECUTION_PROTOCOL.md', 'IMPLEMENTATION_PLAN.md', 'VERIFICATION.md', 'DEFAULT_PRESET.md', 'TEST_MATRIX.md', 'VALIDATION_TEMPLATE.md'];
+const packetOrder = manifest.readOrder?.length
+  ? manifest.readOrder
+  : ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml', '02-context/context-map.yaml', '03-capabilities/capability-index.yaml', '08-evaluation/acceptance.yaml', '09-evidence/evidence-ledger.jsonl'];
 const packetFiles = packetOrder
   .map((path) => bp.files.find((file) => file.path === path))
   .filter(Boolean)
-  .slice(0, 6);
+  .slice(0, 8);
 const mockRequirement = rawRequirements.find((item) => /nothing/i.test(item));
 const realRequirementTerms = /(api|key|credential|account|access|repo|private|provider|storage|database|webhook|domain|runtime|adapter|corpus|permission)/i;
 const fillerRequirementTerms = /(human|taste|decision|policy|direction|choice|list of|critical workflow)/i;
@@ -104,7 +106,7 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
           </a>)}
         </div>
 
-        <h2>Implementation flow</h2>
+        <h2>{isWorkflow ? 'Workflow route' : 'Implementation flow'}</h2>
         <div class="architecture-flow compact-flow flat-flow" aria-label="Implementation flow">
           {architectureFlow.map((step, index) => <>
             <span><TechName name={step} /></span>
