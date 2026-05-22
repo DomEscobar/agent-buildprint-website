@@ -13,6 +13,9 @@ if (!bp) return Astro.redirect('/buildprints/');
 
 const manifest = packageManifest(bp);
 const detailStatus = bp.status === 'validated' ? 'Validated' : bp.checks.length ? 'Checked' : 'Ready';
+const isWorkflow = bp.category === 'Workflow OS';
+const snapshotLabel = isWorkflow ? 'Produces' : 'Builds';
+const estimateLabel = isWorkflow ? 'for a first agent workflow pass.' : 'for a first agent implementation pass.';
 const startCommand = `agb start ${siteBase}/buildprints/${bp.slug}/package.json`;
 const originName = bp.originLabel ?? bp.originGithubUrl?.replace('https://github.com/', '');
 const description = bp.plainDescription ?? bp.summary;
@@ -58,7 +61,7 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
       <section class="markdown-body benefit-body detail-blueprint-body">
         <div class="detail-snapshot flat-snapshot" aria-label="Buildprint snapshot">
           <section class="detail-panel">
-            <span>Builds</span>
+            <span>{snapshotLabel}</span>
             <ul>{whatYouGet.slice(0, 3).map((item) => <li>{item}</li>)}</ul>
           </section>
           <section class="detail-panel requirements-panel">
@@ -73,7 +76,7 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
           </section>
           <section class="detail-panel estimate-panel">
             <span>Estimate</span>
-            <p><b>{implementationEstimate(bp)}</b> for a first agent implementation pass.</p>
+            <p><b>{implementationEstimate(bp)}</b> {estimateLabel}</p>
           </section>
         </div>
 
