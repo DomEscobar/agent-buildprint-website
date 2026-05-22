@@ -58,6 +58,8 @@ export const canonicalFilePurposes: Record<string, string> = {
   'plans/*.md': 'tiny phase task rails',
   'CONTRACTS.md': 'interfaces and data contracts',
   'TEAM_STACK.md': 'selected internal team-pack quality gates',
+  'CONTEXT_PACKET.json': 'machine-readable active capability context packet',
+  'SOURCE_SURFACE_COVERAGE.md': 'source-surface ownership and behavior-loss guard',
   'DESIGN_QUALITY_BAR.md': 'UI visual quality bar, taste variables, and screenshot gates',
   'EXECUTION_PROTOCOL.md': 'agent execution protocol and stop rules',
   'IMPLEMENTATION_PLAN.md': 'capability implementation roadmap',
@@ -88,12 +90,14 @@ const selectedOutputFiles = (paths: string[]): BuildprintFile[] => paths.map((pa
 const portableAiSwarmSimulationFiles = selectedOutputFiles([
   'BUILDPRINT.md',
   'CAPABILITY_INDEX.md',
+  'CONTEXT_PACKET.json',
   'CONTRACTS.md',
   'CURRENT_STATE.md',
   'DESIGN_QUALITY_BAR.md',
   'EXECUTION_PROTOCOL.md',
   'IMPLEMENTATION_PLAN.md',
   'PRE_IMPLEMENTATION_QUESTIONS.md',
+  'SOURCE_SURFACE_COVERAGE.md',
   'TEAM_STACK.md',
   'UX_CONTRACT.md',
   'VERIFICATION.md',
@@ -120,6 +124,7 @@ const portableAiSwarmSimulationFiles = selectedOutputFiles([
 const toonflowAppFiles = selectedOutputFiles([
   'BUILDPRINT.md',
   'CAPABILITY_INDEX.md',
+  'CONTEXT_PACKET.json',
   'SOURCE_SURFACE_COVERAGE.md',
   'CONTRACTS.md',
   'CURRENT_STATE.md',
@@ -483,7 +488,7 @@ export const buildprints: Buildprint[] = [
     originGithubUrl: 'https://github.com/HBAI-Ltd/Toonflow-app',
     originLabel: 'HBAI-Ltd/Toonflow-app',
     rawBaseUrl: rawFor('toonflow-app'),
-    copyPrompt: `${localPrompt('toonflow-app', 'Toonflow Full-Suite Source-Independent Mapping')} Build from the selected Toonflow Buildprint package, not from the source repo. Start with CURRENT_STATE.md, load only the active capability pack, prove it, then continue through the full suite one dependency-ready capability pack at a time after each proof gate; do not inhale every capability pack upfront. Stop only on an explicit blocker, missing proof, provider/runtime uncertainty, destructive safety issue, secret exposure, user interruption, or context/tooling limit. Preserve SELECTED_UNQUALIFIED claim boundaries until browser/app runtime, provider, persistence, security, and clean-room proof gates are closed. UI work must satisfy UX_CONTRACT.md and DESIGN_QUALITY_BAR.md; do not ship a generic dashboard, static mock, no-op control, or in-memory-only claimed product behavior.`
+    copyPrompt: `${localPrompt('toonflow-app', 'Toonflow Full-Suite Source-Independent Mapping')} Build from the selected Toonflow Buildprint package, not from the source repo. Start with CURRENT_STATE.md and CONTEXT_PACKET.json, load only the active capability pack, prove it, then consult CAPABILITY_INDEX.md and continue through the full suite one dependency-ready capability pack at a time after each proof gate; do not inhale every capability pack upfront. Stop only on an explicit blocker, missing proof, provider/runtime uncertainty, destructive safety issue, secret exposure, user interruption, or context/tooling limit. Preserve SELECTED_UNQUALIFIED claim boundaries until browser/app runtime, provider, persistence, security, and clean-room proof gates are closed. UI work must satisfy UX_CONTRACT.md and DESIGN_QUALITY_BAR.md; do not ship a generic dashboard, static mock, no-op control, or in-memory-only claimed product behavior.`
   },
   {
     slug: 'buildprint-mapper-os',
@@ -1036,7 +1041,7 @@ export const buildprints: Buildprint[] = [
     originGithubUrl: 'https://github.com/666ghj/MiroFish',
     originLabel: '666ghj/MiroFish',
     rawBaseUrl: rawFor('portable-ai-swarm-simulation-workbench'),
-    copyPrompt: `${localPrompt('portable-ai-swarm-simulation-workbench', 'Portable AI Swarm Simulation Workbench')} Build the clean-room AI swarm simulation workbench from the selected Buildprint package. Start with CURRENT_STATE.md, load only the active capability pack, prove it, then continue through the full suite one capability at a time after each proof gate; do not inhale every capability pack upfront. Stop only on an explicit blocker, missing proof, provider uncertainty, destructive safety issue, secret exposure, user interruption, or context/tooling limit. Keep claims scoped to SELECTED_UNQUALIFIED until provider/runtime/browser/persistence/security proof exists. Use deterministic test doubles unless live LLM, graph-memory, and simulation runtime credentials are explicitly supplied. Do not call it a MiroFish clone, do not use the original MiroFish source as implementation input, and do not count static graph/report data, no-op controls, or in-memory-only state as completed product behavior.`,
+    copyPrompt: `${localPrompt('portable-ai-swarm-simulation-workbench', 'Portable AI Swarm Simulation Workbench')} Build the clean-room AI swarm simulation workbench from the selected Buildprint package. Start with CURRENT_STATE.md and CONTEXT_PACKET.json, load only the active capability pack, prove it, then consult CAPABILITY_INDEX.md and continue through the full suite one capability at a time after each proof gate; do not inhale every capability pack upfront. Stop only on an explicit blocker, missing proof, provider uncertainty, destructive safety issue, secret exposure, user interruption, or context/tooling limit. Keep claims scoped to SELECTED_UNQUALIFIED until provider/runtime/browser/persistence/security proof exists. Use deterministic test doubles unless live LLM, graph-memory, and simulation runtime credentials are explicitly supplied. Do not call it a MiroFish clone, do not use the original MiroFish source as implementation input, and do not count static graph/report data, no-op controls, or in-memory-only state as completed product behavior.`,
   },
   {
     slug: 'portable-ai-shorts-production-studio',
