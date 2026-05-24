@@ -15,6 +15,7 @@ export function GET() {
       category: bp.category,
       tier: bp.tier,
       status: bp.status,
+      publicStatus: bp.publicStatus,
       runtime: bp.runtime,
       stack: bp.stack,
       difficulty: bp.difficulty,

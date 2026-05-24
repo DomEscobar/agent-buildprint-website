@@ -4,11 +4,13 @@ import { buildprints, categories, implementationEstimate, tiers } from '@/lib/bu
 import { badgeIcon, iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
 
 const trustLabel = (bp) => {
+  if (bp.publicStatus?.label) return bp.publicStatus.label;
   if (bp.status === 'validated') return 'Validated';
   if (bp.checks.length > 0) return 'CHECKED';
   return 'READY';
 };
 const trustTip = (bp) => {
+  if (bp.publicStatus?.explanation) return bp.publicStatus.explanation;
   if (bp.status === 'validated') return 'Validated by snapshot bootstrap, Codex dry-run, local tests, and gated publishing checks.';
   if (bp.checks.length > 0) return 'Has defined quality checks, but still needs full dry-run validation.';
   return 'Ready to inspect.';

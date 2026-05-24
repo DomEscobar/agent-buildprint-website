@@ -8,6 +8,7 @@ export type BuildprintStatus = 'publishable-draft' | 'dry-run-needed' | 'validat
 
 export type BuildprintFile = { path: string; purpose: string; required: boolean };
 export type BuildprintTrustBadge = { label: string; detail: string; tone?: 'success' | 'info' | 'warning' | 'neutral' };
+export type BuildprintPublicStatus = { label: string; explanation: string };
 export type BuildprintPublication = {
   schema: 'agent-buildprint/publication.v1';
   slug: string;
@@ -27,6 +28,7 @@ export type BuildprintPublication = {
   risks: string[];
   checks: string[];
   trustBadges?: BuildprintTrustBadge[];
+  publicStatus?: BuildprintPublicStatus;
   plainDescription?: string;
   whatYouGet?: string[];
   whatYouNeed?: string[];
@@ -234,6 +236,7 @@ export function packageManifest(bp: Buildprint) {
     category: bp.category,
     tier: bp.tier,
     status: bp.status,
+    publicStatus: bp.publicStatus,
     runtime: bp.runtime,
     stack: bp.stack,
     canonicalStart,

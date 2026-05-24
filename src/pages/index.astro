@@ -24,11 +24,13 @@ const proofItems = ['Bootstrap snapshot passed', 'Router/read order clear', 'Pro
 const intakeQuestions = ['What is the active scope?', 'Which capability is next?', 'What proof upgrades the claim?'];
 
 const trustLabel = (bp) => {
+  if (bp.publicStatus?.label) return bp.publicStatus.label;
   if (bp.status === 'validated') return 'Validated';
   if (bp.checks.length > 0) return 'Checked';
   return 'Ready';
 };
 const trustTip = (bp) => {
+  if (bp.publicStatus?.explanation) return bp.publicStatus.explanation;
   if (bp.status === 'validated') return 'Validated by snapshot bootstrap, dry-run/tests, and documented proof.';
   if (bp.checks.length > 0) return 'Has defined quality checks, but still needs full dry-run validation.';
   return 'Ready to inspect.';

@@ -12,7 +12,8 @@ const bp = getBuildprint(Astro.params.slug ?? '');
 if (!bp) return Astro.redirect('/buildprints/');
 
 const manifest = packageManifest(bp);
-const detailStatus = bp.status === 'validated' ? 'Validated' : bp.checks.length ? 'Checked' : 'Ready';
+const detailStatus = bp.publicStatus?.label ?? (bp.status === 'validated' ? 'Validated' : bp.checks.length ? 'Checked' : 'Ready');
+const detailStatusTitle = bp.publicStatus?.explanation ?? (bp.status === 'validated' ? 'Validated by snapshot bootstrap, dry-run/tests, and documented proof.' : bp.checks.length ? 'Has defined quality checks, but still needs full dry-run validation.' : 'Ready to inspect.');
 const isWorkflow = bp.category === 'Workflow OS';
 const snapshotLabel = isWorkflow ? 'Produces' : 'Builds';
 const estimateLabel = isWorkflow ? 'for a first agent workflow pass.' : 'for a first agent implementation pass.';
@@ -50,7 +51,7 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
         <p class="readme-lead">{description}</p>
         <div class="readme-meta-line">
           <span><b>{badgeIcon(bp.category)}</b>{bp.category}</span>
-          <span><b>{badgeIcon(bp.status)}</b>{detailStatus}</span>
+          <span title={detailStatusTitle}><b>{badgeIcon(bp.status)}</b>{detailStatus}</span>
           <span>{bp.stack.slice(0, 3).join(' · ')}</span>
         </div>
         <div class="readme-links">
@@ -117,7 +118,7 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
         <h2>Validation</h2>
         <ul class="verification-list" aria-label="Validation evidence">
           {proofItems.map((item) => <li>{item}</li>)}
-          {bp.status === 'validated' ? <li>validated status</li> : <li>{detailStatus}</li>}
+          {bp.status === 'validated' ? <li>validated status</li> : <li>{detailStatus}{bp.publicStatus?.explanation ? ` — ${bp.publicStatus.explanation}` : ''}</li>}
         </ul>
 
         <h2>Links</h2>
@@ -150,7 +151,7 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
           </div>
 
           <h3>Manifest preview</h3>
-          <pre>{JSON.stringify({ slug: bp.slug, title: bp.title, tier: bp.tier, category: bp.category, status: bp.status, originGithub: bp.originGithubUrl, agent: manifest.entrypoints.agent, manifest: manifest.entrypoints.manifest }, null, 2)}</pre>
+          <pre>{JSON.stringify({ slug: bp.slug, title: bp.title, tier: bp.tier, category: bp.category, status: bp.status, publicStatus: bp.publicStatus, originGithub: bp.originGithubUrl, agent: manifest.entrypoints.agent, manifest: manifest.entrypoints.manifest }, null, 2)}</pre>
         </details>
       </section>
     </article>
