@@ -44,10 +44,11 @@ save('live-package.json', JSON.stringify(manifest, null, 2) + '\n');
 save('live-README.md', readme);
 save('live-buildprint.json', JSON.stringify(buildprintJson, null, 2) + '\n');
 
-const isExecutablePacket = manifest.files?.some((file) => file.path === 'START_HERE.md')
-  && manifest.files?.some((file) => file.path === 'blueprint.yaml');
-const expectedCanonicalStart = isExecutablePacket ? 'START_HERE.md' : 'BUILDPRINT.md';
-const expectedReadOrder = manifest.instructions?.readOrder || (isExecutablePacket ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml'] : ['BUILDPRINT.md']);
+const hasManifestFile = (path) => manifest.files?.some((file) => file.path === path);
+const isCapabilityPacket = hasManifestFile('START_HERE.md') && hasManifestFile('blueprint.yaml');
+const isExecutableBlueprintV5 = hasManifestFile('01-questions.md') && hasManifestFile('02-project-setup.md') && hasManifestFile('blueprint.yaml') && hasManifestFile('03-phases/phase-index.yaml');
+const expectedCanonicalStart = isCapabilityPacket ? 'START_HERE.md' : 'BUILDPRINT.md';
+const expectedReadOrder = manifest.instructions?.readOrder || (isCapabilityPacket ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml'] : ['BUILDPRINT.md']);
 
 assert(!prompt.includes('Read the package files in the manifest order'), 'prompt does not instruct manifest-order reading');
 assert(!agent.includes('Read files in order:'), 'agent guide does not render a competing legacy read-order list');
@@ -56,13 +57,21 @@ assert(agent.includes(`Read order: ${expectedReadOrder.map((file) => `\`${file}\
 assert(manifest.instructions?.canonicalStart === expectedCanonicalStart, 'manifest canonicalStart matches packet type', { canonicalStart: manifest.instructions?.canonicalStart, expectedCanonicalStart });
 assert(Array.isArray(manifest.instructions?.readOrder) && JSON.stringify(manifest.instructions.readOrder) === JSON.stringify(expectedReadOrder), 'manifest readOrder is explicit and stable', { readOrder: manifest.instructions?.readOrder, expectedReadOrder });
 assert(manifest.files?.some((file) => file.path === 'BUILDPRINT.md'), 'manifest files include BUILDPRINT.md compatibility bootstrap');
-if (isExecutablePacket) {
-  assert(expectedReadOrder.includes('BUILDPRINT.md') && expectedReadOrder.includes('START_HERE.md') && expectedReadOrder.includes('blueprint.yaml'), 'executable packet readOrder includes compatibility bootstrap and router files', { expectedReadOrder });
-  assert(readme.includes('START_HERE.md') && readme.includes('blueprint.yaml'), 'README routes executable packet readers to START_HERE.md and blueprint.yaml');
+if (isCapabilityPacket) {
+  assert(expectedReadOrder.includes('BUILDPRINT.md') && expectedReadOrder.includes('START_HERE.md') && expectedReadOrder.includes('blueprint.yaml'), 'capability packet readOrder includes compatibility bootstrap and router files', { expectedReadOrder });
+  assert(readme.includes('START_HERE.md') && readme.includes('blueprint.yaml'), 'README routes capability packet readers to START_HERE.md and blueprint.yaml');
   assert(buildprintJson.schema === 'agent-buildprint/v2', 'buildprint.json declares executable packet v2 schema', { schema: buildprintJson.schema });
   assert(buildprintJson.packet === 'blueprint.yaml', 'buildprint.json points to blueprint.yaml packet', { packet: buildprintJson.packet });
   assert(buildprintJson.canonicalStart === 'BUILDPRINT.md', 'buildprint.json keeps BUILDPRINT.md as compatibility bootstrap', { canonicalStart: buildprintJson.canonicalStart });
   assert(!Object.prototype.hasOwnProperty.call(buildprintJson, 'authority'), 'buildprint.json has no ambiguous authority array');
+} else if (isExecutableBlueprintV5) {
+  assert(expectedReadOrder.includes('BUILDPRINT.md') && expectedReadOrder.includes('01-questions.md') && expectedReadOrder.includes('02-project-setup.md') && expectedReadOrder.includes('03-phases/phase-index.yaml'), 'v5 executable-blueprint readOrder includes setup gate and phase router', { expectedReadOrder });
+  assert(readme.includes('This README is only a package overview') && readme.includes('BUILDPRINT.md') && !readme.includes('## V2 Read Order'), 'README does not contain a competing V2 read-order list');
+  assert(buildprintJson.schemaVersion === 'mapper-os/executable-blueprint.v5', 'buildprint.json declares executable-blueprint v5 schema', { schemaVersion: buildprintJson.schemaVersion });
+  assert(buildprintJson.canonicalStart === 'BUILDPRINT.md', 'buildprint.json canonicalStart is BUILDPRINT.md');
+  assert(buildprintJson.authoritySpine === 'BUILDPRINT.md', 'buildprint.json uses authoritySpine instead of co-equal authority list', { authoritySpine: buildprintJson.authoritySpine });
+  assert(!Object.prototype.hasOwnProperty.call(buildprintJson, 'authority'), 'buildprint.json has no ambiguous authority array');
+  assert(Array.isArray(buildprintJson.mirrorFiles) && buildprintJson.mirrorFiles.includes('blueprint.yaml') && buildprintJson.mirrorFiles.includes('03-phases/phase-index.yaml'), 'buildprint.json declares structured files as mirrors');
 } else {
   assert(readme.includes('This README is only a package overview') && !readme.includes('## V2 Read Order'), 'README does not contain a competing V2 read-order list');
   assert(buildprintJson.canonicalStart === 'BUILDPRINT.md', 'buildprint.json canonicalStart is BUILDPRINT.md');
