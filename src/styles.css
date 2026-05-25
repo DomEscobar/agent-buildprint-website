@@ -1873,98 +1873,92 @@ body { background: var(--bg); }
   margin: 28px 0 0;
   color: var(--muted);
 }
-.packet-ledger {
+.handoff-packet {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  grid-template-columns: minmax(240px, .75fr) minmax(0, 1fr);
   gap: 14px;
   align-items: stretch;
-}
-.packet-ledger-main {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-}
-.packet-ledger .packet-item {
-  display: grid;
-  grid-template-rows: auto auto 1fr;
-  min-height: 164px;
-  border-radius: 8px;
-  border-top-width: 1px;
-  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  border-radius: 10px;
   background:
     linear-gradient(var(--grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
     var(--surface);
-  background-size: 22px 22px, 22px 22px, auto;
+  background-size: 24px 24px, 24px 24px, auto;
+  padding: 16px;
 }
-.packet-ledger .packet-item > span {
-  width: max-content;
-  border: 1px solid color-mix(in srgb, var(--accent) 34%, var(--border));
-  border-radius: 4px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  padding: 4px 6px;
-  font-size: 10px;
-  font-weight: 950;
-  letter-spacing: .12em;
+.handoff-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--border);
+  padding-right: 18px;
 }
-.packet-ledger .packet-item b {
-  margin-top: 16px;
+.handoff-main b {
   color: var(--text);
-  font-size: 18px;
+  font-size: clamp(22px, 3vw, 34px);
+  letter-spacing: -.05em;
+  line-height: 1;
+}
+.handoff-main p {
+  max-width: 30ch;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.handoff-steps {
+  display: grid;
+  gap: 10px;
+}
+.handoff-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 88%, var(--accent-soft));
+  padding: 14px;
+}
+.handoff-step > span {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 12px;
+  font-weight: 950;
+}
+.handoff-step b {
+  display: block;
+  color: var(--text);
+  font-size: 16px;
   letter-spacing: -.02em;
 }
-.packet-ledger .packet-item small {
-  margin-top: 8px;
+.handoff-step small {
+  display: block;
+  margin-top: 4px;
   color: var(--muted);
   font-size: 13px;
   line-height: 1.45;
 }
-.packet-ledger-side {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border: 1px solid color-mix(in srgb, var(--verified) 28%, var(--border));
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--surface) 86%, var(--stamp-bg));
-  padding: 18px;
-}
-.packet-ledger-side > span {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 950;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
-.packet-ledger-side ul {
-  display: grid;
-  gap: 12px;
-  margin: 24px 0 0;
-  padding: 0;
-  list-style: none;
-}
-.packet-ledger-side li {
-  border-top: 1px solid color-mix(in srgb, var(--verified) 28%, var(--border));
-  color: var(--text);
-  font-weight: 820;
-  padding-top: 12px;
-}
-.category-analogy {
-  border-radius: 8px;
-}
 @media (max-width: 980px) {
   .usp-hero,
   .packet-section .section-head,
-  .packet-ledger {
+  .handoff-packet {
     grid-template-columns: 1fr;
+  }
+  .handoff-main {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+    padding-right: 0;
+    padding-bottom: 16px;
   }
   .packet-section .section-head > p {
     margin-top: 0;
-  }
-}
-@media (max-width: 720px) {
-  .packet-ledger-main {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 640px) {
@@ -1982,11 +1976,5 @@ body { background: var(--bg); }
   }
   .hero-trust-strip span {
     width: 100%;
-  }
-  .packet-ledger-main {
-    grid-template-columns: 1fr;
-  }
-  .packet-ledger .packet-item {
-    min-height: 138px;
   }
 }

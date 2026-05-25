@@ -10,18 +10,14 @@ const cardVerb = (bp) => isWorkflow(bp) ? 'Produces' : 'Builds';
 const cardAgentLabel = (bp) => isWorkflow(bp) ? 'Agent uses' : 'Agent receives';
 const cardEstimateSuffix = (bp) => isWorkflow(bp) ? 'workflow pass' : 'implementation pass';
 const packetParts = [
-  { code: 'START', label: 'Router', detail: 'One canonical start path: START_HERE.md and blueprint.yaml tell the agent what to load first.' },
-  { code: 'INTENT', label: 'Intent', detail: 'Mission, product obligations, source-surface map, and what must not be silently dropped.' },
-  { code: 'CTX', label: 'Context', detail: 'Read order, active capability, team stack, UX/design gates, and scoped context rules.' },
-  { code: 'CAP', label: 'Capabilities', detail: 'One packet per capability: product contract, source evidence, workflow, and proof contract.' },
-  { code: 'EVAL', label: 'Evaluation', detail: 'Acceptance, test matrix, quality rubric, and planned proof separated from implementation prose.' },
-  { code: 'EVID', label: 'Evidence', detail: 'Append-only proof/blocker ledger. Claims upgrade only when evidence rows exist.' },
+  { code: '01', label: 'Start file', detail: 'One canonical entry point tells the agent what to read first and what not to invent.' },
+  { code: '02', label: 'Phase flow', detail: 'Small executable slices with context, review loops, repair routes, and stop conditions.' },
+  { code: '03', label: 'Evidence rules', detail: 'Proof and blockers are recorded separately from the spec; claims upgrade only with valid evidence.' },
 ];
 const agentReceives = ['Router', 'Intent', 'Context', 'Capability', 'Evaluation', 'Evidence'];
 const fixedRails = ['Canonical start path', 'Scope and obligations', 'Context/read order', 'Capability proof contracts', 'Evidence ledger'];
 const adaptableParts = ['Stack', 'Providers', 'UI', 'Database/storage', 'Deployment target'];
 const proofItems = ['Bootstrap snapshot passed', 'Router/read order clear', 'Proof contracts present', 'Evidence/blockers recorded'];
-const intakeQuestions = ['What is the active scope?', 'Which capability is next?', 'What proof upgrades the claim?'];
 
 const trustLabel = (bp) => {
   if (bp.publicStatus?.label) return bp.publicStatus.label;
@@ -113,24 +109,19 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
           <span class="eyebrow"><b>01</b> What a Buildprint contains</span>
           <h2 id="packet-title">A handoff packet, not another prompt template.</h2>
         </div>
-        <p>Each modern Buildprint is an executable packet: it tells the agent where to start, which context to load, which capability to work, and what evidence can upgrade a claim.</p>
+        <p>Each modern Buildprint is an executable packet: start here, run these phases, prove these claims. No scavenger hunt through prompt prose.</p>
       </div>
-      <div class="packet-ledger" aria-label="Buildprint handoff ledger">
-        <div class="packet-ledger-main">
-          {packetParts.map((part) => <div class="packet-item">
+      <div class="handoff-packet" aria-label="Buildprint handoff packet">
+        <div class="handoff-main">
+          <b>Like an npm package for agent work.</b>
+          <p>Reusable, bootstrappable, and strict about what counts as done.</p>
+        </div>
+        <div class="handoff-steps">
+          {packetParts.map((part) => <div class="handoff-step">
             <span>{part.code}</span>
-            <b>{part.label}</b>
-            <small>{part.detail}</small>
+            <div><b>{part.label}</b><small>{part.detail}</small></div>
           </div>)}
         </div>
-        <aside class="packet-ledger-side" aria-label="Buildprint intake questions">
-          <span>Before an agent starts</span>
-          <ul>{intakeQuestions.map((item) => <li>{item}</li>)}</ul>
-        </aside>
-      </div>
-      <div class="category-analogy" aria-label="Buildprint category analogy">
-        <b>Like npm packages, but for agent work contracts.</b>
-        <span>Reusable packets agents can bootstrap, route through, execute, and prove.</span>
       </div>
     </section>
 
