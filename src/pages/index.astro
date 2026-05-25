@@ -7,7 +7,6 @@ import TechName from '@/components/TechName.astro';
 const featured = liveBuildprints.filter((bp) => bp.featured).slice(0, 4);
 const isWorkflow = (bp) => bp.category === 'Workflow OS';
 const cardVerb = (bp) => isWorkflow(bp) ? 'Produces' : 'Builds';
-const cardAgentLabel = (bp) => isWorkflow(bp) ? 'Agent uses' : 'Agent receives';
 const cardEstimateSuffix = (bp) => isWorkflow(bp) ? 'workflow pass' : 'implementation pass';
 const packetParts = [
   { code: '01', label: 'Start file', detail: 'One canonical entry point tells the agent what to read first and what not to invent.' },
@@ -17,7 +16,6 @@ const packetParts = [
 const agentReceives = ['Router', 'Intent', 'Context', 'Capability', 'Evaluation', 'Evidence'];
 const fixedRails = ['Canonical start path', 'Scope and obligations', 'Context/read order', 'Capability proof contracts', 'Evidence ledger'];
 const adaptableParts = ['Stack', 'Providers', 'UI', 'Database/storage', 'Deployment target'];
-const proofItems = ['Bootstrap snapshot passed', 'Router/read order clear', 'Proof contracts present', 'Evidence/blockers recorded'];
 
 const trustLabel = (bp) => {
   if (bp.publicStatus?.label) return bp.publicStatus.label;
@@ -151,7 +149,7 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
           <span class="eyebrow"><b>03</b> Featured</span>
           <h2 id="featured-title">Pick the right packet before your agent starts.</h2>
         </div>
-        <a class="link" href="/buildprints/">View registry</a>
+        <a class="btn primary registry-cta" href="/buildprints/">Browse Buildprints</a>
       </div>
       <div class="grid cards featured-grid dossier-grid">
         {featured.map((bp) => <a class="mini-card clickable-card dossier-card" href={`/buildprints/${bp.slug}/`}>
@@ -162,10 +160,6 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
           <h3>{bp.title}</h3>
           <p><strong>{cardVerb(bp)}:</strong> {cardCopy(bp)}</p>
           <p><strong>Needs:</strong> {practicalNeed(bp)}</p>
-          <div class="agent-receives" aria-label={`${bp.title} agent packet`}>
-            <span>{cardAgentLabel(bp)}</span>
-            <div>{agentReceives.map((part) => <em>{part}</em>)}</div>
-          </div>
           <div class="card-tech-footer" title={bp.stack.join(' / ')}>
             <span>{bp.stack.slice(0, 3).join(' / ')}</span>
             <span class="card-tech-side"><em>{implementationEstimate(bp)} {cardEstimateSuffix(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span>
@@ -174,23 +168,10 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
       </div>
     </section>
 
-    <section class="container section evidence-section" aria-labelledby="evidence-title">
-      <div class="evidence-band">
-        <div>
-          <span class="eyebrow"><b>04</b> Proof</span>
-          <h2 id="evidence-title">Validated means evidence.</h2>
-          <p>Trust is not a badge alone. A validated Buildprint leaves inspectable proof that the package can be bootstrapped, read, tested, and bounded.</p>
-        </div>
-        <div class="evidence-list">
-          {proofItems.map((item) => <span>{item}</span>)}
-        </div>
-      </div>
-    </section>
-
     <section class="container section how-section">
       <div class="section-head simple">
         <div>
-          <span class="eyebrow"><b>05</b> Use it</span>
+          <span class="eyebrow"><b>04</b> Use it</span>
           <h2>Give your agent the packet, then make it prove the work.</h2>
         </div>
       </div>
