@@ -222,17 +222,17 @@ export function packageManifest(bp: Buildprint) {
   const urls = buildprintUrls(bp);
   const hasFile = (file: string) => bp.files.some((item) => item.path === file);
   const isCapabilityPacket = hasFile('START_HERE.md') && hasFile('blueprint.yaml');
-  const isExecutableBlueprintV5 = hasFile('01-questions.md') && hasFile('02-project-setup.md') && hasFile('blueprint.yaml') && hasFile('03-phases/phase-index.yaml');
+  const isExecutableBlueprint = hasFile('01-questions.md') && hasFile('02-project-setup.md') && hasFile('blueprint.yaml') && hasFile('03-phases/phase-index.yaml');
   const firstPhase = bp.files.map((item) => item.path).find((file) => /^03-phases\/\d{2}-.+\.md$/.test(file));
   const readOrder = (isCapabilityPacket
     ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml', '02-context/context-map.yaml', 'PRE_IMPLEMENTATION_QUESTIONS.md', '02-context/team-stack.yaml', '02-context/ux-contract.md', '02-context/design-quality-bar.md']
-    : isExecutableBlueprintV5
+    : isExecutableBlueprint
       ? ['BUILDPRINT.md', '01-questions.md', '02-project-setup.md', 'blueprint.yaml', '03-phases/phase-index.yaml', firstPhase, '04-evaluation.md', '05-evidence/evidence-ledger.jsonl'].filter((file): file is string => Boolean(file))
       : ['BUILDPRINT.md']).filter(hasFile);
   const canonicalStart = isCapabilityPacket ? 'START_HERE.md' : 'BUILDPRINT.md';
   const instructionRule = isCapabilityPacket
     ? 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the compatibility bootstrap, then START_HERE.md and blueprint.yaml route the executable packet. Load only the active capability packet named by the router/context map; do not read unrelated capability packets upfront.'
-    : isExecutableBlueprintV5
+    : isExecutableBlueprint
       ? 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the canonical execution authority. Complete 01-questions.md and 02-project-setup.md before phase work; blueprint.yaml and other structured files are machine-readable mirrors/routers, not competing instructions.'
       : 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the canonical start file and owns the required read order, phase gates, and acceptance gates. Structured control files are machine-readable mirrors only.';
   return {

@@ -46,7 +46,7 @@ save('live-buildprint.json', JSON.stringify(buildprintJson, null, 2) + '\n');
 
 const hasManifestFile = (path) => manifest.files?.some((file) => file.path === path);
 const isCapabilityPacket = hasManifestFile('START_HERE.md') && hasManifestFile('blueprint.yaml');
-const isExecutableBlueprintV5 = hasManifestFile('01-questions.md') && hasManifestFile('02-project-setup.md') && hasManifestFile('blueprint.yaml') && hasManifestFile('03-phases/phase-index.yaml');
+const isExecutableBlueprint = hasManifestFile('01-questions.md') && hasManifestFile('02-project-setup.md') && hasManifestFile('blueprint.yaml') && hasManifestFile('03-phases/phase-index.yaml');
 const expectedCanonicalStart = isCapabilityPacket ? 'START_HERE.md' : 'BUILDPRINT.md';
 const expectedReadOrder = manifest.instructions?.readOrder || (isCapabilityPacket ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml'] : ['BUILDPRINT.md']);
 
@@ -64,10 +64,10 @@ if (isCapabilityPacket) {
   assert(buildprintJson.packet === 'blueprint.yaml', 'buildprint.json points to blueprint.yaml packet', { packet: buildprintJson.packet });
   assert(buildprintJson.canonicalStart === 'BUILDPRINT.md', 'buildprint.json keeps BUILDPRINT.md as compatibility bootstrap', { canonicalStart: buildprintJson.canonicalStart });
   assert(!Object.prototype.hasOwnProperty.call(buildprintJson, 'authority'), 'buildprint.json has no ambiguous authority array');
-} else if (isExecutableBlueprintV5) {
-  assert(expectedReadOrder.includes('BUILDPRINT.md') && expectedReadOrder.includes('01-questions.md') && expectedReadOrder.includes('02-project-setup.md') && expectedReadOrder.includes('03-phases/phase-index.yaml'), 'v5 executable-blueprint readOrder includes setup gate and phase router', { expectedReadOrder });
+} else if (isExecutableBlueprint) {
+  assert(expectedReadOrder.includes('BUILDPRINT.md') && expectedReadOrder.includes('01-questions.md') && expectedReadOrder.includes('02-project-setup.md') && expectedReadOrder.includes('03-phases/phase-index.yaml'), 'executable-blueprint readOrder includes setup gate and phase router', { expectedReadOrder });
   assert(readme.includes('This README is only a package overview') && readme.includes('BUILDPRINT.md') && !readme.includes('## V2 Read Order'), 'README does not contain a competing V2 read-order list');
-  assert(buildprintJson.schemaVersion === 'mapper-os/executable-blueprint.v5', 'buildprint.json declares executable-blueprint v5 schema', { schemaVersion: buildprintJson.schemaVersion });
+  assert(buildprintJson.schemaVersion === 'mapper-os/executable-blueprint', 'buildprint.json declares executable-blueprint schema', { schemaVersion: buildprintJson.schemaVersion });
   assert(buildprintJson.canonicalStart === 'BUILDPRINT.md', 'buildprint.json canonicalStart is BUILDPRINT.md');
   assert(buildprintJson.authoritySpine === 'BUILDPRINT.md', 'buildprint.json uses authoritySpine instead of co-equal authority list', { authoritySpine: buildprintJson.authoritySpine });
   assert(!Object.prototype.hasOwnProperty.call(buildprintJson, 'authority'), 'buildprint.json has no ambiguous authority array');
