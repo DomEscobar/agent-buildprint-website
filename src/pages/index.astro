@@ -58,16 +58,11 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
           <TechName name="Codex" />
           <TechName name="Cursor" />
           <TechName name="Claude Code" />
+          <span>and any other coding agent</span>
         </div>
         <div class="actions">
           <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
           <a class="btn" href="#how-it-works">See how one works</a>
-        </div>
-        <div class="hero-trust-strip" aria-label="Agent Buildprint trust markers">
-          <span><b>START</b> One router</span>
-          <span><b>CAP</b> Capability packets</span>
-          <span><b>EVID</b> Evidence required</span>
-          <span><b>AGENT</b> Codex / Cursor / Claude-ready</span>
         </div>
       </div>
 
@@ -96,13 +91,6 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
           </div>
           <div class="rail-arrow" aria-hidden="true"></div>
           <div class="rail-result good">Agent follows rails. Human reviews evidence.</div>
-        </div>
-        <div class="evidence-receipt" aria-label="Evidence receipt">
-          <span>Evidence receipt</span>
-          <div><b>bootstrap</b><em>passed</em></div>
-          <div><b>files</b><em>available</em></div>
-          <div><b>tests</b><em>recorded</em></div>
-          <div><b>boundaries</b><em>documented</em></div>
         </div>
       </aside>
     </section>
@@ -175,41 +163,5 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
       </div>
     </section>
 
-    <section class="container section how-section">
-      <div class="section-head simple">
-        <div>
-          <span class="eyebrow"><b>04</b> Use it</span>
-          <h2>Give your agent the packet, then make it prove the work.</h2>
-        </div>
-      </div>
-      <div class="grid how-grid">
-        <div class="panel quiet"><span class="step-number">1</span><h3>Choose a Buildprint</h3><p>Pick the product, feature, workflow, architecture, or repo-mapping packet you want the agent to run.</p></div>
-        <div class="panel quiet"><span class="step-number">2</span><h3>Bootstrap or copy it</h3><pre>npx --yes github:DomEscobar/agent-buildprint start https://agent-buildprint.com/buildprints/ai-influencer-os/package.json</pre></div>
-        <div class="panel quiet"><span class="step-number">3</span><h3>Agent follows phases</h3><p>Tell <TechName name="Codex" />, <TechName name="Cursor" />, or <TechName name="Claude Code" /> to follow the package, not improvise from a vague prompt.</p></div>
-        <div class="panel quiet"><span class="step-number">4</span><h3>Review the evidence</h3><p>The agent runs the proof contracts, reports blockers, and appends evidence you can inspect before you call the work done.</p></div>
-      </div>
-    </section>
-
-    <section class="container section two-col secondary-paths">
-      <div class="panel quiet">
-        <span class="eyebrow"><b>Mapper</b></span>
-        <h2>Already have a repo?</h2>
-        <p>Use Mapper OS to map a working repo, produce scoped Buildprint candidates, choose one, and extract a source-independent executable packet with proof gates.</p>
-        <pre>Map repo
-Select candidate
-Extract packet
-Record proof/blockers</pre>
-      </div>
-      <div class="panel quiet">
-        <span class="eyebrow"><b>Publish</b></span>
-        <h2>Have an architecture worth reusing?</h2>
-        <p>Package the router, intent, context, capability packets, evaluation gates, and evidence rules so other builders can give agents an executable work contract instead of a wish.</p>
-        <pre>Router
-Intent
-Capability packets
-Evaluation gates
-Evidence ledger</pre>
-      </div>
-    </section>
   </main>
 </BaseLayout>
