@@ -1687,6 +1687,56 @@ body { background: var(--bg); }
 .dossier-card:hover {
   box-shadow: 0 20px 48px rgba(15, 23, 42, .11);
 }
+.mapper-feature-card {
+  position: relative;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--accent) 52%, var(--border));
+  border-top-color: color-mix(in srgb, #f59e0b 70%, var(--accent));
+  background:
+    radial-gradient(circle at 22% 0%, color-mix(in srgb, #f59e0b 18%, transparent), transparent 32%),
+    radial-gradient(circle at 100% 18%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 30%),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    color-mix(in srgb, var(--surface) 92%, var(--accent-soft));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent),
+    0 20px 54px color-mix(in srgb, var(--accent) 18%, transparent),
+    0 2px 0 color-mix(in srgb, #f59e0b 24%, transparent);
+}
+.mapper-feature-card::after {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  border-radius: 8px;
+}
+.mapper-feature-card:hover {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent),
+    0 28px 70px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.mapper-feature-ribbon {
+  align-self: flex-start;
+  margin: -4px 0 14px;
+  border: 1px solid color-mix(in srgb, #f59e0b 46%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, #f59e0b 13%, var(--surface));
+  color: color-mix(in srgb, #b45309 82%, var(--text));
+  padding: 6px 9px;
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.mapper-feature-card h3 {
+  font-size: 23px;
+}
+.mapper-feature-card .dossier-card-topline b {
+  background: color-mix(in srgb, #f59e0b 16%, var(--surface));
+  border-color: color-mix(in srgb, #f59e0b 48%, var(--border));
+  color: color-mix(in srgb, #b45309 76%, var(--text));
+}
 .dossier-card-topline b {
   border-radius: 4px;
   transform: rotate(-2deg);

@@ -4,7 +4,13 @@ import { implementationEstimate, liveBuildprints } from '@/lib/buildprints';
 import { iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
 import TechName from '@/components/TechName.astro';
 
-const featured = liveBuildprints.filter((bp) => bp.featured).slice(0, 4);
+const featuredPool = liveBuildprints.filter((bp) => bp.featured);
+const mapperFeatured = featuredPool.find((bp) => bp.slug === 'buildprint-mapper-os');
+const featured = [
+  ...(mapperFeatured ? [mapperFeatured] : []),
+  ...featuredPool.filter((bp) => bp.slug !== 'buildprint-mapper-os'),
+].slice(0, 4);
+const isMapperOs = (bp) => bp.slug === 'buildprint-mapper-os';
 const isWorkflow = (bp) => bp.category === 'Workflow OS';
 const cardVerb = (bp) => isWorkflow(bp) ? 'Produces' : 'Builds';
 const cardEstimateSuffix = (bp) => isWorkflow(bp) ? 'workflow pass' : 'implementation pass';
@@ -152,10 +158,11 @@ const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKey
         <a class="btn primary registry-cta" href="/buildprints/">Browse Buildprints</a>
       </div>
       <div class="grid cards featured-grid dossier-grid">
-        {featured.map((bp) => <a class="mini-card clickable-card dossier-card" href={`/buildprints/${bp.slug}/`}>
+        {featured.map((bp) => <a class:list={["mini-card clickable-card dossier-card", { "mapper-feature-card": isMapperOs(bp) }]} href={`/buildprints/${bp.slug}/`}>
+          {isMapperOs(bp) && <span class="mapper-feature-ribbon">Mapper OS · start here</span>}
           <div class="dossier-card-topline">
             <span>{bp.category}</span>
-            <b title={trustTip(bp)}>{trustLabel(bp)}</b>
+            <b title={trustTip(bp)}>{isMapperOs(bp) ? 'Featured' : trustLabel(bp)}</b>
           </div>
           <h3>{bp.title}</h3>
           <p><strong>{cardVerb(bp)}:</strong> {cardCopy(bp)}</p>
