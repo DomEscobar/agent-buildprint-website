@@ -12,8 +12,8 @@ const bp = getBuildprint(Astro.params.slug ?? '');
 if (!bp) return Astro.redirect('/buildprints/');
 
 const manifest = packageManifest(bp);
-const detailStatus = bp.publicStatus?.label ?? (bp.status === 'validated' ? 'Validated' : bp.checks.length ? 'Checked' : 'Ready');
-const detailStatusTitle = bp.publicStatus?.explanation ?? (bp.status === 'validated' ? 'Validated by snapshot bootstrap, dry-run/tests, and documented proof.' : bp.checks.length ? 'Has defined quality checks, but still needs full dry-run validation.' : 'Ready to inspect.');
+const detailStatus = bp.publicStatus?.label ?? (bp.checks.length ? 'Proof trail' : 'Inspect packet');
+const detailStatusTitle = bp.publicStatus?.explanation ?? (bp.checks.length ? 'This packet lists checks and evidence expectations; proof boundaries are in the validation section.' : 'Inspect the packet files before using.');
 const isWorkflow = bp.category === 'Workflow OS';
 const snapshotLabel = isWorkflow ? 'Produces' : 'Builds';
 const estimateLabel = isWorkflow ? 'for a first agent workflow pass.' : 'for a first agent implementation pass.';
@@ -118,7 +118,7 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
         <h2>Validation</h2>
         <ul class="verification-list" aria-label="Validation evidence">
           {proofItems.map((item) => <li>{item}</li>)}
-          {bp.status === 'validated' ? <li>validated status</li> : <li>{detailStatus}{bp.publicStatus?.explanation ? ` — ${bp.publicStatus.explanation}` : ''}</li>}
+          <li>{detailStatus}{bp.publicStatus?.explanation ? ` — ${bp.publicStatus.explanation}` : ''}</li>
         </ul>
 
         <h2>Links</h2>

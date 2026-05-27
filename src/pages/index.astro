@@ -1,167 +1,63 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { implementationEstimate, liveBuildprints } from '@/lib/buildprints';
-import { iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
-import TechName from '@/components/TechName.astro';
+import { buildprints, categories, implementationEstimate, tiers } from '@/lib/buildprints';
+import { badgeIcon, iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
 
-const featuredPool = liveBuildprints.filter((bp) => bp.featured);
-const mapperFeatured = featuredPool.find((bp) => bp.slug === 'buildprint-mapper-os');
-const featured = [
-  ...(mapperFeatured ? [mapperFeatured] : []),
-  ...featuredPool.filter((bp) => bp.slug !== 'buildprint-mapper-os'),
-].slice(0, 4);
-const isMapperOs = (bp) => bp.slug === 'buildprint-mapper-os';
-const isWorkflow = (bp) => bp.category === 'Workflow OS';
-const cardVerb = (bp) => isWorkflow(bp) ? 'Produces' : 'Builds';
-const cardEstimateSuffix = (bp) => isWorkflow(bp) ? 'workflow pass' : 'implementation pass';
-const packetParts = [
-  { code: '01', label: 'Start file', detail: 'One canonical entry point tells the agent what to read first and what not to invent.' },
-  { code: '02', label: 'Phase flow', detail: 'Small executable slices with context, review loops, repair routes, and stop conditions.' },
-  { code: '03', label: 'Evidence rules', detail: 'Proof and blockers are recorded separately from the spec; claims upgrade only with valid evidence.' },
-];
-const agentReceives = ['Router', 'Intent', 'Context', 'Capability', 'Evaluation', 'Evidence'];
-const fixedRails = ['Canonical start path', 'Scope and obligations', 'Context/read order', 'Capability proof contracts', 'Evidence ledger'];
-const adaptableParts = ['Stack', 'Providers', 'UI', 'Database/storage', 'Deployment target'];
-
-const trustLabel = (bp) => {
-  if (bp.publicStatus?.label) return bp.publicStatus.label;
-  if (bp.status === 'validated') return 'Validated';
-  if (bp.checks.length > 0) return 'Checked';
-  return 'Ready';
-};
-const trustTip = (bp) => {
-  if (bp.publicStatus?.explanation) return bp.publicStatus.explanation;
-  if (bp.status === 'validated') return 'Validated by snapshot bootstrap, dry-run/tests, and documented proof.';
-  if (bp.checks.length > 0) return 'Has defined quality checks, but still needs full dry-run validation.';
-  return 'Ready to inspect.';
-};
-const cardCopy = (bp) => bp.plainDescription ?? bp.summary;
-const practicalNeed = (bp) => {
-  const needs = bp.whatYouNeed ?? [];
-  const noLocalBlocker = needs.find((need) => /^Nothing/i.test(need));
-  const externalBlocker = needs.find((need) => !/^Nothing/i.test(need));
-  if (noLocalBlocker && externalBlocker) return 'Local/mock mode has no external blocker. Real use needs configured keys, accounts, or repo access.';
-  if (noLocalBlocker) return 'Local/mock mode has no external blocker.';
-  return externalBlocker ?? 'Bring the target repo, product decisions, and any required external credentials.';
-};
+const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
+const tierLabel = (bp) => bp.tier.replace('-', ' ');
 const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKeysForName(item)))).slice(0, 4);
 ---
-<BaseLayout title="Agent Buildprint - plans before AI writes code" description="Executable implementation plans for coding agents. Give Codex, Cursor, Claude Code, and other agents architecture, phases, contracts, requirements, and checks before they write code.">
+<BaseLayout title="Agent Buildprint Registry" description="Browse reusable Buildprints for products, features, architectures, workflows, and integrations.">
   <main>
-    <section class="container hero clean-hero platform-hero usp-hero">
-      <div class="hero-copy">
-        <span class="pill dossier-pill"><b>The planning layer before AI writes code</b></span>
-        <h1>Stop asking agents to improvise your architecture.</h1>
-        <p class="lead">Buildprints turn reusable implementation knowledge — and repo-mapping workflows — into packets an agent can bootstrap, follow, and prove.</p>
-        <div class="agent-compat" aria-label="Compatible coding agents">
-          <span>Works with</span>
-          <TechName name="Codex" />
-          <TechName name="Cursor" />
-          <TechName name="Claude Code" />
-          <span>and any other coding agent</span>
-        </div>
-        <div class="actions">
-          <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
-          <a class="btn" href="#how-it-works">See how one works</a>
-        </div>
-      </div>
-
-      <aside class="split-rail-diagram" aria-label="Prompt-only workflow compared with Buildprint workflow">
-        <div class="workbench-topline"><span>Buildprint workbench</span><b>before code</b></div>
-        <div class="rail-column rail-bad">
-          <span class="rail-kicker">Prompt only</span>
-          <div class="rail-node">"Build me an AI blog system"</div>
-          <div class="rail-arrow" aria-hidden="true"></div>
-          <div class="rail-node muted">Agent guesses architecture while coding</div>
-          <div class="rail-arrow" aria-hidden="true"></div>
-          <div class="rail-result bad">Drift, rework, forgotten gates</div>
-        </div>
-        <div class="rail-column rail-good">
-          <span class="rail-kicker">With Buildprint</span>
-          <div class="packet-stack" aria-label="Layered Buildprint packet">
-            <div class="packet-shadow packet-shadow-one">START</div>
-            <div class="packet-shadow packet-shadow-two">INTENT</div>
-            <div class="packet-shadow packet-shadow-three">CONTEXT</div>
-            <div class="packet-shadow packet-shadow-four">EVIDENCE</div>
-            <div class="rail-node strong">Buildprint packet</div>
-          </div>
-          <span class="validated-stamp">Validated</span>
-          <div class="rail-packet-list">
-            {agentReceives.map((part) => <span>{part}</span>)}
-          </div>
-          <div class="rail-arrow" aria-hidden="true"></div>
-          <div class="rail-result good">Agent follows rails. Human reviews evidence.</div>
-        </div>
-      </aside>
+    <section class="container hero compact-hero">
+      <span class="pill"><b>⌁</b> Registry · human and agent navigable</span>
+      <h1>Find a real plan before your agent writes code.</h1>
+      <p class="lead">Browse reusable build plans with architecture, specs, phases, contracts, and checks — made for humans to inspect and agents to follow.</p>
+      <div class="actions"><a class="btn primary" href="#cards">Browse cards</a><a class="btn" href="/why-buildprints/">Why Buildprints?</a><a class="btn" href="/buildprints/index.json">Registry JSON</a></div>
     </section>
 
-    <section id="how-it-works" class="container section packet-section" aria-labelledby="packet-title">
-      <div class="section-head proof-head">
-        <div>
-          <span class="eyebrow"><b>01</b> What a Buildprint contains</span>
-          <h2 id="packet-title">A handoff packet, not another prompt template.</h2>
-        </div>
-        <p>Each modern Buildprint is an executable packet: start here, run these phases, prove these claims. No scavenger hunt through prompt prose.</p>
+    <section class="container section registry-tools">
+      <input id="search" class="searchbar" placeholder="Search OpenClaw, Stripe, workflow, agent-grade..." />
+      <div class="filter-row">
+        <div><span class="filter-label">Category</span><div class="tags" id="filters">{categories.map((category) => <button class="tag filter" data-category={category}><b>{badgeIcon(category)}</b>{category}</button>)}</div></div>
+        <div><span class="filter-label">Tier</span><div class="tags" id="tierFilters">{tiers.map((tier) => <button class="tag filter" data-tier={tier}><b>{badgeIcon(tier)}</b>{tier}</button>)}</div></div>
       </div>
-      <div class="handoff-packet" aria-label="Buildprint handoff packet">
-        <div class="handoff-main">
-          <b>Like an npm package for agent work.</b>
-          <p>Reusable, bootstrappable, and strict about what counts as done.</p>
-        </div>
-        <div class="handoff-steps">
-          {packetParts.map((part) => <div class="handoff-step">
-            <span>{part.code}</span>
-            <div><b>{part.label}</b><small>{part.detail}</small></div>
-          </div>)}
-        </div>
+      <div class="grid cards" id="cards">
+        {buildprints.map((bp) => (
+          <a class="card buildprint-card clickable-card" href={`/buildprints/${bp.slug}/`} data-category={bp.category} data-tier={bp.tier} data-search={`${bp.title} ${bp.creator} ${bp.category} ${bp.tier} ${bp.runtime.join(' ')} ${bp.stack.join(' ')} ${bp.summary}`.toLowerCase()}>
+            <div class="card-body">
+              <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={`${bp.tier} package`}>{tierLabel(bp)}</span></div>
+              <h3>{bp.title}</h3>
+              <p>{bp.summary}</p>
+              <div class="card-tech-footer" title={bp.stack.join(' · ')}><span>{bp.stack.slice(0, 3).join(' · ')}</span><span class="card-tech-side"><em>{implementationEstimate(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span></div>
+            </div>
+          </a>
+        ))}
       </div>
     </section>
-
-    <section class="container section rails-section" aria-labelledby="rails-title">
-      <div class="section-head simple">
-        <div>
-          <span class="eyebrow"><b>02</b> Control</span>
-          <h2 id="rails-title">Rails, not handcuffs.</h2>
-          <p>Use the defaults or swap parts. The router, capability packets, and evidence ledger keep the work scoped and testable.</p>
-        </div>
-      </div>
-      <div class="rails-grid">
-        <div class="rails-panel fixed">
-          <span>Fixed by the plan</span>
-          <ul>{fixedRails.map((item) => <li>{item}</li>)}</ul>
-        </div>
-        <div class="rails-panel adapt">
-          <span>Adaptable by the builder</span>
-          <ul>{adaptableParts.map((item) => <li>{item}</li>)}</ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="container section featured-dossiers" aria-labelledby="featured-title">
-      <div class="section-head simple">
-        <div>
-          <span class="eyebrow"><b>03</b> Featured</span>
-          <h2 id="featured-title">Pick the right packet before your agent starts.</h2>
-        </div>
-        <a class="btn primary registry-cta" href="/buildprints/">Browse Buildprints</a>
-      </div>
-      <div class="grid cards featured-grid dossier-grid">
-        {featured.map((bp) => <a class:list={["mini-card clickable-card dossier-card", { "mapper-feature-card": isMapperOs(bp) }]} href={`/buildprints/${bp.slug}/`}>
-          {isMapperOs(bp) && <span class="mapper-feature-ribbon">Mapper OS · start here</span>}
-          <div class="dossier-card-topline">
-            <span>{bp.category}</span>
-            <b title={trustTip(bp)}>{isMapperOs(bp) ? 'Featured' : trustLabel(bp)}</b>
-          </div>
-          <h3>{bp.title}</h3>
-          <p><strong>{cardVerb(bp)}:</strong> {cardCopy(bp)}</p>
-          <p><strong>Needs:</strong> {practicalNeed(bp)}</p>
-          <div class="card-tech-footer" title={bp.stack.join(' / ')}>
-            <span>{bp.stack.slice(0, 3).join(' / ')}</span>
-            <span class="card-tech-side"><em>{implementationEstimate(bp)} {cardEstimateSuffix(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span>
-          </div>
-        </a>)}
-      </div>
-    </section>
-
   </main>
+  <script>
+    const search = document.querySelector('#search');
+    const cards = Array.from(document.querySelectorAll('.buildprint-card'));
+    const buttons = Array.from(document.querySelectorAll('#filters button'));
+    const tierButtons = Array.from(document.querySelectorAll('#tierFilters button'));
+    let active = 'All';
+    let activeTier = 'All';
+    function apply() {
+      const q = (search?.value || '').toLowerCase();
+      for (const card of cards) {
+        const categoryOk = active === 'All' || card.dataset.category === active;
+        const tierOk = activeTier === 'All' || card.dataset.tier === activeTier;
+        const searchOk = !q || card.dataset.search?.includes(q);
+        card.classList.toggle('hidden', !(categoryOk && tierOk && searchOk));
+      }
+    }
+    function markActive(group, value, key) {
+      group.forEach((button) => button.classList.toggle('active', (button.dataset[key] || 'All') === value));
+    }
+    buttons.forEach((b) => b.addEventListener('click', () => { active = b.dataset.category || 'All'; markActive(buttons, active, 'category'); apply(); }));
+    tierButtons.forEach((b) => b.addEventListener('click', () => { activeTier = b.dataset.tier || 'All'; markActive(tierButtons, activeTier, 'tier'); apply(); }));
+    search?.addEventListener('input', apply);
+    document.querySelectorAll('.copy').forEach((b) => b.addEventListener('click', async () => { await navigator.clipboard.writeText(b.dataset.prompt || ''); b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy prompt', 1000); }));
+  </script>
 </BaseLayout>
