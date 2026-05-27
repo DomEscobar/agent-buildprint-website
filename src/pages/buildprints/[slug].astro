@@ -12,149 +12,218 @@ const bp = getBuildprint(Astro.params.slug ?? '');
 if (!bp) return Astro.redirect('/buildprints/');
 
 const manifest = packageManifest(bp);
-const detailStatus = bp.publicStatus?.label ?? (bp.checks.length ? 'Proof trail' : 'Inspect packet');
-const detailStatusTitle = bp.publicStatus?.explanation ?? (bp.checks.length ? 'This packet lists checks and evidence expectations; proof boundaries are in the validation section.' : 'Inspect the packet files before using.');
+const detailStatus = bp.publicStatus?.label ?? (bp.status === 'validated' ? 'Validated' : bp.checks.length ? 'Proof trail' : 'Inspect packet');
+const detailStatusTitle = bp.publicStatus?.explanation ?? (bp.status === 'validated' ? 'Validated packet with documented proof boundaries.' : bp.checks.length ? 'This packet lists checks and evidence expectations.' : 'Inspect the packet files before using.');
 const isWorkflow = bp.category === 'Workflow OS';
-const snapshotLabel = isWorkflow ? 'Produces' : 'Builds';
-const estimateLabel = isWorkflow ? 'for a first agent workflow pass.' : 'for a first agent implementation pass.';
 const startCommand = `agb start ${siteBase}/buildprints/${bp.slug}/package.json`;
 const originName = bp.originLabel ?? bp.originGithubUrl?.replace('https://github.com/', '');
 const description = bp.plainDescription ?? bp.summary;
 const whatYouGet = bp.whatYouGet?.length ? bp.whatYouGet : bp.includes.slice(0, 6);
 const rawRequirements = bp.whatYouNeed?.length ? bp.whatYouNeed : ['Nothing for local/mock mode', 'Bring API keys or account credentials only if you want live external providers'];
-const architectureFlow = bp.architectureFlow?.length ? bp.architectureFlow : bp.stack.slice(0, 6);
-const proofItems = bp.trustBadges?.length
+const architectureFlow = bp.architectureFlow?.length ? bp.architectureFlow : bp.stack.slice(0, 7);
+const coreCapabilities = bp.resultChecklist?.length ? bp.resultChecklist : whatYouGet;
+const checkedScope = bp.trustBadges?.length
   ? bp.trustBadges.slice(0, 4).map((badge) => badge.label)
   : bp.checks.slice(0, 4);
+const outOfScope = bp.risks.slice(0, 4);
 const packetOrder = manifest.readOrder?.length
   ? manifest.readOrder
   : ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml', '02-context/context-map.yaml', '03-capabilities/capability-index.yaml', '08-evaluation/acceptance.yaml', '09-evidence/evidence-ledger.jsonl'];
 const packetFiles = packetOrder
-  .map((path) => bp.files.find((file) => file.path === path))
+  .map((filePath) => bp.files.find((file) => file.path === filePath))
   .filter(Boolean)
   .slice(0, 8);
 const mockRequirement = rawRequirements.find((item) => /nothing/i.test(item));
-const realRequirementTerms = /(api|key|credential|account|access|repo|private|provider|storage|database|webhook|domain|runtime|adapter|corpus|permission)/i;
-const fillerRequirementTerms = /(human|taste|decision|policy|direction|choice|list of|critical workflow)/i;
-const hardRequirements = rawRequirements
-  .filter((item) => !/nothing/i.test(item))
-  .filter((item) => realRequirementTerms.test(item) && !fillerRequirementTerms.test(item))
-  .slice(0, 5);
-const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Database / storage', 'Deployment target'];
+const additionalRequirements = rawRequirements.filter((item) => item !== mockRequirement).slice(0, 5);
+const baselineRequirementLabel = mockRequirement && /mock|local/i.test(mockRequirement) ? 'Mock/local' : 'Baseline';
+const updatedDate = bp.updatedAt ? new Date(bp.updatedAt) : null;
+const updatedLabel = updatedDate && !Number.isNaN(updatedDate.getTime())
+  ? updatedDate.toLocaleDateString('en', { year: 'numeric', month: 'short', day: 'numeric' })
+  : 'Not dated';
+const visualHref = (value?: string) => {
+  if (!value) return undefined;
+  if (/^https?:\/\//.test(value) || value.startsWith('/')) return value;
+  return `${bp.rawBaseUrl}/${value.replace(/^\.?\//, '')}`;
+};
+const visualImage = visualHref(bp.visualRun?.image);
+const visualDemo = visualHref(bp.visualRun?.demoUrl);
+const proofHref = visualHref(bp.proofUrl);
+const heroStyle = visualImage ? `--detail-visual-image: url('${visualImage.replaceAll("'", '%27')}');` : undefined;
+const primaryProofHref = proofHref ?? visualDemo;
+const visualPacketFiles = Array.from(new Set([
+  manifest.canonicalStart,
+  ...packetFiles.map((file) => file.path),
+  'package.json',
+  'agent.md',
+])).slice(0, 3);
+const systemShape = [
+  {
+    label: isWorkflow ? 'Workflow surface' : 'Product surface',
+    value: bp.promise || description,
+  },
+  {
+    label: 'Runtime layer',
+    value: bp.runtime.length ? bp.runtime.join(', ') : 'Runtime is selected by the implementing agent.',
+  },
+  {
+    label: 'Build materials',
+    value: architectureFlow.length ? architectureFlow.slice(0, 4).join(' / ') : bp.stack.slice(0, 4).join(' / '),
+  },
+  {
+    label: 'Proof boundary',
+    value: checkedScope.length ? checkedScope.slice(0, 2).join(' / ') : detailStatus,
+  },
+];
+const scopeBring = additionalRequirements.length
+  ? additionalRequirements
+  : ['Target repo constraints', 'Provider credentials for live integrations', 'Deployment and production policy choices'];
 ---
-<BaseLayout title={`${bp.title} — Agent Buildprint`} description={description}>
-  <main class="readme-page">
-    <article class="container readme-shell benefit-shell">
-      <header class="readme-header benefit-header">
-        <a class="readme-back" href="/buildprints/">← Buildprints</a>
-        <h1>{bp.title}</h1>
-        <p class="readme-lead">{description}</p>
-        <div class="readme-meta-line">
-          <span><b>{badgeIcon(bp.category)}</b>{bp.category}</span>
-          <span title={detailStatusTitle}><b>{badgeIcon(bp.status)}</b>{detailStatus}</span>
-          <span>{bp.stack.slice(0, 3).join(' · ')}</span>
-        </div>
-        <div class="readme-links">
-          <button class="readme-primary-action copy-btn" data-copy={bp.copyPrompt}>Copy agent prompt</button>
-          <a href={`/buildprints/${bp.slug}/package.json`}>Package JSON</a>
-          {bp.originGithubUrl ? <a href={bp.originGithubUrl} target="_blank" rel="noreferrer">Source repo: {originName}</a> : null}
-        </div>
-      </header>
-
-      <section class="markdown-body benefit-body detail-blueprint-body">
-        <div class="detail-snapshot flat-snapshot" aria-label="Buildprint snapshot">
-          <section class="detail-panel">
-            <span>{snapshotLabel}</span>
-            <ul>{whatYouGet.slice(0, 3).map((item) => <li>{item}</li>)}</ul>
-          </section>
-          <section class="detail-panel requirements-panel">
-            <span>Requirements</span>
-            {mockRequirement ? <p><b>Mock/local:</b> {mockRequirement}</p> : null}
-            {hardRequirements.length ? <ul>{hardRequirements.map((item) => <li>{item}</li>)}</ul> : <p><b>Live:</b> no external blockers listed</p>}
-          </section>
-          <section class="detail-panel">
-            <span>Flexibility</span>
-            <p>Use the defaults or swap parts while keeping the contracts and checks.</p>
-            <ul>{flexibilityItems.slice(0, 4).map((item) => <li>{item}</li>)}</ul>
-          </section>
-          <section class="detail-panel estimate-panel">
-            <span>Estimate</span>
-            <p><b>{implementationEstimate(bp)}</b> {estimateLabel}</p>
-          </section>
-        </div>
-
-        {bp.howToUse?.length ? <>
-          <h2>How to use it</h2>
-          <div class="grid how-grid" aria-label="How to use this Buildprint">
-            {bp.howToUse.map((step) => <section class="panel quiet">
-              <h3>{step.title}</h3>
-              <p>{step.detail}</p>
-            </section>)}
+<BaseLayout title={`${bp.title} - Agent Buildprint`} description={description}>
+  <main class="detail-overhaul" data-category={bp.category} data-status={bp.status}>
+    <section class="detail-hero" style={heroStyle}>
+      <div class="detail-hero-bg" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="container detail-hero-inner">
+        <div class="detail-title-block">
+          <a class="detail-back" href="/buildprints/">Back to registry</a>
+          <div class="detail-kicker">
+            <span>{badgeIcon(bp.category)} {bp.category}</span>
+            <span title={detailStatusTitle}>{badgeIcon(bp.status)} {detailStatus}</span>
+            <span>Updated {updatedLabel}</span>
           </div>
-          {bp.resultChecklist?.length ? <>
-            <h2>What the agent should produce</h2>
-            <ul class="verification-list" aria-label="Expected Mapper OS outputs">
-              {bp.resultChecklist.map((item) => <li>{item}</li>)}
-            </ul>
-          </> : null}
-        </> : null}
+          <h1>{bp.title}</h1>
+          <p>{description}</p>
+          <div class="detail-hero-actions">
+            <button class="detail-primary copy-btn" data-copy={bp.copyPrompt}>Copy agent prompt</button>
+            <a href={`/buildprints/${bp.slug}/package.json`}>Package JSON</a>
+            {primaryProofHref ? <a href={primaryProofHref}>Proof / demo</a> : null}
+            {bp.originGithubUrl ? <a href={bp.originGithubUrl} target="_blank" rel="noreferrer">Source: {originName}</a> : null}
+          </div>
+        </div>
 
-        <h2>Agent packet</h2>
-        <div class="agent-packet-list" aria-label="Files the agent receives">
+        <aside class={`detail-visual ${visualImage ? 'has-image' : ''}`} aria-label="Buildprint visual summary">
+          {visualImage ? <img src={visualImage} alt={bp.visualRun?.alt ?? `${bp.title} visual run`} loading="eager" /> : <div class="visual-fallback">
+            <div class="visual-topline">
+              <span>{bp.tier}</span>
+              <b>{detailStatus}</b>
+            </div>
+            <div class="visual-packet-stack">
+              {visualPacketFiles.map((file) => <span>{file}</span>)}
+            </div>
+            <div class="visual-flow" aria-hidden="true">
+              {architectureFlow.slice(0, 4).map((step) => <span>{step}</span>)}
+            </div>
+          </div>}
+          <div class="visual-caption">
+            <b>{bp.visualRun?.status ?? (visualImage ? 'Visual run' : 'Generated packet view')}</b>
+            <span>{bp.visualRun?.caption ?? `${bp.files.length} package files - ${implementationEstimate(bp)} ${isWorkflow ? 'workflow pass' : 'implementation pass'}`}</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="container detail-card-deck" aria-label="Buildprint details">
+      <article class="detail-card detail-card-wide">
+        <span>What this builds</span>
+        <h2>{isWorkflow ? 'A reusable agent workflow packet.' : 'A scoped product implementation packet.'}</h2>
+        <div class="detail-outcome-grid">
+          <p>{bp.promise || description}</p>
+          <ul>
+            {whatYouGet.slice(0, 6).map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      </article>
+
+      <article class="detail-card detail-card-wide detail-capability-card">
+        <span>Core capabilities</span>
+        <h2>The useful parts the finished build should expose.</h2>
+        <div class="detail-capability-grid">
+          {coreCapabilities.slice(0, 6).map((item, index) => <div>
+            <small>{String(index + 1).padStart(2, '0')}</small>
+            <b>{item}</b>
+          </div>)}
+        </div>
+      </article>
+
+      <article class="detail-card">
+        <span>What you need</span>
+        <h2>Local first, live proof explicit.</h2>
+        {mockRequirement ? <p><strong>{baselineRequirementLabel}:</strong> {mockRequirement}</p> : null}
+        <ul>
+          {additionalRequirements.length ? additionalRequirements.map((item) => <li>{item}</li>) : <li>No external blocker is listed for first inspection.</li>}
+        </ul>
+      </article>
+
+      <article class="detail-card detail-system-card">
+        <span>System shape</span>
+        <h2>What kind of artifact this becomes.</h2>
+        <div class="detail-system-list">
+          {systemShape.map((item) => <div>
+            <small>{item.label}</small>
+            <p>{item.value}</p>
+          </div>)}
+        </div>
+      </article>
+
+      <article class="detail-card detail-card-wide detail-scope-card">
+        <span>Build scope</span>
+        <h2>Included, required from you, and outside the claim.</h2>
+        <div class="detail-scope-columns">
+          <section>
+            <b>Included</b>
+            <ul>{whatYouGet.slice(0, 4).map((item) => <li>{item}</li>)}</ul>
+          </section>
+          <section>
+            <b>Bring yourself</b>
+            <ul>{scopeBring.slice(0, 4).map((item) => <li>{item}</li>)}</ul>
+          </section>
+          <section>
+            <b>Out of scope</b>
+            <ul>{outOfScope.length ? outOfScope.map((item) => <li>{item}</li>) : <li>Production claims beyond the packet evidence are not assumed.</li>}</ul>
+          </section>
+        </div>
+      </article>
+
+      <article class="detail-card detail-handoff-card">
+        <span>Agent handoff</span>
+        <h2>Start from the packet, not the UI.</h2>
+        <div class="detail-command-row">
+          <code>{startCommand}</code>
+          <button class="copy-inline copy-btn" data-copy={startCommand}>Copy</button>
+        </div>
+        <div class="detail-handoff-links">
+          <a href={`/buildprints/${bp.slug}/agent.md`}>Agent guide</a>
+          <a href={`/buildprints/${bp.slug}/package.json`}>Manifest</a>
+          <a href={bp.githubUrl}><TechName name="GitHub" /> files</a>
+        </div>
+      </article>
+
+      <article class="detail-card detail-card-wide detail-files-card">
+        <span>Key files</span>
+        <h2>The first files an agent should read.</h2>
+        <div class="detail-file-grid">
           {packetFiles.map((file) => <a href={`${bp.rawBaseUrl}/${file.path}`}>
             <code>{file.path}</code>
-            <span>{file.purpose}</span>
+            <small>{file.purpose}</small>
           </a>)}
         </div>
-
-        <h2>{isWorkflow ? 'Workflow route' : 'Implementation flow'}</h2>
-        <div class="architecture-flow compact-flow flat-flow" aria-label="Implementation flow">
-          {architectureFlow.map((step, index) => <>
-            <span><TechName name={step} /></span>
-            {index < architectureFlow.length - 1 ? <b aria-hidden="true">→</b> : null}
-          </>)}
-        </div>
-
-        <h2>Validation</h2>
-        <ul class="verification-list" aria-label="Validation evidence">
-          {proofItems.map((item) => <li>{item}</li>)}
-          <li>{detailStatus}{bp.publicStatus?.explanation ? ` — ${bp.publicStatus.explanation}` : ''}</li>
-        </ul>
-
-        <h2>Links</h2>
-        <ul>
-          <li><a href={`/buildprints/${bp.slug}/package.json`}>Package JSON</a></li>
-          <li><a href={`/buildprints/${bp.slug}/agent.md`}>Agent guide</a></li>
-          <li><a href={bp.githubUrl}><TechName name="GitHub" /> Buildprint files</a></li>
-          {bp.originGithubUrl ? <li><a href={bp.originGithubUrl} target="_blank" rel="noreferrer">Source repo: {originName}</a></li> : null}
-        </ul>
-
-        <details class="readme-details advanced-details">
-          <summary>Advanced package details</summary>
-          <h3>Start command</h3>
-          <div class="readme-code-row">
-            <code>{startCommand}</code>
-            <button class="copy-inline copy-btn" data-copy={startCommand}>Copy</button>
-          </div>
-
-          <h3>All package files</h3>
-          <div class="readme-file-list all-files-list">
+        <details class="detail-all-files">
+          <summary>All package files</summary>
+          <div class="detail-all-file-list">
             {bp.files.map((file) => {
               const fileUrl = `${bp.rawBaseUrl}/${file.path}`;
               const copyUrl = fileUrl.startsWith('http') ? fileUrl : `${siteBase}${fileUrl}`;
-              return <div class="readme-file-item">
+              return <div>
                 <a href={fileUrl}><code>{file.path}</code></a>
-                <p>{file.purpose}</p>
+                <span>{file.purpose}</span>
                 <button class="copy-inline copy-btn" data-copy={copyUrl}>Copy URL</button>
               </div>;
             })}
           </div>
-
-          <h3>Manifest preview</h3>
-          <pre>{JSON.stringify({ slug: bp.slug, title: bp.title, tier: bp.tier, category: bp.category, status: bp.status, publicStatus: bp.publicStatus, originGithub: bp.originGithubUrl, agent: manifest.entrypoints.agent, manifest: manifest.entrypoints.manifest }, null, 2)}</pre>
         </details>
-      </section>
-    </article>
+      </article>
+    </section>
   </main>
   <script>
     function copyText(value) {
@@ -176,7 +245,7 @@ const flexibilityItems = ['Tech stack', 'Providers / APIs', 'UI framework', 'Dat
       button.addEventListener('click', () => {
         const value = button.getAttribute('data-copy') || '';
         const original = button.getAttribute('data-label') || 'Copy';
-        button.textContent = 'Copied ✓';
+        button.textContent = 'Copied';
         button.classList.add('copied');
         button.setAttribute('aria-live', 'polite');
         copyText(value).catch(() => {

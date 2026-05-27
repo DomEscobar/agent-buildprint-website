@@ -9,6 +9,13 @@ export type BuildprintStatus = 'publishable-draft' | 'dry-run-needed' | 'validat
 export type BuildprintFile = { path: string; purpose: string; required: boolean };
 export type BuildprintTrustBadge = { label: string; detail: string; tone?: 'success' | 'info' | 'warning' | 'neutral' };
 export type BuildprintPublicStatus = { label: string; explanation: string };
+export type BuildprintVisualRun = {
+  image?: string;
+  demoUrl?: string;
+  alt: string;
+  caption?: string;
+  status?: string;
+};
 export type BuildprintPublication = {
   schema: 'agent-buildprint/publication.v1';
   slug: string;
@@ -29,6 +36,9 @@ export type BuildprintPublication = {
   checks: string[];
   trustBadges?: BuildprintTrustBadge[];
   publicStatus?: BuildprintPublicStatus;
+  updatedAt?: string;
+  visualRun?: BuildprintVisualRun;
+  proofUrl?: string;
   plainDescription?: string;
   whatYouGet?: string[];
   whatYouNeed?: string[];
@@ -130,6 +140,17 @@ function localTrackedFiles(slug: string) {
   return files.sort((a, b) => a.localeCompare(b));
 }
 
+function localUpdatedAt(slug: string) {
+  if (!fs.existsSync(buildprintsRoot)) return undefined;
+  const root = path.resolve(buildprintsRoot, '..');
+  try {
+    const output = execFileSync('git', ['-C', root, 'log', '-1', '--format=%cI', '--', `buildprints/${slug}`], { encoding: 'utf8' }).trim();
+    return output || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 async function fetchJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.status}`);
@@ -181,6 +202,7 @@ function normalizePublication(record: { publication: BuildprintPublication; file
     .map((file) => ({ path: file, purpose: filePurpose(file), required: !isOptional(file) }));
   return {
     ...publication,
+    updatedAt: publication.updatedAt ?? localUpdatedAt(publication.slug),
     files,
     githubUrl: `${repoUrl}/tree/main/buildprints/${publication.slug}`,
     rawBaseUrl: `${siteBase}/buildprints/${publication.slug}/files`,
@@ -243,6 +265,9 @@ export function packageManifest(bp: Buildprint) {
     tier: bp.tier,
     status: bp.status,
     publicStatus: bp.publicStatus,
+    updatedAt: bp.updatedAt,
+    visualRun: bp.visualRun,
+    proofUrl: bp.proofUrl,
     runtime: bp.runtime,
     stack: bp.stack,
     canonicalStart,
@@ -254,6 +279,8 @@ export function packageManifest(bp: Buildprint) {
       prompt: urls.prompt,
       github: bp.githubUrl,
       originGithub: bp.originGithubUrl,
+      proof: bp.proofUrl,
+      visualDemo: bp.visualRun?.demoUrl,
       rawBase: bp.rawBaseUrl,
     },
     bootstrap: {

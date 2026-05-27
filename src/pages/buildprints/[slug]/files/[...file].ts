@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { buildprints, getBuildprint } from '@/lib/buildprints';
 
-const buildprintsRoot = process.env.BUILDPRINTS_SOURCE || '/root/blueprint/buildprints';
+const buildprintsRoot = process.env.BUILDPRINTS_SOURCE || path.resolve(process.cwd(), '../agent-buildprint/buildprints');
 const sourceRawRoot = process.env.BUILDPRINTS_RAW_SOURCE || 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/main/buildprints';
 
 export function getStaticPaths() {
@@ -21,20 +21,40 @@ function safeFilePath(file: string) {
 
 function contentTypeFor(file: string) {
   const ext = path.extname(file).toLowerCase();
-  return ext === '.json' ? 'application/json; charset=utf-8' : ext === '.md' ? 'text/markdown; charset=utf-8' : 'text/plain; charset=utf-8';
+  const textTypes: Record<string, string> = {
+    '.json': 'application/json; charset=utf-8',
+    '.md': 'text/markdown; charset=utf-8',
+    '.txt': 'text/plain; charset=utf-8',
+    '.yaml': 'text/yaml; charset=utf-8',
+    '.yml': 'text/yaml; charset=utf-8',
+    '.ts': 'text/typescript; charset=utf-8',
+    '.js': 'text/javascript; charset=utf-8',
+    '.html': 'text/html; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.svg': 'image/svg+xml; charset=utf-8',
+  };
+  const binaryTypes: Record<string, string> = {
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.webp': 'image/webp',
+    '.gif': 'image/gif',
+    '.avif': 'image/avif',
+  };
+  return textTypes[ext] ?? binaryTypes[ext] ?? 'application/octet-stream';
 }
 
 async function readRawFile(slug: string, file: string) {
   const root = path.resolve(buildprintsRoot, slug);
   const requested = path.resolve(root, ...file.split('/'));
   if (requested.startsWith(root + path.sep) && fs.existsSync(requested) && fs.statSync(requested).isFile()) {
-    return fs.readFileSync(requested, 'utf8');
+    return fs.readFileSync(requested);
   }
 
   const rawUrl = `${sourceRawRoot}/${slug}/${file.split('/').map(encodeURIComponent).join('/')}`;
   const response = await fetch(rawUrl);
   if (!response.ok) return null;
-  return response.text();
+  return response.arrayBuffer();
 }
 
 export async function GET({ params }: { params: { slug: string; file: string } }) {
