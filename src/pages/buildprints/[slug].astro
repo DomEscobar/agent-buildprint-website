@@ -1,4 +1,6 @@
 ---
+import fs from 'node:fs';
+import path from 'node:path';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildprints, getBuildprint, implementationEstimate, packageManifest, siteBase } from '@/lib/buildprints';
 import { badgeIcon } from '@/lib/icons';
@@ -45,7 +47,17 @@ const visualHref = (value?: string) => {
   if (/^https?:\/\//.test(value) || value.startsWith('/')) return value;
   return `${bp.rawBaseUrl}/${value.replace(/^\.?\//, '')}`;
 };
-const visualImage = visualHref(bp.visualRun?.image);
+const visualImageAliases: Record<string, string[]> = {
+  'ai-influencer-os': ['instagram'],
+  'automated-ai-blog-os': ['blog'],
+};
+const publicVisualImage = ['png', 'jpg', 'jpeg', 'webp']
+  .flatMap((extension) => [bp.slug, ...(visualImageAliases[bp.slug] ?? [])].map((name) => ({
+    filePath: path.join(process.cwd(), 'public', 'images', 'buildprints', `${name}.${extension}`),
+    href: `/images/buildprints/${name}.${extension}`,
+  })))
+  .find((candidate) => fs.existsSync(candidate.filePath))?.href;
+const visualImage = visualHref(bp.visualRun?.image) ?? publicVisualImage;
 const visualDemo = visualHref(bp.visualRun?.demoUrl);
 const proofHref = visualHref(bp.proofUrl);
 const heroStyle = visualImage ? `--detail-visual-image: url('${visualImage.replaceAll("'", '%27')}');` : undefined;
