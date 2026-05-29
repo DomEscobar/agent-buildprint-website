@@ -1,11 +1,10 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildprints, categories, implementationEstimate, tiers } from '@/lib/buildprints';
-import { badgeIcon, iconHtml, iconKeysForName, iconTitle } from '@/lib/icons';
+import { buildprints, categories, tiers } from '@/lib/buildprints';
+import { badgeIcon } from '@/lib/icons';
 
 const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
 const tierLabel = (bp) => bp.tier.replace('-', ' ');
-const stackIcons = (bp) => Array.from(new Set(bp.stack.flatMap((item) => iconKeysForName(item)))).slice(0, 4);
 const hasProofArtifacts = (bp) => bp.files.some((file) => file.path.startsWith('proof/') || file.path.includes('evidence') || file.path.includes('acceptance'));
 const proofCount = buildprints.filter(hasProofArtifacts).length;
 const validatedCount = buildprints.filter((bp) => bp.status === 'validated').length;
@@ -23,6 +22,12 @@ const featuredBuildprints = [
   .slice(0, 3);
 const outcomeLine = (bp) => bp.promise || bp.plainDescription || bp.summary;
 const proofLine = (bp) => bp.publicStatus?.label ?? bp.status.replace('-', ' ');
+const updatedDate = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' });
+const updatedLabel = (bp) => {
+  if (!bp.updatedAt) return 'Updated date unknown';
+  const date = new Date(bp.updatedAt);
+  return Number.isNaN(date.getTime()) ? 'Updated date unknown' : `Updated ${updatedDate.format(date)}`;
+};
 ---
 <BaseLayout title="Agent Buildprint Registry" description="Browse reusable Buildprints for products, features, architectures, workflows, and integrations.">
   <main class="registry-overview">
@@ -52,8 +57,7 @@ const proofLine = (bp) => bp.publicStatus?.label ?? bp.status.replace('-', ' ');
             <div class="registry-feature-meta"><span>{badgeIcon(bp.category)} {bp.category}</span><b>{proofLine(bp)}</b></div>
             <h3>{bp.title}</h3>
             <p>{outcomeLine(bp)}</p>
-            <div class="registry-feature-footer"><span>{tierLabel(bp)} packet</span><em>{implementationEstimate(bp)}</em></div>
-            <div class="registry-card-engagement" aria-label="Buildprint engagement"><span><b data-card-views>--</b> views</span><span><b data-card-likes>--</b> likes</span></div>
+            <div class="registry-card-engagement" aria-label="Buildprint engagement"><span><b data-card-views>--</b> views</span><span><b data-card-likes>--</b> likes</span><time datetime={bp.updatedAt}>{updatedLabel(bp)}</time></div>
           </a>
         ))}
       </div>
@@ -78,11 +82,7 @@ const proofLine = (bp) => bp.publicStatus?.label ?? bp.status.replace('-', ' ');
               <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={`${bp.tier} package`}>{tierLabel(bp)}</span></div>
               <h3>{bp.title}</h3>
               <p>{outcomeLine(bp)}</p>
-              <dl class="registry-card-facts">
-                <div><dt>Status</dt><dd>{proofLine(bp)}</dd></div>
-              </dl>
-              <div class="card-tech-footer" title={bp.stack.join(' - ')}><span>{bp.stack.slice(0, 2).join(' - ')}</span><span class="card-tech-side"><em>{implementationEstimate(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span></div>
-              <div class="registry-card-engagement" aria-label="Buildprint engagement"><span><b data-card-views>--</b> views</span><span><b data-card-likes>--</b> likes</span></div>
+              <div class="registry-card-engagement" aria-label="Buildprint engagement"><span><b data-card-views>--</b> views</span><span><b data-card-likes>--</b> likes</span><time datetime={bp.updatedAt}>{updatedLabel(bp)}</time></div>
             </div>
           </a>
         ))}
