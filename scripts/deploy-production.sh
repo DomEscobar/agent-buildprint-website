@@ -77,7 +77,11 @@ main() {
     run docker run --rm -v "$WEBSITE_DIR/server:/app" -w /app oven/bun:1.2-alpine sh -lc 'bun install --silent && bun test'
   fi
 
-  run docker compose -f "$WEBSITE_DIR/docker-compose.yml" --project-directory "$WEBSITE_DIR" build
+  # The Astro web build reads Buildprint publication data from the source repo / GitHub at build time.
+  # Docker cannot infer that remote/source Buildprint content changed from the website build context,
+  # so a normal cached build can incorrectly keep stale static files after source-only pushes.
+  run docker compose -f "$WEBSITE_DIR/docker-compose.yml" --project-directory "$WEBSITE_DIR" build --no-cache web
+  run docker compose -f "$WEBSITE_DIR/docker-compose.yml" --project-directory "$WEBSITE_DIR" build api
   run docker compose -f "$WEBSITE_DIR/docker-compose.yml" --project-directory "$WEBSITE_DIR" up -d
 
   log "Waiting for local web/api health"
