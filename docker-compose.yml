@@ -1,0 +1,26 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SITE_URL: ${SITE_URL:-https://agent-buildprint.com}
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-43117}:80"
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_PATH: ${DATABASE_PATH:-/data/engagement.sqlite}
+      PORT: 3000
+    volumes:
+      - engagement_data:/data
+    restart: unless-stopped
+
+volumes:
+  engagement_data:

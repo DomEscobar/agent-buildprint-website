@@ -2129,6 +2129,70 @@ body { background: var(--bg); }
   border-color: color-mix(in srgb, #16a34a 70%, var(--border));
   background: color-mix(in srgb, #16a34a 18%, var(--text));
 }
+.detail-engagement {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-items: center;
+  min-height: 42px;
+  margin-top: 12px;
+}
+.detail-engagement-stat,
+.detail-like-button {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  gap: 3px 7px;
+  align-items: center;
+  min-width: 104px;
+  min-height: 42px;
+  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  color: var(--text);
+  padding: 8px 11px;
+}
+.detail-engagement-stat b,
+.detail-like-button b {
+  min-width: 34px;
+  font-size: 15px;
+  font-weight: 950;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.detail-engagement-stat span,
+.detail-like-button span:last-child {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.detail-like-button {
+  grid-template-columns: auto auto auto;
+  cursor: pointer;
+}
+.detail-like-button span:first-child {
+  width: 18px;
+  color: color-mix(in srgb, #dc2626 78%, var(--accent));
+  font-size: 18px;
+  line-height: 1;
+  text-align: center;
+}
+.detail-like-button:hover,
+.detail-like-button[aria-pressed="true"] {
+  border-color: color-mix(in srgb, #dc2626 54%, var(--border));
+  background: color-mix(in srgb, #dc2626 9%, var(--surface));
+}
+.detail-like-button:disabled {
+  cursor: wait;
+  opacity: .72;
+}
+.detail-engagement[data-state="unavailable"] .detail-engagement-stat,
+.detail-engagement[data-state="unavailable"] .detail-like-button {
+  border-color: var(--border);
+  color: var(--muted);
+}
 .detail-visual {
   min-width: 0;
   border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
@@ -2610,11 +2674,14 @@ body { background: var(--bg); }
     font-size: 10px;
   }
   .detail-hero-actions,
+  .detail-engagement,
   .detail-handoff-links {
     flex-direction: column;
   }
   .detail-hero-actions a,
   .detail-primary,
+  .detail-engagement-stat,
+  .detail-like-button,
   .detail-handoff-links a {
     width: 100%;
   }

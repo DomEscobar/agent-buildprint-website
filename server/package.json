@@ -1,0 +1,13 @@
+{
+  "name": "agb-engagement-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "bun src/index.ts",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.16"
+  }
+}

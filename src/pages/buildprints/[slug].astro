@@ -112,6 +112,17 @@ const scopeBring = additionalRequirements.length
             {primaryProofHref ? <a href={primaryProofHref}>Proof / demo</a> : null}
             {bp.originGithubUrl ? <a href={bp.originGithubUrl} target="_blank" rel="noreferrer">Source: {originName}</a> : null}
           </div>
+          <div class="detail-engagement" data-buildprint-engagement data-slug={bp.slug} aria-live="polite">
+            <div class="detail-engagement-stat">
+              <b data-view-count>--</b>
+              <span>views</span>
+            </div>
+            <button class="detail-like-button" type="button" data-like-button aria-pressed="false">
+              <span aria-hidden="true" data-like-icon>+</span>
+              <b data-like-count>--</b>
+              <span>likes</span>
+            </button>
+          </div>
         </div>
 
         <aside class={`detail-visual ${visualImage ? 'has-image' : ''}`} aria-label="Buildprint visual summary">
@@ -269,5 +280,92 @@ const scopeBring = additionalRequirements.length
         }, 2200);
       });
     });
+
+    const engagement = document.querySelector('[data-buildprint-engagement]');
+    if (engagement) {
+      const slug = engagement.getAttribute('data-slug');
+      const viewCount = engagement.querySelector('[data-view-count]');
+      const likeCount = engagement.querySelector('[data-like-count]');
+      const likeButton = engagement.querySelector('[data-like-button]');
+      const likeIcon = engagement.querySelector('[data-like-icon]');
+      const numberFormat = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+
+      function fallbackUuid() {
+        const bytes = new Uint8Array(16);
+        crypto.getRandomValues(bytes);
+        bytes[6] = (bytes[6] & 0x0f) | 0x40;
+        bytes[8] = (bytes[8] & 0x3f) | 0x80;
+        const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+        return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+      }
+
+      function getClientId() {
+        try {
+          const existing = localStorage.getItem('agb_client_id');
+          if (existing) return existing;
+          const next = crypto.randomUUID ? crypto.randomUUID() : fallbackUuid();
+          localStorage.setItem('agb_client_id', next);
+          return next;
+        } catch {
+          return crypto.randomUUID ? crypto.randomUUID() : fallbackUuid();
+        }
+      }
+
+      function setCounts(payload) {
+        if (viewCount) viewCount.textContent = numberFormat.format(payload.views || 0);
+        if (likeCount) likeCount.textContent = numberFormat.format(payload.likes || 0);
+        if (likeButton) likeButton.setAttribute('aria-pressed', payload.liked ? 'true' : 'false');
+        if (likeIcon) likeIcon.textContent = payload.liked ? '-' : '+';
+      }
+
+      function setUnavailable() {
+        engagement.setAttribute('data-state', 'unavailable');
+        if (viewCount) viewCount.textContent = '-';
+        if (likeCount) likeCount.textContent = '-';
+        if (likeButton) likeButton.setAttribute('disabled', '');
+      }
+
+      async function engagementRequest(path, options) {
+        const response = await fetch(path, {
+          ...options,
+          headers: {
+            'content-type': 'application/json',
+            ...(options?.headers || {}),
+          },
+        });
+        if (!response.ok) throw new Error('engagement_request_failed');
+        return response.json();
+      }
+
+      const clientId = slug ? getClientId() : '';
+      if (!slug || !clientId) {
+        setUnavailable();
+      } else {
+        const basePath = `/api/buildprints/${encodeURIComponent(slug)}`;
+        engagementRequest(`${basePath}/engagement?clientId=${encodeURIComponent(clientId)}`)
+          .then(setCounts)
+          .then(() => engagementRequest(`${basePath}/view`, {
+            method: 'POST',
+            body: JSON.stringify({ clientId }),
+          }))
+          .then(setCounts)
+          .catch(setUnavailable);
+
+        likeButton?.addEventListener('click', async () => {
+          if (likeButton.hasAttribute('disabled')) return;
+          likeButton.setAttribute('disabled', '');
+          try {
+            setCounts(await engagementRequest(`${basePath}/like`, {
+              method: 'POST',
+              body: JSON.stringify({ clientId }),
+            }));
+          } catch {
+            engagement.setAttribute('data-state', 'unavailable');
+          } finally {
+            likeButton.removeAttribute('disabled');
+          }
+        });
+      }
+    }
   </script>
 </BaseLayout>
