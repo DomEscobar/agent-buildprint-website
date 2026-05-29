@@ -118,7 +118,7 @@ const scopeBring = additionalRequirements.length
               <span>views</span>
             </div>
             <button class="detail-like-button" type="button" data-like-button aria-pressed="false">
-              <span aria-hidden="true" data-like-icon>+</span>
+              <span aria-hidden="true" data-like-icon>♡</span>
               <b data-like-count>--</b>
               <span>likes</span>
             </button>
@@ -315,7 +315,7 @@ const scopeBring = additionalRequirements.length
         if (viewCount) viewCount.textContent = numberFormat.format(payload.views || 0);
         if (likeCount) likeCount.textContent = numberFormat.format(payload.likes || 0);
         if (likeButton) likeButton.setAttribute('aria-pressed', payload.liked ? 'true' : 'false');
-        if (likeIcon) likeIcon.textContent = payload.liked ? '-' : '+';
+        if (likeIcon) likeIcon.textContent = payload.liked ? '♥' : '♡';
       }
 
       function setUnavailable() {

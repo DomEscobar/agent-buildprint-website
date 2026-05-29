@@ -50,12 +50,13 @@ const proofLine = (bp) => bp.publicStatus?.label ?? bp.status.replace('-', ' ');
       </div>
       <div class="registry-featured-grid">
         {featuredBuildprints.map((bp, index) => (
-          <a class={`registry-feature-card ${bp.slug === 'buildprint-mapper-os' ? 'is-golden' : ''}`} href={`/buildprints/${bp.slug}/`}>
+          <a class={`registry-feature-card ${bp.slug === 'buildprint-mapper-os' ? 'is-golden' : ''}`} href={`/buildprints/${bp.slug}/`} data-engagement-card data-slug={bp.slug}>
             <small>{bp.slug === 'buildprint-mapper-os' ? 'Golden Buildprint' : index === 1 ? 'Strong packet' : 'Worth inspecting'}</small>
             <div class="registry-feature-meta"><span>{badgeIcon(bp.category)} {bp.category}</span><b>{proofLine(bp)}</b></div>
             <h3>{bp.title}</h3>
             <p>{outcomeLine(bp)}</p>
             <div class="registry-feature-footer"><span>{tierLabel(bp)} packet</span><em>{implementationEstimate(bp)}</em></div>
+            <div class="registry-card-engagement" aria-label="Buildprint engagement"><span><b data-card-views>--</b> views</span><span><b data-card-likes>--</b> likes</span></div>
           </a>
         ))}
       </div>
@@ -75,7 +76,7 @@ const proofLine = (bp) => bp.publicStatus?.label ?? bp.status.replace('-', ' ');
       </div>
       <div class="registry-card-grid" id="cards">
         {buildprints.map((bp) => (
-          <a class={`card buildprint-card registry-card clickable-card ${bp.status === 'validated' ? 'is-validated' : ''} ${bp.tier === 'agent-grade' ? 'is-agent-grade' : ''}`} href={`/buildprints/${bp.slug}/`} data-category={bp.category} data-tier={bp.tier} data-search={`${bp.title} ${bp.creator} ${bp.category} ${bp.tier} ${bp.runtime.join(' ')} ${bp.stack.join(' ')} ${bp.summary} ${outcomeLine(bp)} ${proofLine(bp)}`.toLowerCase()}>
+          <a class={`card buildprint-card registry-card clickable-card ${bp.status === 'validated' ? 'is-validated' : ''} ${bp.tier === 'agent-grade' ? 'is-agent-grade' : ''}`} href={`/buildprints/${bp.slug}/`} data-engagement-card data-slug={bp.slug} data-category={bp.category} data-tier={bp.tier} data-search={`${bp.title} ${bp.creator} ${bp.category} ${bp.tier} ${bp.runtime.join(' ')} ${bp.stack.join(' ')} ${bp.summary} ${outcomeLine(bp)} ${proofLine(bp)}`.toLowerCase()}>
             <div class="card-body">
               <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={`${bp.tier} package`}>{tierLabel(bp)}</span></div>
               <h3>{bp.title}</h3>
@@ -84,6 +85,7 @@ const proofLine = (bp) => bp.publicStatus?.label ?? bp.status.replace('-', ' ');
                 <div><dt>Status</dt><dd>{proofLine(bp)}</dd></div>
               </dl>
               <div class="card-tech-footer" title={bp.stack.join(' - ')}><span>{bp.stack.slice(0, 2).join(' - ')}</span><span class="card-tech-side"><em>{implementationEstimate(bp)}</em><span class="tiny-tech-icons" aria-hidden="true">{stackIcons(bp).map((key) => <i title={iconTitle[key] ?? key} set:html={iconHtml(key)} />)}</span></span></div>
+              <div class="registry-card-engagement" aria-label="Buildprint engagement"><span><b data-card-views>--</b> views</span><span><b data-card-likes>--</b> likes</span></div>
             </div>
           </a>
         ))}
@@ -118,5 +120,23 @@ const proofLine = (bp) => bp.publicStatus?.label ?? bp.status.replace('-', ' ');
     tierButtons.forEach((b) => b.addEventListener('click', () => { activeTier = b.dataset.tier || 'All'; markActive(tierButtons, activeTier, 'tier'); apply(); }));
     search?.addEventListener('input', apply);
     apply();
+
+    const numberFormat = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+    document.querySelectorAll('[data-engagement-card][data-slug]').forEach(async (card) => {
+      const slug = card.getAttribute('data-slug');
+      const views = card.querySelector('[data-card-views]');
+      const likes = card.querySelector('[data-card-likes]');
+      if (!slug || !views || !likes) return;
+      try {
+        const response = await fetch(`/api/buildprints/${encodeURIComponent(slug)}/engagement`);
+        if (!response.ok) throw new Error('engagement_unavailable');
+        const payload = await response.json();
+        views.textContent = numberFormat.format(payload.views || 0);
+        likes.textContent = numberFormat.format(payload.likes || 0);
+      } catch {
+        views.textContent = '-';
+        likes.textContent = '-';
+      }
+    });
   </script>
 </BaseLayout>
