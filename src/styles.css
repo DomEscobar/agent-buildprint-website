@@ -34,7 +34,7 @@ code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; co
 .nav-shell { position:sticky; top:0; z-index:20; backdrop-filter:blur(18px); background:color-mix(in srgb, var(--bg) 88%, transparent); border-bottom:1px solid var(--border); }
 .nav { display:flex; justify-content:space-between; align-items:center; gap:18px; padding:14px 0; min-width:0; }
 .logo { display:flex; align-items:center; gap:9px; font-weight:750; letter-spacing:-.02em; min-width:0; flex:0 1 auto; white-space:nowrap; }
-.logo svg { width:26px; height:26px; fill:none; stroke:var(--accent); stroke-width:1.8; }
+.logo img { width:26px; height:26px; display:block; object-fit:contain; }
 .navlinks { display:flex; align-items:center; justify-content:flex-end; gap:16px; color:var(--muted); font-size:14px; flex-wrap:nowrap; min-width:0; }
 .navlinks a:hover { color:var(--text); }
 .theme-toggle { width:34px; height:34px; border-radius:999px; border:1px solid var(--border); background:var(--surface); color:var(--muted); cursor:pointer; }
@@ -112,7 +112,7 @@ pre { overflow:auto; background:var(--surface-2); border:1px solid var(--border)
   .container { width: min(100% - 28px, 560px); }
   .nav { padding: 10px 0; gap: 10px; flex-wrap:nowrap; }
   .logo { font-size: 14px; gap:7px; max-width:34vw; overflow:hidden; text-overflow:ellipsis; }
-  .logo svg { width: 21px; height: 21px; flex:0 0 auto; }
+  .logo img { width: 21px; height: 21px; flex:0 0 auto; }
   .logo span { overflow:hidden; text-overflow:ellipsis; }
   .navlinks { gap: 9px; flex:1 1 auto; overflow:visible; padding-bottom:0; }
   .navlinks a, .theme-toggle { flex: 0 0 auto; }
@@ -2763,6 +2763,27 @@ body { background: var(--bg); }
 .registry-hero-copy {
   min-width: 0;
   max-width: 900px;
+  position: relative;
+  z-index: 1;
+}
+.registry-hero-mark {
+  position: absolute;
+  right: clamp(0px, 4vw, 44px);
+  top: clamp(28px, 5vw, 76px);
+  z-index: 0;
+  width: clamp(260px, 34vw, 520px);
+  opacity: .105;
+  pointer-events: none;
+  transform: rotate(-5deg);
+}
+.registry-hero-mark img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: grayscale(.2) saturate(.8);
+}
+[data-theme="dark"] .registry-hero-mark {
+  opacity: .13;
 }
 .registry-eyebrow,
 .registry-section-head > span {
@@ -2795,6 +2816,8 @@ body { background: var(--bg); }
 }
 .registry-hero-panel {
   min-width: 0;
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border));
@@ -2807,7 +2830,7 @@ body { background: var(--bg); }
   box-shadow: var(--shadow);
   overflow: hidden;
 }
-.registry-hero-panel div {
+.registry-hero-stat {
   min-height: 108px;
   display: grid;
   align-content: end;
@@ -2816,20 +2839,20 @@ body { background: var(--bg); }
   border-bottom: 1px solid var(--border);
   padding: 18px;
 }
-.registry-hero-panel div:nth-child(2n) {
+.registry-hero-stat:nth-of-type(2n + 1) {
   border-right: 0;
 }
-.registry-hero-panel div:nth-last-child(-n + 2) {
+.registry-hero-stat:nth-last-of-type(-n + 2) {
   border-bottom: 0;
 }
-.registry-hero-panel span {
+.registry-hero-stat span {
   color: var(--text);
   font-size: clamp(34px, 4vw, 54px);
   font-weight: 950;
   line-height: .9;
   letter-spacing: -.05em;
 }
-.registry-hero-panel b {
+.registry-hero-stat b {
   color: var(--muted);
   font-size: 11px;
   font-weight: 950;
@@ -3049,6 +3072,12 @@ body { background: var(--bg); }
   .registry-hero {
     padding: 32px 0 18px;
   }
+  .registry-hero-mark {
+    right: -76px;
+    top: 20px;
+    width: 260px;
+    opacity: .075;
+  }
   .registry-hero h1 {
     font-size: clamp(40px, 14vw, 56px);
     line-height: .94;
@@ -3072,14 +3101,14 @@ body { background: var(--bg); }
   .registry-hero-panel {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .registry-hero-panel div {
+  .registry-hero-stat {
     min-height: 72px;
     padding: 10px;
   }
-  .registry-hero-panel span {
+  .registry-hero-stat span {
     font-size: 28px;
   }
-  .registry-hero-panel b {
+  .registry-hero-stat b {
     font-size: 9px;
   }
   .registry-featured {

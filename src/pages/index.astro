@@ -27,6 +27,9 @@ const proofLine = (bp) => bp.publicStatus?.label ?? bp.status.replace('-', ' ');
 <BaseLayout title="Agent Buildprint Registry" description="Browse reusable Buildprints for products, features, architectures, workflows, and integrations.">
   <main class="registry-overview">
     <section class="container registry-hero">
+      <div class="registry-hero-mark" aria-hidden="true">
+        <img src="/logo.svg" alt="" />
+      </div>
       <div class="registry-hero-copy">
         <span class="registry-eyebrow">Buildprint registry</span>
         <h1>Choose the thing your agent should build.</h1>
@@ -34,10 +37,10 @@ const proofLine = (bp) => bp.publicStatus?.label ?? bp.status.replace('-', ' ');
         <div class="actions"><a class="btn primary" href="#cards">Browse Buildprints</a><a class="btn" href="/why-buildprints/">Why Buildprints?</a><a class="btn" href="/buildprints/index.json">Registry JSON</a></div>
       </div>
       <aside class="registry-hero-panel" aria-label="Registry snapshot">
-        <div><span>{buildprints.length}</span><b>published packets</b></div>
-        <div><span>{agentGradeCount}</span><b>agent-grade</b></div>
-        <div><span>{validatedCount}</span><b>validated</b></div>
-        <div><span>{proofCount}</span><b>with proof files</b></div>
+        <div class="registry-hero-stat"><span>{buildprints.length}</span><b>published packets</b></div>
+        <div class="registry-hero-stat"><span>{agentGradeCount}</span><b>agent-grade</b></div>
+        <div class="registry-hero-stat"><span>{validatedCount}</span><b>validated</b></div>
+        <div class="registry-hero-stat"><span>{proofCount}</span><b>with proof files</b></div>
       </aside>
     </section>
 
