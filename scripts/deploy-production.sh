@@ -77,7 +77,7 @@ main() {
 
   run npm --prefix "$WEBSITE_DIR" ci
   run npm --prefix "$WEBSITE_DIR" run sync:buildprints -- --source "$SOURCE_DIR"
-  run npm --prefix "$WEBSITE_DIR" run build
+  BUILDPRINTS_SOURCE="$SOURCE_DIR/buildprints" run npm --prefix "$WEBSITE_DIR" run build
   BUILDPRINTS_SOURCE="$SOURCE_DIR/buildprints" run npm --prefix "$WEBSITE_DIR" run check:buildprints
   run npm --prefix "$WEBSITE_DIR" run check:codex-drift
 
