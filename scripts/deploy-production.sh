@@ -64,7 +64,15 @@ main() {
   pull_ff "$WEBSITE_DIR" "website"
 
   if [[ "$SKIP_SOURCE_TESTS" != "1" ]]; then
-    run npm --prefix "$SOURCE_DIR" test
+    if node -e "const s=require(process.argv[1]).scripts||{}; process.exit(s.test ? 0 : 1)" "$SOURCE_DIR/package.json"; then
+      run npm --prefix "$SOURCE_DIR" test
+    else
+      log "source has no npm test script; running available source gates"
+      node -e "const s=require(process.argv[1]).scripts||{}; for (const name of ['check:syntax','check:packet:mapper','eval:mapper-overhaul']) if (s[name]) console.log(name)" "$SOURCE_DIR/package.json" |
+        while IFS= read -r script_name; do
+          run npm --prefix "$SOURCE_DIR" run "$script_name"
+        done
+    fi
   fi
 
   run npm --prefix "$WEBSITE_DIR" ci
