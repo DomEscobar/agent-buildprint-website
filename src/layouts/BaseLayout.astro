@@ -44,6 +44,7 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
           <a href="/buildprints/">Browse</a>
           <a href="/buildprints/submit/">Submit</a>
           <a href="https://github.com/DomEscobar/agent-buildprint">GitHub</a>
+          <span class="nav-auth" data-nav-auth><a href="/profile/">Sign in</a></span>
           <button class="theme-toggle" id="themeToggle" type="button"><span aria-hidden="true">T</span><span class="sr-only">Toggle color theme</span></button>
         </nav>
       </div>
@@ -61,6 +62,15 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
         document.documentElement.dataset.theme = next;
         localStorage.setItem('theme', next);
       });
+      const navAuth = document.querySelector('[data-nav-auth]');
+      fetch('/api/auth/me')
+        .then((response) => response.ok ? response.json() : null)
+        .then((payload) => {
+          if (!navAuth || !payload?.user) return;
+          const user = payload.user;
+          navAuth.innerHTML = `<a class="nav-profile" href="/profile/"><img src="${user.avatarUrl || '/logo.svg'}" alt="" /><span>${user.githubLogin}</span></a>`;
+        })
+        .catch(() => {});
     </script>
   </body>
 </html>

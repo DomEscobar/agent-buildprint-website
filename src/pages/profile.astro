@@ -1,0 +1,120 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+<BaseLayout title="Profile — Agent Buildprint" description="Manage your Agent Buildprint profile and GitHub-backed identity.">
+  <main class="profile-page">
+    <section class="profile-hero">
+      <div class="container profile-shell" data-profile-shell>
+        <div class="profile-loading">Loading profile…</div>
+      </div>
+    </section>
+  </main>
+  <script is:inline>
+    const shell = document.querySelector('[data-profile-shell]');
+    const handleFromPath = (() => {
+      const match = window.location.pathname.match(/^\/u\/([^/]+)/);
+      return match ? decodeURIComponent(match[1]) : '';
+    })();
+    const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (char) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+    const normalizeWebsite = (value) => value ? `<a href="${escapeHtml(value)}" target="_blank" rel="noreferrer">${escapeHtml(value.replace(/^https?:\/\//, '').replace(/\/$/, ''))}</a>` : '<span>Not set</span>';
+
+    async function getJson(url, init) {
+      const response = await fetch(url, init);
+      const payload = await response.json().catch(() => ({}));
+      return { response, payload };
+    }
+
+    function renderSignedOut() {
+      shell.innerHTML = `
+        <a class="artifact-back" href="/buildprints/">← Registry</a>
+        <div class="profile-card profile-auth-card">
+          <p class="registry-v2-kicker">Profiles</p>
+          <h1>Sign in with GitHub.</h1>
+          <p>Profiles are GitHub-backed so Buildprint authorship, source repos, and future publishing flows stay honest.</p>
+          <div class="profile-actions">
+            <a class="registry-v2-primary" href="/api/auth/github/start">Sign in with GitHub</a>
+            <a href="/buildprints/">Browse Buildprints</a>
+          </div>
+          <p class="profile-muted">If OAuth is not configured yet, the sign-in endpoint returns a clear setup error instead of pretending auth works.</p>
+        </div>`;
+    }
+
+    function publicProfile(user) {
+      shell.innerHTML = `
+        <a class="artifact-back" href="/buildprints/">← Registry</a>
+        <article class="profile-card profile-public-card">
+          <img class="profile-avatar-large" src="${escapeHtml(user.avatarUrl || '/logo.svg')}" alt="" />
+          <div>
+            <p class="registry-v2-kicker">GitHub profile</p>
+            <h1>${escapeHtml(user.displayName || user.githubLogin)}</h1>
+            <p class="profile-handle">@${escapeHtml(user.githubLogin)}</p>
+            <p>${escapeHtml(user.bio || 'No profile bio yet.')}</p>
+            <dl class="profile-facts">
+              <div><dt>GitHub</dt><dd><a href="https://github.com/${escapeHtml(user.githubLogin)}" target="_blank" rel="noreferrer">${escapeHtml(user.githubLogin)}</a></dd></div>
+              <div><dt>Website</dt><dd>${normalizeWebsite(user.websiteUrl)}</dd></div>
+              <div><dt>Joined</dt><dd>${new Date(user.createdAt).toLocaleDateString()}</dd></div>
+            </dl>
+          </div>
+        </article>`;
+    }
+
+    function privateProfile(user) {
+      shell.innerHTML = `
+        <a class="artifact-back" href="/buildprints/">← Registry</a>
+        <div class="profile-grid">
+          <article class="profile-card profile-public-card">
+            <img class="profile-avatar-large" src="${escapeHtml(user.avatarUrl || '/logo.svg')}" alt="" />
+            <div>
+              <p class="registry-v2-kicker">Your profile</p>
+              <h1>${escapeHtml(user.displayName || user.githubLogin)}</h1>
+              <p class="profile-handle"><a href="/u/${encodeURIComponent(user.githubLogin)}/">@${escapeHtml(user.githubLogin)}</a></p>
+              <p>${escapeHtml(user.bio || 'Add a concise maintainer bio for people browsing your Buildprints.')}</p>
+              <div class="profile-actions">
+                <a class="registry-v2-primary" href="/u/${encodeURIComponent(user.githubLogin)}/">View public profile</a>
+                <button data-logout>Logout</button>
+              </div>
+            </div>
+          </article>
+          <form class="profile-card profile-form" data-profile-form>
+            <span class="side-label">Edit profile</span>
+            <label>Display name<input name="displayName" maxlength="80" value="${escapeHtml(user.displayName || '')}" /></label>
+            <label>Bio<textarea name="bio" maxlength="240">${escapeHtml(user.bio || '')}</textarea></label>
+            <label>Website<input name="websiteUrl" maxlength="300" value="${escapeHtml(user.websiteUrl || '')}" /></label>
+            <button class="registry-v2-primary" type="submit">Save profile</button>
+            <p class="profile-muted" data-profile-status>GitHub login/avatar come from GitHub. Editable fields stay local.</p>
+          </form>
+        </div>`;
+
+      shell.querySelector('[data-logout]')?.addEventListener('click', async () => {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        window.location.href = '/';
+      });
+      shell.querySelector('[data-profile-form]')?.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const status = shell.querySelector('[data-profile-status]');
+        const data = Object.fromEntries(new FormData(form).entries());
+        const { response, payload } = await getJson('/api/me/profile', { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) });
+        if (!response.ok) {
+          status.textContent = payload.error || 'Save failed';
+          return;
+        }
+        status.textContent = 'Saved.';
+        privateProfile(payload.user);
+      });
+    }
+
+    async function boot() {
+      if (handleFromPath) {
+        const { response, payload } = await getJson(`/api/users/${encodeURIComponent(handleFromPath)}`);
+        if (response.ok && payload.user) return publicProfile(payload.user);
+        shell.innerHTML = `<a class="artifact-back" href="/buildprints/">← Registry</a><div class="profile-card"><h1>Profile not found.</h1><p>No GitHub-backed Agent Buildprint profile exists for @${escapeHtml(handleFromPath)} yet.</p></div>`;
+        return;
+      }
+      const { payload } = await getJson('/api/auth/me');
+      if (payload.user) privateProfile(payload.user);
+      else renderSignedOut();
+    }
+    boot().catch(() => { shell.innerHTML = '<div class="profile-card"><h1>Profile failed to load.</h1><p>Try again in a moment.</p></div>'; });
+  </script>
+</BaseLayout>

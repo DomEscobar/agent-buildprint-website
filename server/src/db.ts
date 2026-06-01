@@ -1,5 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { createHash, randomBytes } from 'node:crypto';
 import { Database } from 'bun:sqlite';
 
 export type EngagementCounts = {
@@ -9,8 +10,21 @@ export type EngagementCounts = {
   liked: boolean;
 };
 
+export type PublicUser = {
+  id: string;
+  githubId: number;
+  githubLogin: string;
+  displayName: string;
+  avatarUrl: string;
+  bio: string;
+  websiteUrl: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export const clientIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+export const githubLoginPattern = /^[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/;
 
 type Clock = () => Date;
 
@@ -19,8 +33,64 @@ type StatRow = {
   likes_total: number;
 };
 
+type UserRow = {
+  id: string;
+  github_id: number;
+  github_login: string;
+  display_name: string;
+  avatar_url: string;
+  bio: string;
+  website_url: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type SessionRow = {
+  id: string;
+  user_id: string;
+  expires_at: string;
+};
+
 export function utcDay(date: Date) {
   return date.toISOString().slice(0, 10);
+}
+
+export function hashSessionToken(token: string) {
+  return createHash('sha256').update(token).digest('hex');
+}
+
+export function createSessionToken() {
+  return randomBytes(32).toString('base64url');
+}
+
+function toPublicUser(row: UserRow): PublicUser {
+  return {
+    id: row.id,
+    githubId: row.github_id,
+    githubLogin: row.github_login,
+    displayName: row.display_name,
+    avatarUrl: row.avatar_url,
+    bio: row.bio,
+    websiteUrl: row.website_url,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function cleanProfileText(value: unknown, max: number) {
+  return typeof value === 'string' ? value.trim().slice(0, max) : '';
+}
+
+function cleanUrl(value: unknown) {
+  const raw = cleanProfileText(value, 300);
+  if (!raw) return '';
+  try {
+    const parsed = new URL(raw.startsWith('http://') || raw.startsWith('https://') ? raw : `https://${raw}`);
+    if (!['http:', 'https:'].includes(parsed.protocol)) return '';
+    return parsed.href;
+  } catch {
+    return '';
+  }
 }
 
 export function openEngagementDb(databasePath: string, clock: Clock = () => new Date()) {
@@ -52,6 +122,29 @@ export function openEngagementDb(databasePath: string, clock: Clock = () => new 
       created_at TEXT NOT NULL,
       PRIMARY KEY (slug, client_id)
     );
+
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      github_id INTEGER NOT NULL UNIQUE,
+      github_login TEXT NOT NULL UNIQUE,
+      display_name TEXT NOT NULL DEFAULT '',
+      avatar_url TEXT NOT NULL DEFAULT '',
+      bio TEXT NOT NULL DEFAULT '',
+      website_url TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      token_hash TEXT NOT NULL UNIQUE,
+      created_at TEXT NOT NULL,
+      expires_at TEXT NOT NULL
+    );
+
+    CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions(user_id);
+    CREATE INDEX IF NOT EXISTS sessions_expires_at_idx ON sessions(expires_at);
   `);
 
   const ensureStats = db.query(`
@@ -75,12 +168,42 @@ export function openEngagementDb(databasePath: string, clock: Clock = () => new 
     WHERE slug = $slug
   `);
 
+  const selectUserByGithubId = db.query<UserRow, [number]>('SELECT * FROM users WHERE github_id = ?');
+  const selectUserByLogin = db.query<UserRow, [string]>('SELECT * FROM users WHERE lower(github_login) = lower(?)');
+  const selectUserBySessionHash = db.query<UserRow, [string, string]>(`
+    SELECT users.* FROM users
+    JOIN sessions ON sessions.user_id = users.id
+    WHERE sessions.token_hash = ? AND sessions.expires_at > ?
+  `);
+  const insertUser = db.query(`
+    INSERT INTO users (id, github_id, github_login, display_name, avatar_url, bio, website_url, created_at, updated_at)
+    VALUES ($id, $githubId, $githubLogin, $displayName, $avatarUrl, $bio, $websiteUrl, $now, $now)
+  `);
+  const updateGithubUser = db.query(`
+    UPDATE users SET github_login = $githubLogin, avatar_url = $avatarUrl, updated_at = $now
+    WHERE github_id = $githubId
+  `);
+  const updateProfile = db.query(`
+    UPDATE users SET display_name = $displayName, bio = $bio, website_url = $websiteUrl, updated_at = $now
+    WHERE id = $id
+  `);
+  const insertSession = db.query(`
+    INSERT INTO sessions (id, user_id, token_hash, created_at, expires_at)
+    VALUES ($id, $userId, $tokenHash, $now, $expiresAt)
+  `);
+  const deleteSession = db.query('DELETE FROM sessions WHERE token_hash = ?');
+  const deleteExpiredSessions = db.query('DELETE FROM sessions WHERE expires_at <= ?');
+
   function assertSlug(slug: string) {
     if (!slugPattern.test(slug)) throw new Error('invalid_slug');
   }
 
   function assertClientId(clientId: string) {
     if (!clientIdPattern.test(clientId)) throw new Error('invalid_client_id');
+  }
+
+  function assertGithubLogin(login: string) {
+    if (!githubLoginPattern.test(login)) throw new Error('invalid_github_login');
   }
 
   function touchStats(slug: string, now = clock().toISOString()) {
@@ -132,12 +255,98 @@ export function openEngagementDb(databasePath: string, clock: Clock = () => new 
     return getEngagement(slug, clientId);
   });
 
+  const upsertGithubUserTx = db.transaction((input: {
+    githubId: number;
+    githubLogin: string;
+    displayName?: string;
+    avatarUrl?: string;
+    bio?: string;
+    websiteUrl?: string;
+  }) => {
+    assertGithubLogin(input.githubLogin);
+    const now = clock().toISOString();
+    const existing = selectUserByGithubId.get(input.githubId);
+    if (existing) {
+      updateGithubUser.run({
+        $githubId: input.githubId,
+        $githubLogin: input.githubLogin,
+        $avatarUrl: cleanUrl(input.avatarUrl),
+        $now: now,
+      });
+      return toPublicUser(selectUserByGithubId.get(input.githubId)!);
+    }
+    const id = randomBytes(16).toString('hex');
+    insertUser.run({
+      $id: id,
+      $githubId: input.githubId,
+      $githubLogin: input.githubLogin,
+      $displayName: cleanProfileText(input.displayName || input.githubLogin, 80),
+      $avatarUrl: cleanUrl(input.avatarUrl),
+      $bio: cleanProfileText(input.bio, 240),
+      $websiteUrl: cleanUrl(input.websiteUrl),
+      $now: now,
+    });
+    return toPublicUser(selectUserByGithubId.get(input.githubId)!);
+  });
+
+  function createSession(userId: string, days = 30) {
+    const token = createSessionToken();
+    const nowDate = clock();
+    const expires = new Date(nowDate.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
+    insertSession.run({
+      $id: randomBytes(16).toString('hex'),
+      $userId: userId,
+      $tokenHash: hashSessionToken(token),
+      $now: nowDate.toISOString(),
+      $expiresAt: expires,
+    });
+    return { token, expiresAt: expires };
+  }
+
+  function getUserBySessionToken(token?: string) {
+    if (!token) return null;
+    const row = selectUserBySessionHash.get(hashSessionToken(token), clock().toISOString());
+    return row ? toPublicUser(row) : null;
+  }
+
+  function getUserByLogin(login: string) {
+    assertGithubLogin(login);
+    const row = selectUserByLogin.get(login);
+    return row ? toPublicUser(row) : null;
+  }
+
+  function updateUserProfile(userId: string, payload: unknown) {
+    const input = payload && typeof payload === 'object' ? payload as Record<string, unknown> : {};
+    const current = db.query<UserRow, [string]>('SELECT * FROM users WHERE id = ?').get(userId);
+    if (!current) throw new Error('not_found');
+    const displayName = cleanProfileText(input.displayName ?? current.display_name, 80) || current.github_login;
+    const bio = cleanProfileText(input.bio ?? current.bio, 240);
+    const websiteUrl = cleanUrl(input.websiteUrl ?? current.website_url);
+    updateProfile.run({
+      $id: userId,
+      $displayName: displayName,
+      $bio: bio,
+      $websiteUrl: websiteUrl,
+      $now: clock().toISOString(),
+    });
+    return toPublicUser(db.query<UserRow, [string]>('SELECT * FROM users WHERE id = ?').get(userId)!);
+  }
+
   return {
     getEngagement,
     recordView: recordViewTx,
     toggleLike: toggleLikeTx,
+    upsertGithubUser: upsertGithubUserTx,
+    createSession,
+    getUserBySessionToken,
+    getUserByLogin,
+    updateUserProfile,
+    deleteSessionToken(token: string) {
+      deleteSession.run(hashSessionToken(token));
+    },
     health() {
       db.query('SELECT 1').get();
+      deleteExpiredSessions.run(clock().toISOString());
       return { ok: true, database: 'ok' };
     },
     close() {

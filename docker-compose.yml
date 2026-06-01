@@ -18,6 +18,10 @@ services:
     environment:
       DATABASE_PATH: ${DATABASE_PATH:-/data/engagement.sqlite}
       PORT: 3000
+      SITE_URL: ${SITE_URL:-https://agent-buildprint.com}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
     volumes:
       - engagement_data:/data
     restart: unless-stopped

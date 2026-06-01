@@ -70,3 +70,45 @@ test('health verifies database access', async () => {
   expect(response.status).toBe(200);
   expect(await body(response)).toEqual({ ok: true, database: 'ok' });
 });
+
+test('auth reports signed out user and honest unconfigured GitHub OAuth', async () => {
+  const app = makeApp();
+
+  expect(await body(await app.fetch(request('/api/auth/me')))).toEqual({ user: null });
+  expect((await app.fetch(request('/api/auth/github/start'))).status).toBe(503);
+  expect((await app.fetch(request('/api/me/profile', { method: 'PATCH', body: JSON.stringify({ displayName: 'Dom' }) }))).status).toBe(401);
+});
+
+test('GitHub OAuth callback creates session and editable profile', async () => {
+  const db = openEngagementDb(':memory:', () => new Date('2026-05-29T12:00:00.000Z'));
+  openDbs.push(db);
+  const app = createApp(db, {
+    siteUrl: 'https://agent-buildprint.test',
+    githubClientId: 'client',
+    githubClientSecret: 'secret',
+    cookieSecure: true,
+    fetch: async (url) => {
+      if (String(url).includes('/access_token')) return Response.json({ access_token: 'token' });
+      return Response.json({ id: 123, login: 'DomEscobar', name: 'Dom', avatar_url: 'https://github.com/avatar.png', bio: 'Builder', blog: 'dom.example' });
+    },
+  });
+
+  const start = await app.fetch(request('/api/auth/github/start'));
+  const stateCookie = start.headers.get('set-cookie') || '';
+  const state = stateCookie.match(/agb_oauth_state=([^;]+)/)?.[1] || '';
+  const callback = await app.fetch(request(`/api/auth/github/callback?code=abc&state=${state}`, { headers: { cookie: `agb_oauth_state=${state}` } }));
+  const sessionCookie = callback.headers.get('set-cookie') || '';
+  const session = sessionCookie.match(/agb_session=([^;]+)/)?.[1] || '';
+
+  expect(callback.status).toBe(302);
+  expect(session.length).toBeGreaterThan(20);
+  const me = await body(await app.fetch(request('/api/auth/me', { headers: { cookie: `agb_session=${session}` } })));
+  expect(me.user).toMatchObject({ githubLogin: 'DomEscobar', displayName: 'Dom' });
+
+  const updated = await body(await app.fetch(request('/api/me/profile', {
+    method: 'PATCH',
+    headers: { cookie: `agb_session=${session}` },
+    body: JSON.stringify({ displayName: 'Dom E', bio: 'Buildprint maintainer', websiteUrl: 'agent-buildprint.com' }),
+  })));
+  expect(updated.user).toMatchObject({ displayName: 'Dom E', bio: 'Buildprint maintainer', websiteUrl: 'https://agent-buildprint.com/' });
+});
