@@ -247,6 +247,14 @@ export const tiers = ['All', 'basic', 'strong', 'agent-grade'] as const;
 export const getBuildprint = (slug: string) => buildprints.find((item) => item.slug === slug);
 export const liveBuildprints = buildprints;
 
+export async function buildprintFileText(slug: string, filePath: string) {
+  const localPath = path.join(buildprintsRoot, slug, normalizePath(filePath));
+  if (fs.existsSync(localPath)) return fs.readFileSync(localPath, 'utf8');
+  const response = await fetch(`${rawSourceRoot}/${slug}/${normalizePath(filePath)}`);
+  if (!response.ok) return '';
+  return response.text();
+}
+
 export function buildprintUrls(bp: Buildprint) {
   return {
     human: `/buildprints/${bp.slug}/`,

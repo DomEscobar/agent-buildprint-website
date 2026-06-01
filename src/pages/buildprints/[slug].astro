@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildprints, getBuildprint, packageManifest, siteBase } from '@/lib/buildprints';
+import { buildprints, buildprintFileText, getBuildprint, packageManifest, siteBase } from '@/lib/buildprints';
 
 export function getStaticPaths() {
   return buildprints.map((bp) => ({ params: { slug: bp.slug } }));
@@ -43,23 +43,122 @@ const rawEntrypointUrl = `${bp.rawBaseUrl}/${entrypoint}`;
 const packageUrl = `${siteBase}/buildprints/${bp.slug}/package.json`;
 const agentUrl = `${siteBase}/buildprints/${bp.slug}/agent.md`;
 const promptUrl = `${siteBase}/buildprints/${bp.slug}/prompt.txt`;
+
+const typeCode = (() => {
+  const haystack = `${bp.slug} ${bp.title} ${bp.summary}`.toLowerCase();
+  if (haystack.includes('mapper') || haystack.includes('generator') || haystack.includes('builder')) return 'BU';
+  if (bp.category === 'Product OS') return 'OS';
+  if (bp.category === 'Workflow OS') return 'WF';
+  if (bp.category === 'Framework / Architecture') return 'FW';
+  if (bp.category === 'Feature / Extension') return 'EX';
+  if (bp.category === 'Mapped Project') return 'MP';
+  return bp.category.slice(0, 2).toUpperCase();
+})();
+const readmeText = await buildprintFileText(bp.slug, 'README.md');
+const escapeHtml = (value: string) => value
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;');
+const inlineMarkdown = (value: string) => escapeHtml(value)
+  .replace(/`([^`]+)`/g, '<code>$1</code>')
+  .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+const markdownToHtml = (markdown: string) => {
+  const lines = markdown.replace(/\r\n/g, '\n').split('\n');
+  const html: string[] = [];
+  let paragraph: string[] = [];
+  let listOpen = false;
+  let codeOpen = false;
+  const flushParagraph = () => {
+    if (!paragraph.length) return;
+    html.push(`<p>${inlineMarkdown(paragraph.join(' '))}</p>`);
+    paragraph = [];
+  };
+  const closeList = () => {
+    if (listOpen) {
+      html.push('</ul>');
+      listOpen = false;
+    }
+  };
+  for (const line of lines) {
+    if (line.trim().startsWith('```')) {
+      flushParagraph();
+      closeList();
+      html.push(codeOpen ? '</code></pre>' : '<pre><code>');
+      codeOpen = !codeOpen;
+      continue;
+    }
+    if (codeOpen) {
+      html.push(escapeHtml(line));
+      continue;
+    }
+    if (!line.trim()) {
+      flushParagraph();
+      closeList();
+      continue;
+    }
+    const heading = line.match(/^(#{1,4})\s+(.+)$/);
+    if (heading) {
+      flushParagraph();
+      closeList();
+      const level = Math.min(heading[1].length + 1, 4);
+      html.push(`<h${level}>${inlineMarkdown(heading[2])}</h${level}>`);
+      continue;
+    }
+    const bullet = line.match(/^\s*[-*]\s+(.+)$/);
+    if (bullet) {
+      flushParagraph();
+      if (!listOpen) {
+        html.push('<ul>');
+        listOpen = true;
+      }
+      html.push(`<li>${inlineMarkdown(bullet[1])}</li>`);
+      continue;
+    }
+    paragraph.push(line.trim());
+  }
+  flushParagraph();
+  closeList();
+  if (codeOpen) html.push('</code></pre>');
+  return html.join('\n');
+};
+const readmeHtml = readmeText ? markdownToHtml(readmeText) : `<p>${escapeHtml(description)}</p>`;
 ---
 <BaseLayout title={`${bp.title} by @${ownerHandle} - Agent Buildprint`} description={description}>
-  <main class="artifact-page">
-    <section class="artifact-hero">
-      <div class="container artifact-hero-grid">
-        <div class="artifact-heading">
-          <a class="artifact-back" href="/buildprints/">← Explore</a>
-          <p class="artifact-path"><span>@{ownerHandle}</span><span>/</span><strong>{bp.slug}</strong></p>
-          <h1>{bp.title}</h1>
-          <p class="artifact-summary">{description}</p>
-          <div class="artifact-actions">
-            <button class="artifact-primary copy-btn" data-copy={copyPrompt}>Copy agent prompt</button>
-            <button class="copy-btn" data-copy={startCommand}>Copy start command</button>
-            <a href={bp.githubUrl} target="_blank" rel="noreferrer">View source</a>
+  <main class="artifact-page readme-detail-page">
+    <section class="artifact-hero readme-detail-hero">
+      <div class="container readme-detail-top">
+        <a class="artifact-back" href="/buildprints/">← Explore</a>
+        <div class="readme-title-row">
+          <div class="registry-hf-avatar readme-type-mark" title={bp.category} aria-label={`${bp.category} type`}>{typeCode}</div>
+          <div>
+            <p class="artifact-path"><span>@{ownerHandle}</span><span>/</span><strong>{bp.slug}</strong></p>
+            <h1>{bp.title}</h1>
+            <p class="artifact-summary">{description}</p>
           </div>
         </div>
-        <aside class="artifact-use-panel" aria-label="Use this Buildprint">
+        <div class="artifact-actions readme-action-bar">
+          <button class="artifact-primary copy-btn" data-copy={startCommand}>Copy start command</button>
+          <button class="copy-btn" data-copy={copyPrompt}>Copy agent prompt</button>
+          <a href={agentUrl}>agent.md</a>
+          <a href={packageUrl}>package.json</a>
+          <a href={bp.githubUrl} target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="container readme-detail-layout">
+      <article class="readme-document" id="readme">
+        <header class="readme-document-head">
+          <span>README.md</span>
+          <a href={`${bp.rawBaseUrl}/README.md`}>Raw</a>
+        </header>
+        <div class="readme-rendered" set:html={readmeHtml} />
+      </article>
+
+      <aside class="readme-side-panel" aria-label="Buildprint utility panel">
+        <div class="readme-side-card use-card">
           <div class="artifact-panel-head">
             <span>Use this</span>
             <b>{entrypoint}</b>
@@ -68,152 +167,39 @@ const promptUrl = `${siteBase}/buildprints/${bp.slug}/prompt.txt`;
             <code>{startCommand}</code>
             <button class="copy-btn" data-copy={startCommand}>Copy</button>
           </div>
+        </div>
+
+        <div class="readme-side-card">
+          <span class="side-label">Package facts</span>
           <dl class="artifact-quick-facts">
-            <div><dt>Source</dt><dd>{sourceRepo}</dd></div>
+            <div><dt>Updated</dt><dd>{updatedLabel}</dd></div>
+            <div><dt>Files</dt><dd>{bp.files.length}</dd></div>
+            <div><dt>Groups</dt><dd>{topLevelCount}</dd></div>
+            <div><dt>Public runs</dt><dd>{runRows.length ? 'Linked' : 'None yet'}</dd></div>
+          </dl>
+        </div>
+
+        <div class="readme-side-card">
+          <span class="side-label">Source</span>
+          <dl class="artifact-quick-facts">
+            <div><dt>Repo</dt><dd>{sourceRepo}</dd></div>
             <div><dt>Path</dt><dd>{sourcePath}</dd></div>
             <div><dt>Branch</dt><dd>{sourceBranch}</dd></div>
-            <div><dt>Last sync</dt><dd>{updatedLabel}</dd></div>
           </dl>
-        </aside>
-      </div>
-    </section>
+        </div>
 
-    <section class="container artifact-layout">
-      <aside class="artifact-sidebar" aria-label="Artifact facts">
-        <nav>
-          <a href="#overview">Overview</a>
-          <a href="#use">Use</a>
-          <a href="#files">Files</a>
-          <a href="#runs">Runs</a>
-          <a href="#source">Source</a>
-        </nav>
-        <div class="artifact-side-card">
-          <span>Registry check</span>
-          <strong>Fetchable</strong>
-          <p>{bp.files.length} files indexed from GitHub source.</p>
-        </div>
-        <div class="artifact-side-card">
-          <span>Public runs</span>
-          <strong>{runRows.length}</strong>
-          <p>{runRows.length ? 'Maintainer artifacts are linked below.' : 'No public execution runs have been published yet.'}</p>
-        </div>
+        <details class="readme-side-card readme-files-mini">
+          <summary>Files <b>{bp.files.length}</b></summary>
+          <div class="artifact-file-list">
+            {fileTree.map((file) => (
+              <div>
+                <a href={file.rawUrl}><code>{file.path}</code></a>
+                <button class="copy-btn" data-copy={file.rawUrl}>Copy</button>
+              </div>
+            ))}
+          </div>
+        </details>
       </aside>
-
-      <div class="artifact-content">
-        <section class="artifact-section" id="overview">
-          <div class="artifact-section-title">
-            <span>Overview</span>
-            <h2>What this Buildprint is for</h2>
-          </div>
-          <div class="artifact-card artifact-prose">
-            <p>{bp.promise || description}</p>
-            <div class="artifact-columns">
-              <div>
-                <h3>Runtime surface</h3>
-                <ul>{bp.runtime.slice(0, 7).map((item) => <li>{item}</li>)}</ul>
-              </div>
-              <div>
-                <h3>Build materials</h3>
-                <ul>{bp.stack.slice(0, 7).map((item) => <li>{item}</li>)}</ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="artifact-section" id="use">
-          <div class="artifact-section-title">
-            <span>Use</span>
-            <h2>Start from exact snapshots</h2>
-          </div>
-          <div class="artifact-card artifact-use-grid">
-            <div>
-              <h3>Agent prompt</h3>
-              <p>Copy this into Codex, Claude Code, Cursor, OpenClaw, or another coding agent. It points the agent at exact snapshots rather than page text.</p>
-              <pre>{copyPrompt}</pre>
-              <button class="copy-btn artifact-inline-button" data-copy={copyPrompt}>Copy prompt</button>
-            </div>
-            <div>
-              <h3>Commands and URLs</h3>
-              <div class="artifact-endpoint-list">
-                <div><span>Start</span><code>{startCommand}</code><button class="copy-btn" data-copy={startCommand}>Copy</button></div>
-                {fallbackCommand ? <div><span>Fallback</span><code>{fallbackCommand}</code><button class="copy-btn" data-copy={fallbackCommand}>Copy</button></div> : null}
-                <div><span>Package</span><code>{packageUrl}</code><button class="copy-btn" data-copy={packageUrl}>Copy</button></div>
-                <div><span>Agent guide</span><code>{agentUrl}</code><button class="copy-btn" data-copy={agentUrl}>Copy</button></div>
-                <div><span>Prompt text</span><code>{promptUrl}</code><button class="copy-btn" data-copy={promptUrl}>Copy</button></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="artifact-section" id="files">
-          <div class="artifact-section-title">
-            <span>Files</span>
-            <h2>Entrypoint and source tree</h2>
-          </div>
-          <div class="artifact-card artifact-files">
-            <div class="artifact-file-head">
-              <div><span>Entrypoint</span><strong>{entrypoint}</strong></div>
-              <div><span>Top-level groups</span><strong>{topLevelCount}</strong></div>
-              <div><span>Total files</span><strong>{bp.files.length}</strong></div>
-            </div>
-            <div class="artifact-read-order">
-              <h3>Declared read order</h3>
-              {readOrderFiles.length ? <ol>{readOrderFiles.map((file) => <li><a href={`${bp.rawBaseUrl}/${file.path}`}>{file.path}</a><small>{file.purpose}</small></li>)}</ol> : <p>No explicit read order. Start with <a href={rawEntrypointUrl}>{entrypoint}</a>.</p>}
-            </div>
-            <details open>
-              <summary>File browser</summary>
-              <div class="artifact-file-list">
-                {fileTree.map((file) => (
-                  <div>
-                    <a href={file.rawUrl}><code>{file.path}</code></a>
-                    <span>{file.purpose}</span>
-                    <button class="copy-btn" data-copy={file.rawUrl}>Copy raw</button>
-                  </div>
-                ))}
-              </div>
-            </details>
-          </div>
-        </section>
-
-        <section class="artifact-section" id="runs">
-          <div class="artifact-section-title">
-            <span>Runs</span>
-            <h2>Execution facts, not badges</h2>
-          </div>
-          <div class="artifact-card">
-            {runRows.length ? (
-              <div class="artifact-run-list">
-                {runRows.map((run) => <article>
-                  <header><strong>{run.label}</strong><span>{run.status}</span></header>
-                  <p>{run.command}</p>
-                  {run.output ? <a href={run.output}>Open artifact</a> : null}
-                  {run.checks.length ? <ul>{run.checks.map((check) => <li>{check}</li>)}</ul> : null}
-                </article>)}
-              </div>
-            ) : (
-              <div class="artifact-empty-run">
-                <h3>No public execution runs yet.</h3>
-                <p>This does not mean the Buildprint is bad. It means the registry does not yet have a published run with command, logs, checks, and output artifacts for this version.</p>
-              </div>
-            )}
-          </div>
-        </section>
-
-        <section class="artifact-section" id="source">
-          <div class="artifact-section-title">
-            <span>Source</span>
-            <h2>GitHub ownership and sync facts</h2>
-          </div>
-          <div class="artifact-card artifact-source-grid">
-            <div><span>Repository</span><strong>{sourceRepo}</strong></div>
-            <div><span>Owner</span><strong>{sourceOwner}</strong></div>
-            <div><span>Branch</span><strong>{sourceBranch}</strong></div>
-            <div><span>Path</span><strong>{sourcePath}</strong></div>
-            <div><span>Manifest</span><strong>package.json</strong></div>
-            <div><span>Raw base</span><strong>{bp.rawBaseUrl}</strong></div>
-          </div>
-        </section>
-      </div>
     </section>
   </main>
   <script>
