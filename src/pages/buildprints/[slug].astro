@@ -217,27 +217,47 @@ const promptUrl = `${siteBase}/buildprints/${bp.slug}/prompt.txt`;
     </section>
   </main>
   <script>
-    function copyText(value) {
-      if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(value);
+    function fallbackCopy(value) {
       const textarea = document.createElement('textarea');
       textarea.value = value;
       textarea.setAttribute('readonly', '');
       textarea.style.position = 'fixed';
+      textarea.style.inset = '0 auto auto 0';
       textarea.style.opacity = '0';
       document.body.appendChild(textarea);
+      textarea.focus();
       textarea.select();
-      document.execCommand('copy');
+      const copied = document.execCommand('copy');
       textarea.remove();
-      return Promise.resolve();
+      if (!copied) throw new Error('Copy command failed');
+    }
+    async function copyText(value) {
+      if (navigator.clipboard?.writeText && window.isSecureContext) {
+        try {
+          await Promise.race([
+            navigator.clipboard.writeText(value),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Clipboard timeout')), 750)),
+          ]);
+          return;
+        } catch (_) {
+          // Some browser automation and locked-down contexts expose clipboard APIs that never resolve.
+        }
+      }
+      fallbackCopy(value);
     }
     document.querySelectorAll('.copy-btn').forEach((button) => {
       button.addEventListener('click', async () => {
         const value = button.getAttribute('data-copy') || '';
-        await copyText(value);
         const previous = button.textContent;
-        button.textContent = 'Copied';
-        button.classList.add('copied');
-        setTimeout(() => { button.textContent = previous; button.classList.remove('copied'); }, 1200);
+        try {
+          await copyText(value);
+          button.textContent = 'Copied';
+          button.classList.add('copied');
+        } catch (_) {
+          button.textContent = 'Copy failed';
+          button.classList.add('copy-failed');
+        }
+        setTimeout(() => { button.textContent = previous; button.classList.remove('copied', 'copy-failed'); }, 1400);
       });
     });
   </script>
