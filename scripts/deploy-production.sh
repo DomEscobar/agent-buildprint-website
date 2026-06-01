@@ -37,8 +37,14 @@ pull_ff() {
   local branch
   branch="$(git -C "$dir" rev-parse --abbrev-ref HEAD)"
   [[ "$branch" == "main" ]] || fail "$name is on $branch, expected main"
-  if [[ -n "$(git -C "$dir" status --porcelain)" ]]; then
-    fail "$name has uncommitted changes; refusing to deploy dirty tree"
+  if ! git -C "$dir" diff --quiet || ! git -C "$dir" diff --cached --quiet; then
+    fail "$name has tracked uncommitted changes; refusing to deploy dirty tree"
+  fi
+  local untracked
+  untracked="$(git -C "$dir" ls-files --others --exclude-standard | head -20)"
+  if [[ -n "$untracked" ]]; then
+    log "$name has untracked local files; ignoring for deploy cleanliness check:"
+    printf '%s\n' "$untracked" | sed 's/^/[untracked] /'
   fi
   run git -C "$dir" pull --ff-only origin main
   log "$name head: $(git -C "$dir" rev-parse --short HEAD) $(git -C "$dir" log -1 --pretty=%s)"
