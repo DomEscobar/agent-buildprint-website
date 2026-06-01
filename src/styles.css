@@ -3555,3 +3555,21 @@ body { background: var(--bg); }
   .submit-form { grid-template-columns:1fr; }
   .submit-actions a, .submit-actions button, .submit-form button { width:100%; }
 }
+
+/* Single-URL Buildprint submission */
+.submit-url-hero { padding-bottom:18px; }
+.submit-url-shell { max-width:880px; padding:8px 0 44px; }
+.submit-url-card { border:1px solid color-mix(in srgb, var(--accent) 24%, var(--border)); border-radius:28px; background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, var(--surface)), var(--surface)); box-shadow:var(--shadow); padding:24px; }
+.submit-url-card-copy h2 { margin:8px 0 8px; font-size:clamp(32px,5vw,58px); letter-spacing:-.05em; }
+.submit-url-card-copy p { max-width:620px; margin:0 0 18px; }
+.submit-url-form { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:end; }
+.submit-url-form label { display:grid; gap:7px; color:var(--muted); font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
+.submit-url-form input { width:100%; border:1px solid var(--border); background:var(--surface-2); color:var(--text); border-radius:999px; padding:14px 16px; font:inherit; font-size:16px; text-transform:none; letter-spacing:0; outline:none; }
+.submit-url-form input:focus { border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent); }
+.submit-url-form button { min-height:51px; white-space:nowrap; }
+.submit-url-note { margin:12px 0 0; color:var(--muted); font-size:13px; }
+@media (max-width:640px) {
+  .submit-url-card { padding:16px; border-radius:20px; }
+  .submit-url-form { grid-template-columns:1fr; }
+  .submit-url-form button { width:100%; }
+}

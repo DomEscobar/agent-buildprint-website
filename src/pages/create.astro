@@ -1,159 +1,63 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildprints, repoUrl, siteBase } from '@/lib/buildprints';
+import { repoUrl, siteBase } from '@/lib/buildprints';
 
-const mapper = buildprints.find((bp) => bp.slug === 'buildprint-mapper-os');
-const mapperPrompt = mapper?.copyPrompt || `Use the Buildprint Mapper OS to turn this repository into an Agent Buildprint. Inspect the project, identify the reusable workflow, generate the Buildprint files, and preserve factual source links. Do not include secrets or private data.`;
-const mapperPromptUrl = '/buildprints/buildprint-mapper-os/prompt.txt';
-const mapperPageUrl = '/buildprints/buildprint-mapper-os/';
 const githubIssueBase = `${repoUrl}/issues/new`;
 const defaultSubmitBody = `Submit Buildprint
 
-Buildprint repository or folder URL:
-Buildprint path inside repo, if not root:
-Entrypoint file, if not BUILDPRINT.md:
-Title:
-Short description:
-Creator / maintainer profile:
-License:
-Tags:
+GitHub URL:
 
-Proof or demo URL, optional:
-Proof type, optional: demo / GitHub Actions run / video / artifact / case study / benchmark / other
-Proof label, optional:
-
-What should agents use this Buildprint to build or operate?
+What should agents copy from this project?
 
 Checks before submission:
-- [ ] Repo is public or reviewer-accessible
-- [ ] Entrypoint file exists
+- [ ] The URL is public or reviewer-accessible
 - [ ] No secrets, tokens, private customer data, or env values are included
-- [ ] License/ownership is clear
-- [ ] Links resolve
-- [ ] Any proof/demo link is public and factual
+- [ ] License/ownership is clear enough to review
 
 Notes for reviewer:
 
 Registry: ${siteBase}/
 `;
-const fallbackSubmitUrl = `${githubIssueBase}?title=${encodeURIComponent('[submit-buildprint] owner/repo/path')}&body=${encodeURIComponent(defaultSubmitBody)}`;
+const fallbackSubmitUrl = `${githubIssueBase}?title=${encodeURIComponent('[submit-buildprint] GitHub URL')}&body=${encodeURIComponent(defaultSubmitBody)}`;
 ---
-<BaseLayout title="Submit Buildprint — Agent Buildprint" description="Generate a Buildprint with Mapper OS, then submit the Buildprint repo or folder with an optional proof or demo link.">
+<BaseLayout title="Submit Buildprint — Agent Buildprint" description="Submit a GitHub URL to turn a reusable project, workflow, or Buildprint repo into a registry listing.">
   <main class="create-page submit-buildprint-page">
-    <section class="container create-hero submit-hero">
+    <section class="container create-hero submit-hero submit-url-hero">
       <a class="artifact-back" href="/buildprints/">← Browse Buildprints</a>
       <p class="registry-v2-kicker">Submit</p>
       <h1>Submit Buildprint.</h1>
-      <p class="registry-v2-lede">Turn a GitHub project into something other agents can copy, then publish the Buildprint to the registry. If you already made the files, jump straight to submission.</p>
+      <p class="registry-v2-lede">Paste the GitHub URL. That’s it. It can be a repo, a folder, or an existing Buildprint package.</p>
     </section>
 
-    <section class="container submit-flow-grid" aria-label="Submit Buildprint flow">
-      <article class="submit-step-card submit-step-primary" id="generate-buildprint">
-        <div class="submit-step-number">1</div>
-        <div class="submit-step-content">
-          <span class="create-choice-label">Need a Buildprint first?</span>
-          <h2>Generate with Mapper OS</h2>
-          <p>Copy this prompt, paste it into your coding agent inside the repo you want to turn into a Buildprint, and let it create the Buildprint files.</p>
-          <div class="submit-prompt-box">
-            <div class="submit-prompt-head">
-              <span>Mapper OS prompt</span>
-              <a href={mapperPromptUrl}>Open prompt</a>
-            </div>
-            <pre><code>{mapperPrompt}</code></pre>
-          </div>
-          <div class="submit-actions">
-            <button class="registry-v2-primary" type="button" data-copy={mapperPrompt}>Copy Mapper OS prompt</button>
-            <a href={mapperPageUrl}>See Mapper OS</a>
-          </div>
+    <section class="container submit-url-shell" aria-label="Submit Buildprint by GitHub URL">
+      <article class="submit-url-card">
+        <div class="submit-url-card-copy">
+          <span class="create-choice-label">GitHub URL</span>
+          <h2>What should agents copy?</h2>
+          <p>Send the source. The registry review can decide whether it needs mapping, cleanup, or direct publication.</p>
         </div>
+        <form class="submit-url-form" data-submit-form data-issue-base={githubIssueBase} data-site-base={siteBase}>
+          <label>
+            <span>GitHub URL</span>
+            <input name="githubUrl" autocomplete="url" inputmode="url" placeholder="https://github.com/owner/repo" required />
+          </label>
+          <button class="registry-v2-primary" type="submit">Submit Buildprint</button>
+        </form>
+        <p class="submit-url-note">Use a repo URL, a folder URL, or a direct Buildprint package URL. No extra form fields for v1.</p>
+        <p class="submit-fallback"><a href={fallbackSubmitUrl}>Open blank submission request</a></p>
       </article>
-
-      <article class="submit-step-card" id="submit-buildprint">
-        <div class="submit-step-number">2</div>
-        <div class="submit-step-content">
-          <span class="create-choice-label">Ready to publish?</span>
-          <h2>Submit from GitHub</h2>
-          <p>Choose or paste the GitHub repo/folder that contains your Buildprint. Add an optional proof link if there is a demo, run, video, artifact, or case study.</p>
-          <form class="submit-form" data-submit-form data-issue-base={githubIssueBase} data-site-base={siteBase}>
-            <label>
-              <span>Buildprint repo or folder URL</span>
-              <input name="repoUrl" autocomplete="url" placeholder="https://github.com/owner/repo/tree/main/buildprints/my-buildprint" />
-            </label>
-            <label>
-              <span>Buildprint path, if not in URL</span>
-              <input name="path" placeholder="buildprints/my-buildprint" />
-            </label>
-            <label>
-              <span>Proof or demo URL <small>optional</small></span>
-              <input name="proofUrl" autocomplete="url" placeholder="https://demo.example.com or GitHub Actions run" />
-            </label>
-            <label>
-              <span>Proof label <small>optional</small></span>
-              <input name="proofLabel" placeholder="Live demo, generated artifact, benchmark run..." />
-            </label>
-            <label>
-              <span>Notes for reviewer <small>optional</small></span>
-              <textarea name="notes" placeholder="What should agents use this Buildprint to build or operate?"></textarea>
-            </label>
-            <button class="registry-v2-primary" type="submit">Submit Buildprint</button>
-            <p class="submit-form-note">For now this opens a structured GitHub request. The signed-in repo search/picker should replace this form once repo access is wired honestly.</p>
-          </form>
-          <p class="submit-fallback"><a href={fallbackSubmitUrl}>Open blank submission request</a></p>
-        </div>
-      </article>
-    </section>
-
-    <section class="container create-note submit-proof-note">
-      <strong>Proof links are factual, not a badge.</strong>
-      <p>A Buildprint can be useful without a proof link. If one is provided, the detail page should show it as “Proof & examples” — not as “verified” unless the registry actually verifies it.</p>
     </section>
   </main>
   <script>
-    async function copyText(text) {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(text);
-        return;
-      }
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      textarea.setAttribute('readonly', '');
-      textarea.style.position = 'fixed';
-      textarea.style.left = '-9999px';
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      textarea.remove();
-    }
-
-    document.querySelectorAll('[data-copy]').forEach((button) => {
-      button.addEventListener('click', async () => {
-        const text = button.getAttribute('data-copy') || '';
-        const original = button.textContent || 'Copy';
-        try {
-          await copyText(text);
-          button.classList.add('copied');
-          button.textContent = 'Copied';
-          setTimeout(() => { button.classList.remove('copied'); button.textContent = original; }, 1600);
-        } catch {
-          button.textContent = 'Copy failed';
-          setTimeout(() => { button.textContent = original; }, 1600);
-        }
-      });
-    });
-
     document.querySelector('[data-submit-form]')?.addEventListener('submit', (event) => {
       event.preventDefault();
       const form = event.currentTarget;
       const data = new FormData(form);
-      const repoUrl = String(data.get('repoUrl') || '').trim();
-      const path = String(data.get('path') || '').trim();
-      const proofUrl = String(data.get('proofUrl') || '').trim();
-      const proofLabel = String(data.get('proofLabel') || '').trim();
-      const notes = String(data.get('notes') || '').trim();
-      const titleTarget = repoUrl.replace(/^https?:\/\/github\.com\//, '').replace(/\/tree\//, '/').replace(/\/$/, '') || 'owner/repo/path';
-      const body = `Submit Buildprint\n\nBuildprint repository or folder URL: ${repoUrl}\nBuildprint path inside repo, if not root: ${path}\nEntrypoint file, if not BUILDPRINT.md:\nTitle:\nShort description:\nCreator / maintainer profile:\nLicense:\nTags:\n\nProof or demo URL, optional: ${proofUrl}\nProof type, optional: demo / GitHub Actions run / video / artifact / case study / benchmark / other\nProof label, optional: ${proofLabel}\n\nWhat should agents use this Buildprint to build or operate?\n${notes}\n\nChecks before submission:\n- [ ] Repo is public or reviewer-accessible\n- [ ] Entrypoint file exists\n- [ ] No secrets, tokens, private customer data, or env values are included\n- [ ] License/ownership is clear\n- [ ] Links resolve\n- [ ] Any proof/demo link is public and factual\n\nNotes for reviewer:\n\nRegistry: ${form.getAttribute('data-site-base') || 'https://agent-buildprint.com'}/\n`;
+      const githubUrl = String(data.get('githubUrl') || '').trim();
+      const cleanTarget = githubUrl.replace(/^https?:\/\/github\.com\//, '').replace(/\/$/, '') || 'GitHub URL';
+      const body = `Submit Buildprint\n\nGitHub URL: ${githubUrl}\n\nWhat should agents copy from this project?\n\nChecks before submission:\n- [ ] The URL is public or reviewer-accessible\n- [ ] No secrets, tokens, private customer data, or env values are included\n- [ ] License/ownership is clear enough to review\n\nNotes for reviewer:\n\nRegistry: ${form.getAttribute('data-site-base') || 'https://agent-buildprint.com'}/\n`;
       const url = new URL(form.getAttribute('data-issue-base') || 'https://github.com/DomEscobar/agent-buildprint/issues/new');
-      url.searchParams.set('title', `[submit-buildprint] ${titleTarget}`);
+      url.searchParams.set('title', `[submit-buildprint] ${cleanTarget}`);
       url.searchParams.set('body', body);
       window.location.href = url.href;
     });
