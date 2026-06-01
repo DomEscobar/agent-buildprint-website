@@ -60,7 +60,11 @@ export type Buildprint = Omit<BuildprintPublication, 'schema' | 'publish' | 'fil
 export const repoUrl = 'https://github.com/DomEscobar/agent-buildprint';
 export const siteBase = import.meta.env.PUBLIC_SITE_BASE || 'https://agent-buildprint.com';
 const publicationSchema = 'agent-buildprint/publication.v1';
-const buildprintsRoot = process.env.BUILDPRINTS_SOURCE || path.resolve(process.cwd(), '../agent-buildprint/buildprints');
+const defaultLocalBuildprintsRoot = [
+  path.resolve(process.cwd(), '../agent-buildprint/buildprints'),
+  '/root/blueprint/buildprints',
+].find((candidate) => fs.existsSync(candidate)) ?? path.resolve(process.cwd(), '../agent-buildprint/buildprints');
+const buildprintsRoot = process.env.BUILDPRINTS_SOURCE || defaultLocalBuildprintsRoot;
 const rawSourceRoot = process.env.BUILDPRINTS_RAW_SOURCE || 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/main/buildprints';
 const githubApiRoot = process.env.BUILDPRINTS_GITHUB_API || 'https://api.github.com/repos/DomEscobar/agent-buildprint/git/trees/main?recursive=1';
 const githubCommitsApiRoot = process.env.BUILDPRINTS_GITHUB_COMMITS_API || 'https://api.github.com/repos/DomEscobar/agent-buildprint/commits';
