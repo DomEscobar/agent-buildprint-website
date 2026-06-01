@@ -39,13 +39,12 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
           <img src="/logo.svg" alt="" aria-hidden="true" />
           <span><b>Agent</b> Buildprint</span>
         </a>
-        <nav class="navlinks">
+        <nav class="navlinks" aria-label="Primary navigation">
           <a href="/why-buildprints/">Why</a>
-          <a href="/buildprints/">Browse</a>
           <a href="/buildprints/submit/">Submit</a>
           <a href="https://github.com/DomEscobar/agent-buildprint">GitHub</a>
           <span class="nav-auth" data-nav-auth><a href="/profile/">Sign in</a></span>
-          <button class="theme-toggle" id="themeToggle" type="button"><span aria-hidden="true">T</span><span class="sr-only">Toggle color theme</span></button>
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch color theme"><span class="theme-dot" aria-hidden="true"></span><span data-theme-label>Color</span></button>
         </nav>
       </div>
     </header>
@@ -57,10 +56,17 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
       <span class="footer-links"><a href="/buildprints/">Browse</a><a href="/llms.txt">Agent nav</a><a href="/buildprints/index.json">JSON</a></span>
     </footer>
     <script is:inline>
-      document.getElementById('themeToggle')?.addEventListener('click', () => {
+      const themeToggle = document.getElementById('themeToggle');
+      const themeLabel = document.querySelector('[data-theme-label]');
+      function syncThemeLabel() {
+        if (themeLabel) themeLabel.textContent = document.documentElement.dataset.theme === 'dark' ? 'Light' : 'Dark';
+      }
+      syncThemeLabel();
+      themeToggle?.addEventListener('click', () => {
         const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
         document.documentElement.dataset.theme = next;
         localStorage.setItem('theme', next);
+        syncThemeLabel();
       });
       const navAuth = document.querySelector('[data-nav-auth]');
       fetch('/api/auth/me')
@@ -68,7 +74,16 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
         .then((payload) => {
           if (!navAuth || !payload?.user) return;
           const user = payload.user;
-          navAuth.innerHTML = `<a class="nav-profile" href="/profile/"><img src="${user.avatarUrl || '/logo.svg'}" alt="" /><span>${user.githubLogin}</span></a>`;
+          const link = document.createElement('a');
+          link.className = 'nav-profile';
+          link.href = '/profile/';
+          const avatar = document.createElement('img');
+          avatar.src = user.avatarUrl || '/logo.svg';
+          avatar.alt = '';
+          const label = document.createElement('span');
+          label.textContent = user.githubLogin || 'Profile';
+          link.append(avatar, label);
+          navAuth.replaceChildren(link);
         })
         .catch(() => {});
     </script>
