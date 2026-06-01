@@ -63,6 +63,7 @@ const publicationSchema = 'agent-buildprint/publication.v1';
 const buildprintsRoot = process.env.BUILDPRINTS_SOURCE || path.resolve(process.cwd(), '../agent-buildprint/buildprints');
 const rawSourceRoot = process.env.BUILDPRINTS_RAW_SOURCE || 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/main/buildprints';
 const githubApiRoot = process.env.BUILDPRINTS_GITHUB_API || 'https://api.github.com/repos/DomEscobar/agent-buildprint/git/trees/main?recursive=1';
+const githubCommitsApiRoot = process.env.BUILDPRINTS_GITHUB_COMMITS_API || 'https://api.github.com/repos/DomEscobar/agent-buildprint/commits';
 
 export const canonicalFilePurposes: Record<string, string> = {
   'BUILDPRINT.md': 'compatibility bootstrap or package contract',
@@ -162,6 +163,12 @@ async function githubTreeFiles() {
   return data.tree.filter((entry) => entry.type === 'blob').map((entry) => entry.path);
 }
 
+async function githubUpdatedAt(slug: string) {
+  const url = `${githubCommitsApiRoot}?path=${encodeURIComponent(`buildprints/${slug}`)}&per_page=1`;
+  const commits = await fetchJson<Array<{ commit?: { committer?: { date?: string } } }>>(url);
+  return commits[0]?.commit?.committer?.date;
+}
+
 async function loadPublication(slug: string): Promise<BuildprintPublication> {
   const localPath = path.join(buildprintsRoot, slug, 'publication.json');
   if (fs.existsSync(localPath)) return JSON.parse(fs.readFileSync(localPath, 'utf8'));
@@ -182,13 +189,19 @@ async function loadSourceRecords() {
     .map((file) => file.match(/^buildprints\/([^/]+)\/publication\.json$/)?.[1])
     .filter(Boolean) as string[])]
     .sort();
-  return Promise.all(slugs.map(async (slug) => ({
-    publication: await loadPublication(slug),
-    files: treeFiles
-      .filter((file) => file.startsWith(`buildprints/${slug}/`))
-      .map((file) => file.slice(`buildprints/${slug}/`.length))
-      .sort((a, b) => a.localeCompare(b)),
-  })));
+  return Promise.all(slugs.map(async (slug) => {
+    const publication = await loadPublication(slug);
+    return {
+      publication: {
+        ...publication,
+        updatedAt: publication.updatedAt ?? await githubUpdatedAt(slug),
+      },
+      files: treeFiles
+        .filter((file) => file.startsWith(`buildprints/${slug}/`))
+        .map((file) => file.slice(`buildprints/${slug}/`.length))
+        .sort((a, b) => a.localeCompare(b)),
+    };
+  }));
 }
 
 function normalizePublication(record: { publication: BuildprintPublication; files: string[] }): Buildprint | null {
