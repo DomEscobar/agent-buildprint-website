@@ -3402,3 +3402,20 @@ body { background: var(--bg); }
   .readme-rendered { padding:20px; }
   .readme-rendered h2 { font-size:25px; }
 }
+.readme-rendered h1 { margin:0 0 14px; font-size:clamp(34px,4.2vw,52px); line-height:1.02; letter-spacing:-.055em; }
+.readme-rendered h1 + p { font-size:18px; color:color-mix(in srgb, var(--text) 78%, var(--muted)); }
+.readme-rendered h5, .readme-rendered h6 { margin:18px 0 8px; font-size:14px; letter-spacing:.02em; text-transform:uppercase; color:var(--muted); }
+.readme-rendered ol { margin:0 0 14px; padding-left:24px; color:var(--muted); }
+.readme-rendered blockquote { margin:18px 0; padding:12px 16px; border-left:3px solid var(--accent); border-radius:0 12px 12px 0; background:color-mix(in srgb, var(--accent) 6%, var(--surface-2)); color:var(--muted); }
+.readme-rendered blockquote p:last-child { margin-bottom:0; }
+.readme-rendered hr { border:0; border-top:1px solid var(--border); margin:26px 0; }
+.readme-rendered table { width:100%; margin:18px 0; border-collapse:separate; border-spacing:0; overflow:hidden; border:1px solid var(--border); border-radius:14px; font-size:14px; }
+.readme-rendered th, .readme-rendered td { padding:10px 12px; border-bottom:1px solid var(--border); border-right:1px solid var(--border); text-align:left; vertical-align:top; }
+.readme-rendered th:last-child, .readme-rendered td:last-child { border-right:0; }
+.readme-rendered tr:last-child td { border-bottom:0; }
+.readme-rendered th { background:var(--surface-2); color:var(--text); font-size:12px; text-transform:uppercase; letter-spacing:.06em; }
+.readme-rendered td { color:var(--muted); }
+.readme-rendered img { max-width:100%; height:auto; border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); }
+.readme-side-card .artifact-quick-facts a { color:var(--accent); font-weight:760; text-decoration:none; overflow-wrap:anywhere; }
+.readme-side-card .artifact-quick-facts a:hover { text-decoration:underline; text-underline-offset:3px; }
+@media (max-width: 640px) { .readme-rendered h1 { font-size:32px; } .readme-rendered table { display:block; overflow-x:auto; } }

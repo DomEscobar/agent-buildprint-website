@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import MarkdownIt from 'markdown-it';
 import { buildprints, buildprintFileText, getBuildprint, packageManifest, siteBase } from '@/lib/buildprints';
 
 export function getStaticPaths() {
@@ -15,6 +16,9 @@ const sourceOwner = sourceMatch?.[1] ?? 'DomEscobar';
 const sourceRepo = sourceMatch ? `${sourceMatch[1]}/${sourceMatch[2]}` : 'DomEscobar/agent-buildprint';
 const sourceBranch = sourceMatch?.[3] ?? 'main';
 const sourcePath = sourceMatch?.[4] ?? `buildprints/${bp.slug}`;
+const sourceRepoUrl = `https://github.com/${sourceRepo}`;
+const sourceBranchUrl = `${sourceRepoUrl}/tree/${sourceBranch}`;
+const sourcePathUrl = `${sourceRepoUrl}/tree/${sourceBranch}/${sourcePath}`;
 const ownerHandle = bp.creator.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || sourceOwner.toLowerCase();
 const description = bp.plainDescription ?? bp.summary;
 const entrypoint = manifest.canonicalStart ?? bp.files.find((file) => file.path === 'BUILDPRINT.md')?.path ?? bp.files[0]?.path ?? 'BUILDPRINT.md';
@@ -55,75 +59,23 @@ const typeCode = (() => {
   return bp.category.slice(0, 2).toUpperCase();
 })();
 const readmeText = await buildprintFileText(bp.slug, 'README.md');
-const escapeHtml = (value: string) => value
-  .replaceAll('&', '&amp;')
-  .replaceAll('<', '&lt;')
-  .replaceAll('>', '&gt;')
-  .replaceAll('"', '&quot;');
-const inlineMarkdown = (value: string) => escapeHtml(value)
-  .replace(/`([^`]+)`/g, '<code>$1</code>')
-  .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-  .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
-const markdownToHtml = (markdown: string) => {
-  const lines = markdown.replace(/\r\n/g, '\n').split('\n');
-  const html: string[] = [];
-  let paragraph: string[] = [];
-  let listOpen = false;
-  let codeOpen = false;
-  const flushParagraph = () => {
-    if (!paragraph.length) return;
-    html.push(`<p>${inlineMarkdown(paragraph.join(' '))}</p>`);
-    paragraph = [];
-  };
-  const closeList = () => {
-    if (listOpen) {
-      html.push('</ul>');
-      listOpen = false;
-    }
-  };
-  for (const line of lines) {
-    if (line.trim().startsWith('```')) {
-      flushParagraph();
-      closeList();
-      html.push(codeOpen ? '</code></pre>' : '<pre><code>');
-      codeOpen = !codeOpen;
-      continue;
-    }
-    if (codeOpen) {
-      html.push(escapeHtml(line));
-      continue;
-    }
-    if (!line.trim()) {
-      flushParagraph();
-      closeList();
-      continue;
-    }
-    const heading = line.match(/^(#{1,4})\s+(.+)$/);
-    if (heading) {
-      flushParagraph();
-      closeList();
-      const level = Math.min(heading[1].length + 1, 4);
-      html.push(`<h${level}>${inlineMarkdown(heading[2])}</h${level}>`);
-      continue;
-    }
-    const bullet = line.match(/^\s*[-*]\s+(.+)$/);
-    if (bullet) {
-      flushParagraph();
-      if (!listOpen) {
-        html.push('<ul>');
-        listOpen = true;
-      }
-      html.push(`<li>${inlineMarkdown(bullet[1])}</li>`);
-      continue;
-    }
-    paragraph.push(line.trim());
+const markdown = new MarkdownIt({
+  html: false,
+  linkify: true,
+  typographer: true,
+  breaks: false,
+});
+const defaultLinkOpen = markdown.renderer.rules.link_open ?? ((tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options));
+markdown.renderer.rules.link_open = (tokens, idx, options, env, self) => {
+  const token = tokens[idx];
+  const href = token.attrGet('href') ?? '';
+  if (/^https?:\/\//.test(href)) {
+    token.attrSet('target', '_blank');
+    token.attrSet('rel', 'noreferrer');
   }
-  flushParagraph();
-  closeList();
-  if (codeOpen) html.push('</code></pre>');
-  return html.join('\n');
+  return defaultLinkOpen(tokens, idx, options, env, self);
 };
-const readmeHtml = readmeText ? markdownToHtml(readmeText) : `<p>${escapeHtml(description)}</p>`;
+const readmeHtml = markdown.render(readmeText || description);
 ---
 <BaseLayout title={`${bp.title} by @${ownerHandle} - Agent Buildprint`} description={description}>
   <main class="artifact-page readme-detail-page">
@@ -182,9 +134,9 @@ const readmeHtml = readmeText ? markdownToHtml(readmeText) : `<p>${escapeHtml(de
         <div class="readme-side-card">
           <span class="side-label">Source</span>
           <dl class="artifact-quick-facts">
-            <div><dt>Repo</dt><dd>{sourceRepo}</dd></div>
-            <div><dt>Path</dt><dd>{sourcePath}</dd></div>
-            <div><dt>Branch</dt><dd>{sourceBranch}</dd></div>
+            <div><dt>Repo</dt><dd><a href={sourceRepoUrl} target="_blank" rel="noreferrer">{sourceRepo}</a></dd></div>
+            <div><dt>Path</dt><dd><a href={sourcePathUrl} target="_blank" rel="noreferrer">{sourcePath}</a></dd></div>
+            <div><dt>Branch</dt><dd><a href={sourceBranchUrl} target="_blank" rel="noreferrer">{sourceBranch}</a></dd></div>
           </dl>
         </div>
 
