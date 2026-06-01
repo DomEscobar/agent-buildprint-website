@@ -124,7 +124,7 @@ pre { overflow:auto; background:var(--surface-2); border:1px solid var(--border)
   .navlinks > a { border:0; background:transparent; border-radius:999px; min-height:30px; padding:5px 7px; font-size: 13px; }
   .theme-toggle { min-height:30px; border:0; background:transparent; border-radius:999px; padding:5px 0; font-size:13px; }
   .theme-dot { width:9px; height:9px; box-shadow:none; }
-  .navlinks a[href*="github.com"], .navlinks > a[href="/why-buildprints/"] { display:none; }
+  .navlinks a[href*="github.com"] { display:none; }
 
   .hero { padding: 40px 0 24px; }
   .compact-hero { padding: 34px 0 18px; }
@@ -3299,6 +3299,10 @@ body { background: var(--bg); }
 .registry-hf-hero { border-bottom: 1px solid var(--border); background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 82%, transparent), var(--bg)); }
 .registry-hf-hero-inner { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:28px; align-items:end; padding:56px 0 28px; }
 .registry-hf-hero h1 { max-width:860px; margin:0 0 14px; font-size:clamp(42px,6vw,72px); letter-spacing:-.065em; line-height:.94; }
+.registry-hf-hero-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+.registry-hf-hero-actions a, .registry-hf-result-actions a { display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:999px; padding:9px 12px; font-size:13px; font-weight:850; }
+.registry-hf-hero-actions a.registry-v2-primary { background:var(--text); border-color:var(--text); color:var(--bg); }
+.registry-hf-hero-actions a:hover, .registry-hf-result-actions a:hover { border-color:var(--accent); }
 .registry-hf-stats { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; max-width:430px; }
 .registry-hf-stats span, .registry-hf-stats a { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); background:var(--surface); color:var(--muted); border-radius:999px; padding:8px 10px; font-size:13px; font-weight:750; box-shadow:0 1px 0 rgba(0,0,0,.02); }
 .registry-hf-stats b { color:var(--text); }
@@ -3327,6 +3331,8 @@ body { background: var(--bg); }
 .registry-hf-result-head span { display:block; margin-bottom:6px; color:var(--accent); font-size:12px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; }
 .registry-hf-result-head h2 { margin:0; font-size:clamp(28px,3vw,40px); }
 .registry-hf-result-head p { margin:0; white-space:nowrap; }
+.registry-hf-result-actions { display:flex; align-items:center; justify-content:flex-end; gap:10px; }
+.registry-hf-result-actions a { color:var(--accent); background:var(--accent-soft); border-color:color-mix(in srgb, var(--accent) 24%, var(--border)); }
 .registry-hf-list { display:grid; gap:10px; }
 .registry-hf-row { display:block; padding:16px; border:1px solid var(--border); border-radius:16px; background:var(--surface); transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease; }
 .registry-hf-row:hover { transform:translateY(-1px); border-color:color-mix(in srgb, var(--accent) 42%, var(--border)); box-shadow:var(--shadow); }
@@ -3343,6 +3349,7 @@ body { background: var(--bg); }
   .registry-hf-stats { justify-content:flex-start; }
   .registry-hf-sidebar { position:static; }
   .registry-hf-result-head { align-items:flex-start; flex-direction:column; }
+  .registry-hf-result-actions { justify-content:flex-start; flex-wrap:wrap; }
   .registry-hf-result-head p { white-space:normal; }
 }
 @media (max-width: 640px) {
@@ -3436,7 +3443,6 @@ body { background: var(--bg); }
 }
 @media (max-width: 390px) {
   .logo span { max-width:94px; overflow:hidden; text-overflow:ellipsis; }
-  .navlinks > a[href="/buildprints/submit/"] { display:none; }
   .theme-toggle span[data-theme-label] { display:none; }
 }
 .profile-page { min-height:70vh; background:var(--bg); }

@@ -48,6 +48,10 @@ const typeCode = (bp: typeof buildprints[number]) => {
           <p class="registry-v2-kicker">Agent Buildprint Registry</p>
           <h1>Buildprints for coding agents.</h1>
           <p class="registry-v2-lede">Discover GitHub-backed agent instructions by category, source, entrypoint, files, and real activity. Free-form packages, factual metadata, no decorative scoring.</p>
+          <div class="registry-hf-hero-actions">
+            <a class="registry-v2-primary" href="#registry-list">Browse Buildprints</a>
+            <a href="/why-buildprints/">Why Buildprints</a>
+          </div>
         </div>
         <div class="registry-hf-stats" aria-label="Registry facts">
           <span><b>{buildprints.length}</b> Buildprints</span>
@@ -102,7 +106,10 @@ const typeCode = (bp: typeof buildprints[number]) => {
             <span>Explore</span>
             <h2>GitHub-backed Buildprints</h2>
           </div>
-          <p id="resultCount">Showing {cards.length} Buildprints</p>
+          <div class="registry-hf-result-actions">
+            <p id="resultCount">Showing {cards.length} Buildprints</p>
+            <a href="/buildprints/submit/">Submit Buildprint</a>
+          </div>
         </div>
 
         <div class="registry-hf-list" role="list">

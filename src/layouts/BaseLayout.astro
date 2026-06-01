@@ -40,8 +40,6 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
           <span><b>Agent</b> Buildprint</span>
         </a>
         <nav class="navlinks" aria-label="Primary navigation">
-          <a href="/why-buildprints/">Why</a>
-          <a href="/buildprints/submit/">Submit</a>
           <a href="https://github.com/DomEscobar/agent-buildprint">GitHub</a>
           <span class="nav-auth" data-nav-auth><a href="/profile/">Sign in</a></span>
           <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch color theme"><span class="theme-dot" aria-hidden="true"></span><span data-theme-label>Color</span></button>
@@ -53,7 +51,7 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
     </div>
     <footer class="container footer">
       <span>Agent Buildprint - reusable specs for AI coding agents.</span>
-      <span class="footer-links"><a href="/buildprints/">Browse</a><a href="/llms.txt">Agent nav</a><a href="/buildprints/index.json">JSON</a></span>
+      <span class="footer-links"><a href="/buildprints/">Browse</a><a href="/why-buildprints/">Why</a><a href="/buildprints/submit/">Submit</a><a href="https://github.com/DomEscobar/agent-buildprint">GitHub</a><a href="/llms.txt">Agent nav</a><a href="/buildprints/index.json">JSON</a></span>
     </footer>
     <script is:inline>
       const themeToggle = document.getElementById('themeToggle');
