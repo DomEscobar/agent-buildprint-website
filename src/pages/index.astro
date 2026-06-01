@@ -52,15 +52,14 @@ const typeCode = (bp: typeof buildprints[number]) => {
             <a href="/why-buildprints/">Why Buildprints</a>
           </div>
         </div>
-        <aside class="registry-create-card" aria-label="Create a Buildprint">
+        <aside class="registry-create-card" aria-label="Submit Buildprint">
           <div class="registry-create-copy">
-            <span>Create</span>
-            <h2>Create a Buildprint</h2>
-            <p>Map a normal project repo, or publish an existing Buildprint structure.</p>
+            <span>Submit</span>
+            <h2>Submit Buildprint</h2>
+            <p>Built something reusable? Generate with Mapper OS, then submit the Buildprint repo.</p>
           </div>
           <div class="registry-create-actions">
-            <a class="registry-create-primary" href="/create/#map-project">Map project</a>
-            <a href="/create/#publish-buildprint">Publish Buildprint</a>
+            <a class="registry-create-primary" href="/create/">Submit Buildprint</a>
           </div>
           <div class="registry-create-facts" aria-label="Registry facts">
             <span><b>{buildprints.length}</b> Buildprints</span>
@@ -106,9 +105,9 @@ const typeCode = (bp: typeof buildprints[number]) => {
         </div>
 
         <div class="registry-hf-filter-card registry-create-mini">
-          <strong>Create a Buildprint</strong>
-          <p>Project repo or existing structure.</p>
-          <a href="/create/">Map or publish</a>
+          <strong>Submit Buildprint</strong>
+          <p>Generate with Mapper OS or submit existing files.</p>
+          <a href="/create/">Submit Buildprint</a>
         </div>
           </div>
         </details>
@@ -122,7 +121,7 @@ const typeCode = (bp: typeof buildprints[number]) => {
           </div>
           <div class="registry-hf-result-actions">
             <p id="resultCount">Showing {cards.length} Buildprints</p>
-            <a href="/create/">Create Buildprint</a>
+            <a href="/create/">Submit Buildprint</a>
           </div>
         </div>
 

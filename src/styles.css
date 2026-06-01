@@ -3516,3 +3516,42 @@ body { background: var(--bg); }
   .create-choice-card { padding:18px; border-radius:18px; }
   .create-choice-card h2 { font-size:30px; }
 }
+
+/* Submit Buildprint flow */
+.submit-buildprint-page { background: radial-gradient(circle at 72% 0%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 30%), var(--bg); }
+.submit-hero { max-width: 980px; }
+.submit-flow-grid { display:grid; gap:16px; padding:18px 0 34px; }
+.submit-step-card { position:relative; display:grid; grid-template-columns:46px minmax(0,1fr); gap:16px; border:1px solid var(--border); background:var(--surface); border-radius:24px; padding:22px; box-shadow:var(--shadow); }
+.submit-step-primary { border-color:color-mix(in srgb, var(--accent) 28%, var(--border)); background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, var(--surface)), var(--surface)); }
+.submit-step-number { width:46px; height:46px; display:flex; align-items:center; justify-content:center; border:1px solid color-mix(in srgb, var(--accent) 32%, var(--border)); border-radius:14px; background:var(--surface); color:var(--accent); font-family:var(--mono); font-size:18px; font-weight:950; }
+.submit-step-content { min-width:0; }
+.submit-step-content h2 { margin:8px 0 10px; font-size:clamp(30px,4vw,48px); }
+.submit-step-content > p { max-width:760px; margin:0 0 16px; }
+.submit-prompt-box { border:1px solid var(--border); background:var(--surface); border-radius:16px; overflow:hidden; margin:16px 0; }
+.submit-prompt-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 13px; border-bottom:1px solid var(--border); background:var(--surface-2); color:var(--muted); font-family:var(--mono); font-size:12px; font-weight:850; }
+.submit-prompt-head a { color:var(--accent); }
+.submit-prompt-box pre { max-height:260px; margin:0; border:0; border-radius:0; background:transparent; box-shadow:none; }
+.submit-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; }
+.submit-actions a, .submit-actions button, .submit-form button, .submit-fallback a { display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:999px; padding:10px 13px; font:inherit; font-size:14px; font-weight:900; cursor:pointer; }
+.submit-actions .registry-v2-primary, .submit-form .registry-v2-primary { background:var(--text); border-color:var(--text); color:var(--bg); }
+.submit-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:16px; }
+.submit-form label { display:grid; gap:7px; color:var(--muted); font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
+.submit-form label:nth-of-type(1), .submit-form label:nth-of-type(5), .submit-form button, .submit-form-note { grid-column:1 / -1; }
+.submit-form small { color:var(--muted); font-weight:750; text-transform:none; letter-spacing:0; }
+.submit-form input, .submit-form textarea { width:100%; border:1px solid var(--border); background:var(--surface-2); color:var(--text); border-radius:12px; padding:11px 12px; font:inherit; text-transform:none; letter-spacing:0; outline:none; }
+.submit-form textarea { min-height:92px; resize:vertical; }
+.submit-form input:focus, .submit-form textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent); }
+.submit-form-note { margin:0; font-size:12px; line-height:1.45; }
+.submit-fallback { margin:12px 0 0; }
+.submit-fallback a { color:var(--accent); background:var(--accent-soft); border-color:color-mix(in srgb, var(--accent) 24%, var(--border)); }
+.submit-proof-note { margin-top:0; }
+.registry-create-card[aria-label="Submit Buildprint"] .registry-create-actions { grid-template-columns:1fr; }
+@media (max-width:640px) {
+  .submit-flow-grid { padding-top:10px; }
+  .submit-step-card { grid-template-columns:1fr; gap:10px; padding:16px; border-radius:18px; }
+  .submit-step-number { width:34px; height:34px; border-radius:10px; font-size:14px; }
+  .submit-step-content h2 { font-size:30px; }
+  .submit-prompt-box pre { max-height:170px; font-size:11px; }
+  .submit-form { grid-template-columns:1fr; }
+  .submit-actions a, .submit-actions button, .submit-form button { width:100%; }
+}

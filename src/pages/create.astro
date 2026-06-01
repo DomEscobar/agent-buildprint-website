@@ -1,36 +1,16 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { repoUrl, siteBase } from '@/lib/buildprints';
+import { buildprints, repoUrl, siteBase } from '@/lib/buildprints';
 
-const issue = (title: string, body: string) => `${repoUrl}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
-const mapProjectUrl = issue('[map-project] owner/repo/path', `Map my project into a Buildprint
+const mapper = buildprints.find((bp) => bp.slug === 'buildprint-mapper-os');
+const mapperPrompt = mapper?.copyPrompt || `Use the Buildprint Mapper OS to turn this repository into an Agent Buildprint. Inspect the project, identify the reusable workflow, generate the Buildprint files, and preserve factual source links. Do not include secrets or private data.`;
+const mapperPromptUrl = '/buildprints/buildprint-mapper-os/prompt.txt';
+const mapperPageUrl = '/buildprints/buildprint-mapper-os/';
+const githubIssueBase = `${repoUrl}/issues/new`;
+const defaultSubmitBody = `Submit Buildprint
 
-Project repository URL:
-Project path inside repo, if not root:
-What should agents learn/recreate from this project?
-Who is the maintainer?
-License:
-
-Useful context:
-- Main user/workflow:
-- Setup/run command:
-- Docs/examples to inspect:
-- What should not be included:
-
-Safety checks:
-- [ ] Repo is public or reviewer-accessible
-- [ ] No secrets, tokens, private customer data, or env values are included
-- [ ] License/ownership is clear
-- [ ] Links resolve
-
-Expected output: draft Buildprint for review before publication.
-
-Registry: ${siteBase}/
-`);
-const publishBuildprintUrl = issue('[publish-buildprint] owner/repo/path', `Publish my existing Buildprint
-
-Buildprint repository URL:
-Buildprint folder/path inside repo, if not root:
+Buildprint repository or folder URL:
+Buildprint path inside repo, if not root:
 Entrypoint file, if not BUILDPRINT.md:
 Title:
 Short description:
@@ -38,63 +18,144 @@ Creator / maintainer profile:
 License:
 Tags:
 
-Registry facts expected:
-- Source repo/branch/path:
-- Start or copy instructions:
-- Files that should be listed:
-- Optional public run/artifact links:
+Proof or demo URL, optional:
+Proof type, optional: demo / GitHub Actions run / video / artifact / case study / benchmark / other
+Proof label, optional:
 
-Checks before publication:
+What should agents use this Buildprint to build or operate?
+
+Checks before submission:
 - [ ] Repo is public or reviewer-accessible
 - [ ] Entrypoint file exists
 - [ ] No secrets, tokens, private customer data, or env values are included
 - [ ] License/ownership is clear
 - [ ] Links resolve
-- [ ] Buildprint does not require arbitrary command execution during registry import
+- [ ] Any proof/demo link is public and factual
 
 Notes for reviewer:
 
 Registry: ${siteBase}/
-`);
+`;
+const fallbackSubmitUrl = `${githubIssueBase}?title=${encodeURIComponent('[submit-buildprint] owner/repo/path')}&body=${encodeURIComponent(defaultSubmitBody)}`;
 ---
-<BaseLayout title="Create a Buildprint — Agent Buildprint" description="Map a project repo into a Buildprint or publish an existing Buildprint structure.">
-  <main class="create-page">
-    <section class="container create-hero">
-      <a class="artifact-back" href="/buildprints/">← Registry</a>
-      <p class="registry-v2-kicker">Create</p>
-      <h1>Create a Buildprint.</h1>
-      <p class="registry-v2-lede">Choose the path that matches what you already have. A normal project can be mapped into a Buildprint; an existing Buildprint can be validated and listed.</p>
+<BaseLayout title="Submit Buildprint — Agent Buildprint" description="Generate a Buildprint with Mapper OS, then submit the Buildprint repo or folder with an optional proof or demo link.">
+  <main class="create-page submit-buildprint-page">
+    <section class="container create-hero submit-hero">
+      <a class="artifact-back" href="/buildprints/">← Browse Buildprints</a>
+      <p class="registry-v2-kicker">Submit</p>
+      <h1>Submit Buildprint.</h1>
+      <p class="registry-v2-lede">Turn a GitHub project into something other agents can copy, then publish the Buildprint to the registry. If you already made the files, jump straight to submission.</p>
     </section>
 
-    <section class="container create-choice-grid" aria-label="Buildprint creation paths">
-      <article class="create-choice-card primary" id="map-project">
-        <span class="create-choice-label">Most common</span>
-        <h2>Map a project</h2>
-        <p>You have a repo, product, workflow, app, or tool. Point us to the source and we turn the repeatable method into a draft Buildprint.</p>
-        <ul>
-          <li>GitHub repo URL</li>
-          <li>Optional folder/path</li>
-          <li>Short note about what agents should learn</li>
-        </ul>
-        <a href={mapProjectUrl}>Start mapping</a>
+    <section class="container submit-flow-grid" aria-label="Submit Buildprint flow">
+      <article class="submit-step-card submit-step-primary" id="generate-buildprint">
+        <div class="submit-step-number">1</div>
+        <div class="submit-step-content">
+          <span class="create-choice-label">Need a Buildprint first?</span>
+          <h2>Generate with Mapper OS</h2>
+          <p>Copy this prompt, paste it into your coding agent inside the repo you want to turn into a Buildprint, and let it create the Buildprint files.</p>
+          <div class="submit-prompt-box">
+            <div class="submit-prompt-head">
+              <span>Mapper OS prompt</span>
+              <a href={mapperPromptUrl}>Open prompt</a>
+            </div>
+            <pre><code>{mapperPrompt}</code></pre>
+          </div>
+          <div class="submit-actions">
+            <button class="registry-v2-primary" type="button" data-copy={mapperPrompt}>Copy Mapper OS prompt</button>
+            <a href={mapperPageUrl}>See Mapper OS</a>
+          </div>
+        </div>
       </article>
 
-      <article class="create-choice-card" id="publish-buildprint">
-        <span class="create-choice-label">Already structured</span>
-        <h2>Publish Buildprint</h2>
-        <p>You already made the Buildprint files. We validate fetchability, source facts, entrypoint, and registry metadata before listing.</p>
-        <ul>
-          <li>Buildprint repo/folder URL</li>
-          <li>Entrypoint file</li>
-          <li>Title, maintainer, license, tags</li>
-        </ul>
-        <a href={publishBuildprintUrl}>Validate package</a>
+      <article class="submit-step-card" id="submit-buildprint">
+        <div class="submit-step-number">2</div>
+        <div class="submit-step-content">
+          <span class="create-choice-label">Ready to publish?</span>
+          <h2>Submit from GitHub</h2>
+          <p>Choose or paste the GitHub repo/folder that contains your Buildprint. Add an optional proof link if there is a demo, run, video, artifact, or case study.</p>
+          <form class="submit-form" data-submit-form data-issue-base={githubIssueBase} data-site-base={siteBase}>
+            <label>
+              <span>Buildprint repo or folder URL</span>
+              <input name="repoUrl" autocomplete="url" placeholder="https://github.com/owner/repo/tree/main/buildprints/my-buildprint" />
+            </label>
+            <label>
+              <span>Buildprint path, if not in URL</span>
+              <input name="path" placeholder="buildprints/my-buildprint" />
+            </label>
+            <label>
+              <span>Proof or demo URL <small>optional</small></span>
+              <input name="proofUrl" autocomplete="url" placeholder="https://demo.example.com or GitHub Actions run" />
+            </label>
+            <label>
+              <span>Proof label <small>optional</small></span>
+              <input name="proofLabel" placeholder="Live demo, generated artifact, benchmark run..." />
+            </label>
+            <label>
+              <span>Notes for reviewer <small>optional</small></span>
+              <textarea name="notes" placeholder="What should agents use this Buildprint to build or operate?"></textarea>
+            </label>
+            <button class="registry-v2-primary" type="submit">Submit Buildprint</button>
+            <p class="submit-form-note">For now this opens a structured GitHub request. The signed-in repo search/picker should replace this form once repo access is wired honestly.</p>
+          </form>
+          <p class="submit-fallback"><a href={fallbackSubmitUrl}>Open blank submission request</a></p>
+        </div>
       </article>
     </section>
 
-    <section class="container create-note">
-      <strong>After GitHub login is fully connected</strong>
-      <p>This becomes repo picker → preview → review → publish. For now, the buttons open a structured GitHub request so the flow stays honest and source-backed.</p>
+    <section class="container create-note submit-proof-note">
+      <strong>Proof links are factual, not a badge.</strong>
+      <p>A Buildprint can be useful without a proof link. If one is provided, the detail page should show it as “Proof & examples” — not as “verified” unless the registry actually verifies it.</p>
     </section>
   </main>
+  <script>
+    async function copyText(text) {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      textarea.remove();
+    }
+
+    document.querySelectorAll('[data-copy]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const text = button.getAttribute('data-copy') || '';
+        const original = button.textContent || 'Copy';
+        try {
+          await copyText(text);
+          button.classList.add('copied');
+          button.textContent = 'Copied';
+          setTimeout(() => { button.classList.remove('copied'); button.textContent = original; }, 1600);
+        } catch {
+          button.textContent = 'Copy failed';
+          setTimeout(() => { button.textContent = original; }, 1600);
+        }
+      });
+    });
+
+    document.querySelector('[data-submit-form]')?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const data = new FormData(form);
+      const repoUrl = String(data.get('repoUrl') || '').trim();
+      const path = String(data.get('path') || '').trim();
+      const proofUrl = String(data.get('proofUrl') || '').trim();
+      const proofLabel = String(data.get('proofLabel') || '').trim();
+      const notes = String(data.get('notes') || '').trim();
+      const titleTarget = repoUrl.replace(/^https?:\/\/github\.com\//, '').replace(/\/tree\//, '/').replace(/\/$/, '') || 'owner/repo/path';
+      const body = `Submit Buildprint\n\nBuildprint repository or folder URL: ${repoUrl}\nBuildprint path inside repo, if not root: ${path}\nEntrypoint file, if not BUILDPRINT.md:\nTitle:\nShort description:\nCreator / maintainer profile:\nLicense:\nTags:\n\nProof or demo URL, optional: ${proofUrl}\nProof type, optional: demo / GitHub Actions run / video / artifact / case study / benchmark / other\nProof label, optional: ${proofLabel}\n\nWhat should agents use this Buildprint to build or operate?\n${notes}\n\nChecks before submission:\n- [ ] Repo is public or reviewer-accessible\n- [ ] Entrypoint file exists\n- [ ] No secrets, tokens, private customer data, or env values are included\n- [ ] License/ownership is clear\n- [ ] Links resolve\n- [ ] Any proof/demo link is public and factual\n\nNotes for reviewer:\n\nRegistry: ${form.getAttribute('data-site-base') || 'https://agent-buildprint.com'}/\n`;
+      const url = new URL(form.getAttribute('data-issue-base') || 'https://github.com/DomEscobar/agent-buildprint/issues/new');
+      url.searchParams.set('title', `[submit-buildprint] ${titleTarget}`);
+      url.searchParams.set('body', body);
+      window.location.href = url.href;
+    });
+  </script>
 </BaseLayout>
