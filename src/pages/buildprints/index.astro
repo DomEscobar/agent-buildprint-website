@@ -60,6 +60,9 @@ const typeCode = (bp: typeof buildprints[number]) => {
 
     <section class="container registry-hf-shell" id="registry-list">
       <aside class="registry-hf-sidebar" aria-label="Buildprint filters">
+        <details class="registry-hf-filter-drawer">
+          <summary>Filters <span>Search, category, tier</span></summary>
+          <div class="registry-hf-filter-body">
         <div class="registry-hf-filter-card registry-hf-search-card">
           <label>
             <span>Search registry</span>
@@ -89,6 +92,8 @@ const typeCode = (bp: typeof buildprints[number]) => {
             {runtimeCounts.map(([runtime, count]) => <span>{runtime}<b>{count}</b></span>)}
           </div>
         </div>
+          </div>
+        </details>
       </aside>
 
       <div class="registry-hf-results">
