@@ -8,6 +8,10 @@ const updatedLabel = (value?: string) => {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? 'Source synced' : updatedDate.format(date);
 };
+const publishedLabel = (value?: string) => {
+  const label = updatedLabel(value);
+  return label === 'Source synced' ? label : `Last published ${label}`;
+};
 const sourceParts = (href: string) => {
   const match = href.match(/github\.com\/([^/]+\/[^/]+)(?:\/tree\/([^/]+)\/(.+))?/);
   return {
@@ -61,12 +65,15 @@ const runnableCount = cards.filter((card) => card.bootstrapReady).length;
       </div>
       <div class="registry-v2-feature-grid">
         {topCards.map(({ bp, source, entrypoint, bootstrapReady, hasRuns }) => (
-          <a class="registry-v2-feature" href={`/buildprints/${bp.slug}/`}>
+          <a class="registry-v2-feature" href={`/buildprints/${bp.slug}/`} data-engagement-card data-slug={bp.slug}>
             <small>{source.repo}</small>
             <h3>{bp.title}</h3>
             <p>{bp.summary}</p>
             <dl>
               <div><dt>Entrypoint</dt><dd>{entrypoint}</dd></div>
+              <div><dt>Published</dt><dd>{updatedLabel(bp.updatedAt)}</dd></div>
+              <div><dt>Views</dt><dd data-card-views>--</dd></div>
+              <div><dt>Likes</dt><dd data-card-likes>--</dd></div>
               <div><dt>Bootstrap</dt><dd>{bootstrapReady ? 'Configured' : 'Needs manifest review'}</dd></div>
               <div><dt>Runs</dt><dd>{hasRuns ? 'Public artifacts linked' : 'No public runs yet'}</dd></div>
             </dl>
@@ -86,7 +93,7 @@ const runnableCount = cards.filter((card) => card.bootstrapReady).length;
 
       <div class="registry-v2-table" role="list">
         {cards.map(({ bp, source, entrypoint, bootstrapReady, hasRuns }) => (
-          <a class="registry-v2-row" href={`/buildprints/${bp.slug}/`} role="listitem" data-search={`${bp.title} ${bp.summary} ${bp.creator} ${source.repo} ${source.sourcePath} ${entrypoint} ${bp.runtime.join(' ')} ${bp.stack.join(' ')}`.toLowerCase()}>
+          <a class="registry-v2-row" href={`/buildprints/${bp.slug}/`} role="listitem" data-engagement-card data-slug={bp.slug} data-search={`${bp.title} ${bp.summary} ${bp.creator} ${source.repo} ${source.sourcePath} ${entrypoint} ${bp.runtime.join(' ')} ${bp.stack.join(' ')}`.toLowerCase()}>
             <div class="registry-v2-name">
               <span>@{bp.creator.toLowerCase().replace(/\s+/g, '-')} / {bp.slug}</span>
               <strong>{bp.title}</strong>
@@ -96,11 +103,13 @@ const runnableCount = cards.filter((card) => card.bootstrapReady).length;
               <div><span>Source</span><b>{source.repo}</b></div>
               <div><span>Path</span><b>{source.sourcePath || `buildprints/${bp.slug}`}</b></div>
               <div><span>Entrypoint</span><b>{entrypoint}</b></div>
-              <div><span>Sync</span><b>{updatedLabel(bp.updatedAt)}</b></div>
+              <div><span>Published</span><b>{publishedLabel(bp.updatedAt)}</b></div>
             </div>
             <div class="registry-v2-state" aria-label="Buildprint state">
               <span>{bootstrapReady ? 'Bootstrap configured' : 'Manifest review needed'}</span>
               <span>{hasRuns ? 'Run artifacts linked' : 'No public runs yet'}</span>
+              <span><b data-card-views>--</b> views</span>
+              <span><b data-card-likes>--</b> likes</span>
             </div>
           </a>
         ))}
@@ -122,5 +131,24 @@ const runnableCount = cards.filter((card) => card.bootstrapReady).length;
       if (count) count.textContent = `Showing ${visible} Buildprint${visible === 1 ? '' : 's'}`;
     }
     search?.addEventListener('input', apply);
+    apply();
+
+    const numberFormat = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+    document.querySelectorAll('[data-engagement-card][data-slug]').forEach(async (card) => {
+      const slug = card.getAttribute('data-slug');
+      const views = card.querySelector('[data-card-views]');
+      const likes = card.querySelector('[data-card-likes]');
+      if (!slug || !views || !likes) return;
+      try {
+        const response = await fetch(`/api/buildprints/${encodeURIComponent(slug)}/engagement`);
+        if (!response.ok) throw new Error('engagement_unavailable');
+        const payload = await response.json();
+        views.textContent = numberFormat.format(payload.views || 0);
+        likes.textContent = numberFormat.format(payload.likes || 0);
+      } catch {
+        views.textContent = '-';
+        likes.textContent = '-';
+      }
+    });
   </script>
 </BaseLayout>

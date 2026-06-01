@@ -1,91 +1,115 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildprints, categories, tiers } from '@/lib/buildprints';
-import { badgeIcon } from '@/lib/icons';
+import { buildprints, siteBase } from '@/lib/buildprints';
 
-const categoryTip = (bp) => `${bp.category}: ${bp.tier} Buildprint package`;
-const tierLabel = (bp) => bp.tier.replace('-', ' ');
-const hasProofArtifacts = (bp) => bp.files.some((file) => file.path.startsWith('proof/') || file.path.includes('evidence') || file.path.includes('acceptance'));
-const proofCount = buildprints.filter(hasProofArtifacts).length;
-const validatedCount = buildprints.filter((bp) => bp.status === 'validated').length;
-const agentGradeCount = buildprints.filter((bp) => bp.tier === 'agent-grade').length;
-const mapperBuildprint = buildprints.find((bp) => bp.slug === 'buildprint-mapper-os');
-const featuredBuildprints = [
-  mapperBuildprint,
-  ...buildprints
-    .filter((bp) => bp.slug !== 'buildprint-mapper-os')
-  .sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured))
-    || Number(b.status === 'validated') - Number(a.status === 'validated')
-      || Number(b.tier === 'agent-grade') - Number(a.tier === 'agent-grade')),
-]
-  .filter((bp): bp is typeof buildprints[number] => Boolean(bp))
-  .slice(0, 3);
-const outcomeLine = (bp) => bp.promise || bp.plainDescription || bp.summary;
-const proofLine = (bp) => bp.publicStatus?.label ?? bp.status.replace('-', ' ');
 const updatedDate = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' });
-const updatedLabel = (bp) => {
-  if (!bp.updatedAt) return 'Updated date unknown';
-  const date = new Date(bp.updatedAt);
-  return Number.isNaN(date.getTime()) ? 'Updated date unknown' : `Updated ${updatedDate.format(date)}`;
+const updatedLabel = (value?: string) => {
+  if (!value) return 'Source synced';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? 'Source synced' : updatedDate.format(date);
 };
+const publishedLabel = (value?: string) => {
+  const label = updatedLabel(value);
+  return label === 'Source synced' ? label : `Last published ${label}`;
+};
+const sourceParts = (href: string) => {
+  const match = href.match(/github\.com\/([^/]+\/[^/]+)(?:\/tree\/([^/]+)\/(.+))?/);
+  return {
+    repo: match?.[1] ?? 'DomEscobar/agent-buildprint',
+    branch: match?.[2] ?? 'main',
+    sourcePath: match?.[3] ?? '',
+  };
+};
+const cards = buildprints.map((bp) => {
+  const source = sourceParts(bp.githubUrl);
+  const entrypoint = bp.files.find((file) => file.path === 'BUILDPRINT.md')?.path ?? bp.files[0]?.path ?? 'BUILDPRINT.md';
+  const hasReview = bp.files.some((file) => file.path === '04-review.md' || file.path.includes('review'));
+  const hasRuns = Boolean(bp.proofUrl || bp.visualRun?.demoUrl);
+  const bootstrapReady = bp.files.some((file) => file.path === entrypoint) && Boolean(bp.copyPrompt);
+  return { bp, source, entrypoint, hasReview, hasRuns, bootstrapReady };
+});
+const recentCards = [...cards].sort((a, b) => new Date(b.bp.updatedAt ?? 0).getTime() - new Date(a.bp.updatedAt ?? 0).getTime());
+const topCards = recentCards.slice(0, 4);
+const sourceCount = new Set(cards.map((card) => card.source.repo)).size;
+const runnableCount = cards.filter((card) => card.bootstrapReady).length;
 ---
-<BaseLayout title="Agent Buildprint Registry" description="Browse reusable Buildprints for products, features, architectures, workflows, and integrations.">
-  <main class="registry-overview">
-    <section class="container registry-hero">
-      <div class="registry-hero-mark" aria-hidden="true">
-        <img src="/logo.svg" alt="" />
+<BaseLayout title="Agent Buildprint Registry" description="Explore GitHub-backed Buildprints by source, usage, files, and execution facts.">
+  <main class="registry-v2">
+    <section class="registry-v2-hero">
+      <div class="container registry-v2-hero-grid">
+        <div class="registry-v2-copy">
+          <p class="registry-v2-kicker">Agent Buildprint Registry</p>
+          <h1>GitHub-backed instructions for serious coding agents.</h1>
+          <p class="registry-v2-lede">Browse Buildprints by source, entrypoint, usage command, files, and execution history. No methodology lock-in. No decorative badges. Just the facts needed to decide whether an agent should run it.</p>
+          <div class="registry-v2-actions">
+            <a class="registry-v2-primary" href="#registry-list">Explore registry</a>
+            <a href={`${siteBase}/buildprints/index.json`}>Registry JSON</a>
+          </div>
+        </div>
+        <aside class="registry-v2-console" aria-label="Registry facts">
+          <div><span>Published</span><strong>{buildprints.length}</strong></div>
+          <div><span>Source repos</span><strong>{sourceCount}</strong></div>
+          <div><span>Copy-ready</span><strong>{runnableCount}</strong></div>
+          <div><span>Contract</span><strong>Free-form</strong></div>
+        </aside>
       </div>
-      <div class="registry-hero-copy">
-        <span class="registry-eyebrow">Buildprint registry</span>
-        <h1>Choose the thing your agent should build.</h1>
-        <p class="lead">Browse reusable product, workflow, architecture, and extension packets by outcome, scope, proof boundary, and handoff readiness.</p>
-        <div class="actions"><a class="btn primary" href="#cards">Browse Buildprints</a><a class="btn" href="/why-buildprints/">Why Buildprints?</a><a class="btn" href="/buildprints/index.json">Registry JSON</a></div>
-      </div>
-      <aside class="registry-hero-panel" aria-label="Registry snapshot">
-        <div class="registry-hero-stat"><span>{buildprints.length}</span><b>published packets</b></div>
-        <div class="registry-hero-stat"><span>{agentGradeCount}</span><b>agent-grade</b></div>
-        <div class="registry-hero-stat"><span>{validatedCount}</span><b>validated</b></div>
-        <div class="registry-hero-stat"><span>{proofCount}</span><b>with proof files</b></div>
-      </aside>
     </section>
 
-    <section class="container registry-featured" aria-label="Featured Buildprints">
-      <div class="registry-section-head">
-        <span>Recommended first reads</span>
+    <section class="container registry-v2-strip" aria-label="Recently synced Buildprints">
+      <div class="registry-v2-section-head">
+        <div>
+          <span>Recently synced</span>
+          <h2>Fresh artifacts from GitHub</h2>
+        </div>
+        <p>Every card links back to source and exposes the exact bootstrapping entrypoint.</p>
       </div>
-      <div class="registry-featured-grid">
-        {featuredBuildprints.map((bp, index) => (
-          <a class={`registry-feature-card ${bp.slug === 'buildprint-mapper-os' ? 'is-golden' : ''}`} href={`/buildprints/${bp.slug}/`} data-engagement-card data-slug={bp.slug}>
-            <small>{bp.slug === 'buildprint-mapper-os' ? 'Golden Buildprint' : index === 1 ? 'Strong packet' : 'Worth inspecting'}</small>
-            <div class="registry-feature-meta"><span>{badgeIcon(bp.category)} {bp.category}</span><b>{proofLine(bp)}</b></div>
+      <div class="registry-v2-feature-grid">
+        {topCards.map(({ bp, source, entrypoint, bootstrapReady, hasRuns }) => (
+          <a class="registry-v2-feature" href={`/buildprints/${bp.slug}/`} data-engagement-card data-slug={bp.slug}>
+            <small>{source.repo}</small>
             <h3>{bp.title}</h3>
-            <p>{outcomeLine(bp)}</p>
-            <div class="registry-card-engagement" aria-label="Buildprint engagement"><span><b data-card-views>--</b> views</span><span><b data-card-likes>--</b> likes</span><time datetime={bp.updatedAt}>{updatedLabel(bp)}</time></div>
+            <p>{bp.summary}</p>
+            <dl>
+              <div><dt>Entrypoint</dt><dd>{entrypoint}</dd></div>
+              <div><dt>Published</dt><dd>{updatedLabel(bp.updatedAt)}</dd></div>
+              <div><dt>Views</dt><dd data-card-views>--</dd></div>
+              <div><dt>Likes</dt><dd data-card-likes>--</dd></div>
+              <div><dt>Bootstrap</dt><dd>{bootstrapReady ? 'Configured' : 'Needs manifest review'}</dd></div>
+              <div><dt>Runs</dt><dd>{hasRuns ? 'Public artifacts linked' : 'No public runs yet'}</dd></div>
+            </dl>
           </a>
         ))}
       </div>
     </section>
 
-    <section class="container section registry-tools" aria-label="Buildprint registry browser">
-      <div class="registry-toolbar">
-        <div>
-          <span class="filter-label">Search registry</span>
-          <input id="search" class="searchbar" placeholder="Search outcome, product, provider, stack..." />
-        </div>
-        <p id="resultCount" aria-live="polite">Showing {buildprints.length} Buildprints</p>
+    <section class="container registry-v2-browser" id="registry-list">
+      <div class="registry-v2-toolbar">
+        <label>
+          <span>Search</span>
+          <input id="search" placeholder="Search title, source, entrypoint, runtime, stack..." />
+        </label>
+        <p id="resultCount">Showing {cards.length} Buildprints</p>
       </div>
-      <div class="filter-row registry-filter-row">
-        <div><span class="filter-label">Category</span><div class="tags" id="filters">{categories.map((category) => <button class="tag filter" data-category={category}><b>{badgeIcon(category)}</b>{category}</button>)}</div></div>
-        <div><span class="filter-label">Tier</span><div class="tags" id="tierFilters">{tiers.map((tier) => <button class="tag filter" data-tier={tier}><b>{badgeIcon(tier)}</b>{tier}</button>)}</div></div>
-      </div>
-      <div class="registry-card-grid" id="cards">
-        {buildprints.map((bp) => (
-          <a class={`card buildprint-card registry-card clickable-card ${bp.status === 'validated' ? 'is-validated' : ''} ${bp.tier === 'agent-grade' ? 'is-agent-grade' : ''}`} href={`/buildprints/${bp.slug}/`} data-engagement-card data-slug={bp.slug} data-category={bp.category} data-tier={bp.tier} data-search={`${bp.title} ${bp.creator} ${bp.category} ${bp.tier} ${bp.runtime.join(' ')} ${bp.stack.join(' ')} ${bp.summary} ${outcomeLine(bp)} ${proofLine(bp)}`.toLowerCase()}>
-            <div class="card-body">
-              <div class="card-topline"><span class="plain-category" title={categoryTip(bp)}><b>{badgeIcon(bp.category)}</b>{bp.category}</span><span class="status-word" title={`${bp.tier} package`}>{tierLabel(bp)}</span></div>
-              <h3>{bp.title}</h3>
-              <p>{outcomeLine(bp)}</p>
-              <div class="registry-card-engagement" aria-label="Buildprint engagement"><span><b data-card-views>--</b> views</span><span><b data-card-likes>--</b> likes</span><time datetime={bp.updatedAt}>{updatedLabel(bp)}</time></div>
+
+      <div class="registry-v2-table" role="list">
+        {cards.map(({ bp, source, entrypoint, bootstrapReady, hasRuns }) => (
+          <a class="registry-v2-row" href={`/buildprints/${bp.slug}/`} role="listitem" data-engagement-card data-slug={bp.slug} data-search={`${bp.title} ${bp.summary} ${bp.creator} ${source.repo} ${source.sourcePath} ${entrypoint} ${bp.runtime.join(' ')} ${bp.stack.join(' ')}`.toLowerCase()}>
+            <div class="registry-v2-name">
+              <span>@{bp.creator.toLowerCase().replace(/\s+/g, '-')} / {bp.slug}</span>
+              <strong>{bp.title}</strong>
+              <p>{bp.summary}</p>
+            </div>
+            <div class="registry-v2-facts">
+              <div><span>Source</span><b>{source.repo}</b></div>
+              <div><span>Path</span><b>{source.sourcePath || `buildprints/${bp.slug}`}</b></div>
+              <div><span>Entrypoint</span><b>{entrypoint}</b></div>
+              <div><span>Published</span><b>{publishedLabel(bp.updatedAt)}</b></div>
+            </div>
+            <div class="registry-v2-state" aria-label="Buildprint state">
+              <span>{bootstrapReady ? 'Bootstrap configured' : 'Manifest review needed'}</span>
+              <span>{hasRuns ? 'Run artifacts linked' : 'No public runs yet'}</span>
+              <span><b data-card-views>--</b> views</span>
+              <span><b data-card-likes>--</b> likes</span>
             </div>
           </a>
         ))}
@@ -94,30 +118,18 @@ const updatedLabel = (bp) => {
   </main>
   <script>
     const search = document.querySelector('#search');
-    const cards = Array.from(document.querySelectorAll('.buildprint-card'));
-    const buttons = Array.from(document.querySelectorAll('#filters button'));
-    const tierButtons = Array.from(document.querySelectorAll('#tierFilters button'));
-    const resultCount = document.querySelector('#resultCount');
-    let active = 'All';
-    let activeTier = 'All';
+    const rows = Array.from(document.querySelectorAll('.registry-v2-row'));
+    const count = document.querySelector('#resultCount');
     function apply() {
-      const q = (search?.value || '').toLowerCase();
+      const q = String(search?.value || '').trim().toLowerCase();
       let visible = 0;
-      for (const card of cards) {
-        const categoryOk = active === 'All' || card.dataset.category === active;
-        const tierOk = activeTier === 'All' || card.dataset.tier === activeTier;
-        const searchOk = !q || card.dataset.search?.includes(q);
-        const isVisible = categoryOk && tierOk && searchOk;
-        card.classList.toggle('hidden', !isVisible);
-        if (isVisible) visible += 1;
+      for (const row of rows) {
+        const ok = !q || row.getAttribute('data-search')?.includes(q);
+        row.classList.toggle('hidden', !ok);
+        if (ok) visible += 1;
       }
-      if (resultCount) resultCount.textContent = `Showing ${visible} Buildprint${visible === 1 ? '' : 's'}`;
+      if (count) count.textContent = `Showing ${visible} Buildprint${visible === 1 ? '' : 's'}`;
     }
-    function markActive(group, value, key) {
-      group.forEach((button) => button.classList.toggle('active', (button.dataset[key] || 'All') === value));
-    }
-    buttons.forEach((b) => b.addEventListener('click', () => { active = b.dataset.category || 'All'; markActive(buttons, active, 'category'); apply(); }));
-    tierButtons.forEach((b) => b.addEventListener('click', () => { activeTier = b.dataset.tier || 'All'; markActive(tierButtons, activeTier, 'tier'); apply(); }));
     search?.addEventListener('input', apply);
     apply();
 
