@@ -29,6 +29,16 @@ const runnableCount = cards.filter((card) => card.bootstrapReady).length;
 const categoryCounts = [...new Map(buildprints.map((bp) => [bp.category, buildprints.filter((item) => item.category === bp.category).length])).entries()];
 const tierCounts = [...new Map(buildprints.map((bp) => [bp.tier, buildprints.filter((item) => item.tier === bp.tier).length])).entries()];
 const runtimeCounts = [...new Map(buildprints.flatMap((bp) => bp.runtime).map((runtime) => [runtime, buildprints.filter((bp) => bp.runtime.includes(runtime)).length])).entries()].slice(0, 6);
+const typeCode = (bp: typeof buildprints[number]) => {
+  const haystack = `${bp.slug} ${bp.title} ${bp.summary}`.toLowerCase();
+  if (haystack.includes('mapper') || haystack.includes('generator') || haystack.includes('builder')) return 'BU';
+  if (bp.category === 'Product OS') return 'OS';
+  if (bp.category === 'Workflow OS') return 'WF';
+  if (bp.category === 'Framework / Architecture') return 'FW';
+  if (bp.category === 'Feature / Extension') return 'EX';
+  if (bp.category === 'Mapped Project') return 'MP';
+  return bp.category.slice(0, 2).toUpperCase();
+};
 ---
 <BaseLayout title="Explore Buildprints - Agent Buildprint" description="Explore GitHub-backed Buildprints by source, usage, files, and execution facts.">
   <main class="registry-v2 registry-hf">
@@ -91,7 +101,7 @@ const runtimeCounts = [...new Map(buildprints.flatMap((bp) => bp.runtime).map((r
         </div>
 
         <div class="registry-hf-list" role="list">
-          {recentCards.map(({ bp, source, entrypoint, bootstrapReady, hasRuns }) => (
+          {recentCards.map(({ bp, source, entrypoint }) => (
             <a
               class="registry-hf-row"
               href={`/buildprints/${bp.slug}/`}
@@ -103,24 +113,29 @@ const runtimeCounts = [...new Map(buildprints.flatMap((bp) => bp.runtime).map((r
               data-search={`${bp.title} ${bp.summary} ${bp.creator} ${source.repo} ${source.sourcePath} ${entrypoint} ${bp.runtime.join(' ')} ${bp.stack.join(' ')}`.toLowerCase()}
             >
               <div class="registry-hf-row-main">
-                <div class="registry-hf-avatar" aria-hidden="true">{bp.title.slice(0, 2).toUpperCase()}</div>
+                <div class="registry-hf-avatar" title={bp.category} aria-label={`${bp.category} type`}>{typeCode(bp)}</div>
                 <div>
-                  <div class="registry-hf-owner">{source.repo} <span>/ {bp.slug}</span></div>
                   <h3>{bp.title}</h3>
                   <p>{bp.summary}</p>
-                  <div class="registry-hf-tags">
-                    <span>{bp.category}</span>
-                    <span>{bp.tier}</span>
-                    <span>{entrypoint}</span>
-                    <span>{bootstrapReady ? 'copy-ready' : 'needs manifest review'}</span>
+                  <div class="registry-hf-meta" aria-label="Buildprint facts">
+                    <span title="Latest update">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 7.3a6.7 6.7 0 0 1 10.5 1.2"/><path d="M18.1 4.9v3.9h-3.9"/><path d="M16.8 16.7A6.7 6.7 0 0 1 6.3 15.5"/><path d="M5.9 19.1v-3.9h3.9"/></svg>
+                      <b>{updatedLabel(bp.updatedAt)}</b>
+                    </span>
+                    <span title="Views">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.4-6 9.2-6 9.2 6 9.2 6-3.4 6-9.2 6-9.2-6-9.2-6Z"/><circle cx="12" cy="12" r="2.7"/></svg>
+                      <b data-card-views>--</b>
+                    </span>
+                    <span title="Likes">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.2s-7.4-4.6-8.7-9.1C2.5 8.2 4.2 5.5 7 5.3c1.7-.1 3.2.8 4 2.1.8-1.3 2.3-2.2 4-2.1 2.8.2 4.5 2.9 3.7 5.8C19.4 15.6 12 20.2 12 20.2Z"/></svg>
+                      <b data-card-likes>--</b>
+                    </span>
+                    <span title="Files">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.8h6.2L18 8.6v11.6H7z"/><path d="M13 3.8v5h5"/><path d="M4.8 6.4v13.8h10.8"/></svg>
+                      <b>{bp.files.length}</b> files
+                    </span>
                   </div>
                 </div>
-              </div>
-              <div class="registry-hf-meta" aria-label="Buildprint facts">
-                <span><b data-card-views>--</b> views</span>
-                <span><b data-card-likes>--</b> likes</span>
-                <span>Published <b>{updatedLabel(bp.updatedAt)}</b></span>
-                <span>{hasRuns ? 'Run artifacts linked' : 'No public runs yet'}</span>
               </div>
             </a>
           ))}
