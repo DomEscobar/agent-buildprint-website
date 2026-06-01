@@ -58,6 +58,43 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
         </article>`;
     }
 
+    function submissionBadges(submission) {
+      const trust = submission.trustBadge ? [`${submission.trustBadge}`] : [];
+      return [...trust, ...(submission.badges || [])].map((badge) => `<span class="submission-badge submission-badge-${escapeHtml(badge)}">${escapeHtml(badge.replace(/-/g, ' '))}</span>`).join('');
+    }
+
+    function submissionCard(submission) {
+      return `<article class="profile-submission-card" data-submission-id="${escapeHtml(submission.id)}">
+        <div>
+          <h3><a href="${escapeHtml(submission.normalizedGithubUrl || submission.githubUrl)}" target="_blank" rel="noreferrer">${escapeHtml(submission.title || submission.repo)}</a></h3>
+          <p>${escapeHtml(submission.normalizedGithubUrl || submission.githubUrl)}</p>
+          <div class="profile-submission-badges">${submissionBadges(submission)}</div>
+          <small>Scan: ${escapeHtml(submission.scanStatus)} · ${escapeHtml(submission.scanSummary || 'No scan summary yet.')}</small>
+        </div>
+        <button data-remove-submission="${escapeHtml(submission.id)}">Remove</button>
+      </article>`;
+    }
+
+    async function loadSubmissions() {
+      const target = shell.querySelector('[data-submissions]');
+      if (!target) return;
+      const { response, payload } = await getJson('/api/me/buildprints');
+      if (!response.ok) {
+        target.innerHTML = '<p class="profile-muted">Could not load submissions.</p>';
+        return;
+      }
+      const submissions = payload.submissions || [];
+      target.innerHTML = submissions.length ? submissions.map(submissionCard).join('') : '<p class="profile-muted">No submitted Buildprints yet.</p>';
+      target.querySelectorAll('[data-remove-submission]').forEach((button) => {
+        button.addEventListener('click', async () => {
+          if (!confirm('Remove this Buildprint from the public registry?')) return;
+          const id = button.getAttribute('data-remove-submission');
+          const { response } = await getJson(`/api/me/buildprints/${encodeURIComponent(id)}`, { method: 'DELETE' });
+          if (response.ok) loadSubmissions();
+        });
+      });
+    }
+
     function privateProfile(user) {
       shell.innerHTML = `
         <a class="artifact-back" href="/buildprints/">← Registry</a>
@@ -71,6 +108,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
               <p>${escapeHtml(user.bio || 'Add a concise maintainer bio for people browsing your Buildprints.')}</p>
               <div class="profile-actions">
                 <a class="registry-v2-primary" href="/u/${encodeURIComponent(user.githubLogin)}/">View public profile</a>
+                <a href="/create/">Submit Buildprint</a>
                 <button data-logout>Logout</button>
               </div>
             </div>
@@ -83,6 +121,13 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
             <button class="registry-v2-primary" type="submit">Save profile</button>
             <p class="profile-muted" data-profile-status>GitHub login/avatar come from GitHub. Editable fields stay local.</p>
           </form>
+          <section class="profile-card profile-submissions-panel">
+            <div class="profile-submissions-head">
+              <span class="side-label">My submissions</span>
+              <a href="/create/">Add Buildprint</a>
+            </div>
+            <div class="profile-submission-list" data-submissions><p class="profile-muted">Loading submissions…</p></div>
+          </section>
         </div>`;
 
       shell.querySelector('[data-logout]')?.addEventListener('click', async () => {
@@ -102,6 +147,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
         status.textContent = 'Saved.';
         privateProfile(payload.user);
       });
+      loadSubmissions();
     }
 
     async function boot() {

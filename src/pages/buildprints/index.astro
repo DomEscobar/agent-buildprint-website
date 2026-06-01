@@ -125,7 +125,8 @@ const typeCode = (bp: typeof buildprints[number]) => {
           </div>
         </div>
 
-        <div class="registry-hf-list" role="list">
+        <div class="registry-hf-list" role="list" data-registry-list>
+          <div class="community-submissions-slot" data-community-submissions></div>
           {recentCards.map(({ bp, source, entrypoint }) => (
             <a
               class="registry-hf-row"
@@ -209,6 +210,31 @@ const typeCode = (bp: typeof buildprints[number]) => {
     apply();
 
     const numberFormat = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+
+    const communitySlot = document.querySelector('[data-community-submissions]');
+    const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (char) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+    const badgeHtml = (submission) => {
+      const badges = [...(submission.trustBadge ? [submission.trustBadge] : []), ...(submission.badges || [])];
+      return badges.map((badge) => `<span class="submission-badge submission-badge-${escapeHtml(badge)}">${escapeHtml(String(badge).replace(/-/g, ' '))}</span>`).join('');
+    };
+    fetch('/api/community-buildprints').then((response) => response.ok ? response.json() : { submissions: [] }).then((payload) => {
+      const submissions = payload.submissions || [];
+      if (!communitySlot || !submissions.length) return;
+      communitySlot.innerHTML = submissions.map((submission) => `
+        <a class="registry-hf-row registry-community-row" href="${escapeHtml(submission.normalizedGithubUrl || submission.githubUrl)}" target="_blank" rel="noreferrer" role="listitem" data-category="Community" data-tier="Community" data-search="${escapeHtml(`${submission.title} ${submission.owner}/${submission.repo} ${submission.githubUrl} community ${submission.badges?.join(' ')}`.toLowerCase())}">
+          <div class="registry-hf-row-main">
+            <div class="registry-hf-avatar" title="Community submission" aria-label="Community submission type">CM</div>
+            <div>
+              <h3>${escapeHtml(submission.title || submission.repo)}</h3>
+              <p>${escapeHtml(submission.owner)}/${escapeHtml(submission.repo)}${submission.sourcePath ? `/${escapeHtml(submission.sourcePath)}` : ''}</p>
+              <div class="profile-submission-badges">${badgeHtml(submission)} <span class="submission-badge">${escapeHtml(submission.scanStatus)}</span></div>
+            </div>
+          </div>
+        </a>`).join('');
+      rows.push(...Array.from(communitySlot.querySelectorAll('.registry-hf-row')));
+      apply();
+    }).catch(() => {});
+
     document.querySelectorAll('[data-engagement-card][data-slug]').forEach(async (card) => {
       const slug = card.getAttribute('data-slug');
       const views = card.querySelector('[data-card-views]');

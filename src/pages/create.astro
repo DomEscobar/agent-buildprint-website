@@ -1,65 +1,117 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { repoUrl, siteBase } from '@/lib/buildprints';
+import { buildprints } from '@/lib/buildprints';
 
-const githubIssueBase = `${repoUrl}/issues/new`;
-const defaultSubmitBody = `Submit Buildprint
-
-GitHub URL:
-
-What should agents copy from this project?
-
-Checks before submission:
-- [ ] The URL is public or reviewer-accessible
-- [ ] No secrets, tokens, private customer data, or env values are included
-- [ ] License/ownership is clear enough to review
-
-Notes for reviewer:
-
-Registry: ${siteBase}/
-`;
-const fallbackSubmitUrl = `${githubIssueBase}?title=${encodeURIComponent('[submit-buildprint] GitHub URL')}&body=${encodeURIComponent(defaultSubmitBody)}`;
+const mapper = buildprints.find((bp) => bp.slug === 'buildprint-mapper-os');
+const mapperPrompt = mapper?.copyPrompt || 'Use Mapper OS to turn this GitHub project into an Agent Buildprint. Inspect the repo, identify the reusable workflow, generate Buildprint files, preserve source links, and do not include secrets.';
+const mapperPromptUrl = '/buildprints/buildprint-mapper-os/prompt.txt';
+const mapperPageUrl = '/buildprints/buildprint-mapper-os/';
 ---
-<BaseLayout title="Submit Buildprint — Agent Buildprint" description="Submit a GitHub URL to turn a reusable project, workflow, or Buildprint repo into a registry listing.">
+<BaseLayout title="Submit Buildprint — Agent Buildprint" description="Copy Mapper OS for normal projects, then publish a Buildprint immediately with one GitHub URL.">
   <main class="create-page submit-buildprint-page">
-    <section class="container create-hero submit-hero submit-url-hero">
+    <section class="container create-hero submit-hero">
       <a class="artifact-back" href="/buildprints/">← Browse Buildprints</a>
       <p class="registry-v2-kicker">Submit</p>
       <h1>Submit Buildprint.</h1>
-      <p class="registry-v2-lede">Paste the GitHub URL. That’s it. It can be a repo, a folder, or an existing Buildprint package.</p>
+      <p class="registry-v2-lede">If you already have a Buildprint, paste its GitHub URL and publish it instantly as a Community submission. If you only have a normal project, copy Mapper OS first.</p>
     </section>
 
-    <section class="container submit-url-shell" aria-label="Submit Buildprint by GitHub URL">
-      <article class="submit-url-card">
-        <div class="submit-url-card-copy">
-          <span class="create-choice-label">GitHub URL</span>
-          <h2>What should agents copy?</h2>
-          <p>Send the source. The registry review can decide whether it needs mapping, cleanup, or direct publication.</p>
+    <section class="container submit-flow-grid" aria-label="Submit Buildprint flow">
+      <article class="submit-step-card submit-step-primary" id="generate-buildprint">
+        <div class="submit-step-number">1</div>
+        <div class="submit-step-content">
+          <span class="create-choice-label">Normal project?</span>
+          <h2>Make it a Buildprint first.</h2>
+          <p>Copy this prompt into your coding agent inside the project repo. It creates the Buildprint files that other agents can use.</p>
+          <div class="submit-prompt-box">
+            <div class="submit-prompt-head">
+              <span>Mapper OS prompt</span>
+              <a href={mapperPromptUrl}>Open prompt</a>
+            </div>
+            <pre><code>{mapperPrompt}</code></pre>
+          </div>
+          <div class="submit-actions">
+            <button class="registry-v2-primary" type="button" data-copy={mapperPrompt}>Copy Mapper OS prompt</button>
+            <a href={mapperPageUrl}>See Mapper OS</a>
+          </div>
         </div>
-        <form class="submit-url-form" data-submit-form data-issue-base={githubIssueBase} data-site-base={siteBase}>
-          <label>
-            <span>GitHub URL</span>
-            <input name="githubUrl" autocomplete="url" inputmode="url" placeholder="https://github.com/owner/repo" required />
-          </label>
-          <button class="registry-v2-primary" type="submit">Submit Buildprint</button>
-        </form>
-        <p class="submit-url-note">Use a repo URL, a folder URL, or a direct Buildprint package URL. No extra form fields for v1.</p>
-        <p class="submit-fallback"><a href={fallbackSubmitUrl}>Open blank submission request</a></p>
+      </article>
+
+      <article class="submit-step-card submit-url-card" id="submit-buildprint">
+        <div class="submit-step-number">2</div>
+        <div class="submit-step-content submit-url-card-copy">
+          <span class="create-choice-label">Have the URL?</span>
+          <h2>Publish with one link.</h2>
+          <p>Paste a GitHub repo, folder, or Buildprint package URL. It goes live immediately as Community; scans and admin trust badges can update later.</p>
+          <form class="submit-url-form" data-submit-form>
+            <label>
+              <span>GitHub URL</span>
+              <input name="githubUrl" autocomplete="url" inputmode="url" placeholder="https://github.com/owner/repo/tree/main/buildprints/example" required />
+            </label>
+            <button class="registry-v2-primary" type="submit">Add Buildprint</button>
+          </form>
+          <p class="submit-url-note" data-submit-status>Only GitHub URL is required. Sign in with GitHub first so you can remove it later from your profile.</p>
+        </div>
       </article>
     </section>
   </main>
   <script>
-    document.querySelector('[data-submit-form]')?.addEventListener('submit', (event) => {
+    async function copyText(text) {
+      if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      textarea.remove();
+    }
+
+    document.querySelectorAll('[data-copy]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const text = button.getAttribute('data-copy') || '';
+        const original = button.textContent || 'Copy';
+        try {
+          await copyText(text);
+          button.classList.add('copied');
+          button.textContent = 'Copied';
+          setTimeout(() => { button.classList.remove('copied'); button.textContent = original; }, 1600);
+        } catch {
+          button.textContent = 'Copy failed';
+          setTimeout(() => { button.textContent = original; }, 1600);
+        }
+      });
+    });
+
+    document.querySelector('[data-submit-form]')?.addEventListener('submit', async (event) => {
       event.preventDefault();
       const form = event.currentTarget;
-      const data = new FormData(form);
-      const githubUrl = String(data.get('githubUrl') || '').trim();
-      const cleanTarget = githubUrl.replace(/^https?:\/\/github\.com\//, '').replace(/\/$/, '') || 'GitHub URL';
-      const body = `Submit Buildprint\n\nGitHub URL: ${githubUrl}\n\nWhat should agents copy from this project?\n\nChecks before submission:\n- [ ] The URL is public or reviewer-accessible\n- [ ] No secrets, tokens, private customer data, or env values are included\n- [ ] License/ownership is clear enough to review\n\nNotes for reviewer:\n\nRegistry: ${form.getAttribute('data-site-base') || 'https://agent-buildprint.com'}/\n`;
-      const url = new URL(form.getAttribute('data-issue-base') || 'https://github.com/DomEscobar/agent-buildprint/issues/new');
-      url.searchParams.set('title', `[submit-buildprint] ${cleanTarget}`);
-      url.searchParams.set('body', body);
-      window.location.href = url.href;
+      const status = document.querySelector('[data-submit-status]');
+      const button = form.querySelector('button[type="submit"]');
+      const githubUrl = String(new FormData(form).get('githubUrl') || '').trim();
+      if (status) status.textContent = 'Publishing…';
+      if (button) button.disabled = true;
+      try {
+        const response = await fetch('/api/me/buildprints', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ githubUrl }),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (response.status === 401) {
+          window.location.href = '/api/auth/github/start';
+          return;
+        }
+        if (!response.ok) throw new Error(payload.error || 'publish_failed');
+        if (status) status.textContent = `Published as Community. Scan: ${payload.submission.scanStatus}. You can remove it from your profile.`;
+        form.reset();
+      } catch (error) {
+        if (status) status.textContent = error instanceof Error && error.message === 'github_url_required' ? 'Paste a https://github.com/... URL.' : 'Could not publish this URL yet.';
+      } finally {
+        if (button) button.disabled = false;
+      }
     });
   </script>
 </BaseLayout>

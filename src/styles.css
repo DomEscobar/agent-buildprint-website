@@ -3573,3 +3573,24 @@ body { background: var(--bg); }
   .submit-url-form { grid-template-columns:1fr; }
   .submit-url-form button { width:100%; }
 }
+
+/* Community publishing + submission management */
+.profile-submissions-panel { grid-column:1 / -1; }
+.profile-submissions-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.profile-submissions-head a { color:var(--accent); font-weight:900; }
+.profile-submission-list { display:grid; gap:10px; }
+.profile-submission-card { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:14px; align-items:center; border:1px solid var(--border); border-radius:16px; padding:14px; background:var(--surface-2); }
+.profile-submission-card h3 { margin:0 0 4px; font-size:18px; }
+.profile-submission-card p { margin:0 0 8px; color:var(--muted); word-break:break-word; }
+.profile-submission-card small { display:block; color:var(--muted); margin-top:8px; line-height:1.4; }
+.profile-submission-card button { border:1px solid color-mix(in srgb, #ef4444 35%, var(--border)); color:#ef4444; background:transparent; border-radius:999px; padding:9px 12px; font-weight:900; cursor:pointer; }
+.profile-submission-badges { display:flex; flex-wrap:wrap; gap:6px; }
+.submission-badge { display:inline-flex; align-items:center; border:1px solid var(--border); border-radius:999px; padding:4px 8px; font-family:var(--mono); font-size:11px; font-weight:900; color:var(--muted); background:var(--surface); text-transform:uppercase; letter-spacing:.04em; }
+.submission-badge-community { color:var(--accent); border-color:color-mix(in srgb, var(--accent) 30%, var(--border)); background:var(--accent-soft); }
+.submission-badge-verified, .submission-badge-official, .submission-badge-featured { color:#0f766e; border-color:color-mix(in srgb, #0f766e 35%, var(--border)); background:color-mix(in srgb, #0f766e 10%, var(--surface)); }
+.community-submissions-slot { display:contents; }
+.registry-community-row { border-style:dashed; }
+.registry-community-row .registry-hf-avatar { background:var(--accent-soft); color:var(--accent); }
+.submit-step-card.submit-url-card { border-color:var(--border); }
+.submit-url-form button[disabled] { opacity:.65; cursor:wait; }
+@media (max-width:640px) { .profile-submission-card { grid-template-columns:1fr; } .profile-submission-card button { width:100%; } }

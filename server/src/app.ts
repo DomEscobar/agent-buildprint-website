@@ -7,6 +7,7 @@ type AppOptions = {
   siteUrl?: string;
   githubClientId?: string;
   githubClientSecret?: string;
+  adminGithubLogins?: string;
   cookieSecure?: boolean;
   fetch?: typeof fetch;
 };
@@ -71,6 +72,59 @@ function sessionToken(request: Request) {
   return parseCookies(request).get('agb_session') || '';
 }
 
+function normalizeGithubUrl(raw: unknown) {
+  if (typeof raw !== 'string') throw new Error('invalid_github_url');
+  const input = raw.trim();
+  if (!input || input.length > 600) throw new Error('invalid_github_url');
+  let parsed: URL;
+  try {
+    parsed = new URL(input);
+  } catch {
+    throw new Error('invalid_github_url');
+  }
+  if (parsed.protocol !== 'https:' || parsed.hostname.toLowerCase() !== 'github.com') throw new Error('github_url_required');
+  const parts = parsed.pathname.split('/').filter(Boolean).map(decodeURIComponent);
+  const [owner, repoRaw] = parts;
+  const repo = repoRaw?.replace(/\.git$/, '');
+  if (!owner || !repo || !/^[A-Za-z0-9_.-]+$/.test(owner) || !/^[A-Za-z0-9_.-]+$/.test(repo)) throw new Error('invalid_github_url');
+  let branch = 'main';
+  let sourcePath = '';
+  if (parts[2] === 'tree' || parts[2] === 'blob') {
+    branch = parts[3] || 'main';
+    sourcePath = parts.slice(4).join('/');
+  }
+  const normalized = `https://github.com/${owner}/${repo}${sourcePath ? `/tree/${branch}/${sourcePath}` : ''}`;
+  const title = sourcePath.split('/').filter(Boolean).pop() || repo;
+  return { githubUrl: input, normalizedGithubUrl: normalized, owner, repo, sourceBranch: branch, sourcePath, title };
+}
+
+async function scanGithubBuildprint(input: ReturnType<typeof normalizeGithubUrl>, requestFetch: typeof fetch) {
+  const badges = ['community'];
+  try {
+    const apiUrl = new URL(`https://api.github.com/repos/${input.owner}/${input.repo}/contents/${input.sourcePath}`);
+    apiUrl.searchParams.set('ref', input.sourceBranch);
+    const response = await requestFetch(apiUrl.href, { headers: { accept: 'application/vnd.github+json', 'user-agent': 'agent-buildprint-submission-scan' } });
+    if (!response.ok) {
+      return { scanStatus: 'warning' as const, scanSummary: response.status === 404 ? 'GitHub path was published, but the scanner could not fetch it yet.' : `GitHub scan returned HTTP ${response.status}.`, badges };
+    }
+    const payload = await response.json().catch(() => null) as unknown;
+    const items = Array.isArray(payload) ? payload : payload && typeof payload === 'object' ? [payload as Record<string, unknown>] : [];
+    const names = new Set(items.map((item) => typeof item === 'object' && item && 'name' in item ? String((item as { name?: unknown }).name).toLowerCase() : ''));
+    badges.push('scanned');
+    const hasEntrypoint = names.has('buildprint.md');
+    const hasManifest = names.has('buildprint.json') || names.has('blueprint.yaml') || names.has('package.json');
+    if (hasEntrypoint && hasManifest) {
+      badges.push('complete-files');
+      if (names.has('package.json') || names.has('buildprint.json')) badges.push('runnable-candidate');
+      return { scanStatus: 'passed' as const, scanSummary: 'Published instantly. Scanner found Buildprint entrypoint and package metadata.', badges };
+    }
+    if (hasEntrypoint) return { scanStatus: 'warning' as const, scanSummary: 'Published instantly. Scanner found BUILDPRINT.md but package metadata may be missing.', badges };
+    return { scanStatus: 'warning' as const, scanSummary: 'Published instantly as Community. This looks like a normal GitHub project; use Mapper OS if it still needs Buildprint files.', badges };
+  } catch {
+    return { scanStatus: 'warning' as const, scanSummary: 'Published instantly. Scanner could not complete; retry/review later.', badges };
+  }
+}
+
 function oauthState(request: Request) {
   return parseCookies(request).get('agb_oauth_state') || '';
 }
@@ -87,8 +141,17 @@ export function createApp(db: EngagementDb, options: AppOptions = {}) {
   const siteUrl = (options.siteUrl || process.env.SITE_URL || 'https://agent-buildprint.com').replace(/\/$/, '');
   const githubClientId = options.githubClientId ?? process.env.GITHUB_CLIENT_ID ?? '';
   const githubClientSecret = options.githubClientSecret ?? process.env.GITHUB_CLIENT_SECRET ?? '';
+  const adminGithubLogins = (options.adminGithubLogins ?? process.env.ADMIN_GITHUB_LOGINS ?? 'DomEscobar').split(',').map((item) => item.trim().toLowerCase()).filter(Boolean);
   const cookieSecure = options.cookieSecure ?? (process.env.COOKIE_SECURE ? process.env.COOKIE_SECURE !== 'false' : siteUrl.startsWith('https://'));
   const requestFetch = options.fetch ?? fetch;
+
+  function currentUser(request: Request) {
+    return db.getUserBySessionToken(sessionToken(request));
+  }
+
+  function isAdmin(user: { githubLogin: string } | null) {
+    return Boolean(user && adminGithubLogins.includes(user.githubLogin.toLowerCase()));
+  }
 
   function authHeadersForLogin(userId: string) {
     const session = db.createSession(userId);
@@ -122,7 +185,8 @@ export function createApp(db: EngagementDb, options: AppOptions = {}) {
 
       if (url.pathname === '/api/auth/me') {
         if (request.method !== 'GET') return methodNotAllowed();
-        return json({ user: db.getUserBySessionToken(sessionToken(request)) });
+        const user = currentUser(request);
+        return json({ user, admin: isAdmin(user) });
       }
 
       if (url.pathname === '/api/auth/logout') {
@@ -181,11 +245,61 @@ export function createApp(db: EngagementDb, options: AppOptions = {}) {
       }
 
       if (url.pathname === '/api/me/profile') {
-        const user = db.getUserBySessionToken(sessionToken(request));
+        const user = currentUser(request);
         if (!user) return json({ error: 'unauthorized' }, 401);
         if (request.method === 'GET') return json({ user });
         if (request.method !== 'PATCH') return methodNotAllowed();
         return json({ user: db.updateUserProfile(user.id, await readJson(request)) });
+      }
+
+      if (url.pathname === '/api/community-buildprints') {
+        if (request.method !== 'GET') return methodNotAllowed();
+        return json({ submissions: db.listPublicBuildprintSubmissions() });
+      }
+
+      if (url.pathname === '/api/me/buildprints') {
+        const user = currentUser(request);
+        if (!user) return json({ error: 'unauthorized' }, 401);
+        if (request.method === 'GET') return json({ submissions: db.listUserBuildprintSubmissions(user.id) });
+        if (request.method !== 'POST') return methodNotAllowed();
+        try {
+          const input = normalizeGithubUrl((await readJson(request))?.githubUrl);
+          let submission = db.createBuildprintSubmission(user.id, { ...input, scanStatus: 'pending', scanSummary: 'Published instantly as Community. Scan queued.', badges: ['community'] });
+          const scan = await scanGithubBuildprint(input, requestFetch);
+          submission = db.updateBuildprintSubmissionScan(submission.id, { title: input.title, ...scan });
+          return json({ submission }, 201);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'bad_request';
+          if (['invalid_github_url', 'github_url_required'].includes(message)) return json({ error: message }, 400);
+          return json({ error: 'server_error' }, 500);
+        }
+      }
+
+      const mySubmissionMatch = url.pathname.match(/^\/api\/me\/buildprints\/([^/]+)$/);
+      if (mySubmissionMatch) {
+        const user = currentUser(request);
+        if (!user) return json({ error: 'unauthorized' }, 401);
+        if (request.method !== 'DELETE') return methodNotAllowed();
+        try {
+          return json(db.removeUserBuildprintSubmission(user.id, decodeURIComponent(mySubmissionMatch[1])));
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'bad_request';
+          return message === 'not_found' ? notFound() : json({ error: 'server_error' }, 500);
+        }
+      }
+
+      const promoteMatch = url.pathname.match(/^\/api\/admin\/buildprints\/([^/]+)\/trust$/);
+      if (promoteMatch) {
+        const user = currentUser(request);
+        if (!isAdmin(user)) return json({ error: user ? 'forbidden' : 'unauthorized' }, user ? 403 : 401);
+        if (request.method !== 'PATCH') return methodNotAllowed();
+        try {
+          const payload = await readJson(request) as { source?: 'community' | 'official'; reviewStatus?: 'unreviewed' | 'reviewed' | 'rejected'; trustBadge?: null | 'verified' | 'official' | 'featured' } | null;
+          return json({ submission: db.promoteBuildprintSubmission(decodeURIComponent(promoteMatch[1]), payload || {}) });
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'bad_request';
+          return message === 'not_found' ? notFound() : json({ error: 'server_error' }, 500);
+        }
       }
 
       const userMatch = url.pathname.match(/^\/api\/users\/([^/]+)$/);

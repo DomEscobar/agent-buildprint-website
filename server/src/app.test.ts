@@ -10,7 +10,30 @@ const openDbs: Array<{ close: () => void }> = [];
 function makeApp(now = new Date('2026-05-29T12:00:00.000Z')) {
   const db = openEngagementDb(':memory:', () => now);
   openDbs.push(db);
-  return createApp(db);
+  return createApp(db, { githubClientId: '', githubClientSecret: '' });
+}
+
+function signedInApp(now = new Date('2026-05-29T12:00:00.000Z')) {
+  const db = openEngagementDb(':memory:', () => now);
+  openDbs.push(db);
+  const user = db.upsertGithubUser({ githubId: 123, githubLogin: 'DomEscobar', displayName: 'Dom' });
+  const session = db.createSession(user.id);
+  const app = createApp(db, {
+    githubClientId: '',
+    githubClientSecret: '',
+    adminGithubLogins: 'DomEscobar',
+    fetch: async (url) => {
+      if (String(url).includes('/contents/')) {
+        return Response.json([
+          { name: 'BUILDPRINT.md' },
+          { name: 'buildprint.json' },
+          { name: 'README.md' },
+        ]);
+      }
+      return Response.json({});
+    },
+  });
+  return { app, cookie: `agb_session=${session.token}` };
 }
 
 function request(path: string, init?: RequestInit) {
@@ -74,9 +97,40 @@ test('health verifies database access', async () => {
 test('auth reports signed out user and honest unconfigured GitHub OAuth', async () => {
   const app = makeApp();
 
-  expect(await body(await app.fetch(request('/api/auth/me')))).toEqual({ user: null });
+  expect(await body(await app.fetch(request('/api/auth/me')))).toEqual({ user: null, admin: false });
   expect((await app.fetch(request('/api/auth/github/start'))).status).toBe(503);
   expect((await app.fetch(request('/api/me/profile', { method: 'PATCH', body: JSON.stringify({ displayName: 'Dom' }) }))).status).toBe(401);
+});
+
+test('community Buildprint submissions publish immediately, list, promote, and remove', async () => {
+  const { app, cookie } = signedInApp();
+
+  expect((await app.fetch(request('/api/me/buildprints', { method: 'POST', body: JSON.stringify({ githubUrl: 'https://not-github.example/repo' }), headers: { cookie } }))).status).toBe(400);
+
+  const createdResponse = await app.fetch(request('/api/me/buildprints', {
+    method: 'POST',
+    headers: { cookie, 'content-type': 'application/json' },
+    body: JSON.stringify({ githubUrl: 'https://github.com/DomEscobar/agent-buildprint/tree/main/buildprints/buildprint-mapper-os' }),
+  }));
+  expect(createdResponse.status).toBe(201);
+  const created = await body(createdResponse);
+  expect(created.submission).toMatchObject({ visibility: 'published', source: 'community', scanStatus: 'passed', trustBadge: null });
+  expect((created.submission as { badges: string[] }).badges).toContain('complete-files');
+
+  const publicList = await body(await app.fetch(request('/api/community-buildprints')));
+  expect((publicList.submissions as unknown[]).length).toBe(1);
+
+  const promoted = await body(await app.fetch(request(`/api/admin/buildprints/${(created.submission as { id: string }).id}/trust`, {
+    method: 'PATCH',
+    headers: { cookie, 'content-type': 'application/json' },
+    body: JSON.stringify({ reviewStatus: 'reviewed', trustBadge: 'verified' }),
+  })));
+  expect(promoted.submission).toMatchObject({ reviewStatus: 'reviewed', trustBadge: 'verified' });
+
+  const removeResponse = await app.fetch(request(`/api/me/buildprints/${(created.submission as { id: string }).id}`, { method: 'DELETE', headers: { cookie } }));
+  expect(removeResponse.status).toBe(200);
+  const afterRemove = await body(await app.fetch(request('/api/community-buildprints')));
+  expect((afterRemove.submissions as unknown[]).length).toBe(0);
 });
 
 test('GitHub OAuth callback creates session and editable profile', async () => {
