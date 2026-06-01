@@ -8,10 +8,7 @@ const updatedLabel = (value?: string) => {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? 'Source synced' : updatedDate.format(date);
 };
-const publishedLabel = (value?: string) => {
-  const label = updatedLabel(value);
-  return label === 'Source synced' ? label : `Last published ${label}`;
-};
+const publishedLabel = (value?: string) => updatedLabel(value);
 const sourceParts = (href: string) => {
   const match = href.match(/github\.com\/([^/]+\/[^/]+)(?:\/tree\/([^/]+)\/(.+))?/);
   return {
@@ -71,7 +68,7 @@ const runnableCount = cards.filter((card) => card.bootstrapReady).length;
             <p>{bp.summary}</p>
             <dl>
               <div><dt>Entrypoint</dt><dd>{entrypoint}</dd></div>
-              <div><dt>Published</dt><dd>{updatedLabel(bp.updatedAt)}</dd></div>
+              <div><dt>Last published</dt><dd>{publishedLabel(bp.updatedAt)}</dd></div>
               <div><dt>Views</dt><dd data-card-views>--</dd></div>
               <div><dt>Likes</dt><dd data-card-likes>--</dd></div>
               <div><dt>Bootstrap</dt><dd>{bootstrapReady ? 'Configured' : 'Needs manifest review'}</dd></div>
@@ -103,7 +100,7 @@ const runnableCount = cards.filter((card) => card.bootstrapReady).length;
               <div><span>Source</span><b>{source.repo}</b></div>
               <div><span>Path</span><b>{source.sourcePath || `buildprints/${bp.slug}`}</b></div>
               <div><span>Entrypoint</span><b>{entrypoint}</b></div>
-              <div><span>Published</span><b>{publishedLabel(bp.updatedAt)}</b></div>
+              <div><span>Last published</span><b>{publishedLabel(bp.updatedAt)}</b></div>
             </div>
             <div class="registry-v2-state" aria-label="Buildprint state">
               <span>{bootstrapReady ? 'Bootstrap configured' : 'Manifest review needed'}</span>
