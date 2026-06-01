@@ -3474,3 +3474,45 @@ body { background: var(--bg); }
 .profile-form input:focus, .profile-form textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent); }
 @media (max-width: 860px) { .profile-grid { grid-template-columns:1fr; } .profile-facts { grid-template-columns:1fr; } }
 @media (max-width: 560px) { .profile-public-card { grid-template-columns:1fr; } .profile-avatar-large { width:76px; height:76px; border-radius:20px; } .profile-card h1 { font-size:40px; } }
+
+/* Create path cards */
+.registry-create-card { width:min(380px, 100%); border:1px solid color-mix(in srgb, var(--accent) 22%, var(--border)); background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--surface)), var(--surface)); border-radius:22px; padding:18px; box-shadow:var(--shadow); }
+.registry-create-copy span, .create-choice-label { display:inline-flex; width:max-content; color:var(--accent); font-size:11px; font-weight:950; text-transform:uppercase; letter-spacing:.1em; }
+.registry-create-copy h2 { margin:6px 0 8px; font-size:28px; letter-spacing:-.045em; }
+.registry-create-copy p { margin:0; font-size:14px; line-height:1.5; }
+.registry-create-actions { display:grid; grid-template-columns:1fr; gap:8px; margin-top:15px; }
+.registry-create-actions a { display:flex; align-items:center; justify-content:center; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:12px; padding:10px 12px; font-size:13px; font-weight:900; }
+.registry-create-actions a.registry-create-primary { background:var(--text); border-color:var(--text); color:var(--bg); }
+.registry-create-facts { display:flex; flex-wrap:wrap; gap:7px; margin-top:12px; }
+.registry-create-facts span { border:1px solid var(--border); background:color-mix(in srgb, var(--surface) 70%, var(--surface-2)); color:var(--muted); border-radius:999px; padding:6px 8px; font-size:12px; font-weight:750; }
+.registry-create-facts b { color:var(--text); }
+.registry-create-mini { border-color:color-mix(in srgb, var(--accent) 24%, var(--border)); background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, var(--surface)), var(--surface)); }
+.registry-create-mini strong { display:block; margin-bottom:4px; font-size:15px; letter-spacing:-.02em; }
+.registry-create-mini p { margin:0 0 10px; font-size:12px; line-height:1.45; }
+.registry-create-mini a { display:flex; align-items:center; justify-content:center; border-radius:10px; padding:9px 10px; background:var(--text); color:var(--bg); font-size:12px; font-weight:900; }
+.create-page { background:var(--bg); min-height:70vh; }
+.create-hero { padding:54px 0 18px; }
+.create-hero h1 { margin:14px 0; }
+.create-choice-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; padding:18px 0 34px; }
+.create-choice-card { border:1px solid var(--border); background:var(--surface); border-radius:24px; padding:22px; box-shadow:var(--shadow); }
+.create-choice-card.primary { border-color:color-mix(in srgb, var(--accent) 28%, var(--border)); background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--surface)), var(--surface)); }
+.create-choice-card h2 { margin:9px 0 10px; font-size:clamp(30px,4vw,48px); }
+.create-choice-card p { margin:0; max-width:560px; }
+.create-choice-card ul { margin:18px 0; padding-left:20px; }
+.create-choice-card li { color:var(--muted); margin:7px 0; }
+.create-choice-card a { display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--text); background:var(--text); color:var(--bg); border-radius:999px; padding:11px 14px; font-weight:900; }
+.create-choice-card:not(.primary) a { border-color:var(--border); background:var(--surface-2); color:var(--text); }
+.create-note { border:1px solid var(--border); background:var(--surface); border-radius:18px; padding:16px 18px; margin-bottom:64px; }
+.create-note p { margin:6px 0 0; }
+@media (max-width:900px) { .registry-create-card { width:100%; } .create-choice-grid { grid-template-columns:1fr; } }
+@media (max-width:640px) {
+  .registry-create-card { display:grid; grid-template-columns:minmax(0,1fr); gap:10px; padding:14px; border-radius:16px; box-shadow:none; }
+  .registry-create-copy h2 { font-size:20px; margin:3px 0 2px; }
+  .registry-create-copy p, .registry-create-facts { display:none; }
+  .registry-create-actions { grid-template-columns:1fr 1fr; gap:7px; margin-top:0; }
+  .registry-create-actions a { padding:9px 8px; font-size:12px; border-radius:10px; }
+  .registry-create-mini { display:none; }
+  .create-hero { padding:34px 0 10px; }
+  .create-choice-card { padding:18px; border-radius:18px; }
+  .create-choice-card h2 { font-size:30px; }
+}

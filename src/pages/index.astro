@@ -49,16 +49,24 @@ const typeCode = (bp: typeof buildprints[number]) => {
           <h1>Buildprints for coding agents.</h1>
           <p class="registry-v2-lede">Discover GitHub-backed agent instructions by category, source, entrypoint, files, and real activity. Free-form packages, factual metadata, no decorative scoring.</p>
           <div class="registry-hf-hero-actions">
-            <a class="registry-v2-primary" href="#registry-list">Browse Buildprints</a>
             <a href="/why-buildprints/">Why Buildprints</a>
           </div>
         </div>
-        <div class="registry-hf-stats" aria-label="Registry facts">
-          <span><b>{buildprints.length}</b> Buildprints</span>
-          <span><b>{sourceCount}</b> source repo{sourceCount === 1 ? '' : 's'}</span>
-          <span><b>{runnableCount}</b> copy-ready</span>
-          <a href={`${siteBase}/buildprints/index.json`}>JSON index</a>
-        </div>
+        <aside class="registry-create-card" aria-label="Create a Buildprint">
+          <div class="registry-create-copy">
+            <span>Create</span>
+            <h2>Create a Buildprint</h2>
+            <p>Map a normal project repo, or publish an existing Buildprint structure.</p>
+          </div>
+          <div class="registry-create-actions">
+            <a class="registry-create-primary" href="/create/#map-project">Map project</a>
+            <a href="/create/#publish-buildprint">Publish Buildprint</a>
+          </div>
+          <div class="registry-create-facts" aria-label="Registry facts">
+            <span><b>{buildprints.length}</b> Buildprints</span>
+            <span><b>{runnableCount}</b> copy-ready</span>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -96,6 +104,12 @@ const typeCode = (bp: typeof buildprints[number]) => {
             {runtimeCounts.map(([runtime, count]) => <span>{runtime}<b>{count}</b></span>)}
           </div>
         </div>
+
+        <div class="registry-hf-filter-card registry-create-mini">
+          <strong>Create a Buildprint</strong>
+          <p>Project repo or existing structure.</p>
+          <a href="/create/">Map or publish</a>
+        </div>
           </div>
         </details>
       </aside>
@@ -108,7 +122,7 @@ const typeCode = (bp: typeof buildprints[number]) => {
           </div>
           <div class="registry-hf-result-actions">
             <p id="resultCount">Showing {cards.length} Buildprints</p>
-            <a href="/buildprints/submit/">Submit Buildprint</a>
+            <a href="/create/">Create Buildprint</a>
           </div>
         </div>
 

@@ -1,0 +1,100 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { repoUrl, siteBase } from '@/lib/buildprints';
+
+const issue = (title: string, body: string) => `${repoUrl}/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+const mapProjectUrl = issue('[map-project] owner/repo/path', `Map my project into a Buildprint
+
+Project repository URL:
+Project path inside repo, if not root:
+What should agents learn/recreate from this project?
+Who is the maintainer?
+License:
+
+Useful context:
+- Main user/workflow:
+- Setup/run command:
+- Docs/examples to inspect:
+- What should not be included:
+
+Safety checks:
+- [ ] Repo is public or reviewer-accessible
+- [ ] No secrets, tokens, private customer data, or env values are included
+- [ ] License/ownership is clear
+- [ ] Links resolve
+
+Expected output: draft Buildprint for review before publication.
+
+Registry: ${siteBase}/
+`);
+const publishBuildprintUrl = issue('[publish-buildprint] owner/repo/path', `Publish my existing Buildprint
+
+Buildprint repository URL:
+Buildprint folder/path inside repo, if not root:
+Entrypoint file, if not BUILDPRINT.md:
+Title:
+Short description:
+Creator / maintainer profile:
+License:
+Tags:
+
+Registry facts expected:
+- Source repo/branch/path:
+- Start or copy instructions:
+- Files that should be listed:
+- Optional public run/artifact links:
+
+Checks before publication:
+- [ ] Repo is public or reviewer-accessible
+- [ ] Entrypoint file exists
+- [ ] No secrets, tokens, private customer data, or env values are included
+- [ ] License/ownership is clear
+- [ ] Links resolve
+- [ ] Buildprint does not require arbitrary command execution during registry import
+
+Notes for reviewer:
+
+Registry: ${siteBase}/
+`);
+---
+<BaseLayout title="Create a Buildprint — Agent Buildprint" description="Map a project repo into a Buildprint or publish an existing Buildprint structure.">
+  <main class="create-page">
+    <section class="container create-hero">
+      <a class="artifact-back" href="/buildprints/">← Registry</a>
+      <p class="registry-v2-kicker">Create</p>
+      <h1>Create a Buildprint.</h1>
+      <p class="registry-v2-lede">Choose the path that matches what you already have. A normal project can be mapped into a Buildprint; an existing Buildprint can be validated and listed.</p>
+    </section>
+
+    <section class="container create-choice-grid" aria-label="Buildprint creation paths">
+      <article class="create-choice-card primary" id="map-project">
+        <span class="create-choice-label">Most common</span>
+        <h2>Map a project</h2>
+        <p>You have a repo, product, workflow, app, or tool. Point us to the source and we turn the repeatable method into a draft Buildprint.</p>
+        <ul>
+          <li>GitHub repo URL</li>
+          <li>Optional folder/path</li>
+          <li>Short note about what agents should learn</li>
+        </ul>
+        <a href={mapProjectUrl}>Start mapping</a>
+      </article>
+
+      <article class="create-choice-card" id="publish-buildprint">
+        <span class="create-choice-label">Already structured</span>
+        <h2>Publish Buildprint</h2>
+        <p>You already made the Buildprint files. We validate fetchability, source facts, entrypoint, and registry metadata before listing.</p>
+        <ul>
+          <li>Buildprint repo/folder URL</li>
+          <li>Entrypoint file</li>
+          <li>Title, maintainer, license, tags</li>
+        </ul>
+        <a href={publishBuildprintUrl}>Validate package</a>
+      </article>
+    </section>
+
+    <section class="container create-note">
+      <strong>After GitHub login is fully connected</strong>
+      <p>This becomes repo picker → preview → review → publish. For now, the buttons open a structured GitHub request so the flow stays honest and source-backed.</p>
+    </section>
+  </main>
+</BaseLayout>
