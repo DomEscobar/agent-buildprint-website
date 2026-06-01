@@ -1,129 +1,139 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { repoUrl } from '@/lib/buildprints';
-const submitIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent('[submission] <your buildprint title>')}&body=${encodeURIComponent(`Submit a free Buildprint for review.
+import { repoUrl, siteBase } from '@/lib/buildprints';
 
-Repository URL:
-Package path, if not repo root:
-Creator name/profile:
-Buildprint title:
-Generated with Mapper OS? yes/no
-Mapper OS output path or PR, if applicable:
-Category: Product OS / Feature / Extension / Framework / Architecture / Workflow OS
+const submitIssueUrl = `${repoUrl}/issues/new?title=${encodeURIComponent('[publish] owner/repo/path')}&body=${encodeURIComponent(`Publish a Buildprint from GitHub
+
+Source repository URL:
+Buildprint path inside repo, if not root:
+Entrypoint file, if not BUILDPRINT.md:
+Title:
+Short description:
+Creator / maintainer profile:
 License:
+Tags:
 
-What it helps people build:
+What should agents use this to build or operate?
 
-Verification checklist:
-- [ ] BUILDPRINT.md exists
-- [ ] SPEC.md or equivalent behavior spec exists, if applicable
-- [ ] PLAN.md or phased steps exist
-- [ ] VERIFICATION.md, TEST_MATRIX.md, or quality checks exist
-- [ ] No secrets, private keys, tokens, or env values are included
+Registry facts you expect:
+- Source repo/branch/path:
+- Start or copy instructions:
+- Files that should be listed:
+- Optional public run/artifact links:
+
+Checks before submission:
+- [ ] Repo is public or reviewer-accessible
+- [ ] Entrypoint file exists
+- [ ] No secrets, tokens, private customer data, or env values are included
+- [ ] License/ownership is clear
 - [ ] Links resolve
-- [ ] License is clear
+- [ ] Buildprint does not require arbitrary command execution during registry import
 
 Notes for reviewer:
 
-If you are converting an existing repo, use Mapper OS first:
-https://agent-buildprint.com/buildprints/buildprint-mapper-os/
+If this came from an existing repo, Mapper OS can help create a reusable packet:
+${siteBase}/buildprints/buildprint-mapper-os/
 `)}`;
 ---
-<BaseLayout title="Submit a Buildprint — Agent Buildprint" description="Submit a free Buildprint for review and validation.">
-  <main>
-    <section class="container hero compact-hero">
-      <a class="pill" href="/buildprints/">← Registry</a>
-      <h1>Submit a free Buildprint.</h1>
-      <p class="lead">Creators can submit reusable Buildprints for products, features, architectures, workflows, and integrations. Submissions are verified before they appear in the registry.</p>
-      <div class="actions"><a class="btn primary" href={submitIssueUrl}>Submit for review</a><a class="btn" href="/buildprints/buildprint-mapper-os/">Mapper OS</a><a class="btn" href="https://github.com/DomEscobar/agent-buildprint">Open GitHub</a></div>
-    </section>
-
-    <section class="container section submission-prompt-section">
-      <div class="panel code-card prompt-card">
-        <div class="panel-row"><div><span class="eyebrow"><b>✎</b> Mapper OS</span><h2>Converting an existing repo? Start with Mapper OS.</h2></div><a class="btn primary" href="/buildprints/buildprint-mapper-os/">Open Mapper OS</a></div>
-        <p>Mapper OS is the canonical workflow for turning a working codebase into scoped Buildprint candidates, selecting one, extracting a source-independent package, and recording proof-ledger evidence. Use that page instead of copying a stale submission prompt.</p>
-        <div class="actions"><a class="btn" href="/buildprints/buildprint-mapper-os/agent.md">Agent guide</a><a class="btn" href="/buildprints/buildprint-mapper-os/package.json">Package JSON</a><a class="btn" href="/buildprints/buildprint-mapper-os/prompt.txt">Prompt text</a></div>
-      </div>
-    </section>
-
-    <section class="container section submission-flow">
-      <div class="section-head simple"><div><span class="eyebrow"><b>✓</b> Verification</span><h2>GitHub is the first identity and review layer.</h2><p>No marketplace auth yet. For now, creator identity comes from the GitHub account/repo that submits the package, and every Buildprint is reviewed before listing.</p></div></div>
-      <div class="grid how-grid">
-        <div class="panel quiet"><span class="step-number">1</span><h3>Map or discover scope</h3><p>For existing repos, use <a href="/buildprints/buildprint-mapper-os/">Mapper OS</a> to produce scoped candidates before extraction. No separate mapper CLI is required.</p></div>
-        <div class="panel quiet"><span class="step-number">2</span><h3>Extract selected Buildprint</h3><p>Create one scoped package, or a hierarchical System Buildprint with modules. Avoid whole-repo sludge.</p></div>
-        <div class="panel quiet"><span class="step-number">3</span><h3>Submit for review</h3><p>Open a GitHub issue with repo URL, package path, creator profile, license, scope, and checklist.</p></div>
-      </div>
-    </section>
-
-    <section class="container section grid columns">
-      <div class="panel code-card">
-        <div class="panel-row"><span class="eyebrow"><b>▦</b> Expected folder</span></div>
-        <code class="code-block-text">my-buildprint/
-  BUILDPRINT.md          # architecture / intent
-  SPEC.md                # behavior, if applicable
-  PLAN.md                # execution plan
-  CONTRACTS.md           # interfaces/data contracts
-  EXECUTION_PROTOCOL.md  # agent execution rules
-  IMPLEMENTATION_PLAN.md # implementation roadmap
-  VERIFICATION.md        # checks and evidence
-  prompts/
-  policies/
-  tests/
-  examples/</code>
-      </div>
-      <div class="panel">
-        <div class="panel-row"><span class="eyebrow"><b>✓</b> Review checks</span></div>
-        <ul class="clean-list check-list">
-          <li>Package has a clear build outcome</li>
-          <li>Required files are present for its tier</li>
-          <li>No secrets, tokens, or private data</li>
-          <li>Links and package manifest resolve</li>
-          <li>Quality gates are concrete, not vibes</li>
-          <li>License and creator/source are clear</li>
-        </ul>
-      </div>
-      <div class="panel">
-        <div class="panel-row"><span class="eyebrow"><b>★</b> Stars for demand</span></div>
-        <p>Stars and requests use GitHub first. That keeps early demand signals tied to real accounts without building a full auth system yet.</p>
-        <div class="chip-list">
-          <span><b>★</b> Star/request</span>
-          <span><b>↗</b> GitHub identity</span>
-          <span><b>✓</b> review queue</span>
+<BaseLayout title="Publish from GitHub — Agent Buildprint" description="Publish a Buildprint to the registry from a GitHub repository path.">
+  <main class="publish-page">
+    <section class="publish-hero">
+      <div class="container publish-hero-grid">
+        <div>
+          <a class="artifact-back" href="/buildprints/">← Registry</a>
+          <p class="registry-v2-kicker">Publish</p>
+          <h1>Publish a Buildprint from GitHub.</h1>
+          <p class="registry-v2-lede">The registry should not own your method. It imports a source repo/path, checks that files are fetchable, and presents factual source/use/files/run information. Today publishing is reviewed through GitHub while the full OAuth flow is being wired.</p>
+          <div class="registry-v2-actions">
+            <a class="registry-v2-primary" href={submitIssueUrl}>Open GitHub publish request</a>
+            <a href="/buildprints/buildprint-mapper-os/">Use Mapper OS</a>
+            <a href={repoUrl}>Registry source</a>
+          </div>
         </div>
+        <aside class="artifact-use-panel">
+          <div class="artifact-panel-head"><span>Publication contract</span><b>GitHub-backed</b></div>
+          <dl class="artifact-quick-facts">
+            <div><dt>Input</dt><dd>repo + path</dd></div>
+            <div><dt>Structure</dt><dd>free-form</dd></div>
+            <div><dt>Import</dt><dd>file fetch</dd></div>
+            <div><dt>Runs</dt><dd>registry-side</dd></div>
+          </dl>
+        </aside>
+      </div>
+    </section>
+
+    <section class="container artifact-layout publish-layout">
+      <aside class="artifact-sidebar">
+        <nav>
+          <a href="#current">Current path</a>
+          <a href="#requirements">Requirements</a>
+          <a href="#not-required">Not required</a>
+          <a href="#future">Full product</a>
+        </nav>
+        <div class="artifact-side-card"><span>Status</span><strong>Review queue</strong><p>GitHub issue review is the honest current publishing path. No fake app auth is shown.</p></div>
+      </aside>
+
+      <div class="artifact-content">
+        <section class="artifact-section" id="current">
+          <div class="artifact-section-title"><span>Current path</span><h2>Reviewed GitHub import</h2></div>
+          <div class="artifact-card artifact-use-grid">
+            <div>
+              <h3>What you provide</h3>
+              <ul>
+                <li>GitHub repository URL</li>
+                <li>Path to the Buildprint folder or entrypoint</li>
+                <li>Title, description, creator, license, tags</li>
+                <li>Optional public run/artifact links</li>
+              </ul>
+            </div>
+            <div>
+              <h3>What the registry checks</h3>
+              <ul>
+                <li>Repository/path is fetchable from GitHub</li>
+                <li>Entrypoint and listed files resolve</li>
+                <li>No obvious secrets or private data are included</li>
+                <li>Copy/start instructions are explicit</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="artifact-section" id="requirements">
+          <div class="artifact-section-title"><span>Requirements</span><h2>Minimal metadata, not methodology</h2></div>
+          <div class="artifact-card artifact-source-grid">
+            <div><span>Entrypoint</span><strong>Any clear start file</strong></div>
+            <div><span>Source</span><strong>GitHub repo/path</strong></div>
+            <div><span>Identity</span><strong>Maintainer-owned repo</strong></div>
+            <div><span>Files</span><strong>Fetchable list</strong></div>
+            <div><span>Usage</span><strong>Copy/run instructions</strong></div>
+            <div><span>License</span><strong>Explicit</strong></div>
+          </div>
+        </section>
+
+        <section class="artifact-section" id="not-required">
+          <div class="artifact-section-title"><span>Not required</span><h2>Your Buildprint can have its own shape</h2></div>
+          <div class="artifact-card artifact-prose">
+            <p>The registry should not force `PLAN.md`, `CONTRACTS.md`, evidence ledgers, phase folders, or a single Mapper OS packet spine. Those can exist when useful, but publication only needs enough metadata for agents and humans to find the source, start correctly, inspect files, and review execution facts.</p>
+            <div class="artifact-empty-run">
+              <h3>Runs live outside the packet.</h3>
+              <p>Execution proof belongs on registry run pages with command, runtime, status, logs/checks, and artifacts — not as mandatory author-side ceremony inside every Buildprint.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="artifact-section" id="future">
+          <div class="artifact-section-title"><span>Full product</span><h2>What the app flow will become</h2></div>
+          <div class="artifact-card artifact-read-order">
+            <ol>
+              <li><strong>Connect GitHub</strong><small>OAuth session with state validation, secure cookies, CSRF, and token secrecy.</small></li>
+              <li><strong>Select repo/path</strong><small>GitHub-only URL allowlist, repo/file limits, markdown sanitization.</small></li>
+              <li><strong>Preview import</strong><small>Entrypoint, file tree, copy command, sync facts, and actionable errors.</small></li>
+              <li><strong>Publish and sync</strong><small>Webhook signature validation, last-good version preservation, audit log, unpublish controls.</small></li>
+              <li><strong>Add runs</strong><small>Factual run records from GitHub Actions/manual artifacts first, hosted runner later.</small></li>
+            </ol>
+          </div>
+        </section>
       </div>
     </section>
   </main>
-  <script>
-    function copyText(value) {
-      if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(value);
-      const textarea = document.createElement('textarea');
-      textarea.value = value;
-      textarea.setAttribute('readonly', '');
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      textarea.remove();
-      return Promise.resolve();
-    }
-
-    document.querySelectorAll('.copy-btn').forEach((button) => {
-      button.setAttribute('data-label', button.textContent || 'Copy');
-      button.addEventListener('click', () => {
-        const value = button.getAttribute('data-copy') || '';
-        const original = button.getAttribute('data-label') || 'Copy';
-        button.textContent = 'Copied ✓';
-        button.classList.add('copied');
-        button.setAttribute('aria-live', 'polite');
-        copyText(value).catch(() => {
-          button.textContent = 'Copy failed';
-        });
-        setTimeout(() => {
-          button.textContent = original;
-          button.classList.remove('copied');
-        }, 2200);
-      });
-    });
-  </script>
 </BaseLayout>
