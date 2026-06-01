@@ -8,7 +8,6 @@ const updatedLabel = (value?: string) => {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? 'Source synced' : updatedDate.format(date);
 };
-const publishedLabel = (value?: string) => updatedLabel(value);
 const sourceParts = (href: string) => {
   const match = href.match(/github\.com\/([^/]+\/[^/]+)(?:\/tree\/([^/]+)\/(.+))?/);
   return {
@@ -20,113 +19,152 @@ const sourceParts = (href: string) => {
 const cards = buildprints.map((bp) => {
   const source = sourceParts(bp.githubUrl);
   const entrypoint = bp.files.find((file) => file.path === 'BUILDPRINT.md')?.path ?? bp.files[0]?.path ?? 'BUILDPRINT.md';
-  const hasReview = bp.files.some((file) => file.path === '04-review.md' || file.path.includes('review'));
   const hasRuns = Boolean(bp.proofUrl || bp.visualRun?.demoUrl);
   const bootstrapReady = bp.files.some((file) => file.path === entrypoint) && Boolean(bp.copyPrompt);
-  return { bp, source, entrypoint, hasReview, hasRuns, bootstrapReady };
+  return { bp, source, entrypoint, hasRuns, bootstrapReady };
 });
 const recentCards = [...cards].sort((a, b) => new Date(b.bp.updatedAt ?? 0).getTime() - new Date(a.bp.updatedAt ?? 0).getTime());
-const topCards = recentCards.slice(0, 4);
 const sourceCount = new Set(cards.map((card) => card.source.repo)).size;
 const runnableCount = cards.filter((card) => card.bootstrapReady).length;
+const categoryCounts = [...new Map(buildprints.map((bp) => [bp.category, buildprints.filter((item) => item.category === bp.category).length])).entries()];
+const tierCounts = [...new Map(buildprints.map((bp) => [bp.tier, buildprints.filter((item) => item.tier === bp.tier).length])).entries()];
+const runtimeCounts = [...new Map(buildprints.flatMap((bp) => bp.runtime).map((runtime) => [runtime, buildprints.filter((bp) => bp.runtime.includes(runtime)).length])).entries()].slice(0, 6);
 ---
 <BaseLayout title="Agent Buildprint Registry" description="Explore GitHub-backed Buildprints by source, usage, files, and execution facts.">
-  <main class="registry-v2">
-    <section class="registry-v2-hero">
-      <div class="container registry-v2-hero-grid">
-        <div class="registry-v2-copy">
+  <main class="registry-v2 registry-hf">
+    <section class="registry-hf-hero">
+      <div class="container registry-hf-hero-inner">
+        <div>
           <p class="registry-v2-kicker">Agent Buildprint Registry</p>
-          <h1>GitHub-backed instructions for serious coding agents.</h1>
-          <p class="registry-v2-lede">Browse Buildprints by source, entrypoint, usage command, files, and execution history. No methodology lock-in. No decorative badges. Just the facts needed to decide whether an agent should run it.</p>
-          <div class="registry-v2-actions">
-            <a class="registry-v2-primary" href="#registry-list">Explore registry</a>
-            <a href={`${siteBase}/buildprints/index.json`}>Registry JSON</a>
+          <h1>Buildprints for coding agents.</h1>
+          <p class="registry-v2-lede">Discover GitHub-backed agent instructions by category, source, entrypoint, files, and real activity. Free-form packages, factual metadata, no decorative scoring.</p>
+        </div>
+        <div class="registry-hf-stats" aria-label="Registry facts">
+          <span><b>{buildprints.length}</b> Buildprints</span>
+          <span><b>{sourceCount}</b> source repo{sourceCount === 1 ? '' : 's'}</span>
+          <span><b>{runnableCount}</b> copy-ready</span>
+          <a href={`${siteBase}/buildprints/index.json`}>JSON index</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="container registry-hf-shell" id="registry-list">
+      <aside class="registry-hf-sidebar" aria-label="Buildprint filters">
+        <div class="registry-hf-filter-card registry-hf-search-card">
+          <label>
+            <span>Search registry</span>
+            <input id="search" placeholder="Search title, source, stack..." />
+          </label>
+        </div>
+
+        <div class="registry-hf-filter-card">
+          <div class="registry-hf-filter-head"><span>Category</span><button data-filter-reset>Reset</button></div>
+          <button class="registry-hf-filter active" data-filter-group="category" data-filter-value="all"><span>All</span><b>{buildprints.length}</b></button>
+          {categoryCounts.map(([category, count]) => (
+            <button class="registry-hf-filter" data-filter-group="category" data-filter-value={category}><span>{category}</span><b>{count}</b></button>
+          ))}
+        </div>
+
+        <div class="registry-hf-filter-card">
+          <div class="registry-hf-filter-head"><span>Tier</span></div>
+          <button class="registry-hf-filter active" data-filter-group="tier" data-filter-value="all"><span>All tiers</span><b>{buildprints.length}</b></button>
+          {tierCounts.map(([tier, count]) => (
+            <button class="registry-hf-filter" data-filter-group="tier" data-filter-value={tier}><span>{tier}</span><b>{count}</b></button>
+          ))}
+        </div>
+
+        <div class="registry-hf-filter-card">
+          <div class="registry-hf-filter-head"><span>Popular runtimes</span></div>
+          <div class="registry-hf-runtime-list">
+            {runtimeCounts.map(([runtime, count]) => <span>{runtime}<b>{count}</b></span>)}
           </div>
         </div>
-        <aside class="registry-v2-console" aria-label="Registry facts">
-          <div><span>Published</span><strong>{buildprints.length}</strong></div>
-          <div><span>Source repos</span><strong>{sourceCount}</strong></div>
-          <div><span>Copy-ready</span><strong>{runnableCount}</strong></div>
-          <div><span>Contract</span><strong>Free-form</strong></div>
-        </aside>
-      </div>
-    </section>
+      </aside>
 
-    <section class="container registry-v2-strip" aria-label="Recently synced Buildprints">
-      <div class="registry-v2-section-head">
-        <div>
-          <span>Recently synced</span>
-          <h2>Fresh artifacts from GitHub</h2>
+      <div class="registry-hf-results">
+        <div class="registry-hf-result-head">
+          <div>
+            <span>Explore</span>
+            <h2>GitHub-backed Buildprints</h2>
+          </div>
+          <p id="resultCount">Showing {cards.length} Buildprints</p>
         </div>
-        <p>Every card links back to source and exposes the exact bootstrapping entrypoint.</p>
-      </div>
-      <div class="registry-v2-feature-grid">
-        {topCards.map(({ bp, source, entrypoint, bootstrapReady, hasRuns }) => (
-          <a class="registry-v2-feature" href={`/buildprints/${bp.slug}/`} data-engagement-card data-slug={bp.slug}>
-            <small>{source.repo}</small>
-            <h3>{bp.title}</h3>
-            <p>{bp.summary}</p>
-            <dl>
-              <div><dt>Entrypoint</dt><dd>{entrypoint}</dd></div>
-              <div><dt>Last published</dt><dd>{publishedLabel(bp.updatedAt)}</dd></div>
-              <div><dt>Views</dt><dd data-card-views>--</dd></div>
-              <div><dt>Likes</dt><dd data-card-likes>--</dd></div>
-              <div><dt>Bootstrap</dt><dd>{bootstrapReady ? 'Configured' : 'Needs manifest review'}</dd></div>
-              <div><dt>Runs</dt><dd>{hasRuns ? 'Public artifacts linked' : 'No public runs yet'}</dd></div>
-            </dl>
-          </a>
-        ))}
-      </div>
-    </section>
 
-    <section class="container registry-v2-browser" id="registry-list">
-      <div class="registry-v2-toolbar">
-        <label>
-          <span>Search</span>
-          <input id="search" placeholder="Search title, source, entrypoint, runtime, stack..." />
-        </label>
-        <p id="resultCount">Showing {cards.length} Buildprints</p>
-      </div>
-
-      <div class="registry-v2-table" role="list">
-        {cards.map(({ bp, source, entrypoint, bootstrapReady, hasRuns }) => (
-          <a class="registry-v2-row" href={`/buildprints/${bp.slug}/`} role="listitem" data-engagement-card data-slug={bp.slug} data-search={`${bp.title} ${bp.summary} ${bp.creator} ${source.repo} ${source.sourcePath} ${entrypoint} ${bp.runtime.join(' ')} ${bp.stack.join(' ')}`.toLowerCase()}>
-            <div class="registry-v2-name">
-              <span>@{bp.creator.toLowerCase().replace(/\s+/g, '-')} / {bp.slug}</span>
-              <strong>{bp.title}</strong>
-              <p>{bp.summary}</p>
-            </div>
-            <div class="registry-v2-facts">
-              <div><span>Source</span><b>{source.repo}</b></div>
-              <div><span>Path</span><b>{source.sourcePath || `buildprints/${bp.slug}`}</b></div>
-              <div><span>Entrypoint</span><b>{entrypoint}</b></div>
-              <div><span>Last published</span><b>{publishedLabel(bp.updatedAt)}</b></div>
-            </div>
-            <div class="registry-v2-state" aria-label="Buildprint state">
-              <span>{bootstrapReady ? 'Bootstrap configured' : 'Manifest review needed'}</span>
-              <span>{hasRuns ? 'Run artifacts linked' : 'No public runs yet'}</span>
-              <span><b data-card-views>--</b> views</span>
-              <span><b data-card-likes>--</b> likes</span>
-            </div>
-          </a>
-        ))}
+        <div class="registry-hf-list" role="list">
+          {recentCards.map(({ bp, source, entrypoint, bootstrapReady, hasRuns }) => (
+            <a
+              class="registry-hf-row"
+              href={`/buildprints/${bp.slug}/`}
+              role="listitem"
+              data-engagement-card
+              data-slug={bp.slug}
+              data-category={bp.category}
+              data-tier={bp.tier}
+              data-search={`${bp.title} ${bp.summary} ${bp.creator} ${source.repo} ${source.sourcePath} ${entrypoint} ${bp.runtime.join(' ')} ${bp.stack.join(' ')}`.toLowerCase()}
+            >
+              <div class="registry-hf-row-main">
+                <div class="registry-hf-avatar" aria-hidden="true">{bp.title.slice(0, 2).toUpperCase()}</div>
+                <div>
+                  <div class="registry-hf-owner">{source.repo} <span>/ {bp.slug}</span></div>
+                  <h3>{bp.title}</h3>
+                  <p>{bp.summary}</p>
+                  <div class="registry-hf-tags">
+                    <span>{bp.category}</span>
+                    <span>{bp.tier}</span>
+                    <span>{entrypoint}</span>
+                    <span>{bootstrapReady ? 'copy-ready' : 'needs manifest review'}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="registry-hf-meta" aria-label="Buildprint facts">
+                <span><b data-card-views>--</b> views</span>
+                <span><b data-card-likes>--</b> likes</span>
+                <span>Published <b>{updatedLabel(bp.updatedAt)}</b></span>
+                <span>{hasRuns ? 'Run artifacts linked' : 'No public runs yet'}</span>
+              </div>
+            </a>
+          ))}
+        </div>
       </div>
     </section>
   </main>
   <script>
     const search = document.querySelector('#search');
-    const rows = Array.from(document.querySelectorAll('.registry-v2-row'));
+    const rows = Array.from(document.querySelectorAll('.registry-hf-row'));
     const count = document.querySelector('#resultCount');
+    const active = { category: 'all', tier: 'all' };
+
     function apply() {
       const q = String(search?.value || '').trim().toLowerCase();
       let visible = 0;
       for (const row of rows) {
-        const ok = !q || row.getAttribute('data-search')?.includes(q);
+        const matchesSearch = !q || row.getAttribute('data-search')?.includes(q);
+        const matchesCategory = active.category === 'all' || row.getAttribute('data-category') === active.category;
+        const matchesTier = active.tier === 'all' || row.getAttribute('data-tier') === active.tier;
+        const ok = matchesSearch && matchesCategory && matchesTier;
         row.classList.toggle('hidden', !ok);
         if (ok) visible += 1;
       }
       if (count) count.textContent = `Showing ${visible} Buildprint${visible === 1 ? '' : 's'}`;
     }
+
+    document.querySelectorAll('[data-filter-group][data-filter-value]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const group = button.getAttribute('data-filter-group');
+        const value = button.getAttribute('data-filter-value') || 'all';
+        if (!group) return;
+        active[group] = value;
+        document.querySelectorAll(`[data-filter-group="${group}"]`).forEach((item) => item.classList.toggle('active', item === button));
+        apply();
+      });
+    });
+    document.querySelector('[data-filter-reset]')?.addEventListener('click', () => {
+      active.category = 'all';
+      active.tier = 'all';
+      search.value = '';
+      document.querySelectorAll('[data-filter-group]').forEach((item) => item.classList.toggle('active', item.getAttribute('data-filter-value') === 'all'));
+      apply();
+    });
     search?.addEventListener('input', apply);
     apply();
 
