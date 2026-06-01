@@ -3300,6 +3300,7 @@ body { background: var(--bg); }
 .registry-hf-shell { display:grid; grid-template-columns:260px minmax(0,1fr); gap:22px; align-items:start; padding:28px 0 60px; }
 .registry-hf-sidebar { position:sticky; top:80px; display:grid; gap:12px; }
 .registry-hf-filter-drawer > summary { display:none; }
+.registry-hf-filter-drawer:not([open]) > .registry-hf-filter-body { display:grid; }
 .registry-hf-filter-body { display:grid; gap:12px; }
 .registry-hf-filter-card { border:1px solid var(--border); background:var(--surface); border-radius:16px; padding:12px; box-shadow:0 1px 0 rgba(0,0,0,.02); }
 .registry-hf-search-card label { display:grid; gap:8px; color:var(--muted); font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
