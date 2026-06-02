@@ -14,11 +14,7 @@ const manifest = packageManifest(bp);
 const sourceMatch = bp.githubUrl.match(/github\.com\/([^/]+)\/([^/]+)(?:\/tree\/([^/]+)\/(.+))?/);
 const sourceOwner = sourceMatch?.[1] ?? 'DomEscobar';
 const sourceRepo = sourceMatch ? `${sourceMatch[1]}/${sourceMatch[2]}` : 'DomEscobar/agent-buildprint';
-const sourceBranch = sourceMatch?.[3] ?? 'main';
-const sourcePath = sourceMatch?.[4] ?? `buildprints/${bp.slug}`;
 const sourceRepoUrl = `https://github.com/${sourceRepo}`;
-const sourceBranchUrl = `${sourceRepoUrl}/tree/${sourceBranch}`;
-const sourcePathUrl = `${sourceRepoUrl}/tree/${sourceBranch}/${sourcePath}`;
 const ownerHandle = bp.creator.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || sourceOwner.toLowerCase();
 const description = bp.plainDescription ?? bp.summary;
 const entrypoint = manifest.canonicalStart ?? bp.files.find((file) => file.path === 'BUILDPRINT.md')?.path ?? bp.files[0]?.path ?? 'BUILDPRINT.md';
@@ -44,6 +40,15 @@ const runRows = hasRunArtifact ? [
 ] : [];
 const rawEntrypointUrl = `${bp.rawBaseUrl}/${entrypoint}`;
 const promptUrl = `${siteBase}/buildprints/${bp.slug}/prompt.txt`;
+const agentPrompt = `Use the Agent Buildprint at ${siteBase}/buildprints/${bp.slug}/agent.md.
+
+Fetch ${siteBase}/buildprints/${bp.slug}/package.json.
+Read ${entrypoint} first, then follow the package read order.
+Follow alignment/question rules before implementation.
+Do not scrape human UI cards.
+If the Buildprint requires it, finish with a chat handover summarizing outcome, evidence, known gaps, and recommended next direction.
+
+${bp.copyPrompt}`;
 
 const typeCode = (() => {
   const haystack = `${bp.slug} ${bp.title} ${bp.summary}`.toLowerCase();
@@ -87,8 +92,29 @@ const readmeHtml = markdown.render(readmeText || description);
             <p class="artifact-summary">{description}</p>
           </div>
         </div>
+        <div class="readme-hero-meta" data-detail-engagement data-slug={bp.slug}>
+          <span class="readme-meta-chip readme-meta-type" title={bp.category}>
+            <b>{typeCode}</b>
+            <span>{bp.category}</span>
+          </span>
+          <span class="readme-meta-chip">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.4-6 9.2-6 9.2 6 9.2 6-3.4 6-9.2 6-9.2-6-9.2-6Z"/><circle cx="12" cy="12" r="2.7"/></svg>
+            <b data-detail-views>--</b>
+            <span>views</span>
+          </span>
+          <button class="readme-meta-chip readme-like-button" type="button" data-detail-like aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.2s-7.4-4.6-8.7-9.1C2.5 8.2 4.2 5.5 7 5.3c1.7-.1 3.2.8 4 2.1.8-1.3 2.3-2.2 4-2.1 2.8.2 4.5 2.9 3.7 5.8C19.4 15.6 12 20.2 12 20.2Z"/></svg>
+            <b data-detail-likes>--</b>
+            <span>likes</span>
+          </button>
+          <span class="readme-meta-chip">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.8h6.2L18 8.6v11.6H7z"/><path d="M13 3.8v5h5"/><path d="M4.8 6.4v13.8h10.8"/></svg>
+            <b>{bp.files.length}</b>
+            <span>files</span>
+          </span>
+        </div>
         <div class="artifact-actions readme-action-bar">
-          <button class="artifact-primary copy-btn" data-copy={startCommand}>Copy start command</button>
+          <button class="artifact-primary copy-btn" data-copy={agentPrompt}>Copy Agent Prompt</button>
         </div>
       </div>
     </section>
@@ -103,17 +129,6 @@ const readmeHtml = markdown.render(readmeText || description);
       </article>
 
       <aside class="readme-side-panel" aria-label="Buildprint utility panel">
-        <div class="readme-side-card use-card">
-          <div class="artifact-panel-head">
-            <span>Use this</span>
-            <b>{entrypoint}</b>
-          </div>
-          <div class="artifact-command">
-            <code>{startCommand}</code>
-            <button class="copy-btn" data-copy={startCommand}>Copy</button>
-          </div>
-        </div>
-
         <div class="readme-side-card">
           <span class="side-label">Package facts</span>
           <dl class="artifact-quick-facts">
@@ -126,11 +141,7 @@ const readmeHtml = markdown.render(readmeText || description);
 
         <div class="readme-side-card">
           <span class="side-label">Source</span>
-          <dl class="artifact-quick-facts">
-            <div><dt>Repo</dt><dd><a href={sourceRepoUrl} target="_blank" rel="noreferrer">{sourceRepo}</a></dd></div>
-            <div><dt>Path</dt><dd><a href={sourcePathUrl} target="_blank" rel="noreferrer">{sourcePath}</a></dd></div>
-            <div><dt>Branch</dt><dd><a href={sourceBranchUrl} target="_blank" rel="noreferrer">{sourceBranch}</a></dd></div>
-          </dl>
+          <a class="readme-source-repo" href={sourceRepoUrl} target="_blank" rel="noreferrer">{sourceRepo}</a>
         </div>
 
         <details class="readme-side-card readme-files-mini">
@@ -191,5 +202,51 @@ const readmeHtml = markdown.render(readmeText || description);
         setTimeout(() => { button.textContent = previous; button.classList.remove('copied', 'copy-failed'); }, 1400);
       });
     });
+
+    const detailEngagement = document.querySelector('[data-detail-engagement][data-slug]');
+    const numberFormat = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+    function clientId() {
+      const key = 'agb-client-id';
+      let value = localStorage.getItem(key);
+      if (!value) {
+        value = crypto.randomUUID();
+        localStorage.setItem(key, value);
+      }
+      return value;
+    }
+    function renderEngagement(payload) {
+      const views = detailEngagement?.querySelector('[data-detail-views]');
+      const likes = detailEngagement?.querySelector('[data-detail-likes]');
+      const likeButton = detailEngagement?.querySelector('[data-detail-like]');
+      if (views) views.textContent = numberFormat.format(payload.views || 0);
+      if (likes) likes.textContent = numberFormat.format(payload.likes || 0);
+      if (likeButton) likeButton.setAttribute('aria-pressed', payload.liked ? 'true' : 'false');
+    }
+    async function postEngagement(action, id) {
+      const slug = detailEngagement?.getAttribute('data-slug');
+      if (!slug) return null;
+      const response = await fetch(`/api/buildprints/${encodeURIComponent(slug)}/${action}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ clientId: id }),
+      });
+      if (!response.ok) throw new Error('engagement_unavailable');
+      return response.json();
+    }
+    if (detailEngagement) {
+      try {
+        const id = clientId();
+        renderEngagement(await postEngagement('view', id));
+        detailEngagement.querySelector('[data-detail-like]')?.addEventListener('click', async (event) => {
+          const button = event.currentTarget;
+          button.disabled = true;
+          try { renderEngagement(await postEngagement('like', id)); }
+          catch (_) { detailEngagement.dataset.state = 'unavailable'; }
+          finally { button.disabled = false; }
+        });
+      } catch (_) {
+        detailEngagement.dataset.state = 'unavailable';
+      }
+    }
   </script>
 </BaseLayout>

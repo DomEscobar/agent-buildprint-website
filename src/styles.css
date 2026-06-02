@@ -3695,7 +3695,19 @@ body { background: var(--bg); }
 .readme-title-row { display:grid; grid-template-columns:52px minmax(0,1fr); gap:16px; align-items:start; margin-top:14px; }
 .readme-type-mark { width:52px; height:52px; border-radius:14px; font-size:15px; }
 .readme-detail-top h1 { margin:7px 0 8px; max-width:900px; font-size:clamp(38px,5vw,64px); letter-spacing:-.055em; line-height:.96; }
+.readme-hero-meta { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:16px; }
+.readme-meta-chip { display:inline-flex; align-items:center; gap:6px; min-height:34px; border:1px solid var(--border); background:var(--surface); color:var(--muted); border-radius:999px; padding:7px 10px; font:inherit; font-size:12px; font-weight:850; box-shadow:0 1px 0 rgba(0,0,0,.02); }
+.readme-meta-chip svg { width:14px; height:14px; flex:0 0 14px; fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; opacity:.78; }
+.readme-meta-chip b { color:var(--text); font-weight:950; font-variant-numeric:tabular-nums; }
+.readme-meta-chip span { color:var(--muted); }
+.readme-meta-type { border-color:color-mix(in srgb, var(--accent) 28%, var(--border)); background:var(--accent-soft); color:var(--accent); }
+.readme-meta-type b, .readme-meta-type span { color:var(--accent); }
+.readme-like-button { cursor:pointer; }
+.readme-like-button:hover, .readme-like-button[aria-pressed="true"] { border-color:color-mix(in srgb, #dc2626 54%, var(--border)); background:color-mix(in srgb, #dc2626 9%, var(--surface)); }
+.readme-like-button[aria-pressed="true"] svg { color:#dc2626; fill:color-mix(in srgb, #dc2626 18%, transparent); }
+.readme-like-button:disabled { cursor:wait; opacity:.72; }
 .readme-action-bar { margin-top:18px; }
+.readme-action-bar .artifact-primary { padding:12px 16px; border-radius:999px; font-weight:950; }
 .readme-detail-layout { display:grid; grid-template-columns:minmax(0,1fr) 310px; gap:22px; align-items:start; padding:24px 0 64px; }
 .readme-document { min-width:0; border:1px solid var(--border); background:var(--surface); border-radius:18px; box-shadow:var(--shadow); overflow:hidden; }
 .readme-document-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); background:color-mix(in srgb, var(--surface-2) 70%, var(--surface)); color:var(--muted); font-family:var(--mono); font-size:12px; font-weight:850; }
@@ -3715,6 +3727,8 @@ body { background: var(--bg); }
 .readme-side-panel { position:sticky; top:82px; display:grid; gap:12px; min-width:0; }
 .readme-side-card { border:1px solid var(--border); background:var(--surface); border-radius:16px; padding:14px; box-shadow:0 1px 0 rgba(0,0,0,.02); min-width:0; }
 .side-label { display:block; margin-bottom:10px; color:var(--muted); font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
+.readme-source-repo { display:flex; align-items:center; min-height:42px; border:1px solid var(--border); background:var(--surface-2); color:var(--accent); border-radius:12px; padding:10px 12px; font-family:var(--mono); font-size:13px; font-weight:850; overflow-wrap:anywhere; }
+.readme-source-repo:hover { border-color:color-mix(in srgb, var(--accent) 36%, var(--border)); }
 .readme-side-card .artifact-quick-facts { grid-template-columns:1fr; margin:0; }
 .readme-files-mini summary { display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; color:var(--text); font-weight:850; list-style:none; }
 .readme-files-mini summary::-webkit-details-marker { display:none; }
