@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import MarkdownIt from 'markdown-it';
-import { buildprints, buildprintFileText, getBuildprint, packageManifest, siteBase } from '@/lib/buildprints';
+import { buildprints, buildprintFileText, getBuildprint, packageManifest, repoUrl, siteBase } from '@/lib/buildprints';
 import { categoryIcon, registryBadgeIcon } from '@/lib/icons';
 import { contextEstimateFor, signalFor } from '@/lib/registry';
 
@@ -16,7 +16,9 @@ const manifest = packageManifest(bp);
 const sourceMatch = bp.githubUrl.match(/github\.com\/([^/]+)\/([^/]+)(?:\/tree\/([^/]+)\/(.+))?/);
 const sourceOwner = sourceMatch?.[1] ?? 'DomEscobar';
 const sourceRepo = sourceMatch ? `${sourceMatch[1]}/${sourceMatch[2]}` : 'DomEscobar/agent-buildprint';
-const sourceRepoUrl = `https://github.com/${sourceRepo}`;
+const sourceRepoUrl = bp.githubUrl;
+const packageRepoUrl = `${repoUrl}/tree/main/buildprints/${bp.slug}`;
+const packageRepoLabel = `DomEscobar/agent-buildprint/buildprints/${bp.slug}`;
 const ownerHandle = bp.creator.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || sourceOwner.toLowerCase();
 const description = bp.plainDescription ?? bp.summary;
 const entrypoint = manifest.canonicalStart ?? bp.files.find((file) => file.path === 'BUILDPRINT.md')?.path ?? bp.files[0]?.path ?? 'BUILDPRINT.md';
@@ -129,9 +131,11 @@ const readmeHtml = markdown.render(readmeText || description);
       </article>
 
       <aside class="readme-side-panel" aria-label="Buildprint utility panel">
-        <div class="readme-side-card">
-          <span class="side-label">Source</span>
+        <div class="readme-side-card readme-source-card">
+          <span class="side-label">Mapped source project</span>
           <a class="readme-source-repo" href={sourceRepoUrl} target="_blank" rel="noreferrer">{sourceRepo}</a>
+          <span class="side-label side-label-secondary">Buildprint packet</span>
+          <a class="readme-source-repo readme-package-repo" href={packageRepoUrl} target="_blank" rel="noreferrer">{packageRepoLabel}</a>
         </div>
 
         <details class="readme-side-card readme-files-mini">

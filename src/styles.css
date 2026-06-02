@@ -3798,6 +3798,8 @@ body { background: var(--bg); }
 .side-label { display:block; margin-bottom:10px; color:var(--muted); font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
 .readme-source-repo { display:flex; align-items:center; min-height:42px; border:1px solid var(--border); background:var(--surface-2); color:var(--accent); border-radius:12px; padding:10px 12px; font-family:var(--mono); font-size:13px; font-weight:850; overflow-wrap:anywhere; }
 .readme-source-repo:hover { border-color:color-mix(in srgb, var(--accent) 36%, var(--border)); }
+.side-label-secondary { margin-top:14px; }
+.readme-package-repo { color:var(--muted); font-size:12px; font-weight:800; }
 .readme-side-card .artifact-quick-facts { grid-template-columns:1fr; margin:0; }
 .readme-files-mini summary { display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; color:var(--text); font-weight:850; list-style:none; }
 .readme-files-mini summary::-webkit-details-marker { display:none; }
