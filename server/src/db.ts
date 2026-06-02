@@ -38,6 +38,8 @@ export type BuildprintSubmission = {
   trustBadge: null | 'verified' | 'official' | 'featured';
   scanStatus: 'pending' | 'passed' | 'warning' | 'failed';
   scanSummary: string;
+  scanScore: number;
+  discoveryTier: 'normal' | 'limited' | 'hidden';
   badges: string[];
   tags: string[];
   submittedBy: Pick<PublicUser, 'id' | 'githubLogin' | 'displayName' | 'avatarUrl'>;
@@ -91,6 +93,8 @@ type SubmissionRow = {
   trust_badge: null | 'verified' | 'official' | 'featured';
   scan_status: 'pending' | 'passed' | 'warning' | 'failed';
   scan_summary: string;
+  scan_score: number;
+  discovery_tier: 'normal' | 'limited' | 'hidden';
   badges_json: string;
   tags_json: string;
   created_at: string;
@@ -153,6 +157,8 @@ function toSubmission(row: SubmissionRow): BuildprintSubmission {
     trustBadge: row.trust_badge,
     scanStatus: row.scan_status,
     scanSummary: row.scan_summary,
+    scanScore: row.scan_score ?? 0,
+    discoveryTier: row.discovery_tier || 'limited',
     badges: parseJsonArray(row.badges_json),
     tags: parseJsonArray(row.tags_json),
     submittedBy: {
@@ -252,6 +258,8 @@ export function openEngagementDb(databasePath: string, clock: Clock = () => new 
       trust_badge TEXT CHECK (trust_badge IN ('verified', 'official', 'featured')),
       scan_status TEXT NOT NULL DEFAULT 'pending' CHECK (scan_status IN ('pending', 'passed', 'warning', 'failed')),
       scan_summary TEXT NOT NULL DEFAULT '',
+      scan_score INTEGER NOT NULL DEFAULT 0,
+      discovery_tier TEXT NOT NULL DEFAULT 'limited' CHECK (discovery_tier IN ('normal', 'limited', 'hidden')),
       badges_json TEXT NOT NULL DEFAULT '["community"]',
       tags_json TEXT NOT NULL DEFAULT '[]',
       created_at TEXT NOT NULL,
@@ -262,6 +270,14 @@ export function openEngagementDb(databasePath: string, clock: Clock = () => new 
     CREATE INDEX IF NOT EXISTS buildprint_submissions_user_id_idx ON buildprint_submissions(user_id);
     CREATE INDEX IF NOT EXISTS buildprint_submissions_visibility_idx ON buildprint_submissions(visibility, updated_at);
   `);
+
+  for (const migration of [
+    "ALTER TABLE buildprint_submissions ADD COLUMN scan_score INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE buildprint_submissions ADD COLUMN discovery_tier TEXT NOT NULL DEFAULT 'limited' CHECK (discovery_tier IN ('normal', 'limited', 'hidden'))",
+  ]) {
+    try { db.exec(migration); } catch { /* column already exists */ }
+  }
+  db.exec('CREATE INDEX IF NOT EXISTS buildprint_submissions_discovery_idx ON buildprint_submissions(visibility, discovery_tier, scan_score, updated_at);');
 
   const ensureStats = db.query(`
     INSERT OR IGNORE INTO buildprint_stats (slug, created_at, updated_at)
@@ -315,21 +331,21 @@ export function openEngagementDb(databasePath: string, clock: Clock = () => new 
     FROM buildprint_submissions
     JOIN users ON users.id = buildprint_submissions.user_id
   `;
-  const selectPublicSubmissions = db.query<SubmissionRow, []>(`${submissionSelect} WHERE visibility = 'published' ORDER BY datetime(buildprint_submissions.updated_at) DESC LIMIT 200`);
+  const selectPublicSubmissions = db.query<SubmissionRow, []>(`${submissionSelect} WHERE visibility = 'published' AND review_status != 'rejected' AND discovery_tier != 'hidden' ORDER BY CASE discovery_tier WHEN 'normal' THEN 0 ELSE 1 END, scan_score DESC, datetime(buildprint_submissions.updated_at) DESC LIMIT 200`);
   const selectUserSubmissions = db.query<SubmissionRow, [string]>(`${submissionSelect} WHERE user_id = ? ORDER BY datetime(buildprint_submissions.updated_at) DESC`);
   const selectSubmissionById = db.query<SubmissionRow, [string]>(`${submissionSelect} WHERE buildprint_submissions.id = ?`);
   const insertSubmission = db.query(`
     INSERT INTO buildprint_submissions (
       id, user_id, github_url, normalized_github_url, title, owner, repo, source_path, source_branch,
-      visibility, source, review_status, trust_badge, scan_status, scan_summary, badges_json, tags_json, created_at, updated_at
+      visibility, source, review_status, trust_badge, scan_status, scan_summary, scan_score, discovery_tier, badges_json, tags_json, created_at, updated_at
     ) VALUES (
       $id, $userId, $githubUrl, $normalizedGithubUrl, $title, $owner, $repo, $sourcePath, $sourceBranch,
-      'published', 'community', 'unreviewed', NULL, $scanStatus, $scanSummary, $badgesJson, '[]', $now, $now
+      'published', 'community', 'unreviewed', NULL, $scanStatus, $scanSummary, $scanScore, $discoveryTier, $badgesJson, '[]', $now, $now
     )
   `);
   const updateSubmissionScan = db.query(`
     UPDATE buildprint_submissions
-    SET title = $title, scan_status = $scanStatus, scan_summary = $scanSummary, badges_json = $badgesJson, updated_at = $now
+    SET title = $title, scan_status = $scanStatus, scan_summary = $scanSummary, scan_score = $scanScore, discovery_tier = $discoveryTier, badges_json = $badgesJson, updated_at = $now
     WHERE id = $id
   `);
   const removeSubmission = db.query(`
@@ -490,6 +506,8 @@ export function openEngagementDb(databasePath: string, clock: Clock = () => new 
     scanStatus?: 'pending' | 'passed' | 'warning' | 'failed';
     scanSummary?: string;
     badges?: string[];
+    scanScore?: number;
+    discoveryTier?: 'normal' | 'limited' | 'hidden';
   }) {
     const now = clock().toISOString();
     const id = randomBytes(16).toString('hex');
@@ -505,13 +523,15 @@ export function openEngagementDb(databasePath: string, clock: Clock = () => new 
       $sourceBranch: cleanProfileText(input.sourceBranch, 120) || 'main',
       $scanStatus: input.scanStatus || 'pending',
       $scanSummary: cleanProfileText(input.scanSummary, 500),
+      $scanScore: Math.max(0, Math.min(100, Math.round(input.scanScore ?? 0))),
+      $discoveryTier: input.discoveryTier || 'limited',
       $badgesJson: JSON.stringify([...(new Set(['community', ...(input.badges || [])]))]),
       $now: now,
     });
     return toSubmission(selectSubmissionById.get(id)!);
   }
 
-  function updateBuildprintSubmissionScan(id: string, input: { title?: string; scanStatus: 'pending' | 'passed' | 'warning' | 'failed'; scanSummary: string; badges: string[] }) {
+  function updateBuildprintSubmissionScan(id: string, input: { title?: string; scanStatus: 'pending' | 'passed' | 'warning' | 'failed'; scanSummary: string; scanScore: number; discoveryTier: 'normal' | 'limited' | 'hidden'; badges: string[] }) {
     const current = selectSubmissionById.get(id);
     if (!current) throw new Error('not_found');
     updateSubmissionScan.run({
@@ -519,6 +539,8 @@ export function openEngagementDb(databasePath: string, clock: Clock = () => new 
       $title: cleanProfileText(input.title || current.title, 120),
       $scanStatus: input.scanStatus,
       $scanSummary: cleanProfileText(input.scanSummary, 500),
+      $scanScore: Math.max(0, Math.min(100, Math.round(input.scanScore))),
+      $discoveryTier: input.discoveryTier,
       $badgesJson: JSON.stringify([...(new Set(['community', ...input.badges]))]),
       $now: clock().toISOString(),
     });

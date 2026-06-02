@@ -16,6 +16,17 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       return match ? decodeURIComponent(match[1]) : '';
     })();
     const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (char) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+
+    const badgeIcon = (badge) => {
+      const key = String(badge || '').toLowerCase();
+      if (['verified', 'official', 'featured', 'complete-files', 'passed'].includes(key)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.2 4.2L19 6.8"/></svg>';
+      if (['security-review', 'needs-review', 'warning', 'failed'].includes(key)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6 21 19H3z"/><path d="M12 8.8v4.8"/><path d="M12 17h.01"/></svg>';
+      if (['agent-workflow', 'runnable-candidate', 'implementation'].includes(key)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8.2h8v7.6H8z"/><path d="M12 3.8v3.4"/><path d="M12 16.8v3.4"/><path d="M4.2 12h2.9"/><path d="M16.9 12h2.9"/></svg>';
+      if (['readme', 'license'].includes(key)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.2h8.2L18 8v11.8H6z"/><path d="M14 4.2V8h4"/><path d="M8.8 12h6.4"/><path d="M8.8 15h5"/></svg>';
+      return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><path d="M12 8v4l2.8 2"/></svg>';
+    };
+    const badgeLabel = (badge) => String(badge || '').replace(/-/g, ' ');
+
     const normalizeWebsite = (value) => value ? `<a href="${escapeHtml(value)}" target="_blank" rel="noreferrer">${escapeHtml(value.replace(/^https?:\/\//, '').replace(/\/$/, ''))}</a>` : '<span>Not set</span>';
 
     async function getJson(url, init) {
@@ -60,7 +71,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 
     function submissionBadges(submission) {
       const trust = submission.trustBadge ? [`${submission.trustBadge}`] : [];
-      return [...trust, ...(submission.badges || [])].map((badge) => `<span class="submission-badge submission-badge-${escapeHtml(badge)}">${escapeHtml(badge.replace(/-/g, ' '))}</span>`).join('');
+      return [...trust, ...(submission.badges || [])].map((badge) => `<span class="submission-badge submission-badge-${escapeHtml(badge)}">${badgeIcon(badge)}${escapeHtml(badgeLabel(badge))}</span>`).join('');
     }
 
     function submissionCard(submission) {
@@ -69,7 +80,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           <h3><a href="${escapeHtml(submission.normalizedGithubUrl || submission.githubUrl)}" target="_blank" rel="noreferrer">${escapeHtml(submission.title || submission.repo)}</a></h3>
           <p>${escapeHtml(submission.normalizedGithubUrl || submission.githubUrl)}</p>
           <div class="profile-submission-badges">${submissionBadges(submission)}</div>
-          <small>Scan: ${escapeHtml(submission.scanStatus)} · ${escapeHtml(submission.scanSummary || 'No scan summary yet.')}</small>
+          <small>Scan: ${escapeHtml(submission.scanStatus)} · score ${escapeHtml(submission.scanScore)}/100 · ${escapeHtml(submission.discoveryTier)} discovery · ${escapeHtml(submission.scanSummary || 'No scan summary yet.')}</small>
         </div>
         <button data-remove-submission="${escapeHtml(submission.id)}">Remove</button>
       </article>`;

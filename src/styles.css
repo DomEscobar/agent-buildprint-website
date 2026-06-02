@@ -3331,8 +3331,12 @@ body { background: var(--bg); }
 .registry-hf-result-head span { display:block; margin-bottom:6px; color:var(--accent); font-size:12px; font-weight:900; letter-spacing:.1em; text-transform:uppercase; }
 .registry-hf-result-head h2 { margin:0; font-size:clamp(28px,3vw,40px); }
 .registry-hf-result-head p { margin:0; white-space:nowrap; }
-.registry-hf-result-actions { display:flex; align-items:center; justify-content:flex-end; gap:10px; }
+.registry-hf-result-actions { display:flex; align-items:center; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
 .registry-hf-result-actions a { color:var(--accent); background:var(--accent-soft); border-color:color-mix(in srgb, var(--accent) 24%, var(--border)); }
+.registry-sort-tabs { display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; }
+.registry-sort-tabs button { border:1px solid var(--border); background:var(--surface); color:var(--muted); border-radius:999px; padding:8px 10px; font:inherit; font-size:12px; font-weight:850; cursor:pointer; }
+.registry-sort-tabs button:hover { border-color:color-mix(in srgb, var(--accent) 38%, var(--border)); color:var(--text); }
+.registry-sort-tabs button.active { background:var(--text); border-color:var(--text); color:var(--bg); }
 .registry-hf-list { display:grid; gap:10px; }
 .registry-hf-row { display:block; padding:16px; border:1px solid var(--border); border-radius:16px; background:var(--surface); transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease; }
 .registry-hf-row:hover { transform:translateY(-1px); border-color:color-mix(in srgb, var(--accent) 42%, var(--border)); box-shadow:var(--shadow); }
@@ -3345,11 +3349,14 @@ body { background: var(--bg); }
 .registry-hf-meta svg { width:12px; height:12px; flex:0 0 auto; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; opacity:.72; }
 .registry-hf-meta b { color:color-mix(in srgb, var(--text) 76%, var(--muted)); font-weight:760; }
 @media (max-width: 900px) {
-  .registry-hf-hero-inner, .registry-hf-shell { grid-template-columns:1fr; }
+  .registry-hf-hero-inner { grid-template-columns:1fr; }
   .registry-hf-stats { justify-content:flex-start; }
+}
+@media (max-width: 760px) {
+  .registry-hf-shell { grid-template-columns:1fr; }
   .registry-hf-sidebar { position:static; }
   .registry-hf-result-head { align-items:flex-start; flex-direction:column; }
-  .registry-hf-result-actions { justify-content:flex-start; flex-wrap:wrap; }
+  .registry-hf-result-actions, .registry-sort-tabs { justify-content:flex-start; }
   .registry-hf-result-head p { white-space:normal; }
 }
 @media (max-width: 640px) {
@@ -3585,9 +3592,12 @@ body { background: var(--bg); }
 .profile-submission-card small { display:block; color:var(--muted); margin-top:8px; line-height:1.4; }
 .profile-submission-card button { border:1px solid color-mix(in srgb, #ef4444 35%, var(--border)); color:#ef4444; background:transparent; border-radius:999px; padding:9px 12px; font-weight:900; cursor:pointer; }
 .profile-submission-badges { display:flex; flex-wrap:wrap; gap:6px; }
-.submission-badge { display:inline-flex; align-items:center; border:1px solid var(--border); border-radius:999px; padding:4px 8px; font-family:var(--mono); font-size:11px; font-weight:900; color:var(--muted); background:var(--surface); text-transform:uppercase; letter-spacing:.04em; }
-.submission-badge-community { color:var(--accent); border-color:color-mix(in srgb, var(--accent) 30%, var(--border)); background:var(--accent-soft); }
-.submission-badge-verified, .submission-badge-official, .submission-badge-featured { color:#0f766e; border-color:color-mix(in srgb, #0f766e 35%, var(--border)); background:color-mix(in srgb, #0f766e 10%, var(--surface)); }
+.submission-badge { display:inline-flex; align-items:center; gap:5px; border:1px solid var(--border); border-radius:999px; padding:4px 8px; font-family:var(--mono); font-size:11px; font-weight:900; color:var(--muted); background:var(--surface); text-transform:uppercase; letter-spacing:.04em; }
+.submission-badge svg { width:13px; height:13px; flex:0 0 13px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.submission-badge-community, .submission-badge-scanned, .submission-badge-readme, .submission-badge-license { color:var(--accent); border-color:color-mix(in srgb, var(--accent) 30%, var(--border)); background:var(--accent-soft); }
+.submission-badge-verified, .submission-badge-official, .submission-badge-featured, .submission-badge-complete-files, .submission-badge-passed, .submission-badge-runnable-candidate { color:#0f766e; border-color:color-mix(in srgb, #0f766e 35%, var(--border)); background:color-mix(in srgb, #0f766e 10%, var(--surface)); }
+.submission-badge-needs-review, .submission-badge-security-review, .submission-badge-warning, .submission-badge-failed { color:#b45309; border-color:color-mix(in srgb, #f59e0b 42%, var(--border)); background:color-mix(in srgb, #f59e0b 10%, var(--surface)); }
+.submission-badge-agent-workflow, .submission-badge-implementation, .submission-badge-established-repo, .submission-badge-org-owner { color:#7c3aed; border-color:color-mix(in srgb, #7c3aed 32%, var(--border)); background:color-mix(in srgb, #7c3aed 9%, var(--surface)); }
 .community-submissions-slot { display:contents; }
 .registry-community-row { border-style:dashed; }
 .registry-community-row .registry-hf-avatar { background:var(--accent-soft); color:var(--accent); }

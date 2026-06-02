@@ -24,7 +24,6 @@ const description = bp.plainDescription ?? bp.summary;
 const entrypoint = manifest.canonicalStart ?? bp.files.find((file) => file.path === 'BUILDPRINT.md')?.path ?? bp.files[0]?.path ?? 'BUILDPRINT.md';
 const startCommand = manifest.bootstrap?.command ?? `agb start ${siteBase}/buildprints/${bp.slug}/package.json`;
 const fallbackCommand = manifest.bootstrap?.fallbackCommand;
-const copyPrompt = bp.copyPrompt || `Use the ${bp.title} Buildprint. First bootstrap exact snapshots: ${startCommand} . Then read .buildprint/next-agent.md and continue.`;
 const updatedDate = bp.updatedAt ? new Date(bp.updatedAt) : null;
 const updatedLabel = updatedDate && !Number.isNaN(updatedDate.getTime())
   ? updatedDate.toLocaleString('en', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -44,8 +43,6 @@ const runRows = hasRunArtifact ? [
   },
 ] : [];
 const rawEntrypointUrl = `${bp.rawBaseUrl}/${entrypoint}`;
-const packageUrl = `${siteBase}/buildprints/${bp.slug}/package.json`;
-const agentUrl = `${siteBase}/buildprints/${bp.slug}/agent.md`;
 const promptUrl = `${siteBase}/buildprints/${bp.slug}/prompt.txt`;
 
 const typeCode = (() => {
@@ -92,10 +89,6 @@ const readmeHtml = markdown.render(readmeText || description);
         </div>
         <div class="artifact-actions readme-action-bar">
           <button class="artifact-primary copy-btn" data-copy={startCommand}>Copy start command</button>
-          <button class="copy-btn" data-copy={copyPrompt}>Copy agent prompt</button>
-          <a href={agentUrl}>agent.md</a>
-          <a href={packageUrl}>package.json</a>
-          <a href={bp.githubUrl} target="_blank" rel="noreferrer">GitHub</a>
         </div>
       </div>
     </section>

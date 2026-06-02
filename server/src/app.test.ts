@@ -114,8 +114,9 @@ test('community Buildprint submissions publish immediately, list, promote, and r
   }));
   expect(createdResponse.status).toBe(201);
   const created = await body(createdResponse);
-  expect(created.submission).toMatchObject({ visibility: 'published', source: 'community', scanStatus: 'passed', trustBadge: null });
+  expect(created.submission).toMatchObject({ visibility: 'published', source: 'community', scanStatus: 'passed', trustBadge: null, discoveryTier: 'normal' });
   expect((created.submission as { badges: string[] }).badges).toContain('complete-files');
+  expect((created.submission as { scanScore: number }).scanScore).toBeGreaterThanOrEqual(55);
 
   const publicList = await body(await app.fetch(request('/api/community-buildprints')));
   expect((publicList.submissions as unknown[]).length).toBe(1);
@@ -131,6 +132,35 @@ test('community Buildprint submissions publish immediately, list, promote, and r
   expect(removeResponse.status).toBe(200);
   const afterRemove = await body(await app.fetch(request('/api/community-buildprints')));
   expect((afterRemove.submissions as unknown[]).length).toBe(0);
+});
+
+test('high-risk or missing GitHub submissions stay manageable but hidden from public discovery', async () => {
+  const db = openEngagementDb(':memory:', () => new Date('2026-05-29T12:00:00.000Z'));
+  openDbs.push(db);
+  const user = db.upsertGithubUser({ githubId: 456, githubLogin: 'MapperUser', displayName: 'Mapper' });
+  const session = db.createSession(user.id);
+  const app = createApp(db, {
+    githubClientId: '',
+    githubClientSecret: '',
+    fetch: async (url) => {
+      if (String(url).includes('/repos/sketchy/missing')) return new Response('{}', { status: 404 });
+      return Response.json({});
+    },
+  });
+
+  const createdResponse = await app.fetch(request('/api/me/buildprints', {
+    method: 'POST',
+    headers: { cookie: `agb_session=${session.token}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ githubUrl: 'https://github.com/sketchy/missing' }),
+  }));
+  expect(createdResponse.status).toBe(201);
+  const created = await body(createdResponse);
+  expect(created.submission).toMatchObject({ visibility: 'published', scanStatus: 'failed', discoveryTier: 'hidden' });
+
+  const mine = await body(await app.fetch(request('/api/me/buildprints', { headers: { cookie: `agb_session=${session.token}` } })));
+  expect((mine.submissions as unknown[]).length).toBe(1);
+  const publicList = await body(await app.fetch(request('/api/community-buildprints')));
+  expect((publicList.submissions as unknown[]).length).toBe(0);
 });
 
 test('GitHub OAuth callback creates session and editable profile', async () => {

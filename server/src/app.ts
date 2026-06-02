@@ -98,30 +98,102 @@ function normalizeGithubUrl(raw: unknown) {
   return { githubUrl: input, normalizedGithubUrl: normalized, owner, repo, sourceBranch: branch, sourcePath, title };
 }
 
+function unique(items: string[]) {
+  return [...new Set(items.filter(Boolean))];
+}
+
+function textFromBase64(value: unknown, max = 80_000) {
+  if (typeof value !== 'string') return '';
+  try {
+    return atob(value.replace(/\n/g, '')).slice(0, max);
+  } catch {
+    return '';
+  }
+}
+
+function containsAny(haystack: string, needles: string[]) {
+  return needles.some((needle) => haystack.includes(needle));
+}
+
 async function scanGithubBuildprint(input: ReturnType<typeof normalizeGithubUrl>, requestFetch: typeof fetch) {
   const badges = ['community'];
+  const notes: string[] = [];
+  let score = 20;
   try {
+    const scanHeaders = { accept: 'application/vnd.github+json', 'user-agent': 'agent-buildprint-submission-scan' };
+    const repoResponse = await requestFetch(`https://api.github.com/repos/${input.owner}/${input.repo}`, { headers: scanHeaders });
+    if (!repoResponse.ok) {
+      return { scanStatus: 'failed' as const, scanSummary: repoResponse.status === 404 ? 'Submitted but hidden from discovery: GitHub repo was not found.' : `Submitted but hidden from discovery: repo scan returned HTTP ${repoResponse.status}.`, scanScore: 0, discoveryTier: 'hidden' as const, badges: unique([...badges, 'needs-review']) };
+    }
+    const repo = await repoResponse.json().catch(() => ({})) as { description?: string; fork?: boolean; stargazers_count?: number; forks_count?: number; size?: number; created_at?: string; default_branch?: string; owner?: { login?: string; type?: string } };
+    if (repo.description) score += 6;
+    if ((repo.stargazers_count || 0) > 0) score += 4;
+    if ((repo.forks_count || 0) > 0) score += 2;
+    if ((repo.size || 0) > 0) score += 6;
+    if (repo.fork) { score -= 8; badges.push('fork'); }
+    if (repo.owner?.type === 'Organization') { score += 3; badges.push('org-owner'); }
+    const created = repo.created_at ? Date.parse(repo.created_at) : 0;
+    if (created && Date.now() - created > 14 * 24 * 60 * 60 * 1000) { score += 6; badges.push('established-repo'); }
+    else notes.push('new repo');
+
     const apiUrl = new URL(`https://api.github.com/repos/${input.owner}/${input.repo}/contents/${input.sourcePath}`);
-    apiUrl.searchParams.set('ref', input.sourceBranch);
-    const response = await requestFetch(apiUrl.href, { headers: { accept: 'application/vnd.github+json', 'user-agent': 'agent-buildprint-submission-scan' } });
+    apiUrl.searchParams.set('ref', input.sourceBranch || repo.default_branch || 'main');
+    const response = await requestFetch(apiUrl.href, { headers: scanHeaders });
     if (!response.ok) {
-      return { scanStatus: 'warning' as const, scanSummary: response.status === 404 ? 'GitHub path was published, but the scanner could not fetch it yet.' : `GitHub scan returned HTTP ${response.status}.`, badges };
+      return { scanStatus: 'warning' as const, scanSummary: response.status === 404 ? 'Submitted with limited discovery: GitHub path could not be fetched yet.' : `Submitted with limited discovery: path scan returned HTTP ${response.status}.`, scanScore: Math.max(10, score - 15), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
     }
     const payload = await response.json().catch(() => null) as unknown;
     const items = Array.isArray(payload) ? payload : payload && typeof payload === 'object' ? [payload as Record<string, unknown>] : [];
     const names = new Set(items.map((item) => typeof item === 'object' && item && 'name' in item ? String((item as { name?: unknown }).name).toLowerCase() : ''));
+    const fileNames = [...names].join(' ');
     badges.push('scanned');
+    if (names.has('readme.md')) { score += 10; badges.push('readme'); } else notes.push('no README at submitted path');
+    if (names.has('license') || names.has('license.md') || names.has('license.txt')) { score += 4; badges.push('license'); }
     const hasEntrypoint = names.has('buildprint.md');
     const hasManifest = names.has('buildprint.json') || names.has('blueprint.yaml') || names.has('package.json');
+    if (hasEntrypoint) score += 20;
+    if (hasManifest) score += 14;
+    if (containsAny(fileNames, ['agents.md', 'claude.md', 'cursor', 'codex', 'openclaw', 'mcp'])) { score += 7; badges.push('agent-workflow'); }
+    if (containsAny(fileNames, ['src', 'app', 'server', 'package.json', 'pyproject.toml', 'go.mod'])) { score += 6; badges.push('implementation'); }
+
+    const readmeItem = items.find((item) => typeof item === 'object' && item && String((item as { name?: unknown }).name || '').toLowerCase() === 'readme.md') as { download_url?: string; content?: string } | undefined;
+    let readme = '';
+    if (readmeItem?.content) readme = textFromBase64(readmeItem.content);
+    else if (readmeItem?.download_url) {
+      const readmeResponse = await requestFetch(readmeItem.download_url, { headers: { 'user-agent': 'agent-buildprint-submission-scan' } });
+      if (readmeResponse.ok) readme = (await readmeResponse.text()).slice(0, 80_000);
+    }
+    const scanText = `${input.owner} ${input.repo} ${input.sourcePath} ${repo.description || ''} ${readme}`.toLowerCase();
+    const seriousSafety = [
+      /-----begin (rsa |open)?private key-----/i,
+      /gh[pousr]_[a-z0-9_]{30,}/i,
+      /sk-[a-z0-9]{32,}/i,
+      /aws_secret_access_key/i,
+      /curl\s+[^|\n]+\|\s*(sudo\s+)?(bash|sh)/i,
+      /wget\s+[^|\n]+\|\s*(sudo\s+)?(bash|sh)/i,
+      /xmrig|cryptominer|walletsteal|token grabber/i,
+    ];
+    const softSafety = ['phishing', 'credential harvester', 'free nitro', 'crack serial', 'malware'];
+    if (seriousSafety.some((pattern) => pattern.test(readme))) {
+      return { scanStatus: 'failed' as const, scanSummary: 'Submitted but hidden from discovery: scanner found secrets-looking text or unsafe install patterns.', scanScore: Math.max(0, score - 55), discoveryTier: 'hidden' as const, badges: unique([...badges, 'security-review']) };
+    }
+    if (containsAny(scanText, softSafety)) { score -= 24; badges.push('needs-review'); notes.push('safety language'); }
+    if (/official|admin|anthropic|openai|github|microsoft/.test(`${input.owner}/${input.repo}`.toLowerCase()) && repo.owner?.type !== 'Organization') {
+      score -= 12;
+      badges.push('needs-review');
+      notes.push('possible impersonation wording');
+    }
+
     if (hasEntrypoint && hasManifest) {
       badges.push('complete-files');
       if (names.has('package.json') || names.has('buildprint.json')) badges.push('runnable-candidate');
-      return { scanStatus: 'passed' as const, scanSummary: 'Published instantly. Scanner found Buildprint entrypoint and package metadata.', badges };
+      const finalScore = Math.max(0, Math.min(100, score));
+      return { scanStatus: finalScore >= 55 ? 'passed' as const : 'warning' as const, scanSummary: finalScore >= 55 ? 'Published with normal discovery. Scanner found Buildprint files, repo context, and no high-risk signals.' : `Published with limited discovery. ${notes.join('; ') || 'Scanner wants more repo context.'}`, scanScore: finalScore, discoveryTier: finalScore >= 55 ? 'normal' as const : 'limited' as const, badges: unique(badges) };
     }
-    if (hasEntrypoint) return { scanStatus: 'warning' as const, scanSummary: 'Published instantly. Scanner found BUILDPRINT.md but package metadata may be missing.', badges };
-    return { scanStatus: 'warning' as const, scanSummary: 'Published instantly as Community. This looks like a normal GitHub project; use Mapper OS if it still needs Buildprint files.', badges };
+    if (hasEntrypoint) return { scanStatus: 'warning' as const, scanSummary: 'Published with limited discovery. Scanner found BUILDPRINT.md but package metadata may be missing.', scanScore: Math.max(20, Math.min(70, score)), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
+    return { scanStatus: 'warning' as const, scanSummary: 'Published with limited discovery. This looks like a normal GitHub project; run Mapper OS if it still needs Buildprint files.', scanScore: Math.max(10, Math.min(55, score)), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
   } catch {
-    return { scanStatus: 'warning' as const, scanSummary: 'Published instantly. Scanner could not complete; retry/review later.', badges };
+    return { scanStatus: 'warning' as const, scanSummary: 'Published with limited discovery. Scanner could not complete; retry/review later.', scanScore: Math.max(10, Math.min(45, score)), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
   }
 }
 
