@@ -153,13 +153,12 @@ const categoryIcon = (category: string, haystack = '') => {
                   <h3>{bp.title}</h3>
                   <p>{bp.summary}</p>
                   <div class="registry-hf-meta" aria-label="Buildprint facts">
+                    <span class="registry-hf-updated" title="Latest update">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 7.3a6.7 6.7 0 0 1 10.5 1.2"/><path d="M18.1 4.9v3.9h-3.9"/><path d="M16.8 16.7A6.7 6.7 0 0 1 6.3 15.5"/><path d="M5.9 19.1v-3.9h3.9"/></svg>
+                      Updated <b>{updatedLabel(bp.updatedAt)}</b>
+                    </span>
                     <span class="registry-hf-type-meta" title={bp.category} aria-label={`${bp.category} type`}>
                       <span class="registry-hf-meta-icon" set:html={categoryIcon(bp.category, `${bp.slug} ${bp.title} ${bp.summary}`)} />
-                      <b>{bp.category}</b>
-                    </span>
-                    <span title="Latest update">
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 7.3a6.7 6.7 0 0 1 10.5 1.2"/><path d="M18.1 4.9v3.9h-3.9"/><path d="M16.8 16.7A6.7 6.7 0 0 1 6.3 15.5"/><path d="M5.9 19.1v-3.9h3.9"/></svg>
-                      <b>{updatedLabel(bp.updatedAt)}</b>
                     </span>
                     <span title="Views">
                       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.4-6 9.2-6 9.2 6 9.2 6-3.4 6-9.2 6-9.2-6-9.2-6Z"/><circle cx="12" cy="12" r="2.7"/></svg>

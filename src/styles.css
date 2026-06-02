@@ -3658,7 +3658,8 @@ body { background: var(--bg); }
 .registry-hf-row h3 { margin:1px 0 4px; font-size:20px; letter-spacing:-.025em; }
 .registry-hf-row p { margin:0; font-size:14px; line-height:1.5; }
 .registry-hf-meta { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:12px; margin-top:12px; color:color-mix(in srgb, var(--muted) 86%, transparent); font-size:11px; line-height:1; }
-.registry-hf-type-meta { margin-right:auto; color:color-mix(in srgb, var(--muted) 82%, transparent); }
+.registry-hf-updated { margin-right:auto; }
+.registry-hf-type-meta { color:color-mix(in srgb, var(--muted) 82%, transparent); }
 .registry-hf-meta span { display:inline-flex; align-items:center; gap:4px; font-weight:700; white-space:nowrap; }
 .registry-hf-meta svg { width:12px; height:12px; flex:0 0 auto; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; opacity:.72; }
 .registry-hf-meta-icon { display:inline-flex; align-items:center; justify-content:center; color:var(--accent); opacity:.74; }
