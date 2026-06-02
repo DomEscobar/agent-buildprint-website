@@ -67,6 +67,24 @@ const packageTextChars = packageFileTexts.reduce((sum, text) => sum + text.lengt
 const estimatedContextTokens = Math.ceil((packageTextChars + bp.copyPrompt.length + JSON.stringify(manifest).length) / 4) + 1500;
 const estimatedContextLabel = `~${compactNumber.format(estimatedContextTokens)} tokens`;
 const estimatedContextTier = estimatedContextTokens < 20000 ? 'Small context' : estimatedContextTokens < 80000 ? 'Medium context' : estimatedContextTokens < 200000 ? 'Large context' : 'Huge context';
+const badgeIcon = (badge: string) => {
+  const key = badge.toLowerCase();
+  if (['official', 'verified', 'buildprint-ready', 'runnable'].includes(key)) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.2 4.2L19 6.8"/></svg>';
+  if (key.includes('context') || key.includes('tokens')) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7.5h15"/><path d="M4.5 12h15"/><path d="M4.5 16.5h10"/></svg>';
+  if (key.includes('agent') || key.includes('workflow')) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8.2h8v7.6H8z"/><path d="M12 3.8v3.4"/><path d="M12 16.8v3.4"/><path d="M4.2 12h2.9"/><path d="M16.9 12h2.9"/></svg>';
+  if (key.includes('updated')) return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 7.3a6.7 6.7 0 0 1 10.5 1.2"/><path d="M18.1 4.9v3.9h-3.9"/><path d="M16.8 16.7A6.7 6.7 0 0 1 6.3 15.5"/><path d="M5.9 19.1v-3.9h3.9"/></svg>';
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7.5"/><path d="M12 8v4l2.8 2"/></svg>';
+};
+const packageFileNames = new Set(bp.files.map((file) => file.path.toLowerCase()));
+const detailSearchText = `${bp.slug} ${bp.title} ${bp.summary} ${bp.runtime.join(' ')} ${bp.stack.join(' ')}`.toLowerCase();
+const detailBadges = [
+  'Official',
+  'Buildprint-ready',
+  hasRunArtifact || packageFileNames.has('package.json') || packageFileNames.has('buildprint.json') ? 'Runnable' : null,
+  detailSearchText.includes('agent') || detailSearchText.includes('openclaw') || detailSearchText.includes('codex') || detailSearchText.includes('mcp') || packageFileNames.has('agents.md') || packageFileNames.has('claude.md') ? 'Agent workflow' : null,
+  estimatedContextTier,
+  'Recently updated',
+].filter(Boolean) as string[];
 const readmeText = await buildprintFileText(bp.slug, 'README.md');
 const markdown = new MarkdownIt({
   html: false,
@@ -98,6 +116,9 @@ const readmeHtml = markdown.render(readmeText || description);
             <h1>{bp.title}</h1>
             <p class="artifact-summary">{description}</p>
           </div>
+        </div>
+        <div class="readme-detail-badges" aria-label="Buildprint badges">
+          {detailBadges.map((badge) => <span class="submission-badge"><span set:html={badgeIcon(badge)} />{badge}</span>)}
         </div>
         <div class="readme-hero-meta" data-detail-engagement data-slug={bp.slug}>
           <span class="readme-meta-chip readme-meta-type" title={bp.category}>

@@ -63,8 +63,7 @@ const cards = await Promise.all(buildprints.map(async (bp) => {
   const type = useCaseType(bp);
   const trust = 'Official';
   const signals = signalFor(bp, bootstrapReady, hasRuns);
-  const cardBadges = [trust, signals.includes('Buildprint-ready') ? 'Buildprint-ready' : null, signals.includes('Runnable') ? 'Runnable' : null, context.tier].filter(Boolean) as string[];
-  return { bp, source, entrypoint, hasRuns, bootstrapReady, context, type, trust, signals, cardBadges };
+  return { bp, source, entrypoint, hasRuns, bootstrapReady, context, type, trust, signals };
 }));
 const recentCards = [...cards].sort((a, b) => new Date(b.bp.updatedAt ?? 0).getTime() - new Date(a.bp.updatedAt ?? 0).getTime());
 const sourceCount = new Set(cards.map((card) => card.source.repo)).size;
@@ -195,7 +194,7 @@ const categoryIcon = (category: string, haystack = '') => {
 
         <div class="registry-hf-list" role="list" data-registry-list>
           <div class="community-submissions-slot" data-community-submissions></div>
-          {recentCards.map(({ bp, source, entrypoint, context, type, trust, signals, cardBadges }) => (
+          {recentCards.map(({ bp, source, entrypoint, context, type, trust, signals }) => (
             <a
               class="registry-hf-row"
               href={`/buildprints/${bp.slug}/`}
@@ -212,13 +211,13 @@ const categoryIcon = (category: string, haystack = '') => {
               data-views="0"
               data-stars="0"
             >
+              <span class="registry-card-trust-badge submission-badge" title={`${trust} Buildprint`} aria-label={`${trust} Buildprint`}>
+                <span set:html={badgeIcon(trust)} />{trust}
+              </span>
               <div class="registry-hf-row-main">
                 <div>
                   <h3>{bp.title}</h3>
                   <p>{bp.summary}</p>
-                  <div class="registry-card-badges" aria-label="Buildprint badges">
-                    {cardBadges.map((badge) => <span class="submission-badge"><span set:html={badgeIcon(badge)} />{badge}</span>)}
-                  </div>
                   <div class="registry-hf-meta" aria-label="Buildprint facts">
                     <span class="registry-hf-updated" title="Latest update">
                       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 7.3a6.7 6.7 0 0 1 10.5 1.2"/><path d="M18.1 4.9v3.9h-3.9"/><path d="M16.8 16.7A6.7 6.7 0 0 1 6.3 15.5"/><path d="M5.9 19.1v-3.9h3.9"/></svg>
@@ -350,11 +349,11 @@ const categoryIcon = (category: string, haystack = '') => {
       if (!communitySlot || !submissions.length) return;
       communitySlot.innerHTML = submissions.map((submission) => `
         <a class="registry-hf-row registry-community-row" href="${escapeHtml(submission.normalizedGithubUrl || submission.githubUrl)}" target="_blank" rel="noreferrer" role="listitem" data-trust="Community" data-type="Community" data-context="" data-signals="Community" data-search="${escapeHtml(`${submission.title} ${submission.owner}/${submission.repo} ${submission.githubUrl} community ${submission.trustBadge || ''} ${submission.scanStatus || ''} ${submission.badges?.join(' ')}`.toLowerCase())}" data-featured="9000" data-updated="${Date.parse(submission.updatedAt || submission.createdAt || '') || 0}" data-views="0" data-stars="0">
+          <span class="registry-card-trust-badge submission-badge" title="Community submission" aria-label="Community submission type"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 6.2a4.8 4.8 0 0 1 6.8 0l3.8 3.8a4.8 4.8 0 0 1-6.8 6.8l-1.1-1.1"/><path d="M12.8 17.8a4.8 4.8 0 0 1-6.8 0L4.2 16a4.8 4.8 0 0 1 6.8-6.8l1.1 1.1"/><path d="M8.8 15.2l6.4-6.4"/></svg>Community</span>
           <div class="registry-hf-row-main">
             <div>
               <h3>${escapeHtml(submission.title || submission.repo)}</h3>
               <p>${escapeHtml(submission.owner)}/${escapeHtml(submission.repo)}${submission.sourcePath ? `/${escapeHtml(submission.sourcePath)}` : ''}</p>
-              <div class="profile-submission-badges"><span class="submission-badge" title="Community submission" aria-label="Community submission type"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 6.2a4.8 4.8 0 0 1 6.8 0l3.8 3.8a4.8 4.8 0 0 1-6.8 6.8l-1.1-1.1"/><path d="M12.8 17.8a4.8 4.8 0 0 1-6.8 0L4.2 16a4.8 4.8 0 0 1 6.8-6.8l1.1 1.1"/><path d="M8.8 15.2l6.4-6.4"/></svg>Community</span>${badgeHtml(submission)} <span class="submission-badge submission-badge-${escapeHtml(submission.scanStatus)}">${badgeIcon(submission.scanStatus)}${escapeHtml(submission.scanStatus)}</span><span class="submission-badge">${badgeIcon('score')}${escapeHtml(submission.scanScore)}/100</span></div>
             </div>
           </div>
         </a>`).join('');
