@@ -45,16 +45,17 @@ export type BuildprintPublication = {
   architectureFlow?: string[];
   howToUse?: Array<{ title: string; detail: string }>;
   resultChecklist?: string[];
-  copyPrompt: string;
+  copyPrompt?: string;
   originGithubUrl?: string;
   originLabel?: string;
   publish?: boolean;
   fileExcludes?: string[];
 };
-export type Buildprint = Omit<BuildprintPublication, 'schema' | 'publish' | 'fileExcludes'> & {
+export type Buildprint = Omit<BuildprintPublication, 'schema' | 'publish' | 'fileExcludes' | 'copyPrompt'> & {
   files: BuildprintFile[];
   githubUrl: string;
   rawBaseUrl: string;
+  copyPrompt: string;
 };
 
 export const repoUrl = 'https://github.com/DomEscobar/agent-buildprint';
@@ -113,10 +114,10 @@ function isOptional(file: string) {
   return file.startsWith('schemas/') || file.startsWith('policies/');
 }
 
-function localPublicationFiles() {
+function localBuildprintSlugs() {
   if (!fs.existsSync(buildprintsRoot)) return null;
   return fs.readdirSync(buildprintsRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && fs.existsSync(path.join(buildprintsRoot, entry.name, 'publication.json')))
+    .filter((entry) => entry.isDirectory() && fs.existsSync(path.join(buildprintsRoot, entry.name, 'BUILDPRINT.md')))
     .map((entry) => entry.name)
     .sort();
 }
@@ -126,7 +127,11 @@ function localTrackedFiles(slug: string) {
   try {
     const prefix = `buildprints/${slug}/`;
     const output = execFileSync('git', ['-C', root, 'ls-files', '--cached', '--others', '--exclude-standard', prefix], { encoding: 'utf8' }).trim();
-    if (output) return output.split(/\r?\n/).map((file) => file.slice(prefix.length)).filter(Boolean).sort((a, b) => a.localeCompare(b));
+    if (output) return output.split(/\r?\n/)
+      .map((file) => file.slice(prefix.length))
+      .filter(Boolean)
+      .filter((file) => fs.existsSync(path.join(buildprintsRoot, slug, file)))
+      .sort((a, b) => a.localeCompare(b));
   } catch {
     // Fall back to filesystem walk outside Git checkouts.
   }
@@ -173,57 +178,221 @@ async function githubUpdatedAt(slug: string) {
   return commits[0]?.commit?.committer?.date;
 }
 
-async function loadPublication(slug: string): Promise<BuildprintPublication> {
-  const localPath = path.join(buildprintsRoot, slug, 'publication.json');
-  if (fs.existsSync(localPath)) return JSON.parse(fs.readFileSync(localPath, 'utf8'));
-  return fetchJson<BuildprintPublication>(`${rawSourceRoot}/${slug}/publication.json`);
+
+async function fetchOptionalJson<T>(url: string): Promise<T | null> {
+  const response = await fetch(url);
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.status}`);
+  return response.json() as Promise<T>;
 }
 
-async function loadSourceRecords() {
-  const localSlugs = localPublicationFiles();
+async function fetchOptionalText(url: string): Promise<string> {
+  const response = await fetch(url);
+  if (!response.ok) return '';
+  return response.text();
+}
+
+function localText(slug: string, file: string) {
+  const localPath = path.join(buildprintsRoot, slug, normalizePath(file));
+  return fs.existsSync(localPath) ? fs.readFileSync(localPath, 'utf8') : '';
+}
+
+function stripMarkdownInline(text: string) {
+  return text
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1')
+    .replace(/[*_#>]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function firstHeading(text: string) {
+  const heading = text.match(/^#\s+(.+)$/m)?.[1]?.trim() ?? '';
+  return stripMarkdownInline(heading.replace(/^BUILDPRINT:\s*/i, ''));
+}
+
+function firstParagraph(text: string) {
+  return stripMarkdownInline(text
+    .split(/\n\s*\n/)
+    .map((block) => block.trim())
+    .find((block) => block && !block.startsWith('#') && !block.startsWith('```')) ?? '');
+}
+
+function yamlScalar(text: string, key: string) {
+  const match = text.match(new RegExp(`^${key}:\\s*(.+)$`, 'mi'));
+  return match?.[1]?.trim().replace(/^['\"]|['\"]$/g, '');
+}
+
+function yamlBlockScalars(text: string, key: string) {
+  const lines = text.split(/\r?\n/);
+  const start = lines.findIndex((line) => new RegExp(`^${key}:\\s*$`, 'i').test(line));
+  if (start < 0) return [];
+  const values: string[] = [];
+  for (const line of lines.slice(start + 1)) {
+    if (/^\S/.test(line)) break;
+    const item = line.match(/^\s+-\s+(.+)$/)?.[1]?.trim();
+    if (item) values.push(item.replace(/^['\"]|['\"]$/g, ''));
+  }
+  return values;
+}
+
+function originFromBlueprint(blueprint: string) {
+  return yamlScalar(blueprint, 'originGithubUrl')
+    ?? yamlScalar(blueprint, 'origin_github_url')
+    ?? yamlScalar(blueprint, 'source_github_url')
+    ?? yamlScalar(blueprint, 'github_url')
+    ?? blueprint.match(/https:\/\/github\.com\/[^\s)\]"']+/)?.[0]?.replace(/[.,;]+$/, '');
+}
+
+function labelFromGithub(url?: string) {
+  const match = url?.match(/github\.com\/([^/]+\/[^/#?]+)/);
+  return match?.[1]?.replace(/\.git$/, '');
+}
+
+function hasFile(files: string[], file: string) {
+  return files.includes(file);
+}
+
+function firstPhaseFile(files: string[]) {
+  return files.find((file) => /^03-phases\/\d{2}-.+\.md$/.test(file));
+}
+
+function packetShape(files: string[]) {
+  const isCapabilityPacket = hasFile(files, 'START_HERE.md') && hasFile(files, 'blueprint.yaml');
+  const isExecutableBlueprint = hasFile(files, '01-questions.md') && hasFile(files, '02-project-setup.md') && hasFile(files, 'blueprint.yaml') && hasFile(files, '03-phases/phase-index.yaml');
+  const firstPhase = firstPhaseFile(files);
+  const readOrder = (isCapabilityPacket
+    ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml', '02-context/context-map.yaml', 'PRE_IMPLEMENTATION_QUESTIONS.md', '02-context/team-stack.yaml', '02-context/ux-contract.md', '02-context/design-quality-bar.md']
+    : isExecutableBlueprint
+      ? ['BUILDPRINT.md', '01-questions.md', '02-project-setup.md', 'blueprint.yaml', '03-phases/phase-index.yaml', firstPhase, '04-review.md', '05-handover.md'].filter((file): file is string => Boolean(file))
+      : ['BUILDPRINT.md']).filter((file) => hasFile(files, file));
+  const canonicalStart = isCapabilityPacket ? 'START_HERE.md' : 'BUILDPRINT.md';
+  const instructionRule = isCapabilityPacket
+    ? 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the compatibility bootstrap, then START_HERE.md and blueprint.yaml route the executable packet. Load only the active capability packet named by the router/context map; do not read unrelated capability packets upfront.'
+    : isExecutableBlueprint
+      ? 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the canonical execution authority. Complete 01-questions.md and 02-project-setup.md before phase work; blueprint.yaml and other structured files are machine-readable mirrors/routers, not competing instructions.'
+      : 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the canonical start file and owns the required read order, phase gates, and acceptance gates. Structured control files are machine-readable mirrors only.';
+  return { isCapabilityPacket, isExecutableBlueprint, canonicalStart, readOrder, instructionRule };
+}
+
+function uniformAgentPrompt(bp: Pick<Buildprint, 'slug' | 'title' | 'files'>) {
+  const urls = {
+    agent: `${siteBase}/buildprints/${bp.slug}/agent.md`,
+    manifest: `${siteBase}/buildprints/${bp.slug}/package.json`,
+  };
+  const shape = packetShape(bp.files.map((file) => file.path));
+  const formattedReadOrder = shape.readOrder.map((file) => `\`${file}\``).join(' -> ');
+  return `Use the Agent Buildprint at ${urls.agent}.
+
+Fetch ${urls.manifest}.
+Read order: ${formattedReadOrder}.
+${shape.instructionRule}
+Follow alignment/question rules before implementation.
+Do not scrape human UI cards.
+
+First bootstrap exact snapshots: agb start ${urls.manifest} .
+If agb is not installed, clone https://github.com/DomEscobar/agent-buildprint and run node agent-buildprint/bin/agb.js start ${urls.manifest} .
+Then read .buildprint/next-agent.md and continue. Do not write Buildprint snapshots manually.
+
+If the Buildprint requires it, finish with a chat handover summarizing outcome, evidence, known gaps, and recommended next direction.`;
+}
+
+async function loadPublication(slug: string): Promise<Partial<BuildprintPublication> | null> {
+  const localPath = path.join(buildprintsRoot, slug, 'publication.json');
+  if (fs.existsSync(localPath)) return JSON.parse(fs.readFileSync(localPath, 'utf8'));
+  return fetchOptionalJson<BuildprintPublication>(`${rawSourceRoot}/${slug}/publication.json`);
+}
+
+type SourceRecord = {
+  slug: string;
+  publication: Partial<BuildprintPublication> | null;
+  files: string[];
+  readme: string;
+  buildprint: string;
+  blueprint: string;
+};
+
+async function loadSourceRecords(): Promise<SourceRecord[]> {
+  const localSlugs = localBuildprintSlugs();
   if (localSlugs) {
     return Promise.all(localSlugs.map(async (slug) => ({
+      slug,
       publication: await loadPublication(slug),
       files: localTrackedFiles(slug),
+      readme: localText(slug, 'README.md'),
+      buildprint: localText(slug, 'BUILDPRINT.md'),
+      blueprint: localText(slug, 'blueprint.yaml'),
     })));
   }
 
   const treeFiles = await githubTreeFiles();
   const slugs = [...new Set(treeFiles
-    .map((file) => file.match(/^buildprints\/([^/]+)\/publication\.json$/)?.[1])
+    .map((file) => file.match(/^buildprints\/([^/]+)\/BUILDPRINT\.md$/)?.[1])
     .filter(Boolean) as string[])]
     .sort();
-  return Promise.all(slugs.map(async (slug) => {
-    const publication = await loadPublication(slug);
-    return {
-      publication: {
-        ...publication,
-        updatedAt: publication.updatedAt ?? await githubUpdatedAt(slug),
-      },
-      files: treeFiles
-        .filter((file) => file.startsWith(`buildprints/${slug}/`))
-        .map((file) => file.slice(`buildprints/${slug}/`.length))
-        .sort((a, b) => a.localeCompare(b)),
-    };
-  }));
+  return Promise.all(slugs.map(async (slug) => ({
+    slug,
+    publication: await loadPublication(slug),
+    files: treeFiles
+      .filter((file) => file.startsWith(`buildprints/${slug}/`))
+      .map((file) => file.slice(`buildprints/${slug}/`.length))
+      .sort((a, b) => a.localeCompare(b)),
+    readme: await fetchOptionalText(`${rawSourceRoot}/${slug}/README.md`),
+    buildprint: await fetchOptionalText(`${rawSourceRoot}/${slug}/BUILDPRINT.md`),
+    blueprint: await fetchOptionalText(`${rawSourceRoot}/${slug}/blueprint.yaml`),
+  })));
 }
 
-function normalizePublication(record: { publication: BuildprintPublication; files: string[] }): Buildprint | null {
-  const publication = record.publication;
+function normalizePublication(record: SourceRecord): Buildprint | null {
+  const publication = record.publication ?? {};
   if (publication.publish === false) return null;
-  if (publication.schema !== publicationSchema) throw new Error(`${publication.slug}: invalid publication schema ${publication.schema}`);
+  if (publication.schema && publication.schema !== publicationSchema) throw new Error(`${record.slug}: invalid publication schema ${publication.schema}`);
   const excludes = new Set((publication.fileExcludes ?? []).map(normalizePath));
-  const files = record.files
-    .map(normalizePath)
-    .filter((file) => !excludes.has(file))
-    .map((file) => ({ path: file, purpose: filePurpose(file), required: !isOptional(file) }));
-  return {
-    ...publication,
-    updatedAt: publication.updatedAt ?? localUpdatedAt(publication.slug),
+  const fileList = record.files.map(normalizePath).filter((file) => !excludes.has(file));
+  const files = fileList.map((file) => ({ path: file, purpose: filePurpose(file), required: !isOptional(file) }));
+  const title = publication.title || firstHeading(record.readme) || firstHeading(record.buildprint) || record.slug.split('-').map((part) => part[0]?.toUpperCase() + part.slice(1)).join(' ');
+  const originGithubUrl = publication.originGithubUrl ?? originFromBlueprint(record.blueprint);
+  const summary = publication.summary || firstParagraph(record.readme) || firstParagraph(record.buildprint) || `${title} Agent Buildprint.`;
+  const runtime = publication.runtime?.length ? publication.runtime : (yamlBlockScalars(record.blueprint, 'runtime').length ? yamlBlockScalars(record.blueprint, 'runtime') : ['Executable Buildprint packet']);
+  const stack = publication.stack?.length ? publication.stack : (yamlBlockScalars(record.blueprint, 'stack').length ? yamlBlockScalars(record.blueprint, 'stack') : ['BUILDPRINT.md', 'blueprint.yaml', 'raw package files'].filter((file) => fileList.includes(file)));
+  const category = publication.category ?? (originGithubUrl ? 'Mapped Project' : yamlScalar(record.blueprint, 'primary') === 'product' ? 'Product OS' : 'Framework / Architecture');
+  const normalized: Buildprint = {
+    slug: publication.slug ?? record.slug,
+    title,
+    creator: publication.creator ?? 'Agent Buildprint',
+    category: category as BuildprintCategory,
+    tier: publication.tier ?? 'agent-grade',
+    status: publication.status ?? 'validated',
+    runtime,
+    stack,
+    iconKeys: publication.iconKeys,
+    difficulty: publication.difficulty ?? 'Advanced',
+    featured: publication.featured,
+    summary,
+    promise: publication.promise ?? summary,
+    includes: publication.includes ?? fileList.filter((file) => ['README.md', 'BUILDPRINT.md', '01-questions.md', '02-project-setup.md', 'blueprint.yaml', '04-review.md', '05-handover.md'].includes(file) || file.startsWith('03-phases/')).slice(0, 14),
+    risks: publication.risks ?? ['Dead controls or placeholder UX presented as complete', 'Provider/runtime blockers hidden behind canned output', 'Source scope silently narrowed during implementation'],
+    checks: publication.checks ?? ['Bootstrap exact snapshots with agb start', 'Run packet/build/test checks required by the Buildprint', 'Inspect the implemented product path directly', 'Finish with honest blocker/evidence handover'],
+    trustBadges: publication.trustBadges,
+    publicStatus: publication.publicStatus,
+    updatedAt: publication.updatedAt ?? localUpdatedAt(record.slug),
+    visualRun: publication.visualRun,
+    proofUrl: publication.proofUrl,
+    plainDescription: publication.plainDescription || summary,
+    whatYouGet: publication.whatYouGet,
+    whatYouNeed: publication.whatYouNeed,
+    architectureFlow: publication.architectureFlow,
+    howToUse: publication.howToUse,
+    resultChecklist: publication.resultChecklist,
+    originGithubUrl,
+    originLabel: publication.originLabel ?? labelFromGithub(originGithubUrl),
     files,
-    githubUrl: publication.originGithubUrl ?? `${repoUrl}/tree/main/buildprints/${publication.slug}`,
-    rawBaseUrl: `${siteBase}/buildprints/${publication.slug}/files`,
+    githubUrl: originGithubUrl ?? `${repoUrl}/tree/main/buildprints/${record.slug}`,
+    rawBaseUrl: `${siteBase}/buildprints/${record.slug}/files`,
+    copyPrompt: '',
   };
+  normalized.copyPrompt = uniformAgentPrompt(normalized);
+  return normalized;
 }
 
 export const buildprints = (await loadSourceRecords())
@@ -267,21 +436,7 @@ export function buildprintUrls(bp: Buildprint) {
 
 export function packageManifest(bp: Buildprint) {
   const urls = buildprintUrls(bp);
-  const hasFile = (file: string) => bp.files.some((item) => item.path === file);
-  const isCapabilityPacket = hasFile('START_HERE.md') && hasFile('blueprint.yaml');
-  const isExecutableBlueprint = hasFile('01-questions.md') && hasFile('02-project-setup.md') && hasFile('blueprint.yaml') && hasFile('03-phases/phase-index.yaml');
-  const firstPhase = bp.files.map((item) => item.path).find((file) => /^03-phases\/\d{2}-.+\.md$/.test(file));
-  const readOrder = (isCapabilityPacket
-    ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml', '02-context/context-map.yaml', 'PRE_IMPLEMENTATION_QUESTIONS.md', '02-context/team-stack.yaml', '02-context/ux-contract.md', '02-context/design-quality-bar.md']
-    : isExecutableBlueprint
-      ? ['BUILDPRINT.md', '01-questions.md', '02-project-setup.md', 'blueprint.yaml', '03-phases/phase-index.yaml', firstPhase, '04-review.md', '05-handover.md'].filter((file): file is string => Boolean(file))
-      : ['BUILDPRINT.md']).filter(hasFile);
-  const canonicalStart = isCapabilityPacket ? 'START_HERE.md' : 'BUILDPRINT.md';
-  const instructionRule = isCapabilityPacket
-    ? 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the compatibility bootstrap, then START_HERE.md and blueprint.yaml route the executable packet. Load only the active capability packet named by the router/context map; do not read unrelated capability packets upfront.'
-    : isExecutableBlueprint
-      ? 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the canonical execution authority. Complete 01-questions.md and 02-project-setup.md before phase work; blueprint.yaml and other structured files are machine-readable mirrors/routers, not competing instructions.'
-      : 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the canonical start file and owns the required read order, phase gates, and acceptance gates. Structured control files are machine-readable mirrors only.';
+  const { canonicalStart, readOrder, instructionRule } = packetShape(bp.files.map((item) => item.path));
   return {
     schema: `${siteBase}/schemas/buildprint-package.v1.json`,
     slug: bp.slug,

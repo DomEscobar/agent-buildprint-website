@@ -49,24 +49,20 @@ for (const slug of slugs) {
   if (!files.includes('BUILDPRINT.md')) continue;
 
   const publicationPath = path.join(sourceBuildprints, slug, 'publication.json');
-  if (!fs.existsSync(publicationPath)) {
-    errors.push(`${slug}: missing publication.json`);
-    continue;
-  }
-
-  let publication;
-  try {
-    publication = JSON.parse(fs.readFileSync(publicationPath, 'utf8'));
-  } catch (error) {
-    errors.push(`${slug}: invalid publication.json: ${error.message}`);
-    continue;
+  let publication = {};
+  if (fs.existsSync(publicationPath)) {
+    try {
+      publication = JSON.parse(fs.readFileSync(publicationPath, 'utf8'));
+    } catch (error) {
+      errors.push(`${slug}: invalid publication.json: ${error.message}`);
+      continue;
+    }
   }
 
   if (publication.publish === false) continue;
   published++;
-  if (publication.slug !== slug) errors.push(`${slug}: publication slug is ${publication.slug}`);
-  if (!publication.copyPrompt || typeof publication.copyPrompt !== 'string') errors.push(`${slug}: missing copyPrompt`);
-  if (!files.includes('publication.json')) errors.push(`${slug}: publication.json is not tracked`);
+  if (publication.slug && publication.slug !== slug) errors.push(`${slug}: publication slug is ${publication.slug}`);
+  if (publication.schema && publication.schema !== 'agent-buildprint/publication.v1') errors.push(`${slug}: invalid publication schema ${publication.schema}`);
 
   for (const excluded of publication.fileExcludes ?? []) {
     if (!files.includes(excluded)) errors.push(`${slug}: fileExcludes references missing tracked file ${excluded}`);
@@ -79,4 +75,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Source publication validation passed: ${published} published Buildprint(s). No website source files were rewritten.`);
+console.log(`Source Buildprint validation passed: ${published} published Buildprint(s). No website source files were rewritten.`);

@@ -42,15 +42,7 @@ const runRows = hasRunArtifact ? [
 ] : [];
 const rawEntrypointUrl = `${bp.rawBaseUrl}/${entrypoint}`;
 const promptUrl = `${siteBase}/buildprints/${bp.slug}/prompt.txt`;
-const agentPrompt = `Use the Agent Buildprint at ${siteBase}/buildprints/${bp.slug}/agent.md.
-
-Fetch ${siteBase}/buildprints/${bp.slug}/package.json.
-Read ${entrypoint} first, then follow the package read order.
-Follow alignment/question rules before implementation.
-Do not scrape human UI cards.
-If the Buildprint requires it, finish with a chat handover summarizing outcome, evidence, known gaps, and recommended next direction.
-
-${bp.copyPrompt}`;
+const agentPrompt = bp.copyPrompt;
 
 const typeIcon = categoryIcon(bp.category, `${bp.slug} ${bp.title} ${bp.summary}`);
 const contextEstimate = await contextEstimateFor(bp);
