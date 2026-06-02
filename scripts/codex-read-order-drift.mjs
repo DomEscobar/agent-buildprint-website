@@ -29,22 +29,24 @@ const urls = {
   agent: `${base}/buildprints/${slug}/agent.md`,
   manifest: `${base}/buildprints/${slug}/package.json`,
   readme: `${base}/buildprints/${slug}/files/README.md`,
-  buildprintJson: `${base}/buildprints/${slug}/files/buildprint.json`,
 };
 
 const prompt = fetchText(urls.prompt);
 const agent = fetchText(urls.agent);
 const manifest = JSON.parse(fetchText(urls.manifest));
 const readme = fetchText(urls.readme);
-const buildprintJson = JSON.parse(fetchText(urls.buildprintJson));
 
 save('live-prompt.txt', prompt);
 save('live-agent.md', agent);
 save('live-package.json', JSON.stringify(manifest, null, 2) + '\n');
 save('live-README.md', readme);
-save('live-buildprint.json', JSON.stringify(buildprintJson, null, 2) + '\n');
 
 const hasManifestFile = (path) => manifest.files?.some((file) => file.path === path);
+let buildprintJson = null;
+if (hasManifestFile('buildprint.json')) {
+  buildprintJson = JSON.parse(fetchText(`${base}/buildprints/${slug}/files/buildprint.json`));
+  save('live-buildprint.json', JSON.stringify(buildprintJson, null, 2) + '\n');
+}
 const isCapabilityPacket = hasManifestFile('START_HERE.md') && hasManifestFile('blueprint.yaml');
 const isExecutableBlueprint = hasManifestFile('01-questions.md') && hasManifestFile('02-project-setup.md') && hasManifestFile('blueprint.yaml') && hasManifestFile('03-phases/phase-index.yaml');
 const expectedCanonicalStart = isCapabilityPacket ? 'START_HERE.md' : 'BUILDPRINT.md';
@@ -60,24 +62,30 @@ assert(manifest.files?.some((file) => file.path === 'BUILDPRINT.md'), 'manifest 
 if (isCapabilityPacket) {
   assert(expectedReadOrder.includes('BUILDPRINT.md') && expectedReadOrder.includes('START_HERE.md') && expectedReadOrder.includes('blueprint.yaml'), 'capability packet readOrder includes compatibility bootstrap and router files', { expectedReadOrder });
   assert(readme.includes('START_HERE.md') && readme.includes('blueprint.yaml'), 'README routes capability packet readers to START_HERE.md and blueprint.yaml');
-  assert(buildprintJson.schema === 'agent-buildprint/v2', 'buildprint.json declares executable packet v2 schema', { schema: buildprintJson.schema });
-  assert(buildprintJson.packet === 'blueprint.yaml', 'buildprint.json points to blueprint.yaml packet', { packet: buildprintJson.packet });
-  assert(buildprintJson.canonicalStart === 'BUILDPRINT.md', 'buildprint.json keeps BUILDPRINT.md as compatibility bootstrap', { canonicalStart: buildprintJson.canonicalStart });
-  assert(!Object.prototype.hasOwnProperty.call(buildprintJson, 'authority'), 'buildprint.json has no ambiguous authority array');
+  assert(Boolean(buildprintJson), 'capability packet publishes buildprint.json compatibility router');
+  if (buildprintJson) {
+    assert(buildprintJson.schema === 'agent-buildprint/v2', 'buildprint.json declares executable packet v2 schema', { schema: buildprintJson.schema });
+    assert(buildprintJson.packet === 'blueprint.yaml', 'buildprint.json points to blueprint.yaml packet', { packet: buildprintJson.packet });
+    assert(buildprintJson.canonicalStart === 'BUILDPRINT.md', 'buildprint.json keeps BUILDPRINT.md as compatibility bootstrap', { canonicalStart: buildprintJson.canonicalStart });
+    assert(!Object.prototype.hasOwnProperty.call(buildprintJson, 'authority'), 'buildprint.json has no ambiguous authority array');
+  }
 } else if (isExecutableBlueprint) {
   assert(expectedReadOrder.includes('BUILDPRINT.md') && expectedReadOrder.includes('01-questions.md') && expectedReadOrder.includes('02-project-setup.md') && expectedReadOrder.includes('03-phases/phase-index.yaml'), 'executable-blueprint readOrder includes setup gate and phase router', { expectedReadOrder });
-  assert(readme.includes('This README is only a package overview') && readme.includes('BUILDPRINT.md') && !readme.includes('## V2 Read Order'), 'README does not contain a competing V2 read-order list');
-  assert(buildprintJson.schemaVersion === 'mapper-os/executable-blueprint', 'buildprint.json declares executable-blueprint schema', { schemaVersion: buildprintJson.schemaVersion });
-  assert(buildprintJson.canonicalStart === 'BUILDPRINT.md', 'buildprint.json canonicalStart is BUILDPRINT.md');
-  assert(buildprintJson.authoritySpine === 'BUILDPRINT.md', 'buildprint.json uses authoritySpine instead of co-equal authority list', { authoritySpine: buildprintJson.authoritySpine });
-  assert(!Object.prototype.hasOwnProperty.call(buildprintJson, 'authority'), 'buildprint.json has no ambiguous authority array');
-  assert(Array.isArray(buildprintJson.mirrorFiles) && buildprintJson.mirrorFiles.includes('blueprint.yaml') && buildprintJson.mirrorFiles.includes('03-phases/phase-index.yaml'), 'buildprint.json declares structured files as mirrors');
+  assert(!readme.includes('## V2 Read Order') && !readme.includes('Read files in order:') && !readme.includes('Read the package files in the manifest order'), 'README does not contain a competing read-order list');
+  assert(readme.includes('/agent.md') || readme.includes('agb start'), 'README routes readers through agent guide or manifest bootstrap');
+  assert(!hasManifestFile('buildprint.json'), 'executable-blueprint does not publish legacy buildprint.json router');
+  assert(manifest.instructions?.rule?.includes('BUILDPRINT.md is the canonical execution authority'), 'manifest rule declares BUILDPRINT.md canonical authority');
+  assert(manifest.instructions?.rule?.includes('machine-readable mirrors') || manifest.instructions?.rule?.includes('structured files are machine-readable mirrors'), 'manifest rule declares structured files as mirrors');
 } else {
-  assert(readme.includes('This README is only a package overview') && !readme.includes('## V2 Read Order'), 'README does not contain a competing V2 read-order list');
-  assert(buildprintJson.canonicalStart === 'BUILDPRINT.md', 'buildprint.json canonicalStart is BUILDPRINT.md');
-  assert(buildprintJson.authoritySpine === 'BUILDPRINT.md', 'buildprint.json uses authoritySpine instead of co-equal authority list', { authoritySpine: buildprintJson.authoritySpine });
-  assert(!Object.prototype.hasOwnProperty.call(buildprintJson, 'authority'), 'buildprint.json has no ambiguous authority array');
-  assert(Array.isArray(buildprintJson.mirrorFiles) && buildprintJson.mirrorFiles.includes('phases.yaml'), 'buildprint.json declares structured files as mirrors');
+  assert(!readme.includes('## V2 Read Order') && !readme.includes('Read files in order:') && !readme.includes('Read the package files in the manifest order'), 'README does not contain a competing read-order list');
+  if (buildprintJson) {
+    assert(buildprintJson.canonicalStart === 'BUILDPRINT.md', 'buildprint.json canonicalStart is BUILDPRINT.md');
+    assert(buildprintJson.authoritySpine === 'BUILDPRINT.md', 'buildprint.json uses authoritySpine instead of co-equal authority list', { authoritySpine: buildprintJson.authoritySpine });
+    assert(!Object.prototype.hasOwnProperty.call(buildprintJson, 'authority'), 'buildprint.json has no ambiguous authority array');
+    assert(Array.isArray(buildprintJson.mirrorFiles) && buildprintJson.mirrorFiles.includes('phases.yaml'), 'buildprint.json declares structured files as mirrors');
+  } else {
+    assert(manifest.instructions?.canonicalStart === 'BUILDPRINT.md', 'manifest canonicalStart replaces absent buildprint.json router');
+  }
 }
 
 if (runCodex) {
