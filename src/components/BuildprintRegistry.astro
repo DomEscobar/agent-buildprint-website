@@ -1,0 +1,284 @@
+---
+import { buildprints } from '@/lib/buildprints';
+import { buildRegistryModel, updatedLabel } from '@/lib/registry';
+import { categoryIcon, registryBadgeIcon } from '@/lib/icons';
+
+const registry = await buildRegistryModel(buildprints);
+const { cards, recentCards, runnableCount, trustCounts, typeCounts, contextCounts, signalCounts } = registry;
+---
+  <main class="registry-v2 registry-hf">
+    <section class="registry-hf-hero">
+      <div class="container registry-hf-hero-inner">
+        <div>
+          <p class="registry-v2-kicker">Agent Buildprint Registry</p>
+          <h1>Buildprints for coding agents.</h1>
+          <p class="registry-v2-lede">Discover agent-ready Buildprints by category, source, entrypoint, files, and real activity. Free-form packages, factual metadata, no decorative scoring.</p>
+          <div class="registry-hf-hero-actions">
+            <a href="/about/">About</a>
+          </div>
+        </div>
+        <aside class="registry-create-card" aria-label="Submit Buildprint">
+          <div class="registry-create-copy">
+            <span>Submit</span>
+            <h2>Submit Buildprint</h2>
+            <p>Built something reusable? Paste the GitHub URL and submit it to the registry.</p>
+          </div>
+          <div class="registry-create-actions">
+            <a class="registry-create-primary" href="/create/">Submit Buildprint</a>
+          </div>
+          <div class="registry-create-facts" aria-label="Registry facts">
+            <span><b>{buildprints.length}</b> Buildprints</span>
+            <span><b>{runnableCount}</b> copy-ready</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="container registry-hf-shell" id="registry-list">
+      <aside class="registry-hf-sidebar" aria-label="Buildprint filters">
+        <details class="registry-hf-filter-drawer" open>
+          <summary>Filters <span>Search, trust, type, context</span></summary>
+          <div class="registry-hf-filter-body">
+        <div class="registry-hf-filter-card registry-hf-search-card">
+          <label>
+            <span>Search registry</span>
+            <input id="search" placeholder="Search title, source, stack..." />
+          </label>
+        </div>
+
+        <div class="registry-hf-filter-card">
+          <div class="registry-hf-filter-head"><span>Trust</span><button data-filter-reset>Reset</button></div>
+          <button class="registry-hf-filter active" data-filter-group="trust" data-filter-value="all"><span>All trust levels</span><b>{cards.length}</b></button>
+          {trustCounts.map(([trust, count]) => (
+            <button class="registry-hf-filter" data-filter-group="trust" data-filter-value={trust}><span>{trust}</span><b>{count}</b></button>
+          ))}
+        </div>
+
+        <div class="registry-hf-filter-card">
+          <div class="registry-hf-filter-head"><span>Type</span></div>
+          <button class="registry-hf-filter active" data-filter-group="type" data-filter-value="all"><span>All types</span><b>{cards.length}</b></button>
+          {typeCounts.map(([type, count]) => (
+            <button class="registry-hf-filter" data-filter-group="type" data-filter-value={type}><span>{type}</span><b>{count}</b></button>
+          ))}
+        </div>
+
+        <div class="registry-hf-filter-card">
+          <div class="registry-hf-filter-head"><span>Context size</span></div>
+          <button class="registry-hf-filter active" data-filter-group="context" data-filter-value="all"><span>All sizes</span><b>{cards.length}</b></button>
+          {contextCounts.map(([context, count]) => (
+            <button class="registry-hf-filter" data-filter-group="context" data-filter-value={context}><span>{context}</span><b>{count}</b></button>
+          ))}
+        </div>
+
+        <div class="registry-hf-filter-card">
+          <div class="registry-hf-filter-head"><span>Signals</span></div>
+          <button class="registry-hf-filter active" data-filter-group="signal" data-filter-value="all"><span>All signals</span><b>{cards.length}</b></button>
+          {signalCounts.map(([signal, count]) => (
+            <button class="registry-hf-filter" data-filter-group="signal" data-filter-value={signal}><span>{signal}</span><b>{count}</b></button>
+          ))}
+        </div>
+
+        <div class="registry-hf-filter-card registry-create-mini">
+          <strong>Submit Buildprint</strong>
+          <p>Paste a GitHub repo, folder, or Buildprint URL.</p>
+          <a href="/create/">Submit Buildprint</a>
+        </div>
+          </div>
+        </details>
+      </aside>
+
+      <div class="registry-hf-results">
+        <div class="registry-hf-result-head">
+          <div>
+            <span>Explore</span>
+            <h2 id="registrySortTitle">Featured Buildprints</h2>
+          </div>
+          <div class="registry-hf-result-actions">
+            <div class="registry-sort-tabs" aria-label="Sort Buildprints">
+              <button class="active" data-sort="featured">Featured</button>
+              <button data-sort="newest">Newest</button>
+              <button data-sort="views">Most viewed</button>
+              <button data-sort="stars">Most starred</button>
+            </div>
+            <p id="resultCount">Showing {cards.length} Buildprints</p>
+            <a href="/create/">Submit Buildprint</a>
+          </div>
+        </div>
+
+        <div class="registry-hf-list" role="list" data-registry-list>
+          <div class="community-submissions-slot" data-community-submissions></div>
+          {recentCards.map(({ bp, source, entrypoint, context, type, trust, signals }) => (
+            <a
+              class="registry-hf-row"
+              href={`/buildprints/${bp.slug}/`}
+              role="listitem"
+              data-engagement-card
+              data-slug={bp.slug}
+              data-trust={trust}
+              data-type={type}
+              data-context={context.tier}
+              data-signals={signals.join('|')}
+              data-search={`${bp.title} ${bp.summary} ${bp.creator} ${source.repo} ${source.sourcePath} ${entrypoint} ${bp.runtime.join(' ')} ${bp.stack.join(' ')} ${trust} ${type} ${context.tier} ${signals.join(' ')}`.toLowerCase()}
+              data-updated={new Date(bp.updatedAt ?? 0).getTime()}
+              data-featured={cards.findIndex((card) => card.bp.slug === bp.slug)}
+              data-views="0"
+              data-stars="0"
+            >
+              <span class="registry-card-trust-badge submission-badge" title={`${trust} Buildprint`} aria-label={`${trust} Buildprint`}>
+                <span set:html={registryBadgeIcon(trust)} />{trust}
+              </span>
+              <div class="registry-hf-row-main">
+                <div>
+                  <h3>{bp.title}</h3>
+                  <p>{bp.summary}</p>
+                  <div class="registry-hf-meta" aria-label="Buildprint facts">
+                    <span class="registry-hf-updated" title="Latest update">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 7.3a6.7 6.7 0 0 1 10.5 1.2"/><path d="M18.1 4.9v3.9h-3.9"/><path d="M16.8 16.7A6.7 6.7 0 0 1 6.3 15.5"/><path d="M5.9 19.1v-3.9h3.9"/></svg>
+                      Updated <b>{updatedLabel(bp.updatedAt)}</b>
+                    </span>
+                    <span class="registry-hf-type-meta" title={type} aria-label={`${type} type`}>
+                      <span class="registry-hf-meta-icon" set:html={categoryIcon(bp.category, `${bp.slug} ${bp.title} ${bp.summary}`)} />
+                      <b>{type}</b>
+                    </span>
+                    <span title="Estimated first-run package context: derived from package file text length plus manifest and bootstrap overhead">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7.5h15"/><path d="M4.5 12h15"/><path d="M4.5 16.5h10"/></svg>
+                      <span>Est.</span> <b>{context.label}</b>
+                    </span>
+                    <span title="Views">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.4-6 9.2-6 9.2 6 9.2 6-3.4 6-9.2 6-9.2-6-9.2-6Z"/><circle cx="12" cy="12" r="2.7"/></svg>
+                      <b data-card-views>--</b>
+                    </span>
+                    <span title="Likes">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.2s-7.4-4.6-8.7-9.1C2.5 8.2 4.2 5.5 7 5.3c1.7-.1 3.2.8 4 2.1.8-1.3 2.3-2.2 4-2.1 2.8.2 4.5 2.9 3.7 5.8C19.4 15.6 12 20.2 12 20.2Z"/></svg>
+                      <b data-card-likes>--</b>
+                    </span>
+                    <span title="Files">
+                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.8h6.2L18 8.6v11.6H7z"/><path d="M13 3.8v5h5"/><path d="M4.8 6.4v13.8h10.8"/></svg>
+                      <b>{bp.files.length}</b> files
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const search = document.querySelector('#search');
+    const rows = Array.from(document.querySelectorAll('.registry-hf-row'));
+    const count = document.querySelector('#resultCount');
+    const sortTitle = document.querySelector('#registrySortTitle');
+    const list = document.querySelector('[data-registry-list]');
+    const active = { trust: 'all', type: 'all', context: 'all', signal: 'all' };
+    let sortMode = 'featured';
+    const sortTitles = {
+      featured: 'Featured Buildprints',
+      newest: 'Newest Buildprints',
+      views: 'Most viewed Buildprints',
+      stars: 'Most starred Buildprints',
+    };
+
+    function sortRows() {
+      if (!list) return;
+      const sorted = [...rows].sort((a, b) => {
+        if (sortMode === 'newest') return Number(b.dataset.updated || 0) - Number(a.dataset.updated || 0);
+        if (sortMode === 'views') return Number(b.dataset.views || 0) - Number(a.dataset.views || 0);
+        if (sortMode === 'stars') return Number(b.dataset.stars || 0) - Number(a.dataset.stars || 0);
+        return Number(a.dataset.featured || 9999) - Number(b.dataset.featured || 9999);
+      });
+      for (const row of sorted) list.appendChild(row);
+    }
+
+    function apply() {
+      const q = String(search?.value || '').trim().toLowerCase();
+      let visible = 0;
+      for (const row of rows) {
+        const matchesSearch = !q || row.getAttribute('data-search')?.includes(q);
+        const rowSignals = String(row.getAttribute('data-signals') || '').split('|').filter(Boolean);
+        const matchesTrust = active.trust === 'all' || row.getAttribute('data-trust') === active.trust;
+        const matchesType = active.type === 'all' || row.getAttribute('data-type') === active.type;
+        const matchesContext = active.context === 'all' || row.getAttribute('data-context') === active.context;
+        const matchesSignal = active.signal === 'all' || rowSignals.includes(active.signal);
+        const ok = matchesSearch && matchesTrust && matchesType && matchesContext && matchesSignal;
+        row.classList.toggle('hidden', !ok);
+        if (ok) visible += 1;
+      }
+      if (count) count.textContent = `Showing ${visible} Buildprint${visible === 1 ? '' : 's'}`;
+      if (sortTitle) sortTitle.textContent = sortTitles[sortMode] || sortTitles.featured;
+      sortRows();
+    }
+
+    document.querySelectorAll('[data-sort]').forEach((button) => {
+      button.addEventListener('click', () => {
+        sortMode = button.getAttribute('data-sort') || 'featured';
+        document.querySelectorAll('[data-sort]').forEach((item) => item.classList.toggle('active', item === button));
+        apply();
+      });
+    });
+
+    document.querySelectorAll('[data-filter-group][data-filter-value]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const group = button.getAttribute('data-filter-group');
+        const value = button.getAttribute('data-filter-value') || 'all';
+        if (!group) return;
+        active[group] = value;
+        document.querySelectorAll(`[data-filter-group="${group}"]`).forEach((item) => item.classList.toggle('active', item === button));
+        apply();
+      });
+    });
+    document.querySelector('[data-filter-reset]')?.addEventListener('click', () => {
+      active.trust = 'all';
+      active.type = 'all';
+      active.context = 'all';
+      active.signal = 'all';
+      search.value = '';
+      document.querySelectorAll('[data-filter-group]').forEach((item) => item.classList.toggle('active', item.getAttribute('data-filter-value') === 'all'));
+      apply();
+    });
+    search?.addEventListener('input', apply);
+    apply();
+
+    const numberFormat = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+
+    const communitySlot = document.querySelector('[data-community-submissions]');
+    const escapeHtml = (value) => String(value || '').replace(/[&<>"']/g, (char) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+
+    fetch('/api/community-buildprints').then((response) => response.ok ? response.json() : { submissions: [] }).then((payload) => {
+      const submissions = payload.submissions || [];
+      if (!communitySlot || !submissions.length) return;
+      communitySlot.innerHTML = submissions.map((submission) => `
+        <a class="registry-hf-row registry-community-row" href="${escapeHtml(submission.normalizedGithubUrl || submission.githubUrl)}" target="_blank" rel="noreferrer" role="listitem" data-trust="Community" data-type="Community" data-context="" data-signals="Community" data-search="${escapeHtml(`${submission.title} ${submission.owner}/${submission.repo} ${submission.githubUrl} community ${submission.trustBadge || ''} ${submission.scanStatus || ''} ${submission.badges?.join(' ')}`.toLowerCase())}" data-featured="9000" data-updated="${Date.parse(submission.updatedAt || submission.createdAt || '') || 0}" data-views="0" data-stars="0">
+          <span class="registry-card-trust-badge submission-badge" title="Community submission" aria-label="Community submission type"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 6.2a4.8 4.8 0 0 1 6.8 0l3.8 3.8a4.8 4.8 0 0 1-6.8 6.8l-1.1-1.1"/><path d="M12.8 17.8a4.8 4.8 0 0 1-6.8 0L4.2 16a4.8 4.8 0 0 1 6.8-6.8l1.1 1.1"/><path d="M8.8 15.2l6.4-6.4"/></svg>Community</span>
+          <div class="registry-hf-row-main">
+            <div>
+              <h3>${escapeHtml(submission.title || submission.repo)}</h3>
+              <p>${escapeHtml(submission.owner)}/${escapeHtml(submission.repo)}${submission.sourcePath ? `/${escapeHtml(submission.sourcePath)}` : ''}</p>
+            </div>
+          </div>
+        </a>`).join('');
+      rows.push(...Array.from(communitySlot.querySelectorAll('.registry-hf-row')));
+      apply();
+    }).catch(() => {});
+
+    document.querySelectorAll('[data-engagement-card][data-slug]').forEach(async (card) => {
+      const slug = card.getAttribute('data-slug');
+      const views = card.querySelector('[data-card-views]');
+      const likes = card.querySelector('[data-card-likes]');
+      if (!slug || !views || !likes) return;
+      try {
+        const response = await fetch(`/api/buildprints/${encodeURIComponent(slug)}/engagement`);
+        if (!response.ok) throw new Error('engagement_unavailable');
+        const payload = await response.json();
+        card.dataset.views = String(payload.views || 0);
+        card.dataset.stars = String(payload.likes || 0);
+        views.textContent = numberFormat.format(payload.views || 0);
+        likes.textContent = numberFormat.format(payload.likes || 0);
+        sortRows();
+      } catch {
+        views.textContent = '-';
+        likes.textContent = '-';
+      }
+    });
+  </script>
