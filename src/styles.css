@@ -3657,6 +3657,8 @@ body { background: var(--bg); }
 .registry-hf-avatar svg { width:21px; height:21px; fill:none; stroke:currentColor; stroke-width:1.85; stroke-linecap:round; stroke-linejoin:round; }
 .registry-hf-row h3 { margin:1px 0 4px; font-size:20px; letter-spacing:-.025em; }
 .registry-hf-row p { margin:0; font-size:14px; line-height:1.5; }
+.registry-card-badges { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.registry-card-badges .submission-badge { font-size:10px; padding:3px 7px; }
 .registry-hf-meta { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:12px; margin-top:12px; color:color-mix(in srgb, var(--muted) 86%, transparent); font-size:11px; line-height:1; }
 .registry-hf-updated { margin-right:auto; }
 .registry-hf-type-meta { color:color-mix(in srgb, var(--muted) 82%, transparent); }

@@ -61,6 +61,12 @@ const categoryIcon = (category: string, haystack = '') => {
   return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.8v3.1"/><path d="M12 17.1v3.1"/><path d="M3.8 12h3.1"/><path d="M17.1 12h3.1"/><path d="m6.2 6.2 2.2 2.2"/><path d="m15.6 15.6 2.2 2.2"/><path d="m17.8 6.2-2.2 2.2"/><path d="m8.4 15.6-2.2 2.2"/><circle cx="12" cy="12" r="3.5"/></svg>';
 };
 const typeIcon = categoryIcon(bp.category, `${bp.slug} ${bp.title} ${bp.summary}`);
+const compactNumber = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
+const packageFileTexts = await Promise.all(bp.files.map(async (file) => buildprintFileText(bp.slug, file.path)));
+const packageTextChars = packageFileTexts.reduce((sum, text) => sum + text.length, 0);
+const estimatedContextTokens = Math.ceil((packageTextChars + bp.copyPrompt.length + JSON.stringify(manifest).length) / 4) + 1500;
+const estimatedContextLabel = `~${compactNumber.format(estimatedContextTokens)} tokens`;
+const estimatedContextTier = estimatedContextTokens < 20000 ? 'Small context' : estimatedContextTokens < 80000 ? 'Medium context' : estimatedContextTokens < 200000 ? 'Large context' : 'Huge context';
 const readmeText = await buildprintFileText(bp.slug, 'README.md');
 const markdown = new MarkdownIt({
   html: false,
@@ -108,6 +114,12 @@ const readmeHtml = markdown.render(readmeText || description);
             <b data-detail-likes>--</b>
             <span>likes</span>
           </button>
+          <span class="readme-meta-chip" title="Estimated first-run package context: derived from package file text length plus manifest and bootstrap overhead">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7.5h15"/><path d="M4.5 12h15"/><path d="M4.5 16.5h10"/></svg>
+            <span>Est.</span>
+            <b>{estimatedContextLabel}</b>
+            <span>{estimatedContextTier}</span>
+          </span>
           <span class="readme-meta-chip">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.8h6.2L18 8.6v11.6H7z"/><path d="M13 3.8v5h5"/><path d="M4.8 6.4v13.8h10.8"/></svg>
             <b>{bp.files.length}</b>
