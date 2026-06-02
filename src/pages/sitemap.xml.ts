@@ -1,6 +1,6 @@
 import { buildprints, siteBase } from '@/lib/buildprints';
 
-const staticPages = ['/', '/why-buildprints/', '/buildprints/', '/buildprints/submit/', '/llms.txt'];
+const staticPages = ['/', '/about/', '/buildprints/', '/buildprints/submit/', '/llms.txt'];
 const buildprintPages = buildprints.map((bp) => `/buildprints/${bp.slug}/`);
 const urls = [...staticPages, ...buildprintPages];
 
