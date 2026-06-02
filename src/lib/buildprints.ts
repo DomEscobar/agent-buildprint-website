@@ -221,7 +221,7 @@ function normalizePublication(record: { publication: BuildprintPublication; file
     ...publication,
     updatedAt: publication.updatedAt ?? localUpdatedAt(publication.slug),
     files,
-    githubUrl: `${repoUrl}/tree/main/buildprints/${publication.slug}`,
+    githubUrl: publication.originGithubUrl ?? `${repoUrl}/tree/main/buildprints/${publication.slug}`,
     rawBaseUrl: `${siteBase}/buildprints/${publication.slug}/files`,
   };
 }
@@ -274,7 +274,7 @@ export function packageManifest(bp: Buildprint) {
   const readOrder = (isCapabilityPacket
     ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml', '02-context/context-map.yaml', 'PRE_IMPLEMENTATION_QUESTIONS.md', '02-context/team-stack.yaml', '02-context/ux-contract.md', '02-context/design-quality-bar.md']
     : isExecutableBlueprint
-      ? ['BUILDPRINT.md', '01-questions.md', '02-project-setup.md', 'blueprint.yaml', '03-phases/phase-index.yaml', firstPhase, '04-evaluation.md', '05-evidence/evidence-ledger.jsonl'].filter((file): file is string => Boolean(file))
+      ? ['BUILDPRINT.md', '01-questions.md', '02-project-setup.md', 'blueprint.yaml', '03-phases/phase-index.yaml', firstPhase, '04-review.md', '05-handover.md'].filter((file): file is string => Boolean(file))
       : ['BUILDPRINT.md']).filter(hasFile);
   const canonicalStart = isCapabilityPacket ? 'START_HERE.md' : 'BUILDPRINT.md';
   const instructionRule = isCapabilityPacket
