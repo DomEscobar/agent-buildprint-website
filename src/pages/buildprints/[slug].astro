@@ -130,16 +130,6 @@ const readmeHtml = markdown.render(readmeText || description);
 
       <aside class="readme-side-panel" aria-label="Buildprint utility panel">
         <div class="readme-side-card">
-          <span class="side-label">Package facts</span>
-          <dl class="artifact-quick-facts">
-            <div><dt>Updated</dt><dd>{updatedLabel}</dd></div>
-            <div><dt>Files</dt><dd>{bp.files.length}</dd></div>
-            <div><dt>Groups</dt><dd>{topLevelCount}</dd></div>
-            <div><dt>Public runs</dt><dd>{runRows.length ? 'Linked' : 'None yet'}</dd></div>
-          </dl>
-        </div>
-
-        <div class="readme-side-card">
           <span class="side-label">Source</span>
           <a class="readme-source-repo" href={sourceRepoUrl} target="_blank" rel="noreferrer">{sourceRepo}</a>
         </div>
