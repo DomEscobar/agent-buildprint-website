@@ -387,7 +387,7 @@ function normalizePublication(record: SourceRecord): Buildprint | null {
     originGithubUrl,
     originLabel: publication.originLabel ?? labelFromGithub(originGithubUrl),
     files,
-    githubUrl: originGithubUrl ?? `${repoUrl}/tree/main/buildprints/${record.slug}`,
+    githubUrl: `${repoUrl}/tree/main/buildprints/${record.slug}`,
     rawBaseUrl: `${siteBase}/buildprints/${record.slug}/files`,
     copyPrompt: '',
   };

@@ -13,13 +13,16 @@ const bp = getBuildprint(Astro.params.slug ?? '');
 if (!bp) return Astro.redirect('/buildprints/');
 
 const manifest = packageManifest(bp);
-const sourceMatch = bp.githubUrl.match(/github\.com\/([^/]+)\/([^/]+)(?:\/tree\/([^/]+)\/(.+))?/);
-const sourceOwner = sourceMatch?.[1] ?? 'DomEscobar';
-const sourceRepo = sourceMatch ? `${sourceMatch[1]}/${sourceMatch[2]}` : 'DomEscobar/agent-buildprint';
-const sourceRepoUrl = bp.githubUrl;
-const packageRepoUrl = `${repoUrl}/tree/main/buildprints/${bp.slug}`;
-const packageRepoLabel = `DomEscobar/agent-buildprint/buildprints/${bp.slug}`;
-const ownerHandle = bp.creator.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || sourceOwner.toLowerCase();
+const packageSourceUrl = bp.githubUrl;
+const packageMatch = packageSourceUrl.match(/github\.com\/([^/]+)\/([^/]+)(?:\/tree\/([^/]+)\/(.+))?/);
+const packageOwner = packageMatch?.[1] ?? 'DomEscobar';
+const packageRepo = packageMatch ? `${packageMatch[1]}/${packageMatch[2]}` : 'DomEscobar/agent-buildprint';
+const packagePath = packageMatch?.[4] ? `/${packageMatch[4]}` : '';
+const packageRepoLabel = `${packageRepo}${packagePath}`;
+const originSourceUrl = bp.originGithubUrl;
+const originMatch = originSourceUrl?.match(/github\.com\/([^/]+)\/([^/]+)(?:\/tree\/([^/]+)\/(.+))?/);
+const originRepoLabel = bp.originLabel ?? (originMatch ? `${originMatch[1]}/${originMatch[2]}` : originSourceUrl);
+const ownerHandle = bp.creator.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || packageOwner.toLowerCase();
 const description = bp.plainDescription ?? bp.summary;
 const entrypoint = manifest.canonicalStart ?? bp.files.find((file) => file.path === 'BUILDPRINT.md')?.path ?? bp.files[0]?.path ?? 'BUILDPRINT.md';
 const startCommand = manifest.bootstrap?.command ?? `agb start ${siteBase}/buildprints/${bp.slug}/package.json`;
@@ -132,10 +135,14 @@ const readmeHtml = markdown.render(readmeText || description);
 
       <aside class="readme-side-panel" aria-label="Buildprint utility panel">
         <div class="readme-side-card readme-source-card">
-          <span class="side-label">Mapped source project</span>
-          <a class="readme-source-repo" href={sourceRepoUrl} target="_blank" rel="noreferrer">{sourceRepo}</a>
-          <span class="side-label side-label-secondary">Buildprint packet</span>
-          <a class="readme-source-repo readme-package-repo" href={packageRepoUrl} target="_blank" rel="noreferrer">{packageRepoLabel}</a>
+          <span class="side-label">Buildprint source</span>
+          <a class="readme-source-repo" href={packageSourceUrl} target="_blank" rel="noreferrer">{packageRepoLabel}</a>
+          {originSourceUrl && originRepoLabel && (
+            <>
+              <span class="side-label side-label-secondary">Mapped upstream project</span>
+              <a class="readme-source-repo readme-package-repo" href={originSourceUrl} target="_blank" rel="noreferrer">{originRepoLabel}</a>
+            </>
+          )}
         </div>
 
         <details class="readme-side-card readme-files-mini">
