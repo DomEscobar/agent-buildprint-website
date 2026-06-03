@@ -33,7 +33,6 @@ const updatedLabel = updatedDate && !Number.isNaN(updatedDate.getTime())
   : 'Source synced';
 const readOrder = manifest.readOrder?.length ? manifest.readOrder : [entrypoint];
 const readOrderFiles = readOrder.map((filePath) => bp.files.find((file) => file.path === filePath)).filter(Boolean);
-const fileTree = bp.files.map((file) => ({ ...file, rawUrl: `${bp.rawBaseUrl}/${file.path}` }));
 const topLevelCount = new Set(bp.files.map((file) => file.path.split('/')[0])).size;
 const hasRunArtifact = Boolean(bp.proofUrl || bp.visualRun?.demoUrl);
 const runRows = hasRunArtifact ? [
@@ -88,14 +87,7 @@ const readmeHtml = markdown.render(readmeText || description);
             <p class="artifact-summary">{description}</p>
           </div>
         </div>
-        <div class="readme-detail-badges" aria-label="Buildprint badges">
-          {detailBadges.map((badge) => <span class="submission-badge"><span set:html={registryBadgeIcon(badge)} />{badge}</span>)}
-        </div>
         <div class="readme-hero-meta" data-detail-engagement data-slug={bp.slug}>
-          <span class="readme-meta-chip readme-meta-type" title={bp.category}>
-            <span class="readme-meta-icon" set:html={typeIcon} />
-            <span>{bp.category}</span>
-          </span>
           <span class="readme-meta-chip">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.8 12s3.4-6 9.2-6 9.2 6 9.2 6-3.4 6-9.2 6-9.2-6-9.2-6Z"/><circle cx="12" cy="12" r="2.7"/></svg>
             <b data-detail-views>--</b>
@@ -106,20 +98,6 @@ const readmeHtml = markdown.render(readmeText || description);
             <b data-detail-likes>--</b>
             <span>likes</span>
           </button>
-          <span class="readme-meta-chip" title="Estimated first-run package context: derived from package file text length plus manifest and bootstrap overhead">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7.5h15"/><path d="M4.5 12h15"/><path d="M4.5 16.5h10"/></svg>
-            <span>Est.</span>
-            <b>{estimatedContextLabel}</b>
-            <span>{estimatedContextTier}</span>
-          </span>
-          <span class="readme-meta-chip">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.8h6.2L18 8.6v11.6H7z"/><path d="M13 3.8v5h5"/><path d="M4.8 6.4v13.8h10.8"/></svg>
-            <b>{bp.files.length}</b>
-            <span>files</span>
-          </span>
-        </div>
-        <div class="artifact-actions readme-action-bar">
-          <button class="artifact-primary copy-btn" data-copy={agentPrompt}>Copy Agent Prompt</button>
         </div>
       </div>
     </section>
@@ -134,6 +112,43 @@ const readmeHtml = markdown.render(readmeText || description);
       </article>
 
       <aside class="readme-side-panel" aria-label="Buildprint utility panel">
+        <div class="readme-side-card readme-agent-card">
+          <span class="side-label">Use this Buildprint</span>
+          <button class="artifact-primary copy-btn readme-copy-primary" data-copy={agentPrompt}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8.2V5.6c0-.9.7-1.6 1.6-1.6h8.1c.9 0 1.6.7 1.6 1.6v8.1c0 .9-.7 1.6-1.6 1.6h-2.6"/><path d="M4.7 8.7h8.1c.9 0 1.6.7 1.6 1.6v8.1c0 .9-.7 1.6-1.6 1.6H4.7c-.9 0-1.6-.7-1.6-1.6v-8.1c0-.9.7-1.6 1.6-1.6Z"/></svg>
+            <span>Copy Agent Prompt</span>
+          </button>
+        </div>
+
+        <div class="readme-side-card readme-facts-card">
+          <span class="side-label">Buildprint facts</span>
+          <div class="readme-side-facts">
+            <div>
+              <span>Category</span>
+              <strong><span class="readme-side-icon" set:html={typeIcon} />{bp.category}</strong>
+            </div>
+            <div>
+              <span>Updated</span>
+              <strong>{updatedLabel}</strong>
+            </div>
+            <div title="Estimated first-run package context: derived from package file text length plus manifest and bootstrap overhead">
+              <span>Estimated tokens</span>
+              <strong>{estimatedContextLabel}</strong>
+            </div>
+            <div>
+              <span>Files</span>
+              <strong>{bp.files.length}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="readme-side-card readme-badges-card">
+          <span class="side-label">Status</span>
+          <div class="readme-detail-badges" aria-label="Buildprint badges">
+            {detailBadges.map((badge) => <span class="submission-badge"><span set:html={registryBadgeIcon(badge)} />{badge}</span>)}
+          </div>
+        </div>
+
         <div class="readme-side-card readme-source-card">
           <span class="side-label">Buildprint source</span>
           <a class="readme-source-repo" href={packageSourceUrl} target="_blank" rel="noreferrer">{packageRepoLabel}</a>
@@ -144,18 +159,6 @@ const readmeHtml = markdown.render(readmeText || description);
             </>
           )}
         </div>
-
-        <details class="readme-side-card readme-files-mini">
-          <summary>Files <b>{bp.files.length}</b></summary>
-          <div class="artifact-file-list">
-            {fileTree.map((file) => (
-              <div>
-                <a href={file.rawUrl}><code>{file.path}</code></a>
-                <button class="copy-btn" data-copy={file.rawUrl}>Copy</button>
-              </div>
-            ))}
-          </div>
-        </details>
       </aside>
     </section>
   </main>
