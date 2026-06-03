@@ -7,13 +7,13 @@ const mapperPrompt = mapper?.copyPrompt || 'Use Mapper OS to turn this GitHub pr
 const mapperPromptUrl = '/buildprints/buildprint-mapper-os/prompt.txt';
 const mapperPageUrl = '/buildprints/buildprint-mapper-os/';
 ---
-<BaseLayout title="Submit Buildprint — Agent Buildprint" description="Copy Mapper OS for normal projects, then publish a Buildprint immediately with one GitHub URL.">
+<BaseLayout title="Submit Buildprint — Agent Buildprint" description="Copy Mapper OS for normal projects, then add a scanned Community GitHub listing with one URL.">
   <main class="create-page submit-buildprint-page">
     <section class="container create-hero submit-hero">
       <a class="artifact-back" href="/buildprints/">← Browse Buildprints</a>
       <p class="registry-v2-kicker">Submit</p>
       <h1>Submit Buildprint.</h1>
-      <p class="registry-v2-lede">If you already have a Buildprint, paste its GitHub URL and publish it instantly as a Community submission. If you only have a normal project, copy Mapper OS first.</p>
+      <p class="registry-v2-lede">If you already have a Buildprint in GitHub, add it as a scanned Community listing. If you only have a normal project, copy Mapper OS first.</p>
     </section>
 
     <section class="container submit-flow-grid" aria-label="Submit Buildprint flow">
@@ -41,8 +41,8 @@ const mapperPageUrl = '/buildprints/buildprint-mapper-os/';
         <div class="submit-step-number">2</div>
         <div class="submit-step-content submit-url-card-copy">
           <span class="create-choice-label">Have the URL?</span>
-          <h2>Publish with one link.</h2>
-          <p>Paste a GitHub repo, folder, or Buildprint package URL. It goes live immediately as Community; scans and admin trust badges can update later.</p>
+          <h2>Add a GitHub listing.</h2>
+          <p>Paste a GitHub repo or folder that contains Buildprint files. It appears immediately as a Community listing that links back to GitHub; official site-hosted packages are created only after review/import.</p>
           <form class="submit-url-form" data-submit-form>
             <label>
               <span>GitHub URL</span>
@@ -50,7 +50,7 @@ const mapperPageUrl = '/buildprints/buildprint-mapper-os/';
             </label>
             <button class="registry-v2-primary" type="submit">Add Buildprint</button>
           </form>
-          <p class="submit-url-note" data-submit-status>Only GitHub URL is required. Sign in with GitHub first so you can remove it later from your profile.</p>
+          <p class="submit-url-note" data-submit-status>Only a GitHub URL is required. Sign in with GitHub first so you can remove the listing later from your profile.</p>
         </div>
       </article>
     </section>
@@ -105,7 +105,7 @@ const mapperPageUrl = '/buildprints/buildprint-mapper-os/';
           return;
         }
         if (!response.ok) throw new Error(payload.error || 'publish_failed');
-        if (status) status.textContent = `Published as Community. Scan: ${payload.submission.scanStatus}. You can remove it from your profile.`;
+        if (status) status.textContent = `Added as a Community GitHub listing. Scan: ${payload.submission.scanStatus}. You can remove it from your profile.`;
         form.reset();
       } catch (error) {
         if (status) status.textContent = error instanceof Error && error.message === 'github_url_required' ? 'Paste a https://github.com/... URL.' : 'Could not publish this URL yet.';
