@@ -45,7 +45,18 @@ jobs:
 
       - name: Sync Buildprint manifests from source repo
         working-directory: website
-        run: npm run sync:buildprints -- --source ../agent-buildprint
+        run: |
+          npm run sync:buildprints -- --source ../agent-buildprint
+          SOURCE_SHA="$(git -C ../agent-buildprint rev-parse HEAD)"
+          SOURCE_COMMITTED_AT="$(git -C ../agent-buildprint log -1 --format=%cI)"
+          cat > src/lib/buildprints-source-state.json <<EOF
+          {
+            "sourceRepo": "DomEscobar/agent-buildprint",
+            "sourceRef": "main",
+            "sourceSha": "${SOURCE_SHA}",
+            "sourceCommittedAt": "${SOURCE_COMMITTED_AT}"
+          }
+          EOF
 
       - name: Build and validate
         working-directory: website
@@ -65,6 +76,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/lib/buildprints.ts package.json package-lock.json scripts/sync-buildprints-from-source.mjs .github/workflows/sync-buildprints.yml
+          git add src/lib/buildprints.ts src/lib/buildprints-source-state.json package.json package-lock.json scripts/sync-buildprints-from-source.mjs .github/workflows/sync-buildprints.yml
           git commit -m "Sync Buildprint manifests from source"
           git push
