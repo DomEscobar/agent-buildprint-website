@@ -47,16 +47,6 @@ jobs:
         working-directory: website
         run: |
           npm run sync:buildprints -- --source ../agent-buildprint
-          SOURCE_SHA="$(git -C ../agent-buildprint rev-parse HEAD)"
-          SOURCE_COMMITTED_AT="$(git -C ../agent-buildprint log -1 --format=%cI)"
-          cat > src/lib/buildprints-source-state.json <<EOF
-          {
-            "sourceRepo": "DomEscobar/agent-buildprint",
-            "sourceRef": "main",
-            "sourceSha": "${SOURCE_SHA}",
-            "sourceCommittedAt": "${SOURCE_COMMITTED_AT}"
-          }
-          EOF
 
       - name: Build and validate
         working-directory: website

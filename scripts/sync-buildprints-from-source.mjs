@@ -9,6 +9,7 @@ const sourceArgIndex = args.indexOf('--source');
 const sourceRoot = path.resolve(root, sourceArgIndex >= 0 ? args[sourceArgIndex + 1] : '../agent-buildprint');
 const sourceBuildprints = path.join(sourceRoot, 'buildprints');
 const registryPath = path.join(root, 'src/lib/buildprints.ts');
+const sourceStatePath = path.join(root, 'src/lib/buildprints-source-state.json');
 
 if (!fs.existsSync(sourceBuildprints)) {
   console.error(`Missing source Buildprints directory: ${sourceBuildprints}`);
@@ -75,4 +76,20 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log(`Source Buildprint validation passed: ${published} published Buildprint(s). No website source files were rewritten.`);
+const sourceSha = execFileSync('git', ['-C', sourceRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+const sourceCommittedAt = execFileSync('git', ['-C', sourceRoot, 'log', '-1', '--format=%cI'], { encoding: 'utf8' }).trim();
+const sourceRemote = execFileSync('git', ['-C', sourceRoot, 'remote', 'get-url', 'origin'], { encoding: 'utf8' }).trim();
+const sourceRef = execFileSync('git', ['-C', sourceRoot, 'rev-parse', '--abbrev-ref', 'HEAD'], { encoding: 'utf8' }).trim();
+const sourceRepo = sourceRemote
+  .replace(/^git@github.com:/, '')
+  .replace(/^https:\/\/github.com\//, '')
+  .replace(/\.git$/, '');
+const sourceState = {
+  sourceRepo,
+  sourceRef,
+  sourceSha,
+  sourceCommittedAt,
+};
+fs.writeFileSync(sourceStatePath, `${JSON.stringify(sourceState, null, 2)}\n`);
+
+console.log(`Source Buildprint validation passed: ${published} published Buildprint(s). Updated ${path.relative(root, sourceStatePath)} for ${sourceSha.slice(0, 7)}.`);
