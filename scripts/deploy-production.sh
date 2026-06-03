@@ -74,7 +74,7 @@ main() {
       run npm --prefix "$SOURCE_DIR" test
     else
       log "source has no npm test script; running available source gates"
-      node -e "const s=require(process.argv[1]).scripts||{}; for (const name of ['check:syntax','check:packet:mapper','eval:mapper-overhaul']) if (s[name]) console.log(name)" "$SOURCE_DIR/package.json" |
+      node -e "const s=require(process.argv[1]).scripts||{}; for (const name of ['check:syntax','check:blueprint-yaml','check:packet:mapper','eval:mapper-overhaul']) if (s[name]) console.log(name)" "$SOURCE_DIR/package.json" |
         while IFS= read -r script_name; do
           run npm --prefix "$SOURCE_DIR" run "$script_name"
         done
