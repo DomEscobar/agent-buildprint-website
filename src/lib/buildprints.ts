@@ -73,9 +73,9 @@ const githubCommitsApiRoot = process.env.BUILDPRINTS_GITHUB_COMMITS_API || 'http
 export const canonicalFilePurposes: Record<string, string> = {
   'BUILDPRINT.md': 'compatibility bootstrap or package contract',
   'README.md': 'human overview, non-authoritative',
-  'SPEC.md': 'legacy behavior requirements, when present',
-  'PLAN.md': 'legacy execution index, when present',
-  'CONTRACTS.md': 'legacy interface/data contracts, when present',
+  'SPEC.md': 'behavior requirements, when present',
+  'PLAN.md': 'execution index, when present',
+  'CONTRACTS.md': 'interface/data contracts, when present',
   'START_HERE.md': 'executable packet start router',
   'PRE_IMPLEMENTATION_QUESTIONS.md': 'pre-coding question gate and safe defaults',
   'blueprint.yaml': 'machine-readable executable packet router',
@@ -86,8 +86,8 @@ export const canonicalFilePurposes: Record<string, string> = {
   '03-capabilities/capability-index.yaml': 'capability dependency and status index',
   '08-evaluation/acceptance.yaml': 'planned acceptance proof gates',
   '09-evidence/evidence-ledger.jsonl': 'proof and blocker evidence ledger seed',
-  'TEST_MATRIX.md': 'legacy risk-to-test alignment, when present',
-  'VALIDATION_TEMPLATE.md': 'legacy completion report template, when present',
+  'TEST_MATRIX.md': 'risk-to-test alignment, when present',
+  'VALIDATION_TEMPLATE.md': 'completion report template, when present',
   'checks/acceptance.md': 'acceptance checklist',
   'questions.md': 'configuration interview',
 };
