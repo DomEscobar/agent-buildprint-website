@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 const root = process.cwd();
 const args = process.argv.slice(2);
 const sourceArgIndex = args.indexOf('--source');
+const writeSourceState = !args.includes('--no-write-state');
 const sourceRoot = path.resolve(root, sourceArgIndex >= 0 ? args[sourceArgIndex + 1] : '../agent-buildprint');
 const sourceBuildprints = path.join(sourceRoot, 'buildprints');
 const registryPath = path.join(root, 'src/lib/buildprints.ts');
@@ -90,6 +91,10 @@ const sourceState = {
   sourceSha,
   sourceCommittedAt,
 };
-fs.writeFileSync(sourceStatePath, `${JSON.stringify(sourceState, null, 2)}\n`);
 
-console.log(`Source Buildprint validation passed: ${published} published Buildprint(s). Updated ${path.relative(root, sourceStatePath)} for ${sourceSha.slice(0, 7)}.`);
+if (writeSourceState) {
+  fs.writeFileSync(sourceStatePath, `${JSON.stringify(sourceState, null, 2)}\n`);
+  console.log(`Source Buildprint validation passed: ${published} published Buildprint(s). Updated ${path.relative(root, sourceStatePath)} for ${sourceSha.slice(0, 7)}.`);
+} else {
+  console.log(`Source Buildprint validation passed: ${published} published Buildprint(s). Source state not written for ${sourceSha.slice(0, 7)}.`);
+}
