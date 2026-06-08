@@ -389,9 +389,9 @@ function normalizePublication(record: SourceRecord): Buildprint | null {
     files,
     githubUrl: `${repoUrl}/tree/main/buildprints/${record.slug}`,
     rawBaseUrl: `${siteBase}/buildprints/${record.slug}/files`,
-    copyPrompt: '',
+    copyPrompt: publication.copyPrompt?.trim() || '',
   };
-  normalized.copyPrompt = uniformAgentPrompt(normalized);
+  normalized.copyPrompt ||= uniformAgentPrompt(normalized);
   return normalized;
 }
 

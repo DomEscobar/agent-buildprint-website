@@ -56,6 +56,13 @@ function trackedSourceFiles(slug) {
   return files.filter((file) => !excludes.has(file)).sort((a, b) => a.localeCompare(b));
 }
 
+function sourcePublication(slug) {
+  if (!sourceBuildprints) return null;
+  const publicationPath = path.join(sourceBuildprints, slug, 'publication.json');
+  if (!fs.existsSync(publicationPath)) return null;
+  return JSON.parse(fs.readFileSync(publicationPath, 'utf8'));
+}
+
 function sameList(a, b) {
   return a.length === b.length && a.every((item, index) => item === b[index]);
 }
@@ -97,6 +104,16 @@ for (const bp of items) {
     const extra = pkgFilePaths.filter((file) => !expectedSourceFiles.includes(file));
     const orderMismatch = !missing.length && !extra.length;
     errors.push(`${slug}: website package file list drifted from source publication/tracked files${missing.length ? `; missing ${missing.join(', ')}` : ''}${extra.length ? `; extra ${extra.join(', ')}` : ''}${orderMismatch ? '; same files but different order' : ''}`);
+  }
+
+  const publication = sourcePublication(slug);
+  if (publication?.copyPrompt) {
+    const promptPath = path.join(dist, 'buildprints', slug, 'prompt.txt');
+    const promptText = fs.existsSync(promptPath) ? fs.readFileSync(promptPath, 'utf8').trim() : '';
+    const expectedPrompt = publication.copyPrompt.trim();
+    if (promptText !== expectedPrompt) {
+      errors.push(`${slug}: dist prompt.txt does not match source publication.json copyPrompt`);
+    }
   }
 
   if (liveSmoke) {
