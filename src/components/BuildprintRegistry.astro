@@ -34,6 +34,31 @@ const { cards, recentCards, runnableCount, trustCounts, typeCounts, contextCount
       </div>
     </section>
 
+    <section class="container buildprint-comic-section" aria-labelledby="buildprint-comic-title">
+      <details class="buildprint-comic-compact">
+        <summary>
+          <span>
+            <b id="buildprint-comic-title">How Buildprints work</b>
+            <em>From blind discovery to consistent builds</em>
+          </span>
+          <strong>Expand</strong>
+        </summary>
+        <button class="buildprint-comic-preview" type="button" data-buildprint-comic-open aria-label="Expand Buildprints comic">
+          <img src="/images/hero-buildprint-story/buildprint-comic-explainer.png" alt="Four-panel comic showing an agent without a Buildprint, blind discovery, Buildprint alignment, and custom wishes with a higher feature score." loading="lazy" />
+        </button>
+        <div class="buildprint-comic-points" aria-label="Comic panel summaries">
+          <span>No Buildprint</span>
+          <span>Blind discovery</span>
+          <span>Masterclass alignment</span>
+          <span>Custom wishes</span>
+        </div>
+      </details>
+      <dialog class="buildprint-comic-dialog" data-buildprint-comic-dialog aria-label="Expanded Buildprints comic">
+        <button class="buildprint-comic-close" type="button" data-buildprint-comic-close aria-label="Close expanded comic">×</button>
+        <img src="/images/hero-buildprint-story/buildprint-comic-explainer.png" alt="Expanded four-panel comic explaining Buildprints." />
+      </dialog>
+    </section>
+
     <section class="container registry-hf-shell" id="registry-list">
       <aside class="registry-hf-sidebar" aria-label="Buildprint filters">
         <details class="registry-hf-filter-drawer" open>
@@ -239,6 +264,19 @@ const { cards, recentCards, runnableCount, trustCounts, typeCounts, contextCount
     });
     search?.addEventListener('input', apply);
     apply();
+
+    const comicDialog = document.querySelector('[data-buildprint-comic-dialog]');
+    const comicDetails = document.querySelector('.buildprint-comic-compact');
+    const comicOpen = document.querySelector('[data-buildprint-comic-open]');
+    const comicClose = document.querySelector('[data-buildprint-comic-close]');
+    if (window.matchMedia('(min-width: 701px)').matches) comicDetails?.setAttribute('open', '');
+    comicOpen?.addEventListener('click', () => {
+      if (comicDialog && typeof comicDialog.showModal === 'function') comicDialog.showModal();
+    });
+    comicClose?.addEventListener('click', () => comicDialog?.close());
+    comicDialog?.addEventListener('click', (event) => {
+      if (event.target === comicDialog) comicDialog.close();
+    });
 
     const numberFormat = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
 

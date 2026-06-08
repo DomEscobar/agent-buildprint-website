@@ -648,6 +648,131 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   border-radius: 999px;
   padding: 4px 7px;
 }
+.buildprint-comic-section {
+  margin-top: -18px;
+  margin-bottom: 26px;
+}
+.buildprint-comic-compact {
+  border: 1px solid color-mix(in srgb, var(--blueprint) 22%, var(--border));
+  border-radius: 18px;
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, var(--accent-soft)), var(--surface));
+  background-size: 26px 26px, 26px 26px, auto;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.buildprint-comic-compact summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+.buildprint-comic-compact summary::-webkit-details-marker { display: none; }
+.buildprint-comic-compact summary span {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.buildprint-comic-compact summary b {
+  color: var(--text);
+  font-size: 17px;
+  letter-spacing: -.02em;
+}
+.buildprint-comic-compact summary em {
+  color: var(--muted);
+  font-size: 13px;
+  font-style: normal;
+  overflow-wrap: anywhere;
+}
+.buildprint-comic-compact summary strong {
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 900;
+}
+.buildprint-comic-preview {
+  display: block;
+  width: calc(100% - 24px);
+  height: 246px;
+  margin: 0 12px 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-2);
+  padding: 0;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+.buildprint-comic-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.buildprint-comic-points {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 12px 14px;
+}
+.buildprint-comic-points span {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 78%, var(--accent-soft));
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  padding: 7px 9px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.buildprint-comic-dialog {
+  width: min(96vw, 1280px);
+  max-height: 92vh;
+  border: 0;
+  padding: 0;
+  border-radius: 18px;
+  background: transparent;
+  overflow: visible;
+}
+.buildprint-comic-dialog::backdrop {
+  background: rgba(2, 6, 23, .76);
+  backdrop-filter: blur(4px);
+}
+.buildprint-comic-dialog img {
+  display: block;
+  width: 100%;
+  max-height: 92vh;
+  object-fit: contain;
+  border-radius: 18px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .38);
+}
+.buildprint-comic-close {
+  position: absolute;
+  right: -12px;
+  top: -12px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255,255,255,.4);
+  border-radius: 999px;
+  background: rgba(15,23,42,.82);
+  color: white;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
 .trust-card {
   background:
     linear-gradient(var(--grid-line) 1px, transparent 1px),
@@ -680,6 +805,37 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
   .dossier-file-tree div::before { display: none; }
   .dossier-file-tree span { text-align: left; }
   .evidence-chip-row { gap: 5px; }
+  .buildprint-comic-section { margin-top: -6px; margin-bottom: 18px; }
+  .buildprint-comic-compact { border-radius: 15px; box-shadow: none; }
+  .buildprint-comic-compact summary { padding: 12px; }
+  .buildprint-comic-compact summary b { font-size: 15px; }
+  .buildprint-comic-compact summary em { font-size: 12px; }
+  .buildprint-comic-compact summary strong { padding: 6px 8px; }
+  .buildprint-comic-preview {
+    height: 168px;
+    width: calc(100% - 20px);
+    margin: 0 10px 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .buildprint-comic-preview img {
+    width: auto;
+    min-width: 680px;
+    object-fit: contain;
+    object-position: left center;
+    scroll-snap-align: start;
+  }
+  .buildprint-comic-points {
+    display: flex;
+    overflow-x: auto;
+    padding: 0 10px 12px;
+    scrollbar-width: none;
+  }
+  .buildprint-comic-points::-webkit-scrollbar { display: none; }
+  .buildprint-comic-points span { flex: 0 0 auto; }
+  .buildprint-comic-dialog { width: 96vw; }
+  .buildprint-comic-dialog img { border-radius: 14px; }
 }
 
 /* Mobile overflow fix for Blueprint Dossier pass */
