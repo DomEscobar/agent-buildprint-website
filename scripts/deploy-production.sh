@@ -106,8 +106,8 @@ main() {
   printf '\n'
   run curl -fsS "$SITE_URL/api/health"
   printf '\n'
-  run npm --prefix "$WEBSITE_DIR" run check:codex-drift -- "--base=$LOCAL_BASE"
-  run npm --prefix "$WEBSITE_DIR" run check:codex-drift -- "--base=$SITE_URL"
+  run npm --prefix "$WEBSITE_DIR" run check:codex-drift -- "--slug=$SMOKE_SLUG" "--base=$LOCAL_BASE"
+  run npm --prefix "$WEBSITE_DIR" run check:codex-drift -- "--slug=$SMOKE_SLUG" "--base=$SITE_URL"
 
   run curl -fsS "$SITE_URL/buildprints/$SMOKE_SLUG/package.json"
   rm -rf "$SMOKE_DIR"
