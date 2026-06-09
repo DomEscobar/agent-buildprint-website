@@ -85,7 +85,6 @@ main() {
   run npm --prefix "$WEBSITE_DIR" run sync:buildprints -- --source "$SOURCE_DIR" --no-write-state
   BUILDPRINTS_SOURCE="$SOURCE_DIR/buildprints" run npm --prefix "$WEBSITE_DIR" run build
   BUILDPRINTS_SOURCE="$SOURCE_DIR/buildprints" run npm --prefix "$WEBSITE_DIR" run check:buildprints
-  run npm --prefix "$WEBSITE_DIR" run check:codex-drift
 
   if [[ "$SKIP_BACKEND_TESTS" != "1" ]]; then
     run docker run --rm -v "$WEBSITE_DIR/server:/app" -w /app oven/bun:1.2-alpine sh -lc 'bun install --silent && bun test'
@@ -107,6 +106,8 @@ main() {
   printf '\n'
   run curl -fsS "$SITE_URL/api/health"
   printf '\n'
+  run npm --prefix "$WEBSITE_DIR" run check:codex-drift -- "--base=$LOCAL_BASE"
+  run npm --prefix "$WEBSITE_DIR" run check:codex-drift -- "--base=$SITE_URL"
 
   run curl -fsS "$SITE_URL/buildprints/$SMOKE_SLUG/package.json"
   rm -rf "$SMOKE_DIR"
