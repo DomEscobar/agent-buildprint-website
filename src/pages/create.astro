@@ -13,7 +13,7 @@ const mapperPageUrl = '/buildprints/buildprint-mapper-os/';
       <a class="artifact-back" href="/buildprints/">← Browse Buildprints</a>
       <p class="registry-v2-kicker">Submit</p>
       <h1>Submit Buildprint.</h1>
-      <p class="registry-v2-lede">If you already have a Buildprint in GitHub, add it as a scanned Community listing. If you only have a normal project, copy Mapper OS first.</p>
+      <p class="registry-v2-lede">If you already have a Buildprint package in GitHub, add it as a scanned Community listing. If you only have a normal project, copy Mapper OS first.</p>
     </section>
 
     <section class="container submit-flow-grid" aria-label="Submit Buildprint flow">
@@ -22,7 +22,7 @@ const mapperPageUrl = '/buildprints/buildprint-mapper-os/';
         <div class="submit-step-content">
           <span class="create-choice-label">Normal project?</span>
           <h2>Make it a Buildprint first.</h2>
-          <p>Copy this prompt into your coding agent inside the project repo. It creates the Buildprint files that other agents can use.</p>
+          <p>Copy this prompt into your coding agent inside the project repo. It creates the Buildprint package files, including the canonical start and manifest metadata that other agents can use.</p>
           <div class="submit-prompt-box">
             <div class="submit-prompt-head">
               <span>Mapper OS prompt</span>
@@ -42,7 +42,7 @@ const mapperPageUrl = '/buildprints/buildprint-mapper-os/';
         <div class="submit-step-content submit-url-card-copy">
           <span class="create-choice-label">Have the URL?</span>
           <h2>Add a GitHub listing.</h2>
-          <p>Paste a GitHub repo or folder that contains Buildprint files. It appears immediately as a Community listing that links back to GitHub; official site-hosted packages are created only after review/import.</p>
+          <p>Paste a GitHub repo or folder that contains a Buildprint package, ideally BUILDPRINT.md plus package.json with canonical read order. It appears immediately as a Community listing that links back to GitHub; official site-hosted packages are created only after review/import.</p>
           <form class="submit-url-form" data-submit-form>
             <label>
               <span>GitHub URL</span>

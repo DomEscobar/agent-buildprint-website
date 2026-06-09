@@ -26,7 +26,21 @@ function signedInApp(now = new Date('2026-05-29T12:00:00.000Z')) {
       if (String(url).includes('/contents/')) {
         return Response.json([
           { name: 'BUILDPRINT.md' },
-          { name: 'buildprint.json' },
+          {
+            name: 'package.json',
+            content: btoa(JSON.stringify({
+              name: 'buildprint-mapper-os',
+              files: [
+                { path: 'BUILDPRINT.md', rawUrl: 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/main/buildprints/buildprint-mapper-os/BUILDPRINT.md' },
+                { path: 'blueprint.yaml', rawUrl: 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/main/buildprints/buildprint-mapper-os/blueprint.yaml' },
+              ],
+              instructions: {
+                canonicalStart: 'BUILDPRINT.md',
+                readOrder: ['BUILDPRINT.md', 'blueprint.yaml'],
+              },
+            })),
+          },
+          { name: 'blueprint.yaml' },
           { name: 'README.md' },
         ]);
       }
@@ -115,7 +129,8 @@ test('community Buildprint submissions publish immediately, list, promote, and r
   expect(createdResponse.status).toBe(201);
   const created = await body(createdResponse);
   expect(created.submission).toMatchObject({ visibility: 'published', source: 'community', scanStatus: 'passed', trustBadge: null, discoveryTier: 'normal' });
-  expect((created.submission as { badges: string[] }).badges).toContain('complete-files');
+  expect((created.submission as { badges: string[] }).badges).toContain('complete-package');
+  expect((created.submission as { badges: string[] }).badges).toContain('canonical-read-order');
   expect((created.submission as { scanScore: number }).scanScore).toBeGreaterThanOrEqual(55);
 
   const publicList = await body(await app.fetch(request('/api/community-buildprints')));
@@ -161,6 +176,38 @@ test('high-risk or missing GitHub submissions stay manageable but hidden from pu
   expect((mine.submissions as unknown[]).length).toBe(1);
   const publicList = await body(await app.fetch(request('/api/community-buildprints')));
   expect((publicList.submissions as unknown[]).length).toBe(0);
+});
+
+test('legacy buildprint.json submissions are limited until they publish current package metadata', async () => {
+  const db = openEngagementDb(':memory:', () => new Date('2026-05-29T12:00:00.000Z'));
+  openDbs.push(db);
+  const user = db.upsertGithubUser({ githubId: 789, githubLogin: 'LegacyMapper', displayName: 'Legacy Mapper' });
+  const session = db.createSession(user.id);
+  const app = createApp(db, {
+    githubClientId: '',
+    githubClientSecret: '',
+    fetch: async (url) => {
+      if (String(url).includes('/contents/')) {
+        return Response.json([
+          { name: 'BUILDPRINT.md' },
+          { name: 'buildprint.json' },
+          { name: 'README.md' },
+        ]);
+      }
+      return Response.json({});
+    },
+  });
+
+  const createdResponse = await app.fetch(request('/api/me/buildprints', {
+    method: 'POST',
+    headers: { cookie: `agb_session=${session.token}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ githubUrl: 'https://github.com/legacy/old-buildprint' }),
+  }));
+  expect(createdResponse.status).toBe(201);
+  const created = await body(createdResponse);
+  expect(created.submission).toMatchObject({ scanStatus: 'warning', discoveryTier: 'limited' });
+  expect((created.submission as { badges: string[] }).badges).toContain('legacy-router');
+  expect((created.submission as { badges: string[] }).badges).not.toContain('complete-package');
 });
 
 test('GitHub OAuth callback creates session and editable profile', async () => {

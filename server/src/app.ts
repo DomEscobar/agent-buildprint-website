@@ -111,6 +111,22 @@ function textFromBase64(value: unknown, max = 80_000) {
   }
 }
 
+type GithubContentItem = { name?: unknown; download_url?: string; content?: string };
+
+function contentItemName(item: unknown) {
+  return typeof item === 'object' && item && 'name' in item ? String((item as GithubContentItem).name || '').toLowerCase() : '';
+}
+
+async function textFromContentItem(item: GithubContentItem | undefined, requestFetch: typeof fetch, max = 80_000) {
+  if (!item) return '';
+  if (item.content) return textFromBase64(item.content, max);
+  if (item.download_url) {
+    const response = await requestFetch(item.download_url, { headers: { 'user-agent': 'agent-buildprint-submission-scan' } });
+    if (response.ok) return (await response.text()).slice(0, max);
+  }
+  return '';
+}
+
 function containsAny(haystack: string, needles: string[]) {
   return needles.some((needle) => haystack.includes(needle));
 }
@@ -143,25 +159,45 @@ async function scanGithubBuildprint(input: ReturnType<typeof normalizeGithubUrl>
       return { scanStatus: 'warning' as const, scanSummary: response.status === 404 ? 'Submitted with limited discovery: GitHub path could not be fetched yet.' : `Submitted with limited discovery: path scan returned HTTP ${response.status}.`, scanScore: Math.max(10, score - 15), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
     }
     const payload = await response.json().catch(() => null) as unknown;
-    const items = Array.isArray(payload) ? payload : payload && typeof payload === 'object' ? [payload as Record<string, unknown>] : [];
-    const names = new Set(items.map((item) => typeof item === 'object' && item && 'name' in item ? String((item as { name?: unknown }).name).toLowerCase() : ''));
+    const items = Array.isArray(payload) ? payload as GithubContentItem[] : payload && typeof payload === 'object' ? [payload as GithubContentItem] : [];
+    const names = new Set(items.map(contentItemName));
     const fileNames = [...names].join(' ');
     badges.push('scanned');
     if (names.has('readme.md')) { score += 10; badges.push('readme'); } else notes.push('no README at submitted path');
     if (names.has('license') || names.has('license.md') || names.has('license.txt')) { score += 4; badges.push('license'); }
     const hasEntrypoint = names.has('buildprint.md');
-    const hasManifest = names.has('buildprint.json') || names.has('blueprint.yaml') || names.has('package.json');
+    const hasPackageManifest = names.has('package.json');
+    const hasBlueprintRouter = names.has('blueprint.yaml');
+    const hasLegacyRouter = names.has('buildprint.json');
     if (hasEntrypoint) score += 20;
-    if (hasManifest) score += 14;
+    if (hasPackageManifest) { score += 18; badges.push('package-manifest'); }
+    if (hasBlueprintRouter) { score += 10; badges.push('blueprint-router'); }
+    if (hasLegacyRouter) { score += 5; badges.push('legacy-router'); }
     if (containsAny(fileNames, ['agents.md', 'claude.md', 'cursor', 'codex', 'openclaw', 'mcp'])) { score += 7; badges.push('agent-workflow'); }
     if (containsAny(fileNames, ['src', 'app', 'server', 'package.json', 'pyproject.toml', 'go.mod'])) { score += 6; badges.push('implementation'); }
 
-    const readmeItem = items.find((item) => typeof item === 'object' && item && String((item as { name?: unknown }).name || '').toLowerCase() === 'readme.md') as { download_url?: string; content?: string } | undefined;
-    let readme = '';
-    if (readmeItem?.content) readme = textFromBase64(readmeItem.content);
-    else if (readmeItem?.download_url) {
-      const readmeResponse = await requestFetch(readmeItem.download_url, { headers: { 'user-agent': 'agent-buildprint-submission-scan' } });
-      if (readmeResponse.ok) readme = (await readmeResponse.text()).slice(0, 80_000);
+    const readmeItem = items.find((item) => contentItemName(item) === 'readme.md');
+    const readme = await textFromContentItem(readmeItem, requestFetch);
+    const packageJsonItem = items.find((item) => contentItemName(item) === 'package.json');
+    let hasCanonicalPackage = false;
+    if (packageJsonItem) {
+      const packageText = await textFromContentItem(packageJsonItem, requestFetch);
+      const packageJson = JSON.parse(packageText || '{}') as { name?: unknown; slug?: unknown; files?: unknown; instructions?: { canonicalStart?: unknown; readOrder?: unknown } };
+      const manifestFiles = Array.isArray(packageJson.files) ? packageJson.files as Array<{ path?: unknown; rawUrl?: unknown }> : [];
+      const manifestPaths = manifestFiles.map((file) => String(file.path || ''));
+      const readOrder = Array.isArray(packageJson.instructions?.readOrder) ? packageJson.instructions.readOrder.map(String) : [];
+      const hasCanonicalStart = packageJson.instructions?.canonicalStart === 'BUILDPRINT.md';
+      const hasBuildprintFile = manifestPaths.includes('BUILDPRINT.md');
+      const hasRawUrls = manifestFiles.some((file) => typeof file.rawUrl === 'string' && file.rawUrl.startsWith('http'));
+      if (typeof packageJson.name === 'string' || typeof packageJson.slug === 'string') score += 2;
+      if (hasCanonicalStart && readOrder.includes('BUILDPRINT.md')) { score += 10; badges.push('canonical-read-order'); }
+      else notes.push('package.json missing canonical BUILDPRINT.md read order');
+      if (hasBuildprintFile) score += 6;
+      else notes.push('package.json does not list BUILDPRINT.md');
+      if (hasRawUrls) { score += 6; badges.push('raw-file-manifest'); }
+      else notes.push('package.json has no rawUrl file entries');
+      if (readOrder.length > 1) { score += 4; badges.push('read-order'); }
+      hasCanonicalPackage = hasCanonicalStart && readOrder.includes('BUILDPRINT.md') && hasBuildprintFile;
     }
     const scanText = `${input.owner} ${input.repo} ${input.sourcePath} ${repo.description || ''} ${readme}`.toLowerCase();
     const seriousSafety = [
@@ -184,13 +220,14 @@ async function scanGithubBuildprint(input: ReturnType<typeof normalizeGithubUrl>
       notes.push('possible impersonation wording');
     }
 
-    if (hasEntrypoint && hasManifest) {
-      badges.push('complete-files');
-      if (names.has('package.json') || names.has('buildprint.json')) badges.push('runnable-candidate');
+    if (hasEntrypoint && hasCanonicalPackage) {
+      badges.push('complete-package', 'complete-files', 'runnable-candidate');
       const finalScore = Math.max(0, Math.min(100, score));
-      return { scanStatus: finalScore >= 55 ? 'passed' as const : 'warning' as const, scanSummary: finalScore >= 55 ? 'Published with normal discovery. Scanner found Buildprint files, repo context, and no high-risk signals.' : `Published with limited discovery. ${notes.join('; ') || 'Scanner wants more repo context.'}`, scanScore: finalScore, discoveryTier: finalScore >= 55 ? 'normal' as const : 'limited' as const, badges: unique(badges) };
+      return { scanStatus: finalScore >= 55 ? 'passed' as const : 'warning' as const, scanSummary: finalScore >= 55 ? 'Published with normal discovery. Scanner found a current Buildprint package manifest, canonical read order, repo context, and no high-risk signals.' : `Published with limited discovery. ${notes.join('; ') || 'Scanner wants more repo context.'}`, scanScore: finalScore, discoveryTier: finalScore >= 55 ? 'normal' as const : 'limited' as const, badges: unique(badges) };
     }
-    if (hasEntrypoint) return { scanStatus: 'warning' as const, scanSummary: 'Published with limited discovery. Scanner found BUILDPRINT.md but package metadata may be missing.', scanScore: Math.max(20, Math.min(70, score)), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
+    if (hasEntrypoint && hasPackageManifest) return { scanStatus: 'warning' as const, scanSummary: `Published with limited discovery. Scanner found BUILDPRINT.md and package.json, but the package manifest is missing current canonical metadata. ${notes.join('; ')}`, scanScore: Math.max(25, Math.min(70, score)), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
+    if (hasEntrypoint && hasLegacyRouter) return { scanStatus: 'warning' as const, scanSummary: 'Published with limited discovery. Scanner found BUILDPRINT.md with legacy buildprint.json metadata; add package.json with canonical read order for normal discovery.', scanScore: Math.max(20, Math.min(68, score)), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
+    if (hasEntrypoint) return { scanStatus: 'warning' as const, scanSummary: 'Published with limited discovery. Scanner found BUILDPRINT.md but current package metadata may be missing.', scanScore: Math.max(20, Math.min(65, score)), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
     return { scanStatus: 'warning' as const, scanSummary: 'Published with limited discovery. This looks like a normal GitHub project; run Mapper OS if it still needs Buildprint files.', scanScore: Math.max(10, Math.min(55, score)), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
   } catch {
     return { scanStatus: 'warning' as const, scanSummary: 'Published with limited discovery. Scanner could not complete; retry/review later.', scanScore: Math.max(10, Math.min(45, score)), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
