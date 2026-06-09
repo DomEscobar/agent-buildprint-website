@@ -332,7 +332,7 @@ export function openEngagementDb(databasePath: string, clock: Clock = () => new 
     JOIN users ON users.id = buildprint_submissions.user_id
   `;
   const selectPublicSubmissions = db.query<SubmissionRow, []>(`${submissionSelect} WHERE visibility = 'published' AND review_status != 'rejected' AND discovery_tier != 'hidden' ORDER BY CASE discovery_tier WHEN 'normal' THEN 0 ELSE 1 END, scan_score DESC, datetime(buildprint_submissions.updated_at) DESC LIMIT 200`);
-  const selectUserSubmissions = db.query<SubmissionRow, [string]>(`${submissionSelect} WHERE user_id = ? ORDER BY datetime(buildprint_submissions.updated_at) DESC`);
+  const selectUserSubmissions = db.query<SubmissionRow, [string]>(`${submissionSelect} WHERE user_id = ? AND visibility = 'published' ORDER BY datetime(buildprint_submissions.updated_at) DESC`);
   const selectSubmissionById = db.query<SubmissionRow, [string]>(`${submissionSelect} WHERE buildprint_submissions.id = ?`);
   const insertSubmission = db.query(`
     INSERT INTO buildprint_submissions (

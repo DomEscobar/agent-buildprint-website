@@ -145,6 +145,8 @@ test('community Buildprint submissions publish immediately, list, promote, and r
 
   const removeResponse = await app.fetch(request(`/api/me/buildprints/${(created.submission as { id: string }).id}`, { method: 'DELETE', headers: { cookie } }));
   expect(removeResponse.status).toBe(200);
+  const mineAfterRemove = await body(await app.fetch(request('/api/me/buildprints', { headers: { cookie } })));
+  expect((mineAfterRemove.submissions as unknown[]).length).toBe(0);
   const afterRemove = await body(await app.fetch(request('/api/community-buildprints')));
   expect((afterRemove.submissions as unknown[]).length).toBe(0);
 });
