@@ -10,70 +10,27 @@ const { cards, recentCards, runnableCount, trustCounts, typeCounts, contextCount
     <section class="registry-hf-hero">
       <div class="container registry-hf-hero-inner">
         <div>
-          <p class="registry-v2-kicker">Agent Buildprint Standard</p>
-          <h1>The implementation packet for coding agents.</h1>
-          <p class="registry-v2-lede">A Buildprint is a portable standard for giving an AI coding agent the missing context before it writes code: intent, repo scope, contracts, build phases, checks, artifacts, and honest proof boundaries.</p>
+          <p class="registry-v2-kicker">Agent Buildprint Registry</p>
+          <h1>Buildprints for coding agents.</h1>
+          <p class="registry-v2-lede">Discover agent-ready Buildprints by category, source, entrypoint, files, and real activity. Free-form packages, factual metadata, no decorative scoring.</p>
           <div class="registry-hf-hero-actions">
-            <a class="registry-v2-primary" href="#registry-list">Browse Buildprints</a>
-            <a href="/about/">Read the standard</a>
-            <a href="/create/">Submit Buildprint</a>
+            <a href="/about/">About</a>
           </div>
         </div>
-        <aside class="registry-create-card standard-packet-card" aria-label="Agent Buildprint packet anatomy">
+        <aside class="registry-create-card" aria-label="Submit Buildprint">
           <div class="registry-create-copy">
-            <span>Standard packet</span>
-            <h2>What the agent receives</h2>
-            <p>Not a prompt dump. A small package with files the agent can inspect, execute, and prove against.</p>
+            <span>Submit</span>
+            <h2>Submit Buildprint</h2>
+            <p>Built something reusable? Paste the GitHub URL and submit it to the registry.</p>
           </div>
-          <div class="standard-packet-files" aria-label="Buildprint package files">
-            <span><code>README.md</code><b>goal and boundaries</b></span>
-            <span><code>SPEC.md</code><b>acceptance rules</b></span>
-            <span><code>CONTRACTS.md</code><b>APIs and data</b></span>
-            <span><code>QA_PLAN.md</code><b>proof checks</b></span>
+          <div class="registry-create-actions">
+            <a class="registry-create-primary" href="/create/">Submit Buildprint</a>
           </div>
           <div class="registry-create-facts" aria-label="Registry facts">
             <span><b>{buildprints.length}</b> Buildprints</span>
-            <span><b>{runnableCount}</b> runnable</span>
+            <span><b>{runnableCount}</b> copy-ready</span>
           </div>
         </aside>
-      </div>
-    </section>
-
-    <section class="container standard-intro-section" aria-labelledby="standard-intro-title">
-      <div class="standard-intro-head">
-        <span class="eyebrow"><b>01</b> Why this exists</span>
-        <h2 id="standard-intro-title">Prompts are conversations. Buildprints are reusable build contracts.</h2>
-        <p>Agent Buildprint proposes a simple standard: if agent work is worth repeating, it should be packaged with source context, constraints, expected outputs, and proof files so another agent can run it again without rediscovering everything from chat history.</p>
-      </div>
-      <div class="standard-grid" aria-label="Buildprint standard pillars">
-        <article>
-          <span>Package</span>
-          <h3>All build context lives together</h3>
-          <p>Product intent, target files, interfaces, risks, phases, and checks are stored as inspectable files instead of buried in one long prompt.</p>
-        </article>
-        <article>
-          <span>Run</span>
-          <h3>Agents get a clear entrypoint</h3>
-          <p>Each Buildprint can expose copy-ready instructions or an <code>agb start</code> package so a coding agent starts from the same rails every time.</p>
-        </article>
-        <article>
-          <span>Prove</span>
-          <h3>Claims must carry evidence</h3>
-          <p>Good Buildprints publish receipts, QA notes, diffs, and proof levels so visitors can see what was actually tested and what was not.</p>
-        </article>
-      </div>
-      <div class="proof-ladder" aria-label="Proof levels">
-        <div>
-          <b>Proof ladder</b>
-          <span>draft</span>
-          <i></i>
-          <span>fixture</span>
-          <i></i>
-          <span>real-app fixture</span>
-          <i></i>
-          <span>live integration</span>
-        </div>
-        <p>The registry should separate “idea”, “runs in a fixture”, “works against a real app checkout”, and “gates a live deployed system”. That keeps the standard useful without overclaiming.</p>
       </div>
     </section>
 
