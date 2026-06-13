@@ -77,6 +77,18 @@ export const canonicalFilePurposes: Record<string, string> = {
   'PLAN.md': 'execution index, when present',
   'CONTRACTS.md': 'interface/data contracts, when present',
   'START_HERE.md': 'executable packet start router',
+  'capability.yaml': 'machine-readable capability contract',
+  'author.yaml': 'machine-readable Buildprint authoring contract',
+  '00-intake.md': 'Buildprint authoring intake protocol',
+  '01-capability-boundary.md': 'capability boundary definition protocol',
+  '02-contract-authoring.md': 'capability contract authoring protocol',
+  '03-phase-authoring.md': 'capability phase authoring protocol',
+  '04-validation-and-publication.md': 'capability publication validation protocol',
+  '00-host-assessment.md': 'capability host assessment protocol',
+  '01-integration-plan.md': 'capability integration planning protocol',
+  'apply.md': 'capability application instructions',
+  'verify.md': 'capability proof and verification contract',
+  'compatibility.md': 'host compatibility and composition rules',
   'PRE_IMPLEMENTATION_QUESTIONS.md': 'pre-coding question gate and safe defaults',
   'blueprint.yaml': 'machine-readable executable packet router',
   '02-context/context-map.yaml': 'active context and capability routing',
@@ -100,6 +112,8 @@ function filePurpose(file: string) {
   if (canonicalFilePurposes[file]) return canonicalFilePurposes[file];
   if (file.startsWith('03-capabilities/')) return 'executable capability packet file';
   if (file.startsWith('capabilities/')) return 'capability pack execution file';
+  if (file.startsWith('02-implementation-phases/')) return 'capability implementation phase';
+  if (file.startsWith('templates/capability-packet/')) return 'capability packet template';
   if (file.startsWith('plans/')) return 'phase rail';
   if (file.startsWith('proof/')) return 'offline proof artifact';
   if (file.startsWith('conformance/')) return 'target-app conformance artifact';
@@ -258,21 +272,56 @@ function firstPhaseFile(files: string[]) {
 }
 
 function packetShape(files: string[]) {
-  const isCapabilityPacket = hasFile(files, 'START_HERE.md') && hasFile(files, 'blueprint.yaml');
+  const isLegacyCapabilityPacket = hasFile(files, 'START_HERE.md') && hasFile(files, 'blueprint.yaml');
+  const isCapabilityBuildprint = hasFile(files, 'capability.yaml') && hasFile(files, 'apply.md') && hasFile(files, 'verify.md') && hasFile(files, 'compatibility.md');
+  const isBuildprintAuthor = hasFile(files, 'author.yaml') && hasFile(files, '00-intake.md') && hasFile(files, '04-validation-and-publication.md');
   const isExecutableBlueprint = hasFile(files, '01-questions.md') && hasFile(files, '02-project-setup.md') && hasFile(files, 'blueprint.yaml') && hasFile(files, '03-phases/phase-index.yaml');
   const firstPhase = firstPhaseFile(files);
-  const readOrder = (isCapabilityPacket
+  const readOrder = (isLegacyCapabilityPacket
     ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml', '02-context/context-map.yaml', 'PRE_IMPLEMENTATION_QUESTIONS.md', '02-context/team-stack.yaml', '02-context/ux-contract.md', '02-context/design-quality-bar.md']
+    : isCapabilityBuildprint
+      ? [
+        'BUILDPRINT.md',
+        'capability.yaml',
+        'compatibility.md',
+        '00-host-assessment.md',
+        '01-integration-plan.md',
+        'apply.md',
+        '02-implementation-phases/01-contract-and-config.md',
+        '02-implementation-phases/02-core-integration.md',
+        '02-implementation-phases/03-host-wiring.md',
+        '02-implementation-phases/04-user-operator-surface.md',
+        '02-implementation-phases/05-verification-and-receipt.md',
+        'verify.md',
+        'schemas/capability.schema.json',
+      ]
+    : isBuildprintAuthor
+      ? [
+        'BUILDPRINT.md',
+        'author.yaml',
+        '00-intake.md',
+        '01-capability-boundary.md',
+        '02-contract-authoring.md',
+        '03-phase-authoring.md',
+        '04-validation-and-publication.md',
+        'templates/capability-packet/BUILDPRINT.md',
+        'templates/capability-packet/capability.yaml',
+        'README.md',
+      ]
     : isExecutableBlueprint
       ? ['BUILDPRINT.md', '01-questions.md', '02-project-setup.md', 'blueprint.yaml', '03-phases/phase-index.yaml', firstPhase, '04-review.md', '05-handover.md'].filter((file): file is string => Boolean(file))
       : ['BUILDPRINT.md']).filter((file) => hasFile(files, file));
-  const canonicalStart = isCapabilityPacket ? 'START_HERE.md' : 'BUILDPRINT.md';
-  const instructionRule = isCapabilityPacket
+  const canonicalStart = isLegacyCapabilityPacket ? 'START_HERE.md' : 'BUILDPRINT.md';
+  const instructionRule = isLegacyCapabilityPacket
     ? 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the compatibility bootstrap, then START_HERE.md and blueprint.yaml route the executable packet. Load only the active capability packet named by the router/context map; do not read unrelated capability packets upfront.'
+    : isCapabilityBuildprint
+      ? 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the canonical start. capability.yaml is the machine-readable capability contract. This is a phased capability grafting protocol: assess host, plan integration, implement bounded phases, verify, and write a capability receipt. It is not a whole-product phase plan.'
+    : isBuildprintAuthor
+      ? 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the canonical start. author.yaml is the machine-readable authoring contract. This packet creates new Capability Buildprints; it does not install the capability into a host app.'
     : isExecutableBlueprint
       ? 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the canonical execution authority. Complete 01-questions.md and 02-project-setup.md before phase work; blueprint.yaml and other structured files are machine-readable mirrors/routers, not competing instructions.'
       : 'Do not scrape human cards. Use this manifest, agent.md, and raw files. BUILDPRINT.md is the canonical start file and owns the required read order, phase gates, and acceptance gates. Structured control files are machine-readable mirrors only.';
-  return { isCapabilityPacket, isExecutableBlueprint, canonicalStart, readOrder, instructionRule };
+  return { isCapabilityPacket: isLegacyCapabilityPacket || isCapabilityBuildprint, isExecutableBlueprint, canonicalStart, readOrder, instructionRule };
 }
 
 function uniformAgentPrompt(bp: Pick<Buildprint, 'slug' | 'title' | 'files'>) {

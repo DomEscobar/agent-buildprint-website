@@ -169,10 +169,24 @@ async function scanGithubBuildprint(input: ReturnType<typeof normalizeGithubUrl>
     const hasPackageManifest = names.has('package.json');
     const hasBlueprintRouter = names.has('blueprint.yaml');
     const hasLegacyRouter = names.has('buildprint.json');
+    const hasCapabilityManifest = names.has('capability.yaml');
+    const hasCapabilityAssessment = names.has('00-host-assessment.md');
+    const hasCapabilityPlan = names.has('01-integration-plan.md');
+    const hasCapabilityApply = names.has('apply.md');
+    const hasCapabilityVerify = names.has('verify.md');
+    const hasCapabilityCompatibility = names.has('compatibility.md');
+    const hasCapabilitySchema = names.has('schemas') || names.has('capability.schema.json');
+    const hasCapabilityPhaseDir = names.has('02-implementation-phases');
+    const hasCapabilityCore = hasCapabilityManifest && hasCapabilityApply && hasCapabilityVerify && hasCapabilityCompatibility;
+    const hasCapabilityPhases = hasCapabilityAssessment && hasCapabilityPlan && hasCapabilityPhaseDir;
     if (hasEntrypoint) score += 20;
     if (hasPackageManifest) { score += 18; badges.push('package-manifest'); }
     if (hasBlueprintRouter) { score += 10; badges.push('blueprint-router'); }
     if (hasLegacyRouter) { score += 5; badges.push('legacy-router'); }
+    if (hasCapabilityManifest) { score += 18; badges.push('capability-manifest'); }
+    if (hasCapabilityCore) { score += 16; badges.push('capability-contract'); }
+    if (hasCapabilityPhases) { score += 14; badges.push('capability-phases'); }
+    if (hasCapabilitySchema) { score += 4; badges.push('capability-schema'); }
     if (containsAny(fileNames, ['agents.md', 'claude.md', 'cursor', 'codex', 'openclaw', 'mcp'])) { score += 7; badges.push('agent-workflow'); }
     if (containsAny(fileNames, ['src', 'app', 'server', 'package.json', 'pyproject.toml', 'go.mod'])) { score += 6; badges.push('implementation'); }
 
@@ -220,11 +234,17 @@ async function scanGithubBuildprint(input: ReturnType<typeof normalizeGithubUrl>
       notes.push('possible impersonation wording');
     }
 
+    if (hasEntrypoint && hasCapabilityCore && hasCapabilityPhases) {
+      badges.push('complete-capability', 'complete-files', 'runnable-candidate');
+      const finalScore = Math.max(0, Math.min(100, score));
+      return { scanStatus: finalScore >= 55 ? 'passed' as const : 'warning' as const, scanSummary: finalScore >= 55 ? 'Published with normal discovery. Scanner found a phased Capability Buildprint with manifest, host assessment, integration plan, apply/verify rules, and no high-risk signals.' : `Published with limited discovery. ${notes.join('; ') || 'Scanner wants more repo context.'}`, scanScore: finalScore, discoveryTier: finalScore >= 55 ? 'normal' as const : 'limited' as const, badges: unique(badges) };
+    }
     if (hasEntrypoint && hasCanonicalPackage) {
       badges.push('complete-package', 'complete-files', 'runnable-candidate');
       const finalScore = Math.max(0, Math.min(100, score));
       return { scanStatus: finalScore >= 55 ? 'passed' as const : 'warning' as const, scanSummary: finalScore >= 55 ? 'Published with normal discovery. Scanner found a current Buildprint package manifest, canonical read order, repo context, and no high-risk signals.' : `Published with limited discovery. ${notes.join('; ') || 'Scanner wants more repo context.'}`, scanScore: finalScore, discoveryTier: finalScore >= 55 ? 'normal' as const : 'limited' as const, badges: unique(badges) };
     }
+    if (hasEntrypoint && hasCapabilityCore) return { scanStatus: 'warning' as const, scanSummary: 'Published with limited discovery. Scanner found a Capability Buildprint contract, but host assessment, integration plan, or implementation phases are missing.', scanScore: Math.max(30, Math.min(72, score)), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
     if (hasEntrypoint && hasPackageManifest) return { scanStatus: 'warning' as const, scanSummary: `Published with limited discovery. Scanner found BUILDPRINT.md and package.json, but the package manifest is missing current canonical metadata. ${notes.join('; ')}`, scanScore: Math.max(25, Math.min(70, score)), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
     if (hasEntrypoint && hasLegacyRouter) return { scanStatus: 'warning' as const, scanSummary: 'Published with limited discovery. Scanner found BUILDPRINT.md with legacy buildprint.json metadata; add package.json with canonical read order for normal discovery.', scanScore: Math.max(20, Math.min(68, score)), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };
     if (hasEntrypoint) return { scanStatus: 'warning' as const, scanSummary: 'Published with limited discovery. Scanner found BUILDPRINT.md but current package metadata may be missing.', scanScore: Math.max(20, Math.min(65, score)), discoveryTier: 'limited' as const, badges: unique([...badges, 'needs-review']) };

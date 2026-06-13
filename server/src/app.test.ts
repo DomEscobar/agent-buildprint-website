@@ -212,6 +212,47 @@ test('legacy buildprint.json submissions are limited until they publish current 
   expect((created.submission as { badges: string[] }).badges).not.toContain('complete-package');
 });
 
+test('phased Capability Buildprint submissions get normal discovery', async () => {
+  const db = openEngagementDb(':memory:', () => new Date('2026-05-29T12:00:00.000Z'));
+  openDbs.push(db);
+  const user = db.upsertGithubUser({ githubId: 987, githubLogin: 'CapabilityAuthor', displayName: 'Capability Author' });
+  const session = db.createSession(user.id);
+  const app = createApp(db, {
+    githubClientId: '',
+    githubClientSecret: '',
+    fetch: async (url) => {
+      if (String(url).includes('/contents/')) {
+        return Response.json([
+          { name: 'BUILDPRINT.md' },
+          { name: 'capability.yaml' },
+          { name: 'compatibility.md' },
+          { name: '00-host-assessment.md' },
+          { name: '01-integration-plan.md' },
+          { name: 'apply.md' },
+          { name: 'verify.md' },
+          { name: '02-implementation-phases' },
+          { name: 'schemas' },
+          { name: 'README.md' },
+        ]);
+      }
+      return Response.json({ description: 'Capability Buildprint packet', size: 10, stargazers_count: 1, created_at: '2026-04-01T00:00:00.000Z' });
+    },
+  });
+
+  const createdResponse = await app.fetch(request('/api/me/buildprints', {
+    method: 'POST',
+    headers: { cookie: `agb_session=${session.token}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ githubUrl: 'https://github.com/capability/stripe-subscriptions' }),
+  }));
+  expect(createdResponse.status).toBe(201);
+  const created = await body(createdResponse);
+  expect(created.submission).toMatchObject({ scanStatus: 'passed', discoveryTier: 'normal' });
+  expect((created.submission as { badges: string[] }).badges).toContain('capability-manifest');
+  expect((created.submission as { badges: string[] }).badges).toContain('capability-contract');
+  expect((created.submission as { badges: string[] }).badges).toContain('capability-phases');
+  expect((created.submission as { badges: string[] }).badges).toContain('complete-capability');
+});
+
 test('GitHub OAuth callback creates session and editable profile', async () => {
   const db = openEngagementDb(':memory:', () => new Date('2026-05-29T12:00:00.000Z'));
   openDbs.push(db);
