@@ -19,21 +19,30 @@ const { cards, recentCards, runnableCount, trustCounts, typeCounts, contextCount
             </a>
           </div>
           <h1>Buildprints for coding agents.</h1>
-          <p class="registry-v2-lede">Discover agent-ready Buildprints by category, source, entrypoint, files, and real activity. Free-form packages, factual metadata, no decorative scoring.</p>
+          <p class="registry-v2-lede">Executable packets that tell agents what to build, how to apply it, and what proof is required before success.</p>
           <div class="registry-hf-hero-actions">
-            <a href="/about/">About</a>
+            <a class="registry-v2-primary" href="#registry-list">Browse buildprints</a>
+            <a href="/standard/">Read the standard</a>
           </div>
         </div>
-        <aside class="registry-create-card" aria-label="Submit Buildprint">
-          <div class="registry-create-copy">
-            <span>Submit</span>
-            <h2>Submit Buildprint</h2>
-            <p>Built something reusable? Paste the GitHub URL and submit it to the registry.</p>
+        <aside class="registry-standard-card" aria-label=".buildprint standard">
+          <div class="registry-standard-card-head">
+            <span>.buildprint standard</span>
+            <b>starts at BUILDPRINT.md</b>
           </div>
-          <div class="registry-create-actions">
-            <a class="registry-create-primary" href="/create/">Submit Buildprint</a>
+          <div class="registry-standard-routes" aria-label="Buildprint packet types">
+            <div>
+              <strong>Product</strong>
+              <span>builds a whole system</span>
+              <code>BUILDPRINT.md -> blueprint.yaml -> phases</code>
+            </div>
+            <div>
+              <strong>Capability</strong>
+              <span>adds one feature to a host app</span>
+              <code>BUILDPRINT.md -> capability.yaml -> apply/verify</code>
+            </div>
           </div>
-          <div class="registry-create-facts" aria-label="Registry facts">
+          <div class="registry-standard-facts" aria-label="Registry facts">
             <span><b>{buildprints.length}</b> Buildprints</span>
             <span><b>{runnableCount}</b> copy-ready</span>
           </div>
