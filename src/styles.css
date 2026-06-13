@@ -3890,6 +3890,81 @@ body { background: var(--bg); }
 .registry-hf-hero-actions a, .registry-hf-result-actions a { display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:999px; padding:9px 12px; font-size:13px; font-weight:850; }
 .registry-hf-hero-actions a.registry-v2-primary { background:var(--text); border-color:var(--text); color:var(--bg); }
 .registry-hf-hero-actions a:hover, .registry-hf-result-actions a:hover { border-color:var(--accent); }
+.standard-packet-card { width:min(390px, 100%); }
+.standard-packet-card .registry-create-copy h2 { font-size:26px; line-height:1.02; }
+.standard-packet-files { display:grid; gap:8px; margin:16px 0; }
+.standard-packet-files span {
+  display:grid;
+  grid-template-columns:minmax(106px,.7fr) minmax(0,1fr);
+  gap:10px;
+  align-items:center;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  border-radius:12px;
+  padding:9px 10px;
+}
+.standard-packet-files code { color:var(--text); font-size:12px; font-weight:850; }
+.standard-packet-files b { color:var(--muted); font-size:12px; font-weight:760; text-align:right; }
+.standard-intro-section { padding:42px 0 18px; }
+.standard-intro-head { display:grid; gap:12px; max-width:900px; margin-bottom:18px; }
+.standard-intro-head h2 { max-width:820px; }
+.standard-intro-head p { max-width:820px; margin:0; font-size:17px; }
+.standard-grid {
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:12px;
+}
+.standard-grid article {
+  border:1px solid var(--border);
+  background:var(--surface);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:0 1px 0 rgba(0,0,0,.02);
+}
+.standard-grid span {
+  display:inline-flex;
+  width:max-content;
+  border:1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  background:var(--accent-soft);
+  color:var(--accent);
+  border-radius:999px;
+  padding:5px 8px;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.standard-grid h3 { margin:16px 0 8px; font-size:21px; }
+.standard-grid p { margin:0; font-size:14px; }
+.proof-ladder {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(300px,.62fr);
+  gap:18px;
+  align-items:center;
+  margin-top:12px;
+  border:1px solid color-mix(in srgb, var(--verified) 22%, var(--border));
+  background:linear-gradient(135deg, var(--surface), color-mix(in srgb, var(--stamp-bg) 58%, var(--surface)));
+  border-radius:18px;
+  padding:15px;
+}
+.proof-ladder div { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.proof-ladder b { margin-right:6px; }
+.proof-ladder span {
+  border:1px solid var(--border);
+  background:var(--surface);
+  border-radius:999px;
+  color:var(--text);
+  padding:7px 10px;
+  font-size:12px;
+  font-weight:850;
+  white-space:nowrap;
+}
+.proof-ladder i {
+  width:18px;
+  height:1px;
+  background:color-mix(in srgb, var(--verified) 52%, var(--border));
+}
+.proof-ladder p { margin:0; font-size:14px; }
 .registry-hf-stats { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; max-width:430px; }
 .registry-hf-stats span, .registry-hf-stats a { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); background:var(--surface); color:var(--muted); border-radius:999px; padding:8px 10px; font-size:13px; font-weight:750; box-shadow:0 1px 0 rgba(0,0,0,.02); }
 .registry-hf-stats b { color:var(--text); }
@@ -3944,6 +4019,9 @@ body { background: var(--bg); }
 @media (max-width: 900px) {
   .registry-hf-hero-inner { grid-template-columns:1fr; }
   .registry-hf-stats { justify-content:flex-start; }
+  .standard-packet-card { width:100%; }
+  .standard-grid { grid-template-columns:1fr; }
+  .proof-ladder { grid-template-columns:1fr; }
 }
 @media (max-width: 760px) {
   .registry-hf-shell { grid-template-columns:1fr; }
@@ -3968,6 +4046,12 @@ body { background: var(--bg); }
   .registry-hf-filter-card { box-shadow:none; }
   .registry-hf-avatar { width:38px; height:38px; border-radius:11px; font-size:12px; }
   .registry-hf-meta { justify-content:flex-end; gap:8px 10px; font-size:10.5px; }
+  .standard-intro-section { padding:28px 0 12px; }
+  .standard-packet-files span { grid-template-columns:1fr; gap:3px; }
+  .standard-packet-files b { text-align:left; }
+  .standard-grid article { border-radius:16px; padding:15px; }
+  .proof-ladder div { align-items:flex-start; flex-direction:column; }
+  .proof-ladder i { width:1px; height:12px; margin-left:12px; }
 }
 
 /* README-first Buildprint detail pages */
