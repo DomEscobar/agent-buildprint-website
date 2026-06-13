@@ -35,6 +35,18 @@ const readOrder = manifest.readOrder?.length ? manifest.readOrder : [entrypoint]
 const readOrderFiles = readOrder.map((filePath) => bp.files.find((file) => file.path === filePath)).filter(Boolean);
 const topLevelCount = new Set(bp.files.map((file) => file.path.split('/')[0])).size;
 const hasRunArtifact = Boolean(bp.proofUrl || bp.visualRun?.demoUrl);
+const proofLinks = bp.slug === 'rbac-permissions' ? [
+  {
+    label: 'Fixture proof',
+    href: '/proofs/rbac-permissions-fixture-proof/',
+    meta: 'Mini host fixture, 4/4 tests, no external keys.',
+  },
+  {
+    label: 'Umami real-app proof',
+    href: '/proofs/rbac-permissions-umami-real-app-proof/',
+    meta: 'Real OSS app integration fixture, 4/4 focused tests.',
+  },
+] : [];
 const runRows = hasRunArtifact ? [
   {
     status: 'linked',
@@ -148,6 +160,20 @@ const readmeHtml = markdown.render(readmeText || description);
             {detailBadges.map((badge) => <span class="submission-badge"><span set:html={registryBadgeIcon(badge)} />{badge}</span>)}
           </div>
         </div>
+
+        {proofLinks.length > 0 && (
+          <div class="readme-side-card readme-proof-card">
+            <span class="side-label">Proofs</span>
+            <div class="readme-proof-list">
+              {proofLinks.map((proof) => (
+                <a class="readme-proof-link" href={proof.href}>
+                  <strong>{proof.label}</strong>
+                  <span>{proof.meta}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div class="readme-side-card readme-source-card">
           <span class="side-label">Buildprint source</span>

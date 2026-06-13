@@ -418,6 +418,31 @@ pre { overflow:auto; background:var(--surface-2); border:1px solid var(--border)
 .proof-two .command-card { align-self:stretch; }
 .proof-artifact-link:hover { border-color:var(--accent); }
 .proof-note { box-shadow:none; }
+.readme-proof-list { display:grid; gap:8px; margin-top:10px; }
+.readme-proof-link { display:grid; gap:4px; border:1px solid var(--border); border-radius:14px; padding:11px 12px; background:var(--surface-2); color:var(--text); }
+.readme-proof-link strong { font-size:14px; }
+.readme-proof-link span { color:var(--muted); font-size:12px; line-height:1.35; }
+.readme-proof-link:hover { border-color:var(--accent); transform:translateY(-1px); }
+.artifact-modal-open { overflow:hidden; }
+.artifact-modal-shell[hidden] { display:none; }
+.artifact-modal-shell { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:20px; }
+.artifact-modal-backdrop { position:absolute; inset:0; background:rgba(15,23,42,.62); backdrop-filter:blur(8px); }
+.artifact-modal { position:relative; z-index:1; width:min(980px,100%); max-height:min(86vh,900px); display:grid; grid-template-rows:auto auto minmax(0,1fr); border:1px solid var(--border); border-radius:22px; background:var(--surface); box-shadow:0 30px 90px rgba(15,23,42,.28); overflow:hidden; }
+.artifact-modal-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:18px 20px 14px; border-bottom:1px solid var(--border); background:var(--surface-2); }
+.artifact-modal-head h2 { margin:4px 0 0; font-size:clamp(22px,3vw,34px); letter-spacing:-.04em; overflow-wrap:anywhere; }
+.artifact-modal-close { width:36px; height:36px; border:1px solid var(--border); border-radius:999px; background:var(--surface); color:var(--text); font:inherit; font-weight:950; cursor:pointer; }
+.artifact-modal-actions { display:flex; justify-content:flex-end; gap:10px; padding:12px 20px; border-bottom:1px solid var(--border); }
+.artifact-modal-body { min-height:0; overflow:auto; padding:20px; }
+.artifact-modal-body pre { white-space:pre-wrap; overflow-wrap:anywhere; }
+.artifact-modal-body code { overflow-wrap:anywhere; }
+@media (max-width:640px) {
+  .artifact-modal-shell { padding:10px; align-items:stretch; }
+  .artifact-modal { max-height:calc(100vh - 20px); border-radius:16px; }
+  .artifact-modal-head { padding:14px; }
+  .artifact-modal-actions { padding:10px 14px; justify-content:stretch; }
+  .artifact-modal-actions .btn { width:100%; }
+  .artifact-modal-body { padding:14px; }
+}
 
 /* Blueprint Dossier visual pass — isolated for easy revert */
 :root {

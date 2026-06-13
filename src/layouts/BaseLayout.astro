@@ -53,6 +53,22 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
       <span>Agent Buildprint - reusable specs for AI coding agents.</span>
       <span class="footer-links"><a href="/buildprints/">Browse</a><a href="/about/">About</a><a href="/create/">Create</a><a href="https://github.com/DomEscobar/agent-buildprint">GitHub</a><a href="/llms.txt">Agent nav</a><a href="/buildprints/index.json">JSON</a></span>
     </footer>
+    <div class="artifact-modal-shell" data-artifact-modal hidden>
+      <div class="artifact-modal-backdrop" data-artifact-close></div>
+      <section class="artifact-modal" role="dialog" aria-modal="true" aria-labelledby="artifactModalTitle">
+        <header class="artifact-modal-head">
+          <div>
+            <span class="eyebrow"><b>↳</b> Proof artifact</span>
+            <h2 id="artifactModalTitle" data-artifact-title>Artifact</h2>
+          </div>
+          <button class="artifact-modal-close" type="button" data-artifact-close aria-label="Close artifact viewer">x</button>
+        </header>
+        <div class="artifact-modal-actions">
+          <a class="btn" href="#" target="_blank" rel="noreferrer" data-artifact-raw>Open raw file</a>
+        </div>
+        <div class="artifact-modal-body readme-rendered" data-artifact-content></div>
+      </section>
+    </div>
     <script is:inline>
       const themeToggle = document.getElementById('themeToggle');
       const themeLabel = document.querySelector('[data-theme-label]');
@@ -84,6 +100,125 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
           navAuth.replaceChildren(link);
         })
         .catch(() => {});
+
+      const artifactModal = document.querySelector('[data-artifact-modal]');
+      const artifactTitle = document.querySelector('[data-artifact-title]');
+      const artifactContent = document.querySelector('[data-artifact-content]');
+      const artifactRaw = document.querySelector('[data-artifact-raw]');
+      const artifactCloseControls = document.querySelectorAll('[data-artifact-close]');
+      function escapeHtml(value) {
+        return value.replace(/[&<>"']/g, (char) => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+        }[char]));
+      }
+      function inlineMarkdown(value) {
+        return escapeHtml(value)
+          .replace(/`([^`]+)`/g, '<code>$1</code>')
+          .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+          .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+      }
+      function renderArtifact(text, href) {
+        if (/\.(diff|patch)$/i.test(href)) {
+          return `<pre><code>${escapeHtml(text)}</code></pre>`;
+        }
+        const lines = text.split(/\r?\n/);
+        const html = [];
+        let inCode = false;
+        let code = [];
+        let list = [];
+        let paragraph = [];
+        function flushList() {
+          if (!list.length) return;
+          html.push(`<ul>${list.map((item) => `<li>${inlineMarkdown(item)}</li>`).join('')}</ul>`);
+          list = [];
+        }
+        function flushParagraph() {
+          if (!paragraph.length) return;
+          html.push(`<p>${inlineMarkdown(paragraph.join(' '))}</p>`);
+          paragraph = [];
+        }
+        function flushCode() {
+          if (!code.length) return;
+          html.push(`<pre><code>${escapeHtml(code.join('\n'))}</code></pre>`);
+          code = [];
+        }
+        for (const line of lines) {
+          const fence = line.match(/^```/);
+          if (fence && !inCode) {
+            flushList();
+            flushParagraph();
+            inCode = true;
+            code = [];
+            continue;
+          }
+          if (fence && inCode) {
+            inCode = false;
+            flushCode();
+            continue;
+          }
+          if (inCode) {
+            code.push(line);
+            continue;
+          }
+          if (!line.trim()) {
+            flushList();
+            flushParagraph();
+            continue;
+          }
+          const heading = line.match(/^(#{1,4})\s+(.+)$/);
+          if (heading) {
+            flushList();
+            flushParagraph();
+            const level = Math.min(heading[1].length + 1, 5);
+            html.push(`<h${level}>${inlineMarkdown(heading[2])}</h${level}>`);
+            continue;
+          }
+          const bullet = line.match(/^\s*[-*]\s+(.+)$/);
+          if (bullet) {
+            flushParagraph();
+            list.push(bullet[1]);
+            continue;
+          }
+          paragraph.push(line.trim());
+        }
+        flushCode();
+        flushList();
+        flushParagraph();
+        return html.join('\n');
+      }
+      function closeArtifactModal() {
+        if (!artifactModal) return;
+        artifactModal.hidden = true;
+        document.body.classList.remove('artifact-modal-open');
+      }
+      artifactCloseControls.forEach((control) => control.addEventListener('click', closeArtifactModal));
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeArtifactModal();
+      });
+      document.addEventListener('click', async (event) => {
+        const link = event.target.closest?.('a.proof-artifact-link, .proof-hero a.btn');
+        if (!link || !artifactModal || !artifactContent || !artifactTitle || !artifactRaw) return;
+        const href = link.getAttribute('href') || '';
+        if (!/\.(md|txt|diff|patch)$/i.test(href)) return;
+        event.preventDefault();
+        const label = link.querySelector('code')?.textContent || link.textContent?.trim() || 'Artifact';
+        artifactTitle.textContent = label;
+        artifactRaw.href = href;
+        artifactContent.innerHTML = '<p>Loading artifact…</p>';
+        artifactModal.hidden = false;
+        document.body.classList.add('artifact-modal-open');
+        try {
+          const response = await fetch(href);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          artifactContent.innerHTML = renderArtifact(await response.text(), href);
+        } catch (error) {
+          artifactContent.innerHTML = `<p>Could not load this artifact inline. Use the raw file link above.</p>`;
+        }
+      });
     </script>
   </body>
 </html>
