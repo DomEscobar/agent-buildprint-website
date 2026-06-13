@@ -1,0 +1,112 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title=".buildprint standard"
+  description="The .buildprint standard is a portable implementation packet format for coding agents: files, contracts, proof, and clear limits."
+>
+  <main class="standard-page" aria-labelledby="standard-title">
+    <section class="standard-hero">
+      <div class="container standard-hero-grid">
+        <div class="standard-copy">
+          <p class="deck-kicker">.buildprint standard</p>
+          <h1 id="standard-title">A portable packet for agent work.</h1>
+          <p class="deck-lead">A Buildprint gives a coding agent the context it usually has to infer: intent, scope, files, contracts, build steps, and proof checks in one version-controlled folder.</p>
+          <div class="standard-actions">
+            <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
+            <a class="btn" href="#badge-meaning">What the badge means</a>
+          </div>
+        </div>
+
+        <div class="standard-tree" aria-label=".buildprint package anatomy">
+          <div class="standard-tree-topline">
+            <span>example-buildprint/</span>
+            <b>agent-readable</b>
+          </div>
+          <pre><code>my-buildprint/
+├── BUILDPRINT.md       # Required: start here
+├── README.md           # Required: human summary
+├── SPEC.md             # Required: target behavior
+├── CONTRACTS.md        # Required: APIs, data, boundaries
+├── QA_PLAN.md          # Required: proof checks
+├── agent.md            # Optional: agent entrypoint
+├── prompt.txt          # Optional: copy-ready prompt
+├── package.json        # Optional: metadata + commands
+└── proofs/             # Optional: receipts, reports, patches</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="container standard-section standard-definition">
+      <div class="standard-section-head">
+        <span>What it is</span>
+        <h2>Not a prompt. Not a framework. A handoff format.</h2>
+      </div>
+      <div class="standard-cards">
+        <article class="standard-card">
+          <h3>Portable</h3>
+          <p>The packet is just files. It can live in a repo, be reviewed in a pull request, copied into another project, or loaded by tooling.</p>
+        </article>
+        <article class="standard-card">
+          <h3>Agent-readable</h3>
+          <p>The start file, contracts, and checks tell an agent where to begin, what to preserve, and how success will be verified.</p>
+        </article>
+        <article class="standard-card">
+          <h3>Proof-aware</h3>
+          <p>Claims stay tied to evidence: fixture tests, real-app patches, receipts, QA reports, or explicit limits when proof is not available yet.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="badge-meaning" class="container standard-section standard-badge-section">
+      <div class="standard-badge-large" aria-label=".buildprint standard badge">
+        <span aria-hidden="true">✓</span>
+        <b>.buildprint</b>
+        <em>standard</em>
+      </div>
+      <div class="standard-meaning">
+        <span>Badge meaning</span>
+        <h2>It means the page links to an implementation packet, not a vague claim.</h2>
+        <p>The badge is intentionally modest. It does not mean certification, endorsement, or production approval. It means the Buildprint follows the public packet shape and exposes the files needed for agents and humans to inspect the work.</p>
+      </div>
+    </section>
+
+    <section class="container standard-section">
+      <div class="standard-section-head">
+        <span>Trust levels</span>
+        <h2>Proof can grow without pretending everything is finished.</h2>
+      </div>
+      <div class="standard-ladder" aria-label="Buildprint proof ladder">
+        <article>
+          <span>01</span>
+          <h3>Draft</h3>
+          <p>Packet shape exists. Claims are still mostly author intent.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h3>Fixture</h3>
+          <p>Behavior is exercised in a small controlled project or test harness.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h3>Real-app fixture</h3>
+          <p>The Buildprint is applied against a pinned real application with public patch or receipt.</p>
+        </article>
+        <article>
+          <span>04</span>
+          <h3>Live integration</h3>
+          <p>The result is verified inside a running production-like integration path.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="container standard-section standard-final">
+      <div>
+        <span>Use it</span>
+        <h2>Give agents a packet they can run, inspect, and improve.</h2>
+        <p>Start with the closest Buildprint, then adapt the contracts, phases, and proof checks to the host repo before implementation begins.</p>
+      </div>
+      <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
+    </section>
+  </main>
+</BaseLayout>
