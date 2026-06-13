@@ -1,0 +1,65 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+const proofBase = '/proofs/rbac-permissions-fixture-proof';
+const artifacts = [
+  { label: 'PUBLIC_PROOF_SUMMARY.md', href: `${proofBase}/PUBLIC_PROOF_SUMMARY.md`, text: 'Public summary, claim boundary, command, result, and fixture scope.' },
+  { label: 'QA_REPORT.md', href: `${proofBase}/QA_REPORT.md`, text: 'Exact RBAC fixture checks and test output.' },
+  { label: 'CAPABILITY_RECEIPT.md', href: `${proofBase}/CAPABILITY_RECEIPT.md`, text: 'Host assessment, plan, changed files, proof level, risks, and non-claims.' },
+];
+---
+<BaseLayout title="RBAC permissions fixture proof — Agent Buildprint" description="A fixture proof that the RBAC Permissions Capability Buildprint can be applied with host assessment, capability plan, deny-by-default policy, protected surface, receipt, and 4/4 passing tests.">
+  <main>
+    <section class="container hero detail-hero proof-hero">
+      <a class="pill" href="/buildprints/rbac-permissions/">← RBAC Capability</a>
+      <h1>RBAC permissions fixture proof.</h1>
+      <p class="lead">The first Capability Buildprint dogfood proof without external keys. The live RBAC packet was loaded with <code>agb start</code>, applied to a small host fixture, and verified with allow, deny, missing-role, and central-helper tests.</p>
+      <div class="tags detail-meta"><span class="tag hot">Fixture proof passed</span><span class="tag">4/4 tests</span><span class="tag">No external keys</span><span class="tag">Receipt written</span></div>
+      <div class="actions"><a class="btn primary" href={`${proofBase}/PUBLIC_PROOF_SUMMARY.md`}>Open summary</a><a class="btn" href="/buildprints/rbac-permissions/">Use RBAC Buildprint</a><a class="btn" href="/buildprints/capability-buildprint-standard/">Capability Standard</a></div>
+    </section>
+
+    <section class="container section proof-summary-grid">
+      <div class="panel proof-stat"><b>14</b><span>snapshot files</span></div>
+      <div class="panel proof-stat"><b>3</b><span>local checkpoints</span></div>
+      <div class="panel proof-stat"><b>4/4</b><span>tests passed</span></div>
+      <div class="panel proof-stat"><b>fixture</b><span>proof level</span></div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>⌁</b> Capability verified</span><h2>Deny-by-default RBAC graft</h2></div></div>
+      <div class="grid columns two proof-two">
+        <div class="panel">
+          <h3>What was validated</h3>
+          <ul class="clean-list check-list">
+            <li>Live RBAC package manifest loaded through <code>agb start</code>.</li>
+            <li><code>.buildprint/host-assessment.md</code> was written before implementation.</li>
+            <li><code>.buildprint/capability-plan.md</code> mapped the host-specific policy.</li>
+            <li>Central RBAC helper denied unknown users, unknown roles, and missing roles.</li>
+            <li>Admin access passed; member and missing-role access were denied.</li>
+            <li><code>.buildprint/capability-receipt.md</code> recorded proof level and non-claims.</li>
+          </ul>
+        </div>
+        <div class="panel command-card">
+          <div class="panel-row"><span class="eyebrow"><b>✓</b> Verification</span></div>
+          <code class="command-line">npm test</code>
+          <p><code>npm test</code> ran Node's built-in test runner. Final result: 4/4 passing.</p>
+          <p>Selected depth: fixture proof. No database, HTTP router, or production authorization behavior is claimed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>↳</b> Artifacts</span><h2>Open the proof files</h2></div></div>
+      <div class="grid mapper-output-grid">
+        {artifacts.map((artifact) => <a class="panel mapper-artifact proof-artifact-link" href={artifact.href}><code>{artifact.label}</code><h3>{artifact.label.replace(/\.(md|json)$/,'')}</h3><p>{artifact.text}</p></a>)}
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="panel proof-note">
+        <span class="eyebrow"><b>!</b> Honest boundary</span>
+        <h2>This proves fixture RBAC behavior, not production auth.</h2>
+        <p>The proof validates the Capability Buildprint workflow and local authorization behavior. It does not claim database-backed role persistence, HTTP middleware integration, team/workspace scoping, or production authorization behavior.</p>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
