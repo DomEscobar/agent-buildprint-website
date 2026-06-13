@@ -1,0 +1,66 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+const proofBase = '/proofs/rbac-permissions-umami-real-app-proof';
+const artifacts = [
+  { label: 'PUBLIC_PROOF_SUMMARY.md', href: `${proofBase}/PUBLIC_PROOF_SUMMARY.md`, text: 'Public summary, host commit, claim boundary, command, result, and real-app fixture scope.' },
+  { label: 'QA_REPORT.md', href: `${proofBase}/QA_REPORT.md`, text: 'Install notes, default-test blocker, proof command, exact Vitest result, and checks.' },
+  { label: 'CAPABILITY_RECEIPT.md', href: `${proofBase}/CAPABILITY_RECEIPT.md`, text: 'Host assessment, plan, changed files, protected surfaces, proof level, risks, and non-claims.' },
+  { label: 'UMAMI_PATCH.diff', href: `${proofBase}/UMAMI_PATCH.diff`, text: 'Exact patch applied to the pinned Umami checkout for the integration fixture.' },
+];
+---
+<BaseLayout title="RBAC permissions Umami real-app proof — Agent Buildprint" description="A real-app integration fixture proof that the RBAC Permissions Capability Buildprint can standardize selected Umami user-admin authorization checks with a central helper and 4/4 passing allow-deny tests.">
+  <main>
+    <section class="container hero detail-hero proof-hero">
+      <a class="pill" href="/buildprints/rbac-permissions/">← RBAC Capability</a>
+      <h1>RBAC permissions on Umami.</h1>
+      <p class="lead">A real-app integration fixture proof against <code>umami-software/umami</code>. The live RBAC packet was loaded with <code>agb start</code>, mapped to Umami's existing permission layer, and verified with focused allow, deny, missing-role, and unknown-permission tests.</p>
+      <div class="tags detail-meta"><span class="tag hot">Real app fixture passed</span><span class="tag">Umami</span><span class="tag">4/4 tests</span><span class="tag">MIT host</span></div>
+      <div class="actions"><a class="btn primary" href={`${proofBase}/PUBLIC_PROOF_SUMMARY.md`}>Open summary</a><a class="btn" href="https://github.com/umami-software/umami">Host repo</a><a class="btn" href="/buildprints/rbac-permissions/">Use RBAC Buildprint</a></div>
+    </section>
+
+    <section class="container section proof-summary-grid">
+      <div class="panel proof-stat"><b>14</b><span>snapshot files</span></div>
+      <div class="panel proof-stat"><b>1</b><span>real OSS app</span></div>
+      <div class="panel proof-stat"><b>4/4</b><span>tests passed</span></div>
+      <div class="panel proof-stat"><b>real-app</b><span>integration fixture</span></div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>⌁</b> Capability verified</span><h2>Bounded RBAC standardization in Umami</h2></div></div>
+      <div class="grid columns two proof-two">
+        <div class="panel">
+          <h3>What was validated</h3>
+          <ul class="clean-list check-list">
+            <li>Live RBAC package manifest loaded through <code>agb start</code>.</li>
+            <li>Pinned host commit: <code>c0ea3aefbee7a3429ee2f824b06dc4a9dbe0b7e1</code>.</li>
+            <li><code>.buildprint/host-assessment.md</code> was written before implementation.</li>
+            <li><code>.buildprint/capability-plan.md</code> mapped the Umami-specific policy.</li>
+            <li>Selected Umami user-admin helpers route through a central AGB RBAC helper.</li>
+            <li>Admin access passed; user, view-only, missing-role, unknown-role, and unknown-permission paths denied.</li>
+          </ul>
+        </div>
+        <div class="panel command-card">
+          <div class="panel-row"><span class="eyebrow"><b>✓</b> Verification</span></div>
+          <code class="command-line">npx vitest run --config vitest.agb-rbac.config.ts</code>
+          <p>Focused Vitest proof against the real Umami permission layer. Final result: 1 file passed, 4/4 tests passed.</p>
+          <p>Selected depth: real-app integration fixture. No live HTTP server or production authorization behavior is claimed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="section-head compact"><div><span class="eyebrow"><b>↳</b> Artifacts</span><h2>Open the proof files</h2></div></div>
+      <div class="grid mapper-output-grid">
+        {artifacts.map((artifact) => <a class="panel mapper-artifact proof-artifact-link" href={artifact.href}><code>{artifact.label}</code><h3>{artifact.label.replace(/\.(md|json|diff)$/,'')}</h3><p>{artifact.text}</p></a>)}
+      </div>
+    </section>
+
+    <section class="container section">
+      <div class="panel proof-note">
+        <span class="eyebrow"><b>!</b> Honest boundary</span>
+        <h2>This proves a real-app integration fixture, not production auth.</h2>
+        <p>The proof validates the Capability Buildprint workflow and a bounded server-side Umami authorization path. It does not claim a full Umami permission migration, database migration, live HTTP authorization, or deployed production behavior.</p>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

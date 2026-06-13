@@ -1,0 +1,140 @@
+diff --git a/src/permissions/agb-rbac.ts b/src/permissions/agb-rbac.ts
+new file mode 100644
+--- /dev/null
++++ b/src/permissions/agb-rbac.ts
+@@ -0,0 +1,31 @@
++import { ROLES } from '@/lib/constants';
++import type { Auth } from '@/lib/types';
++
++const AGB_RBAC_ALL = 'all';
++
++export const AGB_RBAC_PERMISSIONS = {
++  userCreate: 'user:create',
++  usersView: 'users:view',
++  userDelete: 'user:delete',
++} as const;
++
++const AGB_RBAC_ROLE_PERMISSIONS = {
++  [ROLES.admin]: [AGB_RBAC_ALL],
++  [ROLES.user]: [],
++  [ROLES.viewOnly]: [],
++} as const;
++
++const KNOWN_AGB_RBAC_PERMISSIONS = new Set<string>(Object.values(AGB_RBAC_PERMISSIONS));
++
++export function hasAgbRbacPermission(auth: Pick<Auth, 'user'> | null | undefined, permission: string) {
++  const role = auth?.user?.role;
++
++  if (!role || !KNOWN_AGB_RBAC_PERMISSIONS.has(permission)) {
++    return false;
++  }
++
++  const permissions = AGB_RBAC_ROLE_PERMISSIONS[role as keyof typeof AGB_RBAC_ROLE_PERMISSIONS];
++
++  return Boolean(
++    (permissions as readonly string[] | undefined)?.includes(AGB_RBAC_ALL) ||
++      (permissions as readonly string[] | undefined)?.includes(permission),
++  );
++}
+diff --git a/src/permissions/agb-rbac.test.ts b/src/permissions/agb-rbac.test.ts
+new file mode 100644
+--- /dev/null
++++ b/src/permissions/agb-rbac.test.ts
+@@ -0,0 +1,48 @@
++import { describe, expect, test } from 'vitest';
++
++import { ROLES } from '@/lib/constants';
++import type { Auth } from '@/lib/types';
++import { canCreateUser, canDeleteUser, canViewUsers } from './user';
++import { AGB_RBAC_PERMISSIONS, hasAgbRbacPermission } from './agb-rbac';
++
++function authFor(role?: string): Pick<Auth, 'user'> {
++  return {
++    user: {
++      id: 'user-1',
++      username: 'fixture-user',
++      role: role as string,
++      isAdmin: role === ROLES.admin,
++    },
++  };
++}
++
++describe('AGB RBAC integration fixture', () => {
++  test('allows admin to use selected user-admin surfaces', async () => {
++    const auth = authFor(ROLES.admin);
++
++    await expect(canCreateUser(auth)).resolves.toBe(true);
++    await expect(canViewUsers(auth)).resolves.toBe(true);
++    await expect(canDeleteUser(auth)).resolves.toBe(true);
++  });
++
++  test('denies normal and view-only users for selected user-admin surfaces', async () => {
++    for (const role of [ROLES.user, ROLES.viewOnly]) {
++      const auth = authFor(role);
++
++      await expect(canCreateUser(auth)).resolves.toBe(false);
++      await expect(canViewUsers(auth)).resolves.toBe(false);
++      await expect(canDeleteUser(auth)).resolves.toBe(false);
++    }
++  });
++
++  test('denies missing user and missing role states', async () => {
++    await expect(canCreateUser({})).resolves.toBe(false);
++    await expect(canViewUsers(authFor(undefined))).resolves.toBe(false);
++    await expect(canDeleteUser(authFor(undefined))).resolves.toBe(false);
++  });
++
++  test('denies unknown roles and unknown permissions through the central helper', () => {
++    expect(hasAgbRbacPermission(authFor('owner'), AGB_RBAC_PERMISSIONS.usersView)).toBe(false);
++    expect(hasAgbRbacPermission(authFor(ROLES.admin), 'billing:refund')).toBe(false);
++  });
++});
+diff --git a/src/permissions/user.ts b/src/permissions/user.ts
+index 8aa453a..c927a74 100644
+--- a/src/permissions/user.ts
++++ b/src/permissions/user.ts
+@@ -1,7 +1,8 @@
+ import type { Auth } from '@/lib/types';
++import { AGB_RBAC_PERMISSIONS, hasAgbRbacPermission } from './agb-rbac';
+ 
+ export async function canCreateUser({ user }: Auth) {
+-  return user?.isAdmin ?? false;
++  return hasAgbRbacPermission({ user }, AGB_RBAC_PERMISSIONS.userCreate);
+ }
+ 
+ export async function canViewUser({ user }: Auth, viewedUserId: string) {
+@@ -17,7 +18,7 @@ export async function canViewUser({ user }: Auth, viewedUserId: string) {
+ }
+ 
+ export async function canViewUsers({ user }: Auth) {
+-  return user?.isAdmin ?? false;
++  return hasAgbRbacPermission({ user }, AGB_RBAC_PERMISSIONS.usersView);
+ }
+ 
+ export async function canUpdateUser({ user }: Auth, viewedUserId: string) {
+@@ -33,5 +34,5 @@ export async function canUpdateUser({ user }: Auth, viewedUserId: string) {
+ }
+ 
+ export async function canDeleteUser({ user }: Auth) {
+-  return user?.isAdmin ?? false;
++  return hasAgbRbacPermission({ user }, AGB_RBAC_PERMISSIONS.userDelete);
+ }
+diff --git a/vitest.agb-rbac.config.ts b/vitest.agb-rbac.config.ts
+new file mode 100644
+--- /dev/null
++++ b/vitest.agb-rbac.config.ts
+@@ -0,0 +1,14 @@
++import { fileURLToPath } from 'node:url';
++import { defineConfig } from 'vitest/config';
++
++export default defineConfig({
++  resolve: {
++    alias: {
++      '@': fileURLToPath(new URL('./src', import.meta.url)),
++    },
++  },
++  test: {
++    environment: 'node',
++    include: ['src/permissions/agb-rbac.test.ts'],
++  },
++});
