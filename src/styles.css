@@ -1243,8 +1243,24 @@ html, body { max-width: 100%; overflow-x: clip; }
   gap:14px;
   margin-top:28px;
 }
+.evolution-stack {
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  position:relative;
+}
+.evolution-stack::before {
+  content:'';
+  position:absolute;
+  left:9%;
+  right:9%;
+  top:50%;
+  height:2px;
+  background:linear-gradient(90deg, var(--border), var(--accent), color-mix(in srgb, #16a34a 70%, var(--accent)));
+  transform:translateY(-50%);
+  opacity:.52;
+}
 .category-stack article {
   position:relative;
+  z-index:1;
   border:1px solid var(--border);
   border-radius:24px;
   background:var(--surface);
@@ -1275,6 +1291,9 @@ html, body { max-width: 100%; overflow-x: clip; }
 .category-stack article.active::after {
   background:linear-gradient(90deg, var(--accent), color-mix(in srgb, #16a34a 70%, var(--accent)));
   animation:meterMove 2.6s ease-in-out infinite alternate;
+}
+.evolution-stack article.active {
+  transform:translateY(-4px);
 }
 .category-stack span {
   color:var(--accent);
@@ -1566,6 +1585,8 @@ html, body { max-width: 100%; overflow-x: clip; }
   .why-slide { grid-template-columns:1fr; }
   .about-hero-grid { grid-template-columns:1fr; }
   .hero-proof-strip,.journey-compare,.category-stack,.rbac-board { grid-template-columns:1fr; }
+  .evolution-stack::before { display:none; }
+  .evolution-stack article.active { transform:none; }
   .rbac-board { grid-template-areas:"request" "packet" "run" "proof"; }
   .package-graphic { grid-template-columns:1fr; }
   .package-spine { min-height:0; }
