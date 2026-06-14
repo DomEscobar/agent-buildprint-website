@@ -3998,6 +3998,43 @@ body { background: var(--bg); }
 .registry-hf-hero-actions a, .registry-hf-result-actions a { display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:999px; padding:9px 12px; font-size:13px; font-weight:850; }
 .registry-hf-hero-actions a.registry-v2-primary { background:var(--text); border-color:var(--text); color:var(--bg); }
 .registry-hf-hero-actions a:hover, .registry-hf-result-actions a:hover { border-color:var(--accent); }
+.agent-compat-strip {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:18px;
+  color:var(--muted);
+}
+.agent-compat-strip > span {
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  line-height:1.2;
+}
+.agent-compat-strip b {
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  color:color-mix(in srgb, var(--text) 78%, var(--muted));
+  font-size:13px;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:0;
+  white-space:nowrap;
+}
+.agent-compat-strip b::before {
+  content:'';
+  width:6px;
+  height:6px;
+  margin-right:7px;
+  border-radius:999px;
+  background:color-mix(in srgb, var(--accent) 58%, var(--text));
+  opacity:.72;
+}
+.agent-compat-strip b:last-child::before {
+  display:none;
+}
 .registry-hf-stats { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; max-width:430px; }
 .registry-hf-stats span, .registry-hf-stats a { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); background:var(--surface); color:var(--muted); border-radius:999px; padding:8px 10px; font-size:13px; font-weight:750; box-shadow:0 1px 0 rgba(0,0,0,.02); }
 .registry-hf-stats b { color:var(--text); }
@@ -4929,6 +4966,10 @@ body { background: var(--bg); }
 }
 @media (max-width:640px) {
   .registry-hero-kicker-row { align-items:flex-start; gap:8px; }
+  .agent-compat-strip { gap:7px; }
+  .agent-compat-strip > span,
+  .agent-compat-strip b { font-size:12px; }
+  .agent-compat-strip b::before { width:5px; height:5px; margin-right:5px; }
   .standard-hero-grid { grid-template-columns:1fr; padding:38px 0 26px; gap:22px; }
   .standard-copy h1 { font-size:clamp(39px,12vw,54px); }
   .standard-tree { border-radius:15px; }
