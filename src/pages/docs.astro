@@ -19,6 +19,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
             <a href="#install-agb">Install AGB</a>
             <a href="#getting-started">Getting started</a>
             <a href="#create-buildprint">Create a Buildprint</a>
+            <a href="#copy-prompts">Copy prompts</a>
           </nav>
         </div>
       </aside>
@@ -146,7 +147,79 @@ agb start \
           <p>Give the agent a specific capability target, not a vague feature. For example: <code>Create a Capability Buildprint for Stripe Checkout subscriptions with webhook-verified entitlement state in compatible Next.js apps.</code></p>
           <p>The expected output is a new capability folder with <code>BUILDPRINT.md</code>, <code>capability.yaml</code>, compatibility rules, apply/verify instructions, implementation phases, and README metadata.</p>
         </section>
+
+        <section id="copy-prompts" class="docs-doc-section">
+          <h2>Copy prompts</h2>
+          <p>Use these after loading a Buildprint with AGB. They keep the agent pointed at the packet instead of drifting into a normal vague coding prompt.</p>
+
+          <div class="docs-copy-list">
+            <article class="docs-copy-card">
+              <div>
+                <h3>Run a loaded Buildprint</h3>
+                <button type="button" data-copy-prompt>Copy</button>
+              </div>
+              <pre><code>Use the Buildprint snapshot in this workspace.
+
+Start by reading .buildprint/next-agent.md.
+Follow the required read order exactly.
+Do not scrape website cards or invent missing packet files.
+Before implementation, answer any hard-stop questions.
+Run the required verification checks.
+Finish with a handover: outcome, evidence, changed files, known gaps, and next steps.</code></pre>
+            </article>
+
+            <article class="docs-copy-card">
+              <div>
+                <h3>Create a Capability Buildprint</h3>
+                <button type="button" data-copy-prompt>Copy</button>
+              </div>
+              <pre><code>Use the Capability Buildprint Author snapshot in this workspace.
+
+Start by reading .buildprint/next-agent.md.
+Create a reusable Capability Buildprint for:
+&lt;specific capability target&gt;
+
+Make the capability specific before writing packet files.
+Include BUILDPRINT.md, capability.yaml, compatibility.md, apply.md, verify.md, host assessment, integration plan, implementation phases, and README metadata.
+Do not install the capability into a host app.
+Do not claim proof unless the proof exists.
+Put uncertainty into hard-stop questions or explicit assumptions.</code></pre>
+            </article>
+
+            <article class="docs-copy-card">
+              <div>
+                <h3>Review a Buildprint before publishing</h3>
+                <button type="button" data-copy-prompt>Copy</button>
+              </div>
+              <pre><code>Review this Buildprint packet before publication.
+
+Check:
+- BUILDPRINT.md is the canonical start file.
+- Read order is explicit.
+- Scope and non-goals are clear.
+- Compatibility and host assumptions are stated.
+- Implementation phases are ordered and bounded.
+- Verification has concrete checks.
+- Claims do not exceed evidence.
+- README is useful for humans but not the agent authority.
+
+Return blocking issues first, then suggested edits.</code></pre>
+            </article>
+          </div>
+        </section>
       </article>
     </div>
   </main>
+  <script is:inline>
+    document.querySelectorAll('[data-copy-prompt]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const card = button.closest('.docs-copy-card');
+        const text = card?.querySelector('pre')?.innerText?.trim();
+        if (!text) return;
+        await navigator.clipboard.writeText(text);
+        button.textContent = 'Copied';
+        window.setTimeout(() => { button.textContent = 'Copy'; }, 1400);
+      });
+    });
+  </script>
 </BaseLayout>
