@@ -106,60 +106,6 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       </div>
     </section>
 
-    <section id="rbac-example" class="why-slide rbac-slide">
-      <div class="slide-copy">
-        <p class="slide-number">Example journey</p>
-        <h2>A founder asks for RBAC. The Buildprint turns it into a buildable packet.</h2>
-        <p>The request stays human-simple, but the agent receives a concrete implementation path: assess the host app, define permissions, wire helpers, protect routes, and prove deny-by-default behavior.</p>
-      </div>
-
-      <div class="rbac-board" aria-label="RBAC Buildprint flow">
-        <div class="founder-request">
-          <span>Founder request</span>
-          <b>Add roles and permissions without breaking the app.</b>
-        </div>
-        <div class="rbac-packet">
-          <span>RBAC Buildprint</span>
-          <ul>
-            <li>Host assessment</li>
-            <li>Capability contract</li>
-            <li>Integration phases</li>
-            <li>Verification receipt</li>
-          </ul>
-        </div>
-        <div class="agent-run">
-          <span>Agent run</span>
-          <b>Map -> implement -> test -> report</b>
-          <small>every step has a named checkpoint</small>
-        </div>
-        <div class="verified-result">
-          <span>Proof</span>
-          <b>Allow, deny, missing-role, and unknown-permission checks pass.</b>
-        </div>
-      </div>
-    </section>
-
-    <section class="why-slide package-slide about-inside">
-      <div class="slide-copy">
-        <p class="slide-number">What the agent gets</p>
-        <h2>The packet answers the questions an agent usually has to guess.</h2>
-        <p>A Buildprint stays flexible about implementation details, but it fixes the important product, boundary, and proof decisions before coding starts.</p>
-      </div>
-      <div class="package-graphic" aria-label="Buildprint package anatomy">
-        <div class="package-spine">
-          <b>Buildprint</b>
-          <span>agent-ready packet</span>
-        </div>
-        <div class="file-cascade" aria-label="Buildprint package files">
-          <article><b>Start file</b><span>where the agent begins</span></article>
-          <article><b>Spec</b><span>what must exist when finished</span></article>
-          <article><b>Contracts</b><span>data, APIs, side effects, and boundaries</span></article>
-          <article><b>Plan</b><span>the build order and stop points</span></article>
-          <article><b>Checks</b><span>how the result gets verified</span></article>
-        </div>
-      </div>
-    </section>
-
     <section class="why-slide split-slide about-proof">
       <div class="slide-copy">
         <p class="slide-number">Why investors should care</p>
