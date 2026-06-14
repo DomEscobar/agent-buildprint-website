@@ -1,0 +1,149 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="Buildprint docs"
+  description="Developer-first guide to Buildprint packet files, markdown structure, read order, and getting started."
+>
+  <main class="docs-page" aria-labelledby="docs-title">
+    <section class="docs-hero">
+      <div class="container docs-hero-grid">
+        <div>
+          <p class="deck-kicker">Docs</p>
+          <h1 id="docs-title">Buildprints are markdown packets agents can run.</h1>
+          <p class="deck-lead">A Buildprint is a small folder of markdown and structured files. The markdown explains the work. The YAML routes the agent. The proof files define when the job is actually done.</p>
+          <div class="standard-actions">
+            <a class="btn primary" href="#getting-started">Get started</a>
+            <a class="btn" href="/standard/">Packet standard</a>
+          </div>
+        </div>
+        <div class="docs-terminal" aria-label="Basic Buildprint file structure">
+          <div class="docs-terminal-bar"><span></span><span></span><span></span><b>example-buildprint/</b></div>
+          <pre><code>example-buildprint/
+|-- BUILDPRINT.md       # start here
+|-- README.md           # human overview
+|-- blueprint.yaml      # machine-readable route
+|-- 00-questions.md     # alignment before code
+|-- 01-project-setup.md # repo setup and commands
+|-- 02-ui-identity.md   # product/UI rules
+|-- 03-phases/
+|   |-- phase-index.yaml
+|   |-- phase-flow.md
+|   |-- 01-contracts.md
+|   |-- 02-implementation.md
+|   `-- 03-verification.md
+`-- HANDOVER.md         # final receipt</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="container docs-section">
+      <div class="docs-section-head">
+        <span>The basic idea</span>
+        <h2>Put the work in files before the agent starts coding.</h2>
+      </div>
+      <div class="docs-flow" aria-label="Buildprint workflow">
+        <article>
+          <b>1</b>
+          <h3>Describe the target</h3>
+          <p>What should exist when the work is done, and what must not change.</p>
+        </article>
+        <article>
+          <b>2</b>
+          <h3>Order the work</h3>
+          <p>Setup first, then contracts, implementation, wiring, and verification.</p>
+        </article>
+        <article>
+          <b>3</b>
+          <h3>Run the proof</h3>
+          <p>Tests, fixtures, receipts, or known limits decide whether the job is complete.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="container docs-section docs-two-up">
+      <div class="docs-section-head">
+        <span>Two common shapes</span>
+        <h2>Product packets build a system. Capability packets add one reusable power.</h2>
+      </div>
+      <div class="docs-shape-grid">
+        <article class="docs-shape">
+          <h3>Product Buildprint</h3>
+          <p>Use this when the agent is building a whole app, tool, or major product surface.</p>
+          <pre><code>product-buildprint/
+|-- BUILDPRINT.md
+|-- 00-questions.md
+|-- 01-project-setup.md
+|-- 02-ui-identity.md
+|-- blueprint.yaml
+|-- 03-phases/
+|   |-- phase-index.yaml
+|   |-- phase-flow.md
+|   `-- 01-...md
+`-- HANDOVER.md</code></pre>
+        </article>
+
+        <article class="docs-shape">
+          <h3>Capability Buildprint</h3>
+          <p>Use this when the agent is adding one bounded feature to an existing app, like RBAC or subscriptions.</p>
+          <pre><code>capability-buildprint/
+|-- BUILDPRINT.md
+|-- capability.yaml
+|-- compatibility.md
+|-- apply.md
+|-- verify.md
+|-- 00-host-assessment.md
+|-- 01-integration-plan.md
+`-- 02-implementation-phases/
+    |-- 01-contract-and-config.md
+    |-- 02-core-integration.md
+    |-- 03-host-wiring.md
+    `-- 05-verification-and-receipt.md</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="container docs-section">
+      <div class="docs-section-head">
+        <span>Read order</span>
+        <h2>Tell the agent where authority lives.</h2>
+      </div>
+      <div class="docs-read-order">
+        <div class="docs-read-step">
+          <b>BUILDPRINT.md</b>
+          <p>The canonical start file. It names the goal, read order, phase gates, and acceptance rules.</p>
+        </div>
+        <div class="docs-read-step">
+          <b>Questions and setup</b>
+          <p>Alignment, assumptions, environment commands, package manager, and repo constraints.</p>
+        </div>
+        <div class="docs-read-step">
+          <b>Phases</b>
+          <p>Small ordered implementation files. Each phase should be clear enough to review.</p>
+        </div>
+        <div class="docs-read-step">
+          <b>Verification</b>
+          <p>Required proof before the agent can call the work finished.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="getting-started" class="container docs-section docs-start">
+      <div>
+        <span>Getting started</span>
+        <h2>Use an existing Buildprint first.</h2>
+        <p>Pick the closest packet, load exact files, then ask the agent to follow the packet instead of guessing from a loose prompt.</p>
+      </div>
+      <div class="docs-command-card">
+        <p>For an agent-readable bootstrap:</p>
+        <pre><code>git clone https://github.com/DomEscobar/agent-buildprint
+node agent-buildprint/bin/agb.js start \
+  https://agent-buildprint.com/buildprints/rbac-permissions/package.json .
+
+# then read:
+.buildprint/next-agent.md</code></pre>
+        <p>Manual path: open a Buildprint, read <code>BUILDPRINT.md</code>, answer alignment questions, follow phases, run verification, then write the handover.</p>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
