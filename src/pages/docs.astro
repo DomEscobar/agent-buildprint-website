@@ -1,5 +1,22 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const runInstall = `npm install -g agent-buildprint
+mkdir rbac-build
+cd rbac-build
+agb start https://agent-buildprint.com/buildprints/rbac-permissions/package.json .`;
+
+const runNoInstall = `git clone https://github.com/DomEscobar/agent-buildprint
+node agent-buildprint/bin/agb.js start \\
+  https://agent-buildprint.com/buildprints/rbac-permissions/package.json .`;
+
+const authorStart = `mkdir author-stripe-buildprint
+cd author-stripe-buildprint
+agb start \\
+  https://agent-buildprint.com/buildprints/capability-buildprint-author/package.json .`;
+
+const authorPrompt = `Create a Capability Buildprint for Stripe Checkout subscriptions
+with webhook-verified entitlement state in compatible Next.js apps.`;
 ---
 <BaseLayout
   title="Buildprint docs"
@@ -10,11 +27,16 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       <aside class="docs-sidebar" aria-label="Docs navigation">
         <div class="docs-sidebar-inner">
           <a class="docs-sidebar-title" href="/docs/">Buildprint docs</a>
-          <nav>
+          <nav aria-label="On this page">
+            <span class="docs-nav-group">Overview</span>
             <a href="#start">Start here</a>
+            <a href="#why-buildprints">Why Buildprints</a>
+            <span class="docs-nav-group">Use a packet</span>
             <a href="#run-ready">Run a ready Buildprint</a>
             <a href="#load-agb">Load files with AGB</a>
+            <span class="docs-nav-group">Author</span>
             <a href="#author">Create a Buildprint</a>
+            <span class="docs-nav-group">Reference</span>
             <a href="#anatomy">Packet anatomy</a>
             <a href="#agent-readable">Agent-readable packets</a>
             <a href="#proof">Proof and handover</a>
@@ -25,13 +47,20 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 
       <article class="docs-content">
         <header class="docs-doc-header">
-          <p class="docs-breadcrumb">Docs / Start</p>
-          <h1 id="docs-title">Buildprint docs</h1>
-          <p>Buildprints are reusable implementation packets for coding agents. Start by choosing the path that matches the job.</p>
+          <p class="docs-breadcrumb">Docs <span aria-hidden="true">/</span> <span data-breadcrumb>Start here</span></p>
+          <p class="docs-kicker">Documentation</p>
+          <h1 id="docs-title">Run, load, and author Buildprints.</h1>
+          <p class="docs-lead">Buildprints are reusable implementation packets for coding agents. This guide covers the three jobs: run a maintained packet, load its exact files with AGB, or author a new one.</p>
+          <div class="docs-header-actions">
+            <a class="btn primary" href="/buildprints/">Open registry</a>
+            <a class="btn" href="/standard/">Packet format</a>
+            <a class="btn" href="https://github.com/DomEscobar/agent-buildprint">GitHub</a>
+          </div>
         </header>
 
         <section id="start" class="docs-doc-section">
           <h2>Start here</h2>
+          <p>Pick a path. They are ordered from the fastest to the most hands-on.</p>
           <div class="docs-path-grid" aria-label="Choose a Buildprint workflow">
             <a class="docs-path-card" href="#run-ready">
               <span>01</span>
@@ -51,20 +80,26 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           </div>
         </section>
 
+        <section id="why-buildprints" class="docs-doc-section">
+          <h2>Why Buildprints</h2>
+          <p>A coding agent usually has to rediscover the job from a short prompt: what to build, what to preserve, which files matter, and what counts as done. A Buildprint makes that explicit and reusable, so a fresh agent can start without you re-explaining it.</p>
+          <div class="docs-check-grid">
+            <article><b>Less rediscovery</b><span>Scope, read order, and constraints travel with the packet instead of living in your head.</span></article>
+            <article><b>Reviewable</b><span>It is just files, so it lives in a repo, ships in a pull request, and diffs like code.</span></article>
+            <article><b>Proof-bound</b><span>Each packet names the checks that prove success and the limits that remain unproven.</span></article>
+          </div>
+          <div class="docs-action-panel">
+            <div>
+              <strong>Read the full packet format</strong>
+              <span>The Standard page documents both packet shapes, files, and the proof ladder.</span>
+            </div>
+            <a href="/standard/">Open the Standard</a>
+          </div>
+        </section>
+
         <section id="run-ready" class="docs-doc-section">
           <h2>Run a ready Buildprint</h2>
           <p>This is the fastest path. The registry detail page carries the maintained agent prompt for each packet.</p>
-          <div class="docs-flow-strip" aria-label="Run a ready Buildprint flow">
-            <span>Open registry</span>
-            <i></i>
-            <span>Pick packet</span>
-            <i></i>
-            <span>Copy Agent Prompt</span>
-            <i></i>
-            <span>Paste in repo</span>
-            <i></i>
-            <span>Review handover</span>
-          </div>
           <ol class="docs-steps">
             <li>Open the registry.</li>
             <li>Choose a packet, for example RBAC Permissions.</li>
@@ -84,10 +119,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
         <section id="load-agb" class="docs-doc-section">
           <h2>Load exact files with AGB</h2>
           <p>Use AGB when you want the packet files downloaded into the workspace before the agent starts.</p>
-          <pre><code>npm install -g agent-buildprint
-mkdir rbac-build
-cd rbac-build
-agb start https://agent-buildprint.com/buildprints/rbac-permissions/package.json .</code></pre>
+          <div class="docs-code">
+            <pre><code>{runInstall}</code></pre>
+            <button class="copy-btn docs-copy" type="button" data-copy={runInstall} aria-label="Copy command">Copy</button>
+          </div>
           <p>Expected output:</p>
           <pre><code>.buildprint/
 |-- next-agent.md
@@ -102,9 +137,10 @@ agb start https://agent-buildprint.com/buildprints/rbac-permissions/package.json
             <span>Tell the coding agent to read <code>.buildprint/next-agent.md</code>. That file points it at the required packet files and read order.</span>
           </div>
           <p>No global install:</p>
-          <pre><code>git clone https://github.com/DomEscobar/agent-buildprint
-node agent-buildprint/bin/agb.js start \
-  https://agent-buildprint.com/buildprints/rbac-permissions/package.json .</code></pre>
+          <div class="docs-code">
+            <pre><code>{runNoInstall}</code></pre>
+            <button class="copy-btn docs-copy" type="button" data-copy={runNoInstall} aria-label="Copy command">Copy</button>
+          </div>
         </section>
 
         <section id="author" class="docs-doc-section">
@@ -121,13 +157,15 @@ node agent-buildprint/bin/agb.js start \
             <i></i>
             <span>Publish</span>
           </div>
-          <pre><code>mkdir author-stripe-buildprint
-cd author-stripe-buildprint
-agb start \
-  https://agent-buildprint.com/buildprints/capability-buildprint-author/package.json .</code></pre>
+          <div class="docs-code">
+            <pre><code>{authorStart}</code></pre>
+            <button class="copy-btn docs-copy" type="button" data-copy={authorStart} aria-label="Copy command">Copy</button>
+          </div>
           <p>Then give the coding agent a specific target:</p>
-          <pre><code>Create a Capability Buildprint for Stripe Checkout subscriptions
-with webhook-verified entitlement state in compatible Next.js apps.</code></pre>
+          <div class="docs-code">
+            <pre><code>{authorPrompt}</code></pre>
+            <button class="copy-btn docs-copy" type="button" data-copy={authorPrompt} aria-label="Copy prompt">Copy</button>
+          </div>
           <p>Expected packet shape:</p>
           <pre><code>my-capability-buildprint/
 |-- BUILDPRINT.md
@@ -143,6 +181,13 @@ with webhook-verified entitlement state in compatible Next.js apps.</code></pre>
     |-- 02-core-integration.md
     |-- 03-host-wiring.md
     `-- 05-verification-and-receipt.md</code></pre>
+          <div class="docs-action-panel">
+            <div>
+              <strong>Ready to publish?</strong>
+              <span>Submit a finished packet to the registry from the Create page.</span>
+            </div>
+            <a href="/create/">Open Create</a>
+          </div>
         </section>
 
         <section id="anatomy" class="docs-doc-section">
@@ -168,6 +213,7 @@ with webhook-verified entitlement state in compatible Next.js apps.</code></pre>
 |   |-- 02-implementation.md
 |   `-- 03-verification.md
 `-- HANDOVER.md         # final receipt</code></pre>
+          <p>Both packet shapes and the proof ladder are documented in full on the <a href="/standard/">packet format page</a>.</p>
         </section>
 
         <section id="agent-readable" class="docs-doc-section">
@@ -178,6 +224,10 @@ with webhook-verified entitlement state in compatible Next.js apps.</code></pre>
             <article><b>Explicit boundaries</b><span>Goals, non-goals, compatibility, and host assumptions are named.</span></article>
             <article><b>Ordered phases</b><span>The packet gives implementation order instead of one giant instruction blob.</span></article>
             <article><b>Proof requirements</b><span>The agent knows which checks must pass before claiming the work is done.</span></article>
+          </div>
+          <div class="docs-note">
+            <strong>Browsing as an agent?</strong>
+            <span>Fetch <a href="/llms.txt"><code>/llms.txt</code></a> for machine-readable navigation instead of scraping the UI.</span>
           </div>
         </section>
 
@@ -208,8 +258,86 @@ with webhook-verified entitlement state in compatible Next.js apps.</code></pre>
             <li>Verification has concrete checks.</li>
             <li>README helps humans but does not override the packet authority.</li>
           </ul>
+          <div class="docs-action-panel">
+            <div>
+              <strong>Submit to the registry</strong>
+              <span>When the checklist passes, publish the packet from the Create page.</span>
+            </div>
+            <a href="/create/">Open Create</a>
+          </div>
         </section>
       </article>
     </div>
   </main>
+
+  <script>
+    function fallbackCopy(value) {
+      const textarea = document.createElement('textarea');
+      textarea.value = value;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.inset = '0 auto auto 0';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const copied = document.execCommand('copy');
+      textarea.remove();
+      if (!copied) throw new Error('Copy command failed');
+    }
+    async function copyText(value) {
+      if (navigator.clipboard?.writeText && window.isSecureContext) {
+        try {
+          await Promise.race([
+            navigator.clipboard.writeText(value),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Clipboard timeout')), 750)),
+          ]);
+          return;
+        } catch (_) {
+          // Some browser automation and locked-down contexts expose clipboard APIs that never resolve.
+        }
+      }
+      fallbackCopy(value);
+    }
+    document.querySelectorAll('.copy-btn').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const value = button.getAttribute('data-copy') || '';
+        const previous = button.textContent;
+        try {
+          await copyText(value);
+          button.textContent = 'Copied';
+          button.classList.add('copied');
+        } catch (_) {
+          button.textContent = 'Copy failed';
+          button.classList.add('copy-failed');
+        }
+        setTimeout(() => { button.textContent = previous; button.classList.remove('copied', 'copy-failed'); }, 1400);
+      });
+    });
+
+    const navLinks = Array.from(document.querySelectorAll('.docs-sidebar nav a'));
+    const sections = Array.from(document.querySelectorAll('.docs-doc-section'));
+    const breadcrumb = document.querySelector('[data-breadcrumb]');
+    const linkByHash = new Map(navLinks.map((link) => [link.getAttribute('href')?.slice(1), link]));
+    function setActive(id) {
+      const link = linkByHash.get(id);
+      if (!link) return;
+      navLinks.forEach((item) => {
+        item.classList.remove('active');
+        item.removeAttribute('aria-current');
+      });
+      link.classList.add('active');
+      link.setAttribute('aria-current', 'true');
+      if (breadcrumb) breadcrumb.textContent = link.textContent;
+    }
+    if (sections.length && 'IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActive(visible.target.id);
+      }, { rootMargin: '-30% 0px -60% 0px', threshold: [0, 0.25, 0.5, 1] });
+      sections.forEach((section) => observer.observe(section));
+    }
+  </script>
 </BaseLayout>
