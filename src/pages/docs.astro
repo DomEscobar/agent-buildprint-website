@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 ---
 <BaseLayout
   title="Buildprint docs"
-  description="Developer-first guide to Buildprint packet files, markdown structure, read order, and getting started."
+  description="Developer-first guide to running, loading, authoring, verifying, and publishing Buildprint packets."
 >
   <main class="docs-page docs-site" aria-labelledby="docs-title">
     <div class="container docs-site-shell">
@@ -11,131 +11,127 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
         <div class="docs-sidebar-inner">
           <a class="docs-sidebar-title" href="/docs/">Buildprint docs</a>
           <nav>
-            <a href="#overview">Overview</a>
-            <a href="#why-buildprints">Why Buildprints</a>
-            <a href="#coding-evolution">Coding evolution</a>
+            <a href="#start">Start here</a>
+            <a href="#run-ready">Run a ready Buildprint</a>
+            <a href="#load-agb">Load files with AGB</a>
+            <a href="#author">Create a Buildprint</a>
             <a href="#anatomy">Packet anatomy</a>
-            <a href="#product">Product Buildprint</a>
-            <a href="#capability">Capability Buildprint</a>
-            <a href="#read-order">Read order</a>
-            <a href="#install-agb">Install AGB</a>
-            <a href="#getting-started">Load a packet</a>
-            <a href="#create-buildprint">Author a packet</a>
-            <a href="#ready-prompts">Ready prompts</a>
+            <a href="#agent-readable">Agent-readable packets</a>
+            <a href="#proof">Proof and handover</a>
+            <a href="#publish">Publish checklist</a>
           </nav>
         </div>
       </aside>
 
       <article class="docs-content">
         <header class="docs-doc-header">
-          <p class="docs-breadcrumb">Docs / Basics</p>
-          <h1 id="docs-title">Buildprint basics</h1>
-          <p>A Buildprint is a folder of markdown and structured files that tells a coding agent what to build, what to preserve, what order to follow, and how to prove the work is done.</p>
+          <p class="docs-breadcrumb">Docs / Start</p>
+          <h1 id="docs-title">Buildprint docs</h1>
+          <p>Buildprints are reusable implementation packets for coding agents. Start by choosing the path that matches the job.</p>
         </header>
 
-        <section id="overview" class="docs-doc-section">
-          <h2>Overview</h2>
-          <p>A normal prompt leaves the agent to infer scope, architecture, order, and proof. A Buildprint gives the agent a reviewed packet with a canonical start file, ordered phases, constraints, and verification rules.</p>
+        <section id="start" class="docs-doc-section">
+          <h2>Start here</h2>
+          <div class="docs-path-grid" aria-label="Choose a Buildprint workflow">
+            <a class="docs-path-card" href="#run-ready">
+              <span>01</span>
+              <b>Run a ready Buildprint</b>
+              <small>Pick from the registry, copy the agent prompt, and run it in your project.</small>
+            </a>
+            <a class="docs-path-card" href="#load-agb">
+              <span>02</span>
+              <b>Load exact files with AGB</b>
+              <small>Create a local <code>.buildprint/</code> folder with the packet snapshots.</small>
+            </a>
+            <a class="docs-path-card" href="#author">
+              <span>03</span>
+              <b>Create a Buildprint</b>
+              <small>Use the author packet to generate a reusable capability packet.</small>
+            </a>
+          </div>
+        </section>
+
+        <section id="run-ready" class="docs-doc-section">
+          <h2>Run a ready Buildprint</h2>
+          <p>This is the fastest path. The registry detail page carries the maintained agent prompt for each packet.</p>
+          <div class="docs-flow-strip" aria-label="Run a ready Buildprint flow">
+            <span>Open registry</span>
+            <i></i>
+            <span>Pick packet</span>
+            <i></i>
+            <span>Copy Agent Prompt</span>
+            <i></i>
+            <span>Paste in repo</span>
+            <i></i>
+            <span>Review handover</span>
+          </div>
+          <ol class="docs-steps">
+            <li>Open the registry.</li>
+            <li>Choose a packet, for example RBAC Permissions.</li>
+            <li>Click <code>Copy Agent Prompt</code> on the Buildprint page.</li>
+            <li>Paste it into your coding agent from inside the target repo.</li>
+            <li>Review the changed files, verification evidence, and handover.</li>
+          </ol>
+          <div class="docs-action-panel">
+            <div>
+              <strong>Registry prompts</strong>
+              <span>Each Buildprint detail page has the ready agent prompt and package URLs.</span>
+            </div>
+            <a href="/buildprints/">Open registry</a>
+          </div>
+        </section>
+
+        <section id="load-agb" class="docs-doc-section">
+          <h2>Load exact files with AGB</h2>
+          <p>Use AGB when you want the packet files downloaded into the workspace before the agent starts.</p>
+          <pre><code>npm install -g agent-buildprint
+mkdir rbac-build
+cd rbac-build
+agb start https://agent-buildprint.com/buildprints/rbac-permissions/package.json .</code></pre>
+          <p>Expected output:</p>
+          <pre><code>.buildprint/
+|-- next-agent.md
+|-- source.json
+|-- state.json
+|-- progress.md
+|-- decisions.md
+|-- blockers.md
+`-- snapshots/</code></pre>
           <div class="docs-note">
-            <strong>Rule of thumb:</strong>
-            <span>If the work should be repeatable, reviewable, or handed to another agent later, it belongs in a Buildprint.</span>
+            <strong>Next step:</strong>
+            <span>Tell the coding agent to read <code>.buildprint/next-agent.md</code>. That file points it at the required packet files and read order.</span>
           </div>
-          <div class="docs-flow-strip" aria-label="Buildprint usage flow">
-            <span>Registry</span>
-            <i></i>
-            <span>Agent prompt</span>
-            <i></i>
-            <span>Packet files</span>
-            <i></i>
-            <span>Phases</span>
-            <i></i>
-            <span>Proof</span>
-          </div>
+          <p>No global install:</p>
+          <pre><code>git clone https://github.com/DomEscobar/agent-buildprint
+node agent-buildprint/bin/agb.js start \
+  https://agent-buildprint.com/buildprints/rbac-permissions/package.json .</code></pre>
         </section>
 
-        <section id="why-buildprints" class="docs-doc-section">
-          <h2>Why Buildprints</h2>
-          <p>Most AI coding work starts with an underspecified chat message. The agent then has to discover the repo, infer architecture, invent missing contracts, choose an implementation path, and judge whether its own work is done.</p>
-          <p>A Buildprint moves those decisions into a reviewable packet before coding starts.</p>
-          <div class="docs-compare-list" aria-label="Without and with Buildprints">
-            <div>
-              <h3>Without Buildprint</h3>
-              <ul>
-                <li>Loose prompt</li>
-                <li>Repo discovery during implementation</li>
-                <li>Scope drift while coding</li>
-                <li>Done claim without durable proof</li>
-              </ul>
-            </div>
-            <div>
-              <h3>With Buildprint</h3>
-              <ul>
-                <li>Named goal and non-goals</li>
-                <li>Known host context</li>
-                <li>Ordered implementation phases</li>
-                <li>Required verification and handover</li>
-              </ul>
-            </div>
+        <section id="author" class="docs-doc-section">
+          <h2>Create a Buildprint</h2>
+          <p>Do not start with a blank folder. Use the Capability Buildprint Author packet when you want to create a reusable Buildprint for a specific capability.</p>
+          <div class="docs-flow-strip" aria-label="Author a Buildprint flow">
+            <span>Capability idea</span>
+            <i></i>
+            <span>Author packet</span>
+            <i></i>
+            <span>Generated files</span>
+            <i></i>
+            <span>Review</span>
+            <i></i>
+            <span>Publish</span>
           </div>
-        </section>
-
-        <section id="coding-evolution" class="docs-doc-section">
-          <h2>Coding evolution</h2>
-          <p>Buildprints fit into the same progression developers are already seeing around coding agents.</p>
-          <div class="docs-evolution-flow" aria-label="Coding evolution flow">
-            <article><span>01</span><b>Prompting</b><small>Tell the model what you want.</small></article>
-            <article><span>02</span><b>Context engineering</b><small>Feed the repo, docs, and state.</small></article>
-            <article><span>03</span><b>Skills</b><small>Give agents reusable procedures.</small></article>
-            <article class="active"><span>04</span><b>Buildprints</b><small>Package the job with constraints and proof.</small></article>
-          </div>
-        </section>
-
-        <section id="anatomy" class="docs-doc-section">
-          <h2>Packet anatomy</h2>
-          <p>The exact files vary by packet type, but the basic structure is simple.</p>
-          <div class="docs-file-flow" aria-label="Buildprint file flow">
-            <span><b>BUILDPRINT.md</b><small>start here</small></span>
-            <span><b>*.yaml</b><small>machine route</small></span>
-            <span><b>phase files</b><small>ordered work</small></span>
-            <span><b>HANDOVER.md</b><small>receipt</small></span>
-          </div>
-          <pre><code>example-buildprint/
-|-- BUILDPRINT.md       # canonical start file
-|-- README.md           # human overview
-|-- blueprint.yaml      # machine-readable route
-|-- 00-questions.md     # alignment before coding
-|-- 01-project-setup.md # setup, commands, constraints
-|-- 02-ui-identity.md   # product/UI rules when needed
-|-- 03-phases/
-|   |-- phase-index.yaml
-|   |-- phase-flow.md
-|   |-- 01-contracts.md
-|   |-- 02-implementation.md
-|   `-- 03-verification.md
-`-- HANDOVER.md         # final receipt</code></pre>
-        </section>
-
-        <section id="product" class="docs-doc-section">
-          <h2>Product Buildprint</h2>
-          <p>Use this when the agent is building a whole app, product, tool, or large product surface.</p>
-          <pre><code>product-buildprint/
+          <pre><code>mkdir author-stripe-buildprint
+cd author-stripe-buildprint
+agb start \
+  https://agent-buildprint.com/buildprints/capability-buildprint-author/package.json .</code></pre>
+          <p>Then give the coding agent a specific target:</p>
+          <pre><code>Create a Capability Buildprint for Stripe Checkout subscriptions
+with webhook-verified entitlement state in compatible Next.js apps.</code></pre>
+          <p>Expected packet shape:</p>
+          <pre><code>my-capability-buildprint/
 |-- BUILDPRINT.md
-|-- 00-questions.md
-|-- 01-project-setup.md
-|-- 02-ui-identity.md
-|-- blueprint.yaml
-|-- 03-phases/
-|   |-- phase-index.yaml
-|   |-- phase-flow.md
-|   `-- 01-...md
-`-- HANDOVER.md</code></pre>
-        </section>
-
-        <section id="capability" class="docs-doc-section">
-          <h2>Capability Buildprint</h2>
-          <p>Use this when the agent is adding one bounded capability to an existing app, for example RBAC, Stripe subscriptions, search, or audit logging.</p>
-          <pre><code>capability-buildprint/
-|-- BUILDPRINT.md
+|-- README.md
 |-- capability.yaml
 |-- compatibility.md
 |-- apply.md
@@ -149,71 +145,69 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
     `-- 05-verification-and-receipt.md</code></pre>
         </section>
 
-        <section id="read-order" class="docs-doc-section">
-          <h2>Read order</h2>
-          <p><code>BUILDPRINT.md</code> is the authority. It should tell the agent what to read next, which assumptions to resolve, which phase gates apply, and what proof is required.</p>
-          <ol>
-            <li>Read <code>BUILDPRINT.md</code>.</li>
-            <li>Answer alignment questions before implementation.</li>
-            <li>Follow setup and constraints.</li>
-            <li>Run phases in order.</li>
-            <li>Run verification and write the handover.</li>
-          </ol>
-        </section>
-
-        <section id="install-agb" class="docs-doc-section">
-          <h2>Install AGB</h2>
-          <p>AGB is the loader CLI. It downloads the exact Buildprint files into <code>.buildprint/</code> so the agent does not scrape UI cards or copy files by hand.</p>
-          <pre><code>npm install -g agent-buildprint
-agb --help</code></pre>
-          <p>If you do not want a global install, clone the source repo and run the local binary.</p>
-          <pre><code>git clone https://github.com/DomEscobar/agent-buildprint
-node agent-buildprint/bin/agb.js --help</code></pre>
-        </section>
-
-        <section id="getting-started" class="docs-doc-section">
-          <h2>Load a packet</h2>
-          <p>Start from an existing packet, load exact files, then point the coding agent at <code>.buildprint/next-agent.md</code>.</p>
-          <pre><code>mkdir rbac-build
-cd rbac-build
-agb start https://agent-buildprint.com/buildprints/rbac-permissions/package.json .
-
-# then tell the agent to read:
-.buildprint/next-agent.md</code></pre>
-          <p>Without the global install, use the local binary instead.</p>
-          <pre><code>git clone https://github.com/DomEscobar/agent-buildprint
-node agent-buildprint/bin/agb.js start \
-  https://agent-buildprint.com/buildprints/rbac-permissions/package.json .
-
-# then read:
-.buildprint/next-agent.md</code></pre>
-          <p>Manual path: open a Buildprint page, read <code>BUILDPRINT.md</code>, follow the named files in order, run verification, then write the final handover.</p>
-        </section>
-
-        <section id="create-buildprint" class="docs-doc-section">
-          <h2>Author a packet</h2>
-          <p>To author a new reusable capability packet, start from the Capability Buildprint Author. That Buildprint creates Buildprints. It does not install the capability into an app.</p>
-          <pre><code>mkdir author-stripe-buildprint
-cd author-stripe-buildprint
-agb start \
-  https://agent-buildprint.com/buildprints/capability-buildprint-author/package.json .
-
-# then tell the agent to read:
-.buildprint/next-agent.md</code></pre>
-          <p>Give the agent a specific capability target, not a vague feature. For example: <code>Create a Capability Buildprint for Stripe Checkout subscriptions with webhook-verified entitlement state in compatible Next.js apps.</code></p>
-          <p>The expected output is a new capability folder with <code>BUILDPRINT.md</code>, <code>capability.yaml</code>, compatibility rules, apply/verify instructions, implementation phases, and README metadata.</p>
-        </section>
-
-        <section id="ready-prompts" class="docs-doc-section">
-          <h2>Ready agent prompts</h2>
-          <p>For day-to-day use, open the registry, choose a packet, and copy the ready agent prompt from that Buildprint page.</p>
-          <div class="docs-action-panel">
-            <div>
-              <strong>Registry prompts</strong>
-              <span>Each Buildprint detail page has the maintained agent prompt and package URLs.</span>
-            </div>
-            <a href="/buildprints/">Open registry</a>
+        <section id="anatomy" class="docs-doc-section">
+          <h2>Packet anatomy</h2>
+          <p>The exact files vary by packet type, but every good packet has a start file, machine-readable route, ordered work, and proof requirements.</p>
+          <div class="docs-file-flow" aria-label="Buildprint file flow">
+            <span><b>BUILDPRINT.md</b><small>canonical start</small></span>
+            <span><b>*.yaml</b><small>machine route</small></span>
+            <span><b>phase files</b><small>ordered work</small></span>
+            <span><b>verify / handover</b><small>proof and receipt</small></span>
           </div>
+          <pre><code>example-buildprint/
+|-- BUILDPRINT.md       # canonical start file
+|-- README.md           # human overview
+|-- blueprint.yaml      # product packet route
+|-- capability.yaml     # capability packet route
+|-- 00-questions.md     # hard-stop questions
+|-- 01-project-setup.md # setup, commands, constraints
+|-- 03-phases/
+|   |-- phase-index.yaml
+|   |-- phase-flow.md
+|   |-- 01-contracts.md
+|   |-- 02-implementation.md
+|   `-- 03-verification.md
+`-- HANDOVER.md         # final receipt</code></pre>
+        </section>
+
+        <section id="agent-readable" class="docs-doc-section">
+          <h2>Agent-readable packets</h2>
+          <p>A Buildprint is more than a prompt. It makes the work explicit enough that a fresh coding agent can start without rediscovering the job from scratch.</p>
+          <div class="docs-check-grid">
+            <article><b>Canonical start</b><span><code>BUILDPRINT.md</code> tells the agent what to read first.</span></article>
+            <article><b>Explicit boundaries</b><span>Goals, non-goals, compatibility, and host assumptions are named.</span></article>
+            <article><b>Ordered phases</b><span>The packet gives implementation order instead of one giant instruction blob.</span></article>
+            <article><b>Proof requirements</b><span>The agent knows which checks must pass before claiming the work is done.</span></article>
+          </div>
+        </section>
+
+        <section id="proof" class="docs-doc-section">
+          <h2>Proof and handover</h2>
+          <p>Done means the agent can show evidence, not just describe the patch.</p>
+          <div class="docs-result-box">
+            <span>Expected handover</span>
+            <ul>
+              <li>What changed</li>
+              <li>Files touched</li>
+              <li>Commands or tests run</li>
+              <li>Evidence that required checks passed</li>
+              <li>Known gaps or follow-up work</li>
+            </ul>
+          </div>
+        </section>
+
+        <section id="publish" class="docs-doc-section">
+          <h2>Publish checklist</h2>
+          <p>Before a Buildprint goes into the registry, check it like a packet another agent will run without you in the room.</p>
+          <ul class="docs-publish-list">
+            <li><code>BUILDPRINT.md</code> is the canonical start file.</li>
+            <li>Read order is explicit.</li>
+            <li>Scope and non-goals are clear.</li>
+            <li>Compatibility and host assumptions are stated.</li>
+            <li>Implementation phases are ordered and bounded.</li>
+            <li>Verification has concrete checks.</li>
+            <li>README helps humans but does not override the packet authority.</li>
+          </ul>
         </section>
       </article>
     </div>
