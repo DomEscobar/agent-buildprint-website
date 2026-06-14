@@ -4567,6 +4567,26 @@ body { background: var(--bg); }
   color:var(--muted);
   line-height:1.6;
 }
+.docs-compare-list {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  margin-top:18px;
+}
+.docs-compare-list > div {
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--surface);
+  padding:15px;
+}
+.docs-compare-list h3 {
+  margin:0 0 10px;
+  font-size:15px;
+}
+.docs-compare-list ul {
+  margin:0;
+  padding-left:18px;
+}
 .docs-copy-list {
   display:grid;
   gap:14px;
@@ -4634,6 +4654,7 @@ body { background: var(--bg); }
   .docs-doc-header h1 { font-size:38px; }
   .docs-doc-header p { font-size:16px; }
   .docs-doc-section pre { font-size:12px; }
+  .docs-compare-list { grid-template-columns:1fr; }
 }
 @media (max-width:640px) {
   .registry-hero-kicker-row { align-items:flex-start; gap:8px; }

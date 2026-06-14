@@ -12,6 +12,8 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           <a class="docs-sidebar-title" href="/docs/">Buildprint docs</a>
           <nav>
             <a href="#overview">Overview</a>
+            <a href="#why-buildprints">Why Buildprints</a>
+            <a href="#coding-evolution">Coding evolution</a>
             <a href="#anatomy">Packet anatomy</a>
             <a href="#product">Product Buildprint</a>
             <a href="#capability">Capability Buildprint</a>
@@ -38,6 +40,43 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
             <strong>Rule of thumb:</strong>
             <span>If the work should be repeatable, reviewable, or handed to another agent later, it belongs in a Buildprint.</span>
           </div>
+        </section>
+
+        <section id="why-buildprints" class="docs-doc-section">
+          <h2>Why Buildprints</h2>
+          <p>Most AI coding work starts with an underspecified chat message. The agent then has to discover the repo, infer architecture, invent missing contracts, choose an implementation path, and judge whether its own work is done.</p>
+          <p>A Buildprint moves those decisions into a reviewable packet before coding starts.</p>
+          <div class="docs-compare-list" aria-label="Without and with Buildprints">
+            <div>
+              <h3>Without Buildprint</h3>
+              <ul>
+                <li>Loose prompt</li>
+                <li>Repo discovery during implementation</li>
+                <li>Scope drift while coding</li>
+                <li>Done claim without durable proof</li>
+              </ul>
+            </div>
+            <div>
+              <h3>With Buildprint</h3>
+              <ul>
+                <li>Named goal and non-goals</li>
+                <li>Known host context</li>
+                <li>Ordered implementation phases</li>
+                <li>Required verification and handover</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="coding-evolution" class="docs-doc-section">
+          <h2>Coding evolution</h2>
+          <p>Buildprints fit into the same progression developers are already seeing around coding agents.</p>
+          <ol>
+            <li><strong>Prompting:</strong> tell the model what you want.</li>
+            <li><strong>Context engineering:</strong> feed the right repo, docs, and state.</li>
+            <li><strong>Skills:</strong> give agents reusable procedures and tools.</li>
+            <li><strong>Buildprints:</strong> package the complete implementation job with constraints and proof.</li>
+          </ol>
         </section>
 
         <section id="anatomy" class="docs-doc-section">

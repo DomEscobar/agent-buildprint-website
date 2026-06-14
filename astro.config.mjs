@@ -4,6 +4,6 @@ export default defineConfig({
   site: process.env.SITE_URL || 'https://agent-buildprint.com',
   output: 'static',
   redirects: {
-    '/why-buildprints/': '/about/',
+    '/why-buildprints/': '/docs/#why-buildprints',
   },
 });
