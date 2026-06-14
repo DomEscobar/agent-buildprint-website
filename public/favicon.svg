@@ -1,22 +1,74 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Agent Buildprint">
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Agent Buildprint logo</title>
+  <desc id="desc">A blueprint sheet folded into an agent routing mark.</desc>
   <defs>
-    <linearGradient id="sheet" x1="13" x2="51" y1="8" y2="56" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#f8fbff"/>
-      <stop offset="1" stop-color="#dbeafe"/>
+    <linearGradient id="sheet" x1="48" y1="32" x2="208" y2="224" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#10233f"/>
+      <stop offset="1" stop-color="#050914"/>
     </linearGradient>
-    <linearGradient id="edge" x1="14" x2="52" y1="8" y2="56" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#2563eb"/>
-      <stop offset=".55" stop-color="#0891b2"/>
-      <stop offset="1" stop-color="#16a34a"/>
+    <linearGradient id="route" x1="76" y1="76" x2="184" y2="184" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2dd4bf"/>
+      <stop offset="1" stop-color="#38bdf8"/>
+    </linearGradient>
+    <linearGradient id="fold" x1="168" y1="34" x2="210" y2="90" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d7f8ff"/>
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="16" fill="#08111f"/>
-  <path d="M10 49.5 20.5 13h23L54 23.5V51a5 5 0 0 1-5 5H15.2A5.2 5.2 0 0 1 10 49.5Z" fill="url(#sheet)"/>
-  <path d="M20.5 13h23L54 23.5V51a5 5 0 0 1-5 5H15.2A5.2 5.2 0 0 1 10 49.5L20.5 13Z" fill="none" stroke="url(#edge)" stroke-width="3.2" stroke-linejoin="round"/>
-  <path d="M43.5 13v11h10.2" fill="#bfdbfe" stroke="#2563eb" stroke-width="3.2" stroke-linejoin="round"/>
-  <path d="M20 31.5h9.4l5.2-6.4 6.1 12.8 4.1-6.4H50" fill="none" stroke="#0f766e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="18.5" cy="31.5" r="3.3" fill="#22c55e" stroke="#ecfdf5" stroke-width="2"/>
-  <circle cx="35" cy="25" r="3.3" fill="#f59e0b" stroke="#fffbeb" stroke-width="2"/>
-  <circle cx="46" cy="31.5" r="3.3" fill="#38bdf8" stroke="#eff6ff" stroke-width="2"/>
-  <path d="M42.5 47.5 46 51l7-9" fill="none" stroke="#16a34a" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path
+    fill="url(#sheet)"
+    stroke="#ffffff"
+    stroke-linejoin="round"
+    stroke-width="12"
+    d="M54 28h113l35 35v165H54z"
+  />
+  <path fill="url(#fold)" d="M167 28v39h35z"/>
+  <path fill="#050914" opacity=".18" d="M167 67h35l-35 22z"/>
+
+  <g stroke="#ffffff" stroke-linecap="round" stroke-width="4" opacity=".18">
+    <path d="M76 78h58"/>
+    <path d="M76 102h104"/>
+    <path d="M76 126h38"/>
+    <path d="M142 126h38"/>
+    <path d="M76 150h104"/>
+    <path d="M76 174h58"/>
+  </g>
+
+  <path
+    fill="none"
+    stroke="#ffffff"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="18"
+    d="M89 164h30c14 0 25-11 25-25v-22c0-14 11-25 25-25h8"
+  />
+  <path
+    fill="none"
+    stroke="url(#route)"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="10"
+    d="M89 164h30c14 0 25-11 25-25v-22c0-14 11-25 25-25h8"
+  />
+
+  <g stroke="#050914" stroke-width="5">
+    <circle cx="83" cy="164" r="16" fill="#ffffff"/>
+    <circle cx="144" cy="128" r="18" fill="#ffffff"/>
+    <circle cx="181" cy="92" r="16" fill="#ffffff"/>
+  </g>
+  <g fill="#0f172a">
+    <circle cx="83" cy="164" r="7"/>
+    <circle cx="144" cy="128" r="8"/>
+    <circle cx="181" cy="92" r="7"/>
+  </g>
+
+  <path
+    fill="#f59e0b"
+    stroke="#ffffff"
+    stroke-linejoin="round"
+    stroke-width="6"
+    d="M184 164l-17 46 30-12 30 12-17-46z"
+  />
+  <path fill="#7c2d12" opacity=".2" d="M197 198l30 12-17-46h-13z"/>
 </svg>

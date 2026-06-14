@@ -50,7 +50,7 @@ with webhook-verified entitlement state in compatible Next.js apps.`;
           <p class="docs-breadcrumb">Docs <span aria-hidden="true">/</span> <span data-breadcrumb>Start here</span></p>
           <p class="docs-kicker">Documentation</p>
           <h1 id="docs-title">Run, load, and author Buildprints.</h1>
-          <p class="docs-lead">Buildprints are reusable implementation packets for coding agents. This guide covers the three jobs: run a maintained packet, load its exact files with AGB, or author a new one.</p>
+          <p class="docs-lead">Buildprints are reusable implementation packets for coding agents. This guide covers the three jobs: run a maintained packet, optionally load its exact files with AGB, or author a new one.</p>
           <div class="docs-header-actions">
             <a class="btn primary" href="/buildprints/">Open registry</a>
             <a class="btn" href="/standard/">Packet format</a>
@@ -69,8 +69,8 @@ with webhook-verified entitlement state in compatible Next.js apps.`;
             </a>
             <a class="docs-path-card" href="#load-agb">
               <span>02</span>
-              <b>Load exact files with AGB</b>
-              <small>Create a local <code>.buildprint/</code> folder with the packet snapshots.</small>
+              <b>Optionally load files with AGB</b>
+              <small>Use the helper CLI to create a local <code>.buildprint/</code> folder with packet snapshots.</small>
             </a>
             <a class="docs-path-card" href="#author">
               <span>03</span>
@@ -118,7 +118,7 @@ with webhook-verified entitlement state in compatible Next.js apps.`;
 
         <section id="load-agb" class="docs-doc-section">
           <h2>Load exact files with AGB</h2>
-          <p>Use AGB when you want the packet files downloaded into the workspace before the agent starts.</p>
+          <p>AGB is optional, but recommended when you want the packet files downloaded into the workspace before the agent starts. Install the CLI globally for the shortest command:</p>
           <div class="docs-code">
             <pre><code>{runInstall}</code></pre>
             <button class="copy-btn docs-copy" type="button" data-copy={runInstall} aria-label="Copy command">Copy</button>
@@ -136,7 +136,7 @@ with webhook-verified entitlement state in compatible Next.js apps.`;
             <strong>Next step:</strong>
             <span>Tell the coding agent to read <code>.buildprint/next-agent.md</code>. That file points it at the required packet files and read order.</span>
           </div>
-          <p>No global install:</p>
+          <p>Or skip the global install and run the same CLI from a clone:</p>
           <div class="docs-code">
             <pre><code>{runNoInstall}</code></pre>
             <button class="copy-btn docs-copy" type="button" data-copy={runNoInstall} aria-label="Copy command">Copy</button>

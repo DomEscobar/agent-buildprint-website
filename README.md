@@ -33,7 +33,7 @@ Buildprint files are served from the canonical Agent Buildprint repo at `/root/b
 
 ## Agent bootstrap UX
 
-Every Buildprint prompt should start with `agb start <package-manifest-url>`. This creates `.buildprint/`, downloads exact snapshot files, and writes continuation state before implementation begins.
+Every Buildprint prompt should recommend `agb start <package-manifest-url>` when AGB is available. AGB is optional: users may install it globally with `npm install -g agent-buildprint`, or clone `DomEscobar/agent-buildprint` and run `node agent-buildprint/bin/agb.js start ...` without a global install. Both paths create `.buildprint/`, download exact snapshot files, and write continuation state before implementation begins.
 
 ## Production Docker
 
