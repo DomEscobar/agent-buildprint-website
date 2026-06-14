@@ -3952,80 +3952,53 @@ body { background: var(--bg); }
 .registry-hero-kicker-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
 .registry-hero-kicker-row .registry-v2-kicker { margin:0; }
 .buildprint-trust-badge {
-  display:flex;
-  align-items:stretch;
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
   width:max-content;
   max-width:100%;
-  margin-top:20px;
-  border:1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
-  border-radius:18px;
+  margin-top:18px;
+  padding:11px 16px 11px 44px;
+  border:1px solid color-mix(in srgb, var(--text) 16%, var(--border));
+  border-radius:999px;
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--accent-soft) 70%, transparent), transparent 60%),
+    radial-gradient(circle at 24px 50%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 30px),
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 88%, white), var(--surface)),
     var(--surface);
-  box-shadow:var(--shadow);
-  overflow:hidden;
+  box-shadow:0 14px 34px color-mix(in srgb, var(--text) 8%, transparent), inset 0 1px 0 color-mix(in srgb, white 55%, transparent);
 }
-.buildprint-trust-mark {
-  position:relative;
-  display:grid;
-  align-content:center;
-  gap:4px;
-  min-width:230px;
-  padding:15px 18px 15px 54px;
-  background:var(--text);
-  color:var(--bg);
-}
-.buildprint-trust-mark::before {
+.buildprint-trust-badge::before {
   content:'';
   position:absolute;
-  left:17px;
+  left:15px;
   top:50%;
-  width:22px;
-  height:22px;
-  border:2px solid currentColor;
-  border-radius:7px;
+  width:18px;
+  height:18px;
+  border:1.8px solid color-mix(in srgb, var(--accent) 70%, var(--text));
+  border-radius:6px;
   transform:translateY(-50%) rotate(45deg);
-  opacity:.9;
+  background:color-mix(in srgb, var(--accent-soft) 55%, transparent);
 }
-.buildprint-trust-mark::after {
+.buildprint-trust-badge::after {
   content:'';
   position:absolute;
-  left:25px;
+  left:21px;
   top:50%;
-  width:7px;
-  height:12px;
-  border-right:2px solid currentColor;
-  border-bottom:2px solid currentColor;
+  width:5px;
+  height:9px;
+  border-right:1.8px solid color-mix(in srgb, var(--accent) 70%, var(--text));
+  border-bottom:1.8px solid color-mix(in srgb, var(--accent) 70%, var(--text));
   transform:translateY(-62%) rotate(45deg);
 }
-.buildprint-trust-mark span {
+.buildprint-trust-badge span {
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:18px;
+  font-size:15px;
   font-weight:950;
   line-height:1;
-}
-.buildprint-trust-mark b {
-  display:block;
-  font-size:12px;
-  line-height:1.2;
-  font-weight:780;
-  color:color-mix(in srgb, var(--bg) 76%, transparent);
-}
-.buildprint-trust-checks {
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:13px;
-}
-.buildprint-trust-checks span {
-  border:1px solid var(--border);
-  border-radius:999px;
-  background:var(--surface);
-  color:var(--muted);
-  padding:7px 9px;
-  font-size:12px;
-  font-weight:850;
-  white-space:nowrap;
+  letter-spacing:.01em;
+  color:var(--text);
 }
 .registry-hf-hero-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
 .registry-hf-hero-actions a, .registry-hf-result-actions a { display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:999px; padding:9px 12px; font-size:13px; font-weight:850; }
@@ -4097,9 +4070,7 @@ body { background: var(--bg); }
   .registry-hf-row { padding-right:16px; padding-top:42px; }
   .registry-card-trust-badge { left:16px; right:auto; top:14px; }
   .registry-hf-hero-inner { padding:36px 0 22px; }
-  .buildprint-trust-badge { width:100%; flex-direction:column; }
-  .buildprint-trust-mark { min-width:0; }
-  .buildprint-trust-checks { flex-wrap:wrap; }
+  .buildprint-trust-badge { width:max-content; }
   .registry-hf-shell { padding:18px 0 42px; }
   .registry-hf-filter-drawer { border:1px solid var(--border); background:var(--surface); border-radius:16px; overflow:hidden; }
   .registry-hf-filter-drawer > summary { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 14px; cursor:pointer; color:var(--text); font-weight:850; list-style:none; }
