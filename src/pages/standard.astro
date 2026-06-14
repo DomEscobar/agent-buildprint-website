@@ -2,42 +2,44 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 ---
 <BaseLayout
-  title=".buildprint standard"
-  description="The .buildprint standard is a portable implementation packet format for coding agents: files, contracts, proof, and clear limits."
+  title="Buildprint packet format"
+  description="A Buildprint is a portable implementation packet for coding agents: files, phases, contracts, proof checks, and clear limits."
 >
   <main class="standard-page" aria-labelledby="standard-title">
     <section class="standard-hero">
       <div class="container standard-hero-grid">
         <div class="standard-copy">
-          <p class="deck-kicker">.buildprint standard</p>
-          <h1 id="standard-title">A portable packet for agent work.</h1>
-          <p class="deck-lead">A Buildprint gives a coding agent the context it usually has to infer: intent, scope, files, contracts, build steps, and proof checks in one version-controlled folder.</p>
+          <p class="deck-kicker">Buildprint packet format</p>
+          <h1 id="standard-title">A runnable handoff for agent work.</h1>
+          <p class="deck-lead">A Buildprint gives a coding agent the context it usually has to infer: what to build, what to preserve, which files to read, which phases to run, and what proof is required before success.</p>
           <div class="standard-actions">
             <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
-            <a class="btn" href="#badge-meaning">What the badge means</a>
+            <a class="btn" href="#packet-shapes">See packet shapes</a>
           </div>
         </div>
 
         <div class="standard-tree" aria-label=".buildprint package anatomy">
           <div class="standard-tree-topline">
-            <span>example-buildprint/</span>
-            <b>agent-readable</b>
+            <span>product-buildprint/</span>
+            <b>phase-driven</b>
           </div>
-          <pre><code>my-buildprint/
-├── BUILDPRINT.md       # Required: start here
-├── README.md           # Required: human summary
-├── SPEC.md             # Required: target behavior
-├── CONTRACTS.md        # Required: APIs, data, boundaries
-├── QA_PLAN.md          # Required: proof checks
-├── agent.md            # Optional: agent entrypoint
-├── prompt.txt          # Optional: copy-ready prompt
-├── package.json        # Optional: metadata + commands
-└── proofs/             # Optional: receipts, reports, patches</code></pre>
+          <pre><code>product-buildprint/
+├── BUILDPRINT.md
+├── 00-questions.md
+├── 01-project-setup.md
+├── 02-ui-identity.md
+├── blueprint.yaml
+├── 03-phases/
+│   ├── phase-index.yaml
+│   ├── phase-flow.md
+│   └── 01-...md
+├── README.md
+└── HANDOVER.md</code></pre>
         </div>
       </div>
     </section>
 
-    <section class="container standard-section standard-definition">
+    <section id="packet-shapes" class="container standard-section standard-definition">
       <div class="standard-section-head">
         <span>What it is</span>
         <h2>Not a prompt. Not a framework. A handoff format.</h2>
@@ -58,16 +60,24 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       </div>
     </section>
 
-    <section id="badge-meaning" class="container standard-section standard-badge-section">
-      <div class="standard-badge-large" aria-label=".buildprint standard badge">
-        <span aria-hidden="true">✓</span>
-        <b>.buildprint</b>
-        <em>standard</em>
+    <section class="container standard-section standard-definition">
+      <div class="standard-section-head">
+        <span>Two packet shapes</span>
+        <h2>Use a Product packet for a whole system, or a Capability packet for one bounded integration.</h2>
       </div>
-      <div class="standard-meaning">
-        <span>Badge meaning</span>
-        <h2>It means the page links to an implementation packet, not a vague claim.</h2>
-        <p>The badge is intentionally modest. It does not mean certification, endorsement, or production approval. It means the Buildprint follows the public packet shape and exposes the files needed for agents and humans to inspect the work.</p>
+      <div class="standard-cards">
+        <article class="standard-card">
+          <h3>Product Buildprint</h3>
+          <p>Starts from a product goal, setup file, UI identity, machine-readable blueprint, and ordered phase flow. Use it when the agent is building a complete system or major product surface.</p>
+        </article>
+        <article class="standard-card">
+          <h3>Capability Buildprint</h3>
+          <p>Starts from host assessment, compatibility rules, capability contract, apply plan, verification plan, and implementation phases. Use it when the agent is adding one reusable power to an existing app.</p>
+        </article>
+        <article class="standard-card">
+          <h3>Proof rule</h3>
+          <p>Both shapes must name the checks that prove success and the limits that remain unproven. A Buildprint is not complete just because the agent says it is.</p>
+        </article>
       </div>
     </section>
 

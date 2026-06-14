@@ -4225,7 +4225,7 @@ body { background: var(--bg); }
   .create-choice-card h2 { font-size:30px; }
 }
 
-/* .buildprint standard page */
+/* Buildprint packet format page */
 .standard-page {
   background:
     radial-gradient(circle at 76% 8%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 28rem),
