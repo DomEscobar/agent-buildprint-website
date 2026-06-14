@@ -12,39 +12,36 @@ const { cards, recentCards, runnableCount, trustCounts, typeCounts, contextCount
         <div>
           <div class="registry-hero-kicker-row">
             <p class="registry-v2-kicker">Agent Buildprint Registry</p>
-            <a class="buildprint-standard-badge" href="/standard/" aria-label="Read about the .buildprint standard">
-              <span aria-hidden="true">✓</span>
-              <b>.buildprint</b>
-              <em>standard</em>
-            </a>
           </div>
           <h1>Buildprints for coding agents.</h1>
-          <p class="registry-v2-lede">Executable packets that tell agents what to build, how to apply it, and what proof is required before success.</p>
+          <p class="registry-v2-lede">A Buildprint is a runnable handoff for an AI coding agent. It packages the product goal, implementation order, constraints, and verification steps so a fresh agent can build with less guessing and more proof.</p>
           <div class="registry-hf-hero-actions">
             <a class="registry-v2-primary" href="#registry-list">Browse buildprints</a>
-            <a href="/standard/">Read the standard</a>
+            <a href="/standard/">How the packet works</a>
           </div>
         </div>
-        <aside class="registry-standard-card" aria-label=".buildprint standard">
-          <div class="registry-standard-card-head">
-            <span>.buildprint standard</span>
-            <b>starts at BUILDPRINT.md</b>
+        <aside class="registry-explainer-card" aria-label="What a Buildprint gives an agent">
+          <div class="registry-explainer-card-head">
+            <span>What the agent gets</span>
+            <b>goal -> plan -> proof</b>
           </div>
-          <div class="registry-standard-routes" aria-label="Buildprint packet types">
+          <div class="registry-explainer-routes" aria-label="Buildprint benefits">
             <div>
-              <strong>Product</strong>
-              <span>builds a whole system</span>
-              <code>BUILDPRINT.md -> blueprint.yaml -> phases</code>
+              <strong>Clear target</strong>
+              <span>What the finished system or feature must actually do.</span>
             </div>
             <div>
-              <strong>Capability</strong>
-              <span>adds one feature to a host app</span>
-              <code>BUILDPRINT.md -> capability.yaml -> apply/verify</code>
+              <strong>Ordered work</strong>
+              <span>Setup, implementation phases, constraints, and handoff notes in the sequence the agent should follow.</span>
+            </div>
+            <div>
+              <strong>Verification</strong>
+              <span>Required checks and evidence before the agent can call the job done.</span>
             </div>
           </div>
-          <div class="registry-standard-facts" aria-label="Registry facts">
-            <span><b>{buildprints.length}</b> Buildprints</span>
-            <span><b>{runnableCount}</b> copy-ready</span>
+          <div class="registry-explainer-facts" aria-label="Registry facts">
+            <span><b>{buildprints.length}</b> packets</span>
+            <span><b>{runnableCount}</b> ready to run</span>
           </div>
         </aside>
       </div>
