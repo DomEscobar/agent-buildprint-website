@@ -1026,7 +1026,7 @@ html, body { max-width: 100%; overflow-x: clip; }
 .about-hero { padding-top:clamp(64px, 8vw, 104px); }
 .about-hero-grid {
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(300px,.48fr);
+  grid-template-columns:minmax(0,1fr) minmax(360px,.62fr);
   gap:clamp(22px, 5vw, 58px);
   align-items:center;
 }
@@ -1060,6 +1060,14 @@ html, body { max-width: 100%; overflow-x: clip; }
   display:grid;
   gap:14px;
   min-width:0;
+}
+.about-hero-media {
+  display:grid;
+  gap:14px;
+  min-width:0;
+}
+.about-hero-media .pitch-visual {
+  margin-inline:8px;
 }
 .pitch-visual::before {
   content:'';
