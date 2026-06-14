@@ -5,19 +5,19 @@ const artifacts = [
   { label: 'SYSTEM_MAP.md', href: `${proofBase}/SYSTEM_MAP.md`, text: 'FeedMe architecture zones, RSS updater flow, static data output, and selected risks.' },
   { label: 'BUILDPRINT_CANDIDATES.md', href: `${proofBase}/BUILDPRINT_CANDIDATES.md`, text: 'Scoped candidates found before extraction, with depth boundaries.' },
   { label: 'selection.md', href: `${proofBase}/selection.md`, text: 'The simulated dogfood selection: static RSS update pipeline.' },
-  { label: 'CODEX_DOGFOOD_REVIEW.md', href: `${proofBase}/CODEX_DOGFOOD_REVIEW.md`, text: 'What worked, what was ambiguous, and what Mapper OS needed to fix.' },
+  { label: 'CODEX_DOGFOOD_REVIEW.md', href: `${proofBase}/CODEX_DOGFOOD_REVIEW.md`, text: 'What worked, what was ambiguous, and what Buildprint Mapper needed to fix.' },
   { label: 'QA_REPORT.md', href: `${proofBase}/buildprint-submission/QA_REPORT.md`, text: 'Commands run, pass/fail result, and explicit QA gaps.' },
   { label: 'PARITY_CLAIMS.md', href: `${proofBase}/buildprint-submission/PARITY_CLAIMS.md`, text: 'Safe claims and excluded parity targets for the extracted candidate.' },
 ];
 ---
-<BaseLayout title="FeedMe Mapper OS dogfood proof — Agent Buildprint" description="A Codex dogfood proof showing Mapper OS mapping Seanium/FeedMe into scoped candidates, extracting the static RSS pipeline, and passing mocked reversal checks.">
+<BaseLayout title="FeedMe Buildprint Mapper dogfood proof — Agent Buildprint" description="A Codex dogfood proof showing Buildprint Mapper mapping Seanium/FeedMe into scoped candidates, extracting the static RSS pipeline, and passing mocked reversal checks.">
   <main>
     <section class="container hero detail-hero proof-hero">
-      <a class="pill" href="/buildprints/buildprint-mapper-os/">← Mapper OS</a>
-      <h1>FeedMe → Mapper OS dogfood proof.</h1>
-      <p class="lead">A tiny public repo was mapped with the public Mapper OS prompt via Codex. The run produced candidates first, selected one small scope, extracted a Buildprint, and passed compact mocked reversal checks.</p>
+      <a class="pill" href="/buildprints/buildprint-mapper-os/">← Buildprint Mapper</a>
+      <h1>FeedMe → Buildprint Mapper dogfood proof.</h1>
+      <p class="lead">A tiny public repo was mapped with the public Buildprint Mapper prompt via Codex. The run produced candidates first, selected one small scope, extracted a Buildprint, and passed compact mocked reversal checks.</p>
       <div class="tags detail-meta"><span class="tag hot">Dogfood passed</span><span class="tag">75 files scanned</span><span class="tag">RSS pipeline</span><span class="tag">mocked-runtime-proof</span></div>
-      <div class="actions"><a class="btn primary" href={`${proofBase}/CODEX_DOGFOOD_REVIEW.md`}>Open dogfood review</a><a class="btn" href="https://github.com/Seanium/FeedMe">Source repo</a><a class="btn" href="/buildprints/buildprint-mapper-os/">Use Mapper OS</a></div>
+      <div class="actions"><a class="btn primary" href={`${proofBase}/CODEX_DOGFOOD_REVIEW.md`}>Open dogfood review</a><a class="btn" href="https://github.com/Seanium/FeedMe">Source repo</a><a class="btn" href="/buildprints/buildprint-mapper-os/">Use Buildprint Mapper</a></div>
     </section>
 
     <section class="container section proof-summary-grid">
@@ -58,7 +58,7 @@ const artifacts = [
     <section class="container section">
       <div class="panel proof-note">
         <span class="eyebrow"><b>!</b> Honest boundary</span>
-        <h2>This validates Mapper OS workflow, not FeedMe parity.</h2>
+        <h2>This validates Buildprint Mapper workflow, not FeedMe parity.</h2>
         <p>The proof validates the Mapper process and the selected RSS pipeline contract with mocks. It does not claim live RSS source parity, hosted deployment parity, UI parity, or full product clone parity.</p>
       </div>
     </section>

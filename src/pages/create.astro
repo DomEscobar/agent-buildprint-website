@@ -3,17 +3,17 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildprints } from '@/lib/buildprints';
 
 const mapper = buildprints.find((bp) => bp.slug === 'buildprint-mapper-os');
-const mapperPrompt = mapper?.copyPrompt || 'Use Mapper OS to turn this GitHub project into an Agent Buildprint. Inspect the repo, identify the reusable workflow, generate Buildprint files, preserve source links, and do not include secrets.';
+const mapperPrompt = mapper?.copyPrompt || 'Use Buildprint Mapper to turn this GitHub project into an Agent Buildprint. Inspect the repo, identify the reusable workflow, generate Buildprint files, preserve source links, and do not include secrets.';
 const mapperPromptUrl = '/buildprints/buildprint-mapper-os/prompt.txt';
 const mapperPageUrl = '/buildprints/buildprint-mapper-os/';
 ---
-<BaseLayout title="Submit Buildprint — Agent Buildprint" description="Copy Mapper OS for normal projects, then add a scanned Community GitHub listing with one URL.">
+<BaseLayout title="Submit Buildprint — Agent Buildprint" description="Copy Buildprint Mapper for normal projects, then add a scanned Community GitHub listing with one URL.">
   <main class="create-page submit-buildprint-page">
     <section class="container create-hero submit-hero">
       <a class="artifact-back" href="/buildprints/">← Browse Buildprints</a>
       <p class="registry-v2-kicker">Submit</p>
       <h1>Submit Buildprint.</h1>
-      <p class="registry-v2-lede">If you already have a Buildprint package in GitHub, add it as a scanned Community listing. If you only have a normal project, copy Mapper OS first.</p>
+      <p class="registry-v2-lede">If you already have a Buildprint package in GitHub, add it as a scanned Community listing. If you only have a normal project, copy Buildprint Mapper first.</p>
     </section>
 
     <section class="container submit-flow-grid" aria-label="Submit Buildprint flow">
@@ -25,14 +25,14 @@ const mapperPageUrl = '/buildprints/buildprint-mapper-os/';
           <p>Copy this prompt into your coding agent inside the project repo. It creates the Buildprint package files, including the canonical start and manifest metadata that other agents can use.</p>
           <div class="submit-prompt-box">
             <div class="submit-prompt-head">
-              <span>Mapper OS prompt</span>
+              <span>Buildprint Mapper prompt</span>
               <a href={mapperPromptUrl}>Open prompt</a>
             </div>
             <pre><code>{mapperPrompt}</code></pre>
           </div>
           <div class="submit-actions">
-            <button class="registry-v2-primary" type="button" data-copy={mapperPrompt}>Copy Mapper OS prompt</button>
-            <a href={mapperPageUrl}>See Mapper OS</a>
+            <button class="registry-v2-primary" type="button" data-copy={mapperPrompt}>Copy Mapper prompt</button>
+            <a href={mapperPageUrl}>See Buildprint Mapper</a>
           </div>
         </div>
       </article>

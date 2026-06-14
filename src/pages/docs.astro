@@ -15,6 +15,9 @@ cd author-stripe-buildprint
 agb start \\
   https://agent-buildprint.com/buildprints/capability-buildprint-author/package.json .`;
 
+const creatorPageUrl = '/buildprints/capability-buildprint-author/';
+const mapperPageUrl = '/buildprints/buildprint-mapper-os/';
+
 const authorPrompt = `Create a Capability Buildprint for Stripe Checkout subscriptions
 with webhook-verified entitlement state in compatible Next.js apps.`;
 ---
@@ -187,6 +190,14 @@ with webhook-verified entitlement state in compatible Next.js apps.`;
               <span>Submit a finished packet to the registry from the Create page.</span>
             </div>
             <a href="/create/">Open Create</a>
+          </div>
+          <div class="docs-action-panel">
+            <div>
+              <strong>Need the authoring packets?</strong>
+              <span>Use Buildprint Creator for reusable capability packets, or Buildprint Mapper for existing projects and whole-product packets.</span>
+            </div>
+            <a href={creatorPageUrl}>Open Creator</a>
+            <a href={mapperPageUrl}>Open Mapper</a>
           </div>
         </section>
 
