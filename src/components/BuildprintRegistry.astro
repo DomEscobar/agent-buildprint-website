@@ -4,7 +4,7 @@ import { buildRegistryModel, updatedLabel } from '@/lib/registry';
 import { categoryIcon, registryBadgeIcon } from '@/lib/icons';
 
 const registry = await buildRegistryModel(buildprints);
-const { cards, recentCards, runnableCount, trustCounts, typeCounts, contextCounts, signalCounts } = registry;
+const { cards, recentCards, trustCounts, typeCounts, contextCounts, signalCounts } = registry;
 ---
   <main class="registry-v2 registry-hf">
     <section class="registry-hf-hero">
@@ -20,30 +20,6 @@ const { cards, recentCards, runnableCount, trustCounts, typeCounts, contextCount
             <a href="/standard/">How the packet works</a>
           </div>
         </div>
-        <aside class="registry-explainer-card" aria-label="What a Buildprint gives an agent">
-          <div class="registry-explainer-card-head">
-            <span>What the agent gets</span>
-            <b>goal -> plan -> proof</b>
-          </div>
-          <div class="registry-explainer-routes" aria-label="Buildprint benefits">
-            <div>
-              <strong>Clear target</strong>
-              <span>What the finished system or feature must actually do.</span>
-            </div>
-            <div>
-              <strong>Ordered work</strong>
-              <span>Setup, implementation phases, constraints, and handoff notes in the sequence the agent should follow.</span>
-            </div>
-            <div>
-              <strong>Verification</strong>
-              <span>Required checks and evidence before the agent can call the job done.</span>
-            </div>
-          </div>
-          <div class="registry-explainer-facts" aria-label="Registry facts">
-            <span><b>{buildprints.length}</b> packets</span>
-            <span><b>{runnableCount}</b> ready to run</span>
-          </div>
-        </aside>
       </div>
     </section>
 
