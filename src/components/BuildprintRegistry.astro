@@ -11,21 +11,21 @@ const { cards, recentCards, trustCounts, typeCounts, contextCounts, signalCounts
       <div class="container registry-hf-hero-inner">
         <div class="registry-hf-hero-copy">
           <div class="registry-hero-kicker-row">
-            <p class="registry-v2-kicker">Build plans for AI coding agents</p>
+            <p class="registry-v2-kicker">For developers shipping with coding agents</p>
             <span class="buildprint-trust-badge" aria-label=".buildprint trust badge">
-              <span>.buildprint</span>
+              <span>optional AGB CLI</span>
             </span>
           </div>
-          <h1>Stop re-explaining every coding job.</h1>
-          <p class="registry-v2-lede">Buildprints package the plan before the agent starts: what to build, which files matter, what order to work in, and how to prove it is done.</p>
+          <h1>Give your agent the build plan before it touches code.</h1>
+          <p class="registry-v2-lede">A Buildprint is a repo-ready packet for serious agent work: scope, read order, implementation phases, constraints, and proof checks in one place.</p>
           <div class="hero-proof-line" aria-label="Buildprint proof points">
-            <strong>Skip the setup loop</strong>
-            <strong>one paste</strong>
-            <strong>zero re-explaining</strong>
+            <strong>one command</strong>
+            <strong>ordered context</strong>
+            <strong>proof before done</strong>
           </div>
           <div class="registry-hf-hero-actions">
-            <a class="registry-v2-primary" href="#registry-list">Browse Buildprints</a>
-            <a href="/docs/">Read the docs</a>
+            <a class="registry-v2-primary" href="#registry-list">Start with a Buildprint</a>
+            <a href="/docs/#load-agb">See the AGB path</a>
           </div>
           <div class="agent-compat-strip" aria-label="Compatible coding agents">
             <span>Works with</span>
@@ -35,6 +35,21 @@ const { cards, recentCards, trustCounts, typeCounts, contextCounts, signalCounts
             <b>OpenCode</b>
             <b>++</b>
           </div>
+        </div>
+        <div class="registry-hero-terminal" aria-label="Buildprint bootstrap example">
+          <div class="terminal-topline">
+            <span>AGB bootstrap</span>
+            <b>optional</b>
+          </div>
+          <pre><code>npm install -g agent-buildprint
+agb start https://agent-buildprint.com/buildprints/rbac-permissions/package.json .</code></pre>
+          <div class="terminal-output-grid" aria-label="Generated Buildprint files">
+            <span>.buildprint/next-agent.md</span>
+            <span>snapshots/</span>
+            <span>phase order</span>
+            <span>verification rules</span>
+          </div>
+          <p>Or skip the install and run the CLI from a clone. The output is the same: exact files your agent can follow without another briefing.</p>
         </div>
       </div>
     </section>
