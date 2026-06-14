@@ -79,6 +79,7 @@ export const canonicalFilePurposes: Record<string, string> = {
   'START_HERE.md': 'executable packet start router',
   'capability.yaml': 'machine-readable capability contract',
   'author.yaml': 'machine-readable Buildprint authoring contract',
+  '00-request-classifier.md': 'product vs capability classifier',
   '00-intake.md': 'Buildprint authoring intake protocol',
   '01-capability-boundary.md': 'capability boundary definition protocol',
   '02-contract-authoring.md': 'capability contract authoring protocol',
@@ -299,6 +300,7 @@ function packetShape(files: string[]) {
       ? [
         'BUILDPRINT.md',
         'author.yaml',
+        '00-request-classifier.md',
         '00-internet-deepsearch.md',
         '00-intake.md',
         '01-capability-boundary.md',
