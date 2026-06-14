@@ -16,40 +16,10 @@ const { cards, recentCards, trustCounts, typeCounts, contextCounts, signalCounts
           <h1>Buildprints for coding agents.</h1>
           <p class="registry-v2-lede">A Buildprint is a runnable handoff for an AI coding agent. It packages the product goal, implementation order, constraints, and verification steps so a fresh agent can build with less guessing and more proof.</p>
           <div class="registry-hf-hero-actions">
-            <a class="registry-v2-primary" href="#registry-list">Browse buildprints</a>
-            <a href="/standard/">How the packet works</a>
+            <a class="registry-v2-primary" href="/about/">About Buildprints</a>
           </div>
         </div>
       </div>
-    </section>
-
-    <section class="container buildprint-comic-section" aria-labelledby="buildprint-comic-title">
-      <div class="buildprint-comic-compact" data-buildprint-comic>
-        <button class="buildprint-comic-toggle" type="button" aria-expanded="false" aria-controls="buildprint-comic-body" data-buildprint-comic-toggle>
-          <span>
-            <b id="buildprint-comic-title">How Buildprints work</b>
-            <em>From blind discovery to consistent builds</em>
-          </span>
-          <strong><span data-toggle-label>Expand</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></strong>
-        </button>
-        <div class="buildprint-comic-body" id="buildprint-comic-body" data-buildprint-comic-body aria-hidden="true">
-          <div class="buildprint-comic-body-inner">
-            <button class="buildprint-comic-preview" type="button" data-buildprint-comic-open aria-label="Open full Buildprints comic">
-              <img src="/images/hero-buildprint-story/buildprint-comic-explainer.png" alt="Four-panel comic showing an agent without a Buildprint, blind discovery, Buildprint alignment, and custom wishes with a higher feature score." loading="lazy" />
-            </button>
-            <div class="buildprint-comic-points" aria-label="Comic panel summaries">
-              <span>No Buildprint</span>
-              <span>Blind discovery</span>
-              <span>Masterclass alignment</span>
-              <span>Custom wishes</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <dialog class="buildprint-comic-dialog" data-buildprint-comic-dialog aria-label="Expanded Buildprints comic">
-        <button class="buildprint-comic-close" type="button" data-buildprint-comic-close aria-label="Close expanded comic">×</button>
-        <img src="/images/hero-buildprint-story/buildprint-comic-explainer.png" alt="Expanded four-panel comic explaining Buildprints." />
-      </dialog>
     </section>
 
     <section class="container registry-hf-shell" id="registry-list">
@@ -257,30 +227,6 @@ const { cards, recentCards, trustCounts, typeCounts, contextCounts, signalCounts
     });
     search?.addEventListener('input', apply);
     apply();
-
-    const comicDialog = document.querySelector('[data-buildprint-comic-dialog]');
-    const comicToggle = document.querySelector('[data-buildprint-comic-toggle]');
-    const comicBody = document.querySelector('[data-buildprint-comic-body]');
-    const comicToggleLabel = document.querySelector('[data-toggle-label]');
-    const comicOpen = document.querySelector('[data-buildprint-comic-open]');
-    const comicClose = document.querySelector('[data-buildprint-comic-close]');
-    function setComicExpanded(expanded) {
-      comicToggle?.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-      comicBody?.setAttribute('aria-hidden', expanded ? 'false' : 'true');
-      if (comicToggleLabel) comicToggleLabel.textContent = expanded ? 'Collapse' : 'Expand';
-      if (comicBody && 'inert' in comicBody) comicBody.inert = !expanded;
-    }
-    setComicExpanded(false);
-    comicToggle?.addEventListener('click', () => {
-      setComicExpanded(comicToggle.getAttribute('aria-expanded') !== 'true');
-    });
-    comicOpen?.addEventListener('click', () => {
-      if (comicDialog && typeof comicDialog.showModal === 'function') comicDialog.showModal();
-    });
-    comicClose?.addEventListener('click', () => comicDialog?.close());
-    comicDialog?.addEventListener('click', (event) => {
-      if (event.target === comicDialog) comicDialog.close();
-    });
 
     const numberFormat = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 });
 

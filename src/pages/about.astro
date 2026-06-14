@@ -14,30 +14,17 @@ import TechName from '@/components/TechName.astro';
           <h1 id="about-title">Turn agent prompts into repeatable builds.</h1>
           <p class="deck-lead">A Buildprint is the implementation packet you give a coding agent before it starts: product intent, scoped files, contracts, build phases, and proof checks in one reusable brief.</p>
           <div class="why-actions">
-            <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
             <a class="btn" href="#how-it-works">How it works</a>
           </div>
         </div>
 
-        <div class="usp-panel buildprint-graphic" aria-label="Buildprint workflow graphic">
-          <p class="usp-label">What gets better</p>
-          <div class="agent-loop" aria-hidden="true">
-            <span>Idea</span>
-            <i></i>
-            <strong>Buildprint</strong>
-            <i></i>
-            <span>Agent</span>
-          </div>
-          <div class="packet-core">
-            <b>Reusable build packet</b>
-            <small>intent + scope + contracts + phases + checks</small>
-          </div>
-          <div class="signal-grid">
-            <article><span>Reuse</span><b>run again</b></article>
-            <article><span>Scope</span><b>less drift</b></article>
-            <article><span>Proof</span><b>evidence</b></article>
-          </div>
-        </div>
+        <figure class="about-hero-comic">
+          <figcaption>
+            <b>How Buildprints work</b>
+            <span>From blind discovery to consistent builds.</span>
+          </figcaption>
+          <img src="/images/hero-buildprint-story/buildprint-comic-explainer.png" alt="Four-panel comic showing an agent without a Buildprint, blind discovery, Buildprint alignment, and custom wishes with a higher feature score." />
+        </figure>
       </div>
     </section>
 
@@ -159,7 +146,6 @@ import TechName from '@/components/TechName.astro';
         <article><span>Compare</span><b>agents against the same implementation brief</b></article>
       </div>
       <div class="why-actions final-actions">
-        <a class="btn primary" href="/buildprints/">Browse Buildprints</a>
         <a class="btn" href="/create/">Submit Buildprint</a>
       </div>
     </section>
