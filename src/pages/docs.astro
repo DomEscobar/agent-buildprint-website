@@ -16,7 +16,9 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
             <a href="#product">Product Buildprint</a>
             <a href="#capability">Capability Buildprint</a>
             <a href="#read-order">Read order</a>
+            <a href="#install-agb">Install AGB</a>
             <a href="#getting-started">Getting started</a>
+            <a href="#create-buildprint">Create a Buildprint</a>
           </nav>
         </div>
       </aside>
@@ -102,9 +104,26 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
           </ol>
         </section>
 
+        <section id="install-agb" class="docs-doc-section">
+          <h2>Install AGB</h2>
+          <p>AGB is the loader CLI. It downloads the exact Buildprint files into <code>.buildprint/</code> so the agent does not scrape UI cards or copy files by hand.</p>
+          <pre><code>npm install -g agent-buildprint
+agb --help</code></pre>
+          <p>If you do not want a global install, clone the source repo and run the local binary.</p>
+          <pre><code>git clone https://github.com/DomEscobar/agent-buildprint
+node agent-buildprint/bin/agb.js --help</code></pre>
+        </section>
+
         <section id="getting-started" class="docs-doc-section">
-          <h2>Getting started</h2>
+          <h2>Use a Buildprint</h2>
           <p>Start from an existing packet, load exact files, then ask the coding agent to follow the Buildprint instead of guessing from a loose prompt.</p>
+          <pre><code>mkdir rbac-build
+cd rbac-build
+agb start https://agent-buildprint.com/buildprints/rbac-permissions/package.json .
+
+# then tell the agent to read:
+.buildprint/next-agent.md</code></pre>
+          <p>Without the global install, use the local binary instead.</p>
           <pre><code>git clone https://github.com/DomEscobar/agent-buildprint
 node agent-buildprint/bin/agb.js start \
   https://agent-buildprint.com/buildprints/rbac-permissions/package.json .
@@ -112,6 +131,20 @@ node agent-buildprint/bin/agb.js start \
 # then read:
 .buildprint/next-agent.md</code></pre>
           <p>Manual path: open a Buildprint page, read <code>BUILDPRINT.md</code>, follow the named files in order, run verification, then write the final handover.</p>
+        </section>
+
+        <section id="create-buildprint" class="docs-doc-section">
+          <h2>Create a Buildprint with a Buildprint</h2>
+          <p>To author a new reusable capability packet, start from the Capability Buildprint Author. That Buildprint creates Buildprints. It does not install the capability into an app.</p>
+          <pre><code>mkdir author-stripe-buildprint
+cd author-stripe-buildprint
+agb start \
+  https://agent-buildprint.com/buildprints/capability-buildprint-author/package.json .
+
+# then tell the agent to read:
+.buildprint/next-agent.md</code></pre>
+          <p>Give the agent a specific capability target, not a vague feature. For example: <code>Create a Capability Buildprint for Stripe Checkout subscriptions with webhook-verified entitlement state in compatible Next.js apps.</code></p>
+          <p>The expected output is a new capability folder with <code>BUILDPRINT.md</code>, <code>capability.yaml</code>, compatibility rules, apply/verify instructions, implementation phases, and README metadata.</p>
         </section>
       </article>
     </div>
