@@ -74,6 +74,15 @@ const markdown = new MarkdownIt({
   typographer: true,
   breaks: false,
 });
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }[char] ?? char));
+}
 const defaultLinkOpen = markdown.renderer.rules.link_open ?? ((tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options));
 markdown.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   const token = tokens[idx];
@@ -83,6 +92,15 @@ markdown.renderer.rules.link_open = (tokens, idx, options, env, self) => {
     token.attrSet('rel', 'noreferrer');
   }
   return defaultLinkOpen(tokens, idx, options, env, self);
+};
+const defaultFence = markdown.renderer.rules.fence ?? ((tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options));
+markdown.renderer.rules.fence = (tokens, idx, options, env, self) => {
+  const token = tokens[idx];
+  const language = token.info.trim().split(/\s+/)[0]?.toLowerCase();
+  if (language === 'mermaid') {
+    return `<div class="mermaid-diagram" data-mermaid-diagram><pre class="mermaid">${escapeHtml(token.content)}</pre></div>`;
+  }
+  return defaultFence(tokens, idx, options, env, self);
 };
 const readmeHtml = markdown.render(readmeText || description);
 ---
@@ -189,6 +207,52 @@ const readmeHtml = markdown.render(readmeText || description);
     </section>
   </main>
   <script>
+    let mermaidLoader;
+    const mermaidConfig = {
+      startOnLoad: false,
+      securityLevel: 'strict',
+      theme: 'base',
+      themeVariables: {
+        background: 'transparent',
+        primaryColor: '#f8fafc',
+        primaryTextColor: '#111827',
+        primaryBorderColor: '#d1d5db',
+        lineColor: '#6b7280',
+        secondaryColor: '#ecfeff',
+        tertiaryColor: '#fef3c7',
+        fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+      },
+      flowchart: {
+        curve: 'basis',
+        htmlLabels: true,
+      },
+    };
+
+    function loadMermaid() {
+      mermaidLoader ??= import('mermaid').then(({ default: mermaid }) => {
+        mermaid.initialize(mermaidConfig);
+        return mermaid;
+      });
+      return mermaidLoader;
+    }
+
+    async function renderMermaidDiagrams(root = document) {
+      const nodes = Array.from(root.querySelectorAll('.mermaid:not([data-processed="true"])'));
+      if (!nodes.length) return;
+      try {
+        const mermaid = await loadMermaid();
+        await mermaid.run({ nodes });
+      } catch (error) {
+        console.error('Mermaid render failed', error);
+        nodes.forEach((node) => node.closest('[data-mermaid-diagram]')?.classList.add('mermaid-diagram-error'));
+      }
+    }
+
+    (window as Window & { renderMermaidDiagrams?: (root?: ParentNode) => Promise<void> }).renderMermaidDiagrams = renderMermaidDiagrams;
+    document.addEventListener('DOMContentLoaded', () => {
+      renderMermaidDiagrams();
+    });
+
     function fallbackCopy(value) {
       const textarea = document.createElement('textarea');
       textarea.value = value;

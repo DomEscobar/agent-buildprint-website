@@ -130,6 +130,7 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
         const html = [];
         let inCode = false;
         let code = [];
+        let codeLang = '';
         let list = [];
         let paragraph = [];
         function flushList() {
@@ -144,15 +145,21 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
         }
         function flushCode() {
           if (!code.length) return;
-          html.push(`<pre><code>${escapeHtml(code.join('\n'))}</code></pre>`);
+          if (codeLang.toLowerCase() === 'mermaid') {
+            html.push(`<div class="mermaid-diagram" data-mermaid-diagram><pre class="mermaid">${escapeHtml(code.join('\n'))}</pre></div>`);
+          } else {
+            html.push(`<pre><code>${escapeHtml(code.join('\n'))}</code></pre>`);
+          }
           code = [];
+          codeLang = '';
         }
         for (const line of lines) {
-          const fence = line.match(/^```/);
+          const fence = line.match(/^```(\S+)?/);
           if (fence && !inCode) {
             flushList();
             flushParagraph();
             inCode = true;
+            codeLang = fence[1] || '';
             code = [];
             continue;
           }
@@ -216,6 +223,7 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
           const response = await fetch(href);
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           artifactContent.innerHTML = renderArtifact(await response.text(), href);
+          (window as Window & { renderMermaidDiagrams?: (root?: ParentNode) => Promise<void> }).renderMermaidDiagrams?.(artifactContent);
         } catch (error) {
           artifactContent.innerHTML = `<p>Could not load this artifact inline. Use the raw file link above.</p>`;
         }
