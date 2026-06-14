@@ -299,6 +299,7 @@ function packetShape(files: string[]) {
       ? [
         'BUILDPRINT.md',
         'author.yaml',
+        '00-internet-deepsearch.md',
         '00-intake.md',
         '01-capability-boundary.md',
         '02-contract-authoring.md',
