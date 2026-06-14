@@ -9,23 +9,23 @@ const { cards, recentCards, trustCounts, typeCounts, contextCounts, signalCounts
   <main class="registry-v2 registry-hf">
     <section class="registry-hf-hero">
       <div class="container registry-hf-hero-inner">
-        <div>
+        <div class="registry-hf-hero-copy">
           <div class="registry-hero-kicker-row">
-            <p class="registry-v2-kicker">Agent Buildprint Registry</p>
+            <p class="registry-v2-kicker">Build plans for AI coding agents</p>
             <span class="buildprint-trust-badge" aria-label=".buildprint trust badge">
               <span>.buildprint</span>
             </span>
           </div>
-          <h1>Stop prompting agents from scratch.</h1>
-          <p class="registry-v2-lede">Pick a Buildprint, copy the agent prompt, or load exact files with AGB. The agent gets scope, phases, constraints, and proof before it writes code.</p>
+          <h1>Stop re-explaining every coding job.</h1>
+          <p class="registry-v2-lede">Buildprints package the plan before the agent starts: what to build, which files matter, what order to work in, and how to prove it is done.</p>
           <div class="hero-proof-line" aria-label="Buildprint proof points">
-            <strong>9 ready packets</strong>
-            <strong>copyable agent prompts</strong>
-            <strong>exact-file loader</strong>
-            <strong>proof handover</strong>
+            <strong>Skip the setup loop</strong>
+            <strong>one paste</strong>
+            <strong>zero re-explaining</strong>
           </div>
           <div class="registry-hf-hero-actions">
-            <a class="registry-v2-primary" href="/docs/">Read the docs</a>
+            <a class="registry-v2-primary" href="#registry-list">Browse Buildprints</a>
+            <a href="/docs/">Read the docs</a>
           </div>
           <div class="agent-compat-strip" aria-label="Compatible coding agents">
             <span>Works with</span>
@@ -36,6 +36,22 @@ const { cards, recentCards, trustCounts, typeCounts, contextCounts, signalCounts
             <b>++</b>
           </div>
         </div>
+        <aside class="registry-hero-packet" aria-label="What a Buildprint gives an agent">
+          <div class="registry-hero-packet-head">
+            <span>agent-buildprint packet</span>
+            <b>ready before coding</b>
+          </div>
+          <ol class="registry-hero-packet-list">
+            <li><span>01</span><strong>Scope</strong><small>goal, non-goals, constraints</small></li>
+            <li><span>02</span><strong>Files</strong><small>exact docs and source paths</small></li>
+            <li><span>03</span><strong>Phases</strong><small>ordered work, no wandering</small></li>
+            <li><span>04</span><strong>Proof</strong><small>checks, receipts, handover</small></li>
+          </ol>
+          <div class="registry-hero-command">
+            <span>start command</span>
+            <code>agb start buildprints/...</code>
+          </div>
+        </aside>
       </div>
     </section>
 
