@@ -10,100 +10,130 @@ import TechName from '@/components/TechName.astro';
     <section class="why-slide hero-slide about-hero" aria-labelledby="about-title">
       <div class="about-hero-grid">
         <div class="slide-copy">
-          <p class="deck-kicker">About Agent Buildprint</p>
-          <h1 id="about-title">Turn agent prompts into repeatable builds.</h1>
-          <p class="deck-lead">A Buildprint is the implementation packet you give a coding agent before it starts: product intent, scoped files, contracts, build phases, and proof checks in one reusable brief.</p>
+          <p class="deck-kicker">Agent Buildprint</p>
+          <h1 id="about-title">AI agents need build packets, not vague prompts.</h1>
+          <p class="deck-lead">Buildprints turn repeatable software work into scoped, verifiable packets that coding agents can run. Less guessing, less drift, more proof.</p>
           <div class="why-actions">
-            <a class="btn" href="#how-it-works">The basics</a>
+            <a class="btn primary" href="#pain-journey">See the journey</a>
+            <a class="btn" href="#rbac-example">RBAC example</a>
+          </div>
+          <div class="hero-proof-strip" aria-label="Buildprint value">
+            <span><b>Scope</b> known before code</span>
+            <span><b>Phases</b> ordered for agents</span>
+            <span><b>Proof</b> checked before claims</span>
           </div>
         </div>
 
-        <figure class="about-hero-comic">
-          <figcaption>
-            <b>How Buildprints work</b>
-            <span>From blind discovery to consistent builds.</span>
-          </figcaption>
-          <img src="/images/hero-buildprint-story/buildprint-comic-explainer.png" alt="Four-panel comic showing an agent without a Buildprint, blind discovery, Buildprint alignment, and custom wishes with a higher feature score." />
-        </figure>
-      </div>
-    </section>
-
-    <section class="why-slide split-slide about-advantage">
-      <div class="slide-copy">
-        <p class="slide-number">The USP</p>
-        <h2>Buildprints make complex agent work copyable.</h2>
-        <p>Instead of explaining the same product from scratch every time, you start from a structured packet that already knows the outcome, boundaries, and validation path.</p>
-      </div>
-      <div class="advantage-visuals">
-        <div class="drift-chart" aria-label="Prompt drift compared with Buildprint control">
-          <article class="drift-chat">
+        <div class="pitch-visual" aria-label="Vague prompt converted into a Buildprint packet">
+          <div class="prompt-card">
             <span>Loose prompt</span>
-            <b>Drift grows during the build</b>
-            <i></i><i></i><i></i>
-          </article>
-          <article class="drift-buildprint">
-            <span>Buildprint</span>
-            <b>Scope stays bounded</b>
-            <i></i><i></i><i></i>
-          </article>
-        </div>
-        <div class="about-answer" aria-label="Prompt versus Buildprint">
-          <article>
-            <span>Without Buildprints</span>
-            <b>Every chat begins with a vague idea, then architecture drifts while code is written.</b>
-          </article>
-          <article>
-            <span>With Buildprints</span>
-            <b>The agent receives a clear build packet it can follow, verify, and improve.</b>
-          </article>
-          <article>
-            <span>For builders</span>
-            <b>You get faster starts, fewer rewrites, and a cleaner handoff between people and agents.</b>
-          </article>
-          <article>
-            <span>For teams</span>
-            <b>You can compare agents against the same brief instead of different chat histories.</b>
-          </article>
+            <b>Add RBAC to this SaaS</b>
+            <small>agent must infer repo, scope, contracts, order, and tests</small>
+          </div>
+          <div class="packet-engine" aria-hidden="true">
+            <span>BUILDPRINT.md</span>
+            <i></i>
+            <b>packetized work</b>
+            <i></i>
+            <span>VERIFY.md</span>
+          </div>
+          <div class="proof-card">
+            <span>Verified output</span>
+            <b>roles, permissions, protected routes</b>
+            <small>deny-by-default tests plus implementation receipt</small>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="how-it-works" class="why-slide flow-slide about-flow">
-      <div class="slide-copy wide">
-        <p class="slide-number">The basics</p>
-        <h2>Example: use the RBAC permissions Buildprint to add one bounded capability.</h2>
-        <p>The agent does not get a vague request like "add roles." It gets the RBAC packet: host assessment, integration plan, capability contract, implementation phases, and verification receipt.</p>
-      </div>
-      <div class="flow-machine" aria-label="Buildprint execution flow">
-        <div><span>01</span><b>Pick RBAC</b><small>start from the permissions capability packet</small></div>
-        <i></i>
-        <div><span>02</span><b>Load</b><small>run <code>agb start</code> and read the start file</small></div>
-        <i></i>
-        <div><span>03</span><b>Apply</b><small>map roles, permissions, helpers, and protected routes</small></div>
-        <i></i>
-        <div><span>04</span><b>Verify</b><small>deny-by-default tests and receipt prove the claim</small></div>
-      </div>
-    </section>
-
-    <section class="why-slide split-slide about-builds">
+    <section id="pain-journey" class="why-slide pain-slide">
       <div class="slide-copy">
-        <p class="slide-number">What you can build</p>
-        <h2>The best use case is anything too important for a loose prompt.</h2>
-        <p>Use Buildprints for work where architecture, contracts, and proof matter more than a quick demo.</p>
+        <p class="slide-number">The pain</p>
+        <h2>The agent is not weak. The handoff is.</h2>
+        <p>Most AI coding work starts with an underspecified chat message. The model then has to discover the repo, invent missing contracts, choose an implementation path, and judge its own success.</p>
       </div>
-      <div class="outcome-grid" aria-label="Buildprint outcomes">
-        <article><span>Agent systems</span><b>runtimes, tool use, memory, review loops, safety boundaries</b></article>
-        <article><span>Product features</span><b>auth, billing, dashboards, workflows, content pipelines</b></article>
-        <article><span>AI apps</span><b>RAG, evals, ingestion, prompt systems, provider adapters</b></article>
-        <article><span>Repo mapping</span><b>turn working code into a reusable implementation package</b></article>
+      <div class="journey-compare" aria-label="Before and after Buildprints">
+        <article class="journey-lane broken-lane">
+          <div class="lane-head">
+            <span>Without Buildprint</span>
+            <b>Blind build</b>
+          </div>
+          <ol>
+            <li><b>Idea</b><small>"Add RBAC"</small></li>
+            <li><b>Guess</b><small>agent hunts for architecture</small></li>
+            <li><b>Drift</b><small>scope changes while coding</small></li>
+            <li><b>Claim</b><small>"done" without durable proof</small></li>
+            <li><b>Rework</b><small>human finds the gaps</small></li>
+          </ol>
+        </article>
+
+        <article class="journey-lane buildprint-lane">
+          <div class="lane-head">
+            <span>With Buildprint</span>
+            <b>Packaged build</b>
+          </div>
+          <ol>
+            <li><b>Packet</b><small>goal, non-goals, host context</small></li>
+            <li><b>Map</b><small>contracts and touched surfaces</small></li>
+            <li><b>Build</b><small>phases keep work ordered</small></li>
+            <li><b>Verify</b><small>tests and receipt prove claims</small></li>
+            <li><b>Reuse</b><small>packet improves after each run</small></li>
+          </ol>
+        </article>
+      </div>
+    </section>
+
+    <section class="why-slide category-slide">
+      <div class="slide-copy wide">
+        <p class="slide-number">The category</p>
+        <h2><TechName name="Docker" /> packages environments. <TechName name="npm" /> packages code. Buildprints package agent work.</h2>
+        <p>The shift is simple: stop treating important implementation work as a one-off prompt. Package the job so any capable coding agent can run the same brief, hit the same checkpoints, and produce comparable evidence.</p>
+      </div>
+      <div class="category-stack" aria-label="Software packaging analogy">
+        <article><span>Environments</span><b>Docker</b><small>repeatable runtime</small></article>
+        <article><span>Libraries</span><b>npm</b><small>repeatable code</small></article>
+        <article class="active"><span>Agent work</span><b>Buildprints</b><small>repeatable implementation</small></article>
+      </div>
+    </section>
+
+    <section id="rbac-example" class="why-slide rbac-slide">
+      <div class="slide-copy">
+        <p class="slide-number">Example journey</p>
+        <h2>A founder asks for RBAC. The Buildprint turns it into a buildable packet.</h2>
+        <p>The request stays human-simple, but the agent receives a concrete implementation path: assess the host app, define permissions, wire helpers, protect routes, and prove deny-by-default behavior.</p>
+      </div>
+
+      <div class="rbac-board" aria-label="RBAC Buildprint flow">
+        <div class="founder-request">
+          <span>Founder request</span>
+          <b>Add roles and permissions without breaking the app.</b>
+        </div>
+        <div class="rbac-packet">
+          <span>RBAC Buildprint</span>
+          <ul>
+            <li>Host assessment</li>
+            <li>Capability contract</li>
+            <li>Integration phases</li>
+            <li>Verification receipt</li>
+          </ul>
+        </div>
+        <div class="agent-run">
+          <span>Agent run</span>
+          <b>Map -> implement -> test -> report</b>
+          <small>every step has a named checkpoint</small>
+        </div>
+        <div class="verified-result">
+          <span>Proof</span>
+          <b>Allow, deny, missing-role, and unknown-permission checks pass.</b>
+        </div>
       </div>
     </section>
 
     <section class="why-slide package-slide about-inside">
       <div class="slide-copy">
-        <p class="slide-number">What is inside</p>
+        <p class="slide-number">What the agent gets</p>
         <h2>The packet answers the questions an agent usually has to guess.</h2>
-        <p>A Buildprint stays flexible about implementation details, but it fixes the important product, boundary, and proof decisions first.</p>
+        <p>A Buildprint stays flexible about implementation details, but it fixes the important product, boundary, and proof decisions before coding starts.</p>
       </div>
       <div class="package-graphic" aria-label="Buildprint package anatomy">
         <div class="package-spine">
@@ -122,28 +152,28 @@ import TechName from '@/components/TechName.astro';
 
     <section class="why-slide split-slide about-proof">
       <div class="slide-copy">
-        <p class="slide-number">Why it matters</p>
-        <h2>Speed without structure creates rework.</h2>
-        <p>Loose prompts push architecture, scope, edge cases, and acceptance criteria into the same moment the agent is writing code. That is where drift starts.</p>
+        <p class="slide-number">Why investors should care</p>
+        <h2>The durable asset is not one generated patch. It is reusable implementation knowledge.</h2>
+        <p>Buildprints make agent work comparable, repeatable, and improvable. The same packet can be run by different agents, against different hosts, with proof attached to every serious claim.</p>
       </div>
       <div class="proof-terminal" aria-label="Validation checklist">
-        <p><span>Scope</span> goals and non-goals known</p>
-        <p class="ok"><span>Files</span> source package available</p>
-        <p><span>Checks</span> validation path defined</p>
-        <p class="warn"><span>Claims</span> limits documented</p>
+        <p><span>Market</span> agent work needs packaging</p>
+        <p class="ok"><span>Product</span> packets are reusable</p>
+        <p><span>Quality</span> proof travels with the build</p>
+        <p class="warn"><span>Moat</span> library improves with every run</p>
       </div>
     </section>
 
     <section class="why-slide market-slide about-final">
       <div class="slide-copy wide">
-        <p class="slide-number">Use the category</p>
-        <h2><TechName name="Docker" /> packages environments. <TechName name="npm" /> packages code. Buildprints package agent work.</h2>
-        <p>The result is reusable implementation knowledge: easier to inspect, easier to improve, and easier to run again when the next agent, model, or product variant arrives.</p>
+        <p class="slide-number">Bottom line</p>
+        <h2>Prompts disappear into chat history. Buildprints become a library.</h2>
+        <p>The product is not another coding agent. It is the missing handoff layer between human intent and agent execution.</p>
       </div>
       <div class="poster-grid" aria-label="Agent Buildprint use cases">
-        <article><span>Build</span><b>features, agents, RAG, billing, content systems</b></article>
-        <article><span>Map</span><b>working repos into reusable Buildprints</b></article>
-        <article><span>Compare</span><b>agents against the same implementation brief</b></article>
+        <article><span>Build</span><b>features too important for vague prompts</b></article>
+        <article><span>Map</span><b>turn working repos into reusable packets</b></article>
+        <article><span>Compare</span><b>benchmark agents on the same brief</b></article>
       </div>
       <div class="why-actions final-actions">
         <a class="btn" href="/create/">Submit Buildprint</a>
