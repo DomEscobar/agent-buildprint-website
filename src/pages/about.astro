@@ -14,7 +14,7 @@ import TechName from '@/components/TechName.astro';
           <h1 id="about-title">Turn agent prompts into repeatable builds.</h1>
           <p class="deck-lead">A Buildprint is the implementation packet you give a coding agent before it starts: product intent, scoped files, contracts, build phases, and proof checks in one reusable brief.</p>
           <div class="why-actions">
-            <a class="btn" href="#how-it-works">How it works</a>
+            <a class="btn" href="#how-it-works">The basics</a>
           </div>
         </div>
 
@@ -70,18 +70,18 @@ import TechName from '@/components/TechName.astro';
 
     <section id="how-it-works" class="why-slide flow-slide about-flow">
       <div class="slide-copy wide">
-        <p class="slide-number">How it works</p>
-        <h2>Choose the outcome. Load the packet. Let the agent build inside the rails.</h2>
-        <p>Buildprints do not replace the coding agent. They make the agent's job explicit before implementation begins.</p>
+        <p class="slide-number">The basics</p>
+        <h2>Example: use the RBAC permissions Buildprint to add one bounded capability.</h2>
+        <p>The agent does not get a vague request like "add roles." It gets the RBAC packet: host assessment, integration plan, capability contract, implementation phases, and verification receipt.</p>
       </div>
       <div class="flow-machine" aria-label="Buildprint execution flow">
-        <div><span>01</span><b>Pick</b><small>choose the closest Buildprint</small></div>
+        <div><span>01</span><b>Pick RBAC</b><small>start from the permissions capability packet</small></div>
         <i></i>
-        <div><span>02</span><b>Load</b><small>copy the prompt or run <code>agb start</code></small></div>
+        <div><span>02</span><b>Load</b><small>run <code>agb start</code> and read the start file</small></div>
         <i></i>
-        <div><span>03</span><b>Build</b><small>agent follows the scoped files</small></div>
+        <div><span>03</span><b>Apply</b><small>map roles, permissions, helpers, and protected routes</small></div>
         <i></i>
-        <div><span>04</span><b>Prove</b><small>tests, files, and claims are checked</small></div>
+        <div><span>04</span><b>Verify</b><small>deny-by-default tests and receipt prove the claim</small></div>
       </div>
     </section>
 
