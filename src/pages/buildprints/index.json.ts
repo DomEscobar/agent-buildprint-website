@@ -1,4 +1,5 @@
 import { buildprints, buildprintUrls } from '@/lib/buildprints';
+import { useCaseType } from '@/lib/registry';
 
 export function GET() {
   return new Response(JSON.stringify({
@@ -12,7 +13,7 @@ export function GET() {
       slug: bp.slug,
       title: bp.title,
       summary: bp.summary,
-      category: bp.category,
+      type: useCaseType(bp),
       tier: bp.tier,
       status: bp.status,
       publicStatus: bp.publicStatus,

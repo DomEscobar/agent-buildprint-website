@@ -2,6 +2,7 @@ import { buildprintFileText, packageManifest } from '@/lib/buildprints';
 import type { buildprints } from '@/lib/buildprints';
 
 type Buildprint = typeof buildprints[number];
+export type BuildprintType = 'Products' | 'Integrations';
 
 export const updatedDate = new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -26,15 +27,11 @@ export const contextTier = (tokens: number) => tokens < 20000 ? 'Small context' 
 
 export const contextSort = (label: string) => ['Small context', 'Medium context', 'Large context', 'Huge context'].indexOf(label);
 
-export const useCaseType = (bp: Buildprint) => {
+export const useCaseType = (bp: Buildprint): BuildprintType => {
   const text = `${bp.slug} ${bp.title} ${bp.summary} ${bp.category} ${bp.runtime.join(' ')} ${bp.stack.join(' ')}`.toLowerCase();
-  if (bp.category === 'Product OS') return 'App / Product';
-  if (bp.category === 'Workflow OS' || bp.category === 'Workflow') return 'Workflow';
-  if (bp.category === 'Feature / Extension') return text.includes('mcp') || text.includes('api') || text.includes('stripe') ? 'Integration' : 'Agent tool';
-  if (bp.category === 'Framework / Architecture') return 'Framework';
-  if (text.includes('template')) return 'Template';
-  if (text.includes('agent') || text.includes('mapper') || text.includes('skill')) return 'Agent tool';
-  return 'Mapped Project';
+  if (bp.category === 'Product OS' || bp.category === 'Mapped Project') return 'Products';
+  if (text.includes('product') || text.includes('app') || text.includes('studio')) return 'Products';
+  return 'Integrations';
 };
 
 export const signalFor = (bp: Buildprint, bootstrapReady: boolean, hasRuns: boolean) => {

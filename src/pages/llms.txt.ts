@@ -1,4 +1,5 @@
 import { buildprints, buildprintUrls } from '@/lib/buildprints';
+import { useCaseType } from '@/lib/registry';
 
 export function GET() {
   const lines = [
@@ -18,11 +19,8 @@ export function GET() {
     '',
     '## Buildprint types',
     '',
-    '- Framework / Architecture',
-    '- Product OS',
-    '- Feature / Extension',
-    '- Workflow OS',
-    '- Mapped Project',
+    '- Products',
+    '- Integrations',
     '',
     '## Package tiers',
     '',
@@ -37,7 +35,7 @@ export function GET() {
       return [
         `### ${bp.title}`,
         `- slug: ${bp.slug}`,
-        `- category: ${bp.category}`,
+        `- type: ${useCaseType(bp)}`,
         `- tier: ${bp.tier}`,
         `- status: ${bp.status}`,
         `- agent: ${urls.agent}`,

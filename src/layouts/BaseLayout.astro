@@ -223,7 +223,7 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
           const response = await fetch(href);
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           artifactContent.innerHTML = renderArtifact(await response.text(), href);
-          (window as Window & { renderMermaidDiagrams?: (root?: ParentNode) => Promise<void> }).renderMermaidDiagrams?.(artifactContent);
+          window.renderMermaidDiagrams?.(artifactContent);
         } catch (error) {
           artifactContent.innerHTML = `<p>Could not load this artifact inline. Use the raw file link above.</p>`;
         }

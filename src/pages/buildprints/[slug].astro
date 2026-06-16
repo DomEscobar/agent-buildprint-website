@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import MarkdownIt from 'markdown-it';
 import { buildprints, buildprintFileText, getBuildprint, packageManifest, repoUrl, siteBase } from '@/lib/buildprints';
 import { categoryIcon, registryBadgeIcon } from '@/lib/icons';
-import { contextEstimateFor, signalFor } from '@/lib/registry';
+import { contextEstimateFor, signalFor, useCaseType } from '@/lib/registry';
 
 export function getStaticPaths() {
   return buildprints.map((bp) => ({ params: { slug: bp.slug } }));
@@ -61,6 +61,7 @@ const promptUrl = `${siteBase}/buildprints/${bp.slug}/prompt.txt`;
 const agentPrompt = bp.copyPrompt;
 
 const typeIcon = categoryIcon(bp.category, `${bp.slug} ${bp.title} ${bp.summary}`);
+const publicType = useCaseType(bp);
 const contextEstimate = await contextEstimateFor(bp);
 const estimatedContextLabel = contextEstimate.label;
 const estimatedContextTier = contextEstimate.tier;
@@ -154,8 +155,8 @@ const readmeHtml = markdown.render(readmeText || description);
           <span class="side-label">Buildprint facts</span>
           <div class="readme-side-facts">
             <div>
-              <span>Category</span>
-              <strong><span class="readme-side-icon" set:html={typeIcon} />{bp.category}</strong>
+              <span>Type</span>
+              <strong><span class="readme-side-icon" set:html={typeIcon} />{publicType}</strong>
             </div>
             <div>
               <span>Updated</span>
