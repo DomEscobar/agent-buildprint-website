@@ -3,7 +3,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const slug = process.argv.find((arg) => arg.startsWith('--slug='))?.slice('--slug='.length) || 'ai-presentation-generation';
+const slug = process.argv.find((arg) => arg.startsWith('--slug='))?.slice('--slug='.length) || 'api-key-management';
 const runCodex = process.argv.includes('--run-codex');
 const base = process.argv.find((arg) => arg.startsWith('--base='))?.slice('--base='.length) || 'https://agent-buildprint.com';
 const stamp = new Date().toISOString().replace(/[:.]/g, '-');
