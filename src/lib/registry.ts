@@ -30,6 +30,8 @@ export const contextSort = (label: string) => ['Small context', 'Medium context'
 export const useCaseType = (bp: Buildprint): BuildprintType => {
   const text = `${bp.slug} ${bp.title} ${bp.summary} ${bp.category} ${bp.runtime.join(' ')} ${bp.stack.join(' ')}`.toLowerCase();
   if (bp.category === 'Product OS' || bp.category === 'Mapped Project') return 'Products';
+  if (bp.category === 'Feature / Extension') return 'Integrations';
+  if (bp.files.some((file) => ['capability.yaml', 'apply.md', 'verify.md', 'compatibility.md'].includes(file.path))) return 'Integrations';
   if (text.includes('product') || text.includes('app') || text.includes('studio')) return 'Products';
   return 'Integrations';
 };
