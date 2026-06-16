@@ -407,7 +407,10 @@ function normalizePublication(record: SourceRecord): Buildprint | null {
   const summary = publication.summary || firstParagraph(record.readme) || firstParagraph(record.buildprint) || `${title} Agent Buildprint.`;
   const runtime = publication.runtime?.length ? publication.runtime : (yamlBlockScalars(record.blueprint, 'runtime').length ? yamlBlockScalars(record.blueprint, 'runtime') : ['Executable Buildprint packet']);
   const stack = publication.stack?.length ? publication.stack : (yamlBlockScalars(record.blueprint, 'stack').length ? yamlBlockScalars(record.blueprint, 'stack') : ['BUILDPRINT.md', 'blueprint.yaml', 'raw package files'].filter((file) => fileList.includes(file)));
-  const category = publication.category ?? (originGithubUrl ? 'Mapped Project' : yamlScalar(record.blueprint, 'primary') === 'product' ? 'Product OS' : 'Framework / Architecture');
+  const isProductPacket = fileList.includes('blueprint.yaml') &&
+    fileList.includes('03-phases/phase-index.yaml') &&
+    (/claim_status:\s*product_build_required/i.test(record.blueprint) || /##\s*Product assignment/i.test(record.buildprint));
+  const category = publication.category ?? (originGithubUrl ? 'Mapped Project' : (yamlScalar(record.blueprint, 'primary') === 'product' || isProductPacket) ? 'Product OS' : 'Framework / Architecture');
   const normalized: Buildprint = {
     slug: publication.slug ?? record.slug,
     title,
