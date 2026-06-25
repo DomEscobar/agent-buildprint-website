@@ -5,6 +5,25 @@ import { categoryIcon, registryBadgeIcon } from '@/lib/icons';
 
 const registry = await buildRegistryModel(buildprints);
 const { cards, recentCards, trustCounts, typeCounts, contextCounts, signalCounts } = registry;
+const curatedPickCopy = {
+  'design-quality-lift': {
+    label: 'Design Quality Lift',
+    reason: 'Use this when the agent can build the feature, but the interface still reads generic. It adds direction lock, taste gates, screenshots, and receipts.',
+    flow: 'direction lock -> visual gates -> proof receipt',
+  },
+  'agentic-chat': {
+    label: 'Agentic Chat',
+    reason: 'A full product Buildprint for real streaming chat, provider routing, tool loops, UI verification, and handoff discipline.',
+    flow: 'streaming chat -> tool loop -> verified app',
+  },
+};
+const curatedPickSlugs = Object.keys(curatedPickCopy);
+const curatedPicks = curatedPickSlugs
+  .map((slug) => {
+    const card = cards.find(({ bp }) => bp.slug === slug);
+    return card ? { ...card, pick: curatedPickCopy[slug] } : null;
+  })
+  .filter(Boolean);
 ---
   <main class="registry-v2 registry-hf">
     <section class="registry-hf-hero">
@@ -34,6 +53,48 @@ const { cards, recentCards, trustCounts, typeCounts, contextCounts, signalCounts
         </div>
       </div>
     </section>
+
+    {curatedPicks.length > 0 && (
+      <section class="container registry-curated-picks" aria-labelledby="curatedBuildprintsTitle">
+        <div class="registry-curated-head">
+          <div>
+            <span>Curated picks</span>
+            <h2 id="curatedBuildprintsTitle">Start with these Buildprints</h2>
+          </div>
+          <p>Two different surfaces: one product OS, one quality-lift capability.</p>
+        </div>
+        <div class="registry-curated-grid">
+          {curatedPicks.map(({ bp, context, type, trust, signals, pick }) => (
+            <a
+              class={`registry-curated-card registry-curated-card-${bp.slug}`}
+              href={`/buildprints/${bp.slug}/`}
+              aria-label={`Open ${bp.title}`}
+            >
+              <div class="registry-curated-topline">
+                <span>{pick.label}</span>
+                <b>{type}</b>
+              </div>
+              <h3>{bp.title}</h3>
+              <p>{pick.reason}</p>
+              <div class="registry-curated-flow" aria-label="Buildprint flow">
+                {pick.flow.split(' -> ').map((step, index) => (
+                  <>
+                    {index > 0 && <i aria-hidden="true"></i>}
+                    <span>{step}</span>
+                  </>
+                ))}
+              </div>
+              <div class="registry-curated-meta" aria-label="Buildprint facts">
+                <span>{trust}</span>
+                <span>{context.label}</span>
+                <span>{bp.files.length} files</span>
+                {signals.slice(0, 2).map((signal) => <span>{signal}</span>)}
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
 
     <section class="container registry-hf-shell" id="registry-list">
       <aside class="registry-hf-sidebar" aria-label="Buildprint filters">
