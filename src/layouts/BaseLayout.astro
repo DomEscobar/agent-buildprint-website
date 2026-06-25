@@ -65,6 +65,11 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
           <button class="artifact-modal-close" type="button" data-artifact-close aria-label="Close artifact viewer">x</button>
         </header>
         <div class="artifact-modal-actions">
+          <div class="artifact-image-controls" data-image-controls hidden>
+            <button type="button" data-image-zoom-out aria-label="Zoom out">-</button>
+            <button type="button" data-image-zoom-reset aria-label="Reset zoom">Reset</button>
+            <button type="button" data-image-zoom-in aria-label="Zoom in">+</button>
+          </div>
           <a class="btn" href="#" target="_blank" rel="noreferrer" data-artifact-raw>Open raw file</a>
         </div>
         <div class="artifact-modal-body readme-rendered" data-artifact-content></div>
@@ -106,7 +111,12 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
       const artifactTitle = document.querySelector('[data-artifact-title]');
       const artifactContent = document.querySelector('[data-artifact-content]');
       const artifactRaw = document.querySelector('[data-artifact-raw]');
+      const imageControls = document.querySelector('[data-image-controls]');
+      const imageZoomIn = document.querySelector('[data-image-zoom-in]');
+      const imageZoomOut = document.querySelector('[data-image-zoom-out]');
+      const imageZoomReset = document.querySelector('[data-image-zoom-reset]');
       const artifactCloseControls = document.querySelectorAll('[data-artifact-close]');
+      let activeImageState = null;
       function escapeHtml(value) {
         return value.replace(/[&<>"']/g, (char) => ({
           '&': '&amp;',
@@ -201,13 +211,108 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
       function closeArtifactModal() {
         if (!artifactModal) return;
         artifactModal.hidden = true;
+        if (imageControls) imageControls.hidden = true;
+        artifactContent?.classList.remove('artifact-modal-body-image');
+        activeImageState = null;
         document.body.classList.remove('artifact-modal-open');
       }
+      function updateImageTransform() {
+        if (!activeImageState?.image) return;
+        const { image, scale, x, y } = activeImageState;
+        image.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+      }
+      function setImageScale(nextScale) {
+        if (!activeImageState) return;
+        activeImageState.scale = Math.max(1, Math.min(5, nextScale));
+        if (activeImageState.scale === 1) {
+          activeImageState.x = 0;
+          activeImageState.y = 0;
+        }
+        updateImageTransform();
+      }
+      function resetImageZoom() {
+        if (!activeImageState) return;
+        activeImageState.scale = 1;
+        activeImageState.x = 0;
+        activeImageState.y = 0;
+        updateImageTransform();
+      }
+      function pointerDistance(points) {
+        const [a, b] = points;
+        return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      }
+      function openImageModal(link) {
+        if (!artifactModal || !artifactContent || !artifactTitle || !artifactRaw) return;
+        const href = link.getAttribute('href') || '';
+        const title = link.getAttribute('data-visual-title') || link.querySelector('img')?.alt || 'Visual preview';
+        const alt = link.querySelector('img')?.alt || title;
+        artifactTitle.textContent = title;
+        artifactRaw.href = href;
+        artifactRaw.textContent = 'Open image file';
+        if (imageControls) imageControls.hidden = false;
+        artifactContent.classList.add('artifact-modal-body-image');
+        artifactContent.innerHTML = `
+          <div class="artifact-image-stage" data-image-stage>
+            <img src="${escapeHtml(href)}" alt="${escapeHtml(alt)}" draggable="false" data-image-lightbox-img>
+          </div>`;
+        artifactModal.hidden = false;
+        document.body.classList.add('artifact-modal-open');
+        const stage = artifactContent.querySelector('[data-image-stage]');
+        const image = artifactContent.querySelector('[data-image-lightbox-img]');
+        const pointers = new Map();
+        activeImageState = { image, scale: 1, x: 0, y: 0, startX: 0, startY: 0, startPanX: 0, startPanY: 0, pinchStart: 0, pinchScale: 1 };
+        stage?.addEventListener('wheel', (event) => {
+          event.preventDefault();
+          setImageScale(activeImageState.scale + (event.deltaY < 0 ? .18 : -.18));
+        }, { passive: false });
+        stage?.addEventListener('pointerdown', (event) => {
+          stage.setPointerCapture?.(event.pointerId);
+          pointers.set(event.pointerId, event);
+          if (pointers.size === 1) {
+            activeImageState.startX = event.clientX;
+            activeImageState.startY = event.clientY;
+            activeImageState.startPanX = activeImageState.x;
+            activeImageState.startPanY = activeImageState.y;
+          }
+          if (pointers.size === 2) {
+            activeImageState.pinchStart = pointerDistance([...pointers.values()]);
+            activeImageState.pinchScale = activeImageState.scale;
+          }
+        });
+        stage?.addEventListener('pointermove', (event) => {
+          if (!pointers.has(event.pointerId)) return;
+          pointers.set(event.pointerId, event);
+          if (pointers.size === 2) {
+            const distance = pointerDistance([...pointers.values()]);
+            if (activeImageState.pinchStart) setImageScale(activeImageState.pinchScale * (distance / activeImageState.pinchStart));
+            return;
+          }
+          if (pointers.size === 1 && activeImageState.scale > 1) {
+            activeImageState.x = activeImageState.startPanX + event.clientX - activeImageState.startX;
+            activeImageState.y = activeImageState.startPanY + event.clientY - activeImageState.startY;
+            updateImageTransform();
+          }
+        });
+        function releasePointer(event) {
+          pointers.delete(event.pointerId);
+        }
+        stage?.addEventListener('pointerup', releasePointer);
+        stage?.addEventListener('pointercancel', releasePointer);
+      }
+      imageZoomIn?.addEventListener('click', () => setImageScale((activeImageState?.scale || 1) + .35));
+      imageZoomOut?.addEventListener('click', () => setImageScale((activeImageState?.scale || 1) - .35));
+      imageZoomReset?.addEventListener('click', resetImageZoom);
       artifactCloseControls.forEach((control) => control.addEventListener('click', closeArtifactModal));
       document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') closeArtifactModal();
       });
       document.addEventListener('click', async (event) => {
+        const imageLink = event.target.closest?.('[data-visual-lightbox]');
+        if (imageLink) {
+          event.preventDefault();
+          openImageModal(imageLink);
+          return;
+        }
         const link = event.target.closest?.('a.proof-artifact-link, .proof-hero a.btn');
         if (!link || !artifactModal || !artifactContent || !artifactTitle || !artifactRaw) return;
         const href = link.getAttribute('href') || '';
@@ -216,6 +321,9 @@ const absoluteImage = new URL(image, Astro.url.origin).href;
         const label = link.querySelector('code')?.textContent || link.textContent?.trim() || 'Artifact';
         artifactTitle.textContent = label;
         artifactRaw.href = href;
+        artifactRaw.textContent = 'Open raw file';
+        if (imageControls) imageControls.hidden = true;
+        artifactContent.classList.remove('artifact-modal-body-image');
         artifactContent.innerHTML = '<p>Loading artifact…</p>';
         artifactModal.hidden = false;
         document.body.classList.add('artifact-modal-open');

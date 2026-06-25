@@ -432,16 +432,71 @@ pre { overflow:auto; background:var(--surface-2); border:1px solid var(--border)
 .artifact-modal-head h2 { margin:4px 0 0; font-size:clamp(22px,3vw,34px); letter-spacing:-.04em; overflow-wrap:anywhere; }
 .artifact-modal-close { width:36px; height:36px; border:1px solid var(--border); border-radius:999px; background:var(--surface); color:var(--text); font:inherit; font-weight:950; cursor:pointer; }
 .artifact-modal-actions { display:flex; justify-content:flex-end; gap:10px; padding:12px 20px; border-bottom:1px solid var(--border); }
+.artifact-image-controls {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-right:auto;
+}
+.artifact-image-controls[hidden] { display:none; }
+.artifact-image-controls button {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:34px;
+  height:34px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:var(--surface);
+  color:var(--text);
+  font:inherit;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+.artifact-image-controls button:hover {
+  border-color:color-mix(in srgb, var(--accent) 46%, var(--border));
+  color:var(--accent);
+}
 .artifact-modal-body { min-height:0; overflow:auto; padding:20px; }
+.artifact-modal-body-image {
+  overflow:hidden;
+  padding:0;
+  background:color-mix(in srgb, var(--surface-2) 74%, #000);
+}
+.artifact-image-stage {
+  width:100%;
+  height:min(68vh, 720px);
+  min-height:320px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  touch-action:none;
+  cursor:grab;
+}
+.artifact-image-stage:active { cursor:grabbing; }
+.artifact-image-stage img {
+  display:block;
+  max-width:100%;
+  max-height:100%;
+  user-select:none;
+  transform-origin:center center;
+  transition:transform .12s ease;
+  will-change:transform;
+}
 .artifact-modal-body pre { white-space:pre-wrap; overflow-wrap:anywhere; }
 .artifact-modal-body code { overflow-wrap:anywhere; }
 @media (max-width:640px) {
   .artifact-modal-shell { padding:10px; align-items:stretch; }
   .artifact-modal { max-height:calc(100vh - 20px); border-radius:16px; }
   .artifact-modal-head { padding:14px; }
-  .artifact-modal-actions { padding:10px 14px; justify-content:stretch; }
+  .artifact-modal-actions { padding:10px 14px; justify-content:stretch; flex-wrap:wrap; }
+  .artifact-image-controls { width:100%; margin-right:0; }
+  .artifact-image-controls button { flex:1; }
   .artifact-modal-actions .btn { width:100%; }
   .artifact-modal-body { padding:14px; }
+  .artifact-modal-body-image { padding:0; }
+  .artifact-image-stage { height:62vh; min-height:260px; }
 }
 
 /* Blueprint Dossier visual pass — isolated for easy revert */

@@ -73,8 +73,8 @@ const curatedPicks = curatedPickSlugs
                 <a
                   class="registry-curated-preview"
                   href={bp.visualRun.image}
-                  target="_blank"
-                  rel="noreferrer"
+                  data-visual-lightbox
+                  data-visual-title={`${bp.title} visual preview`}
                   aria-label={`Open ${bp.title} visual preview`}
                 >
                   <img src={bp.visualRun.image} alt={bp.visualRun.alt} loading="lazy" decoding="async" />

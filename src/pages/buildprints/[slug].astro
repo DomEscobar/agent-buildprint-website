@@ -154,7 +154,7 @@ const readmeHtml = markdown.render(readmeText || description);
         {bp.visualRun?.image && (
           <div class="readme-side-card readme-visual-card">
             <span class="side-label">Visual proof</span>
-            <a class="readme-visual-preview" href={bp.visualRun.image} target="_blank" rel="noreferrer" aria-label={`Open ${bp.title} visual proof`}>
+            <a class="readme-visual-preview" href={bp.visualRun.image} data-visual-lightbox data-visual-title={`${bp.title} visual proof`} aria-label={`Open ${bp.title} visual proof`}>
               <img src={bp.visualRun.image} alt={bp.visualRun.alt} loading="lazy" decoding="async" />
               <span>{bp.visualRun.caption ?? 'Open preview'}</span>
             </a>
