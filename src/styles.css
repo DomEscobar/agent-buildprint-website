@@ -4001,10 +4001,43 @@ body { background: var(--bg); }
   position: relative;
   z-index: 1;
 }
-.registry-hf-hero-inner { display:block; padding:78px 0 52px; }
+.registry-hf-hero-inner { display:grid; grid-template-columns:minmax(0,1fr) minmax(320px,430px); align-items:center; gap:36px; padding:78px 0 52px; }
 .registry-hf-hero-copy { max-width:920px; }
 .registry-hf-hero h1 { max-width:880px; margin:0 0 16px; font-size:clamp(48px,6.8vw,88px); letter-spacing:-.068em; line-height:.9; }
 .registry-v2-lede { max-width:720px; }
+.registry-hf-hero-story {
+  position:relative;
+  display:block;
+  width:100%;
+  aspect-ratio:16 / 9;
+  overflow:hidden;
+  border:1px solid color-mix(in srgb, var(--accent) 20%, var(--border));
+  border-radius:18px;
+  background:var(--surface-2);
+  box-shadow:0 22px 54px rgba(15,23,42,.13);
+  cursor:zoom-in;
+}
+.registry-hf-hero-story img {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.registry-hf-hero-story span {
+  position:absolute;
+  left:10px;
+  bottom:10px;
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  border:1px solid color-mix(in srgb, #fff 40%, transparent);
+  border-radius:999px;
+  background:color-mix(in srgb, var(--text) 84%, transparent);
+  color:var(--bg);
+  padding:4px 9px;
+  font-size:11px;
+  font-weight:900;
+}
 .registry-hero-kicker-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
 .registry-hero-kicker-row .registry-v2-kicker { margin:0; }
 .buildprint-trust-badge {
@@ -4332,6 +4365,8 @@ body { background: var(--bg); }
 .registry-hf-meta-icon { display:inline-flex; align-items:center; justify-content:center; color:var(--accent); opacity:.74; }
 .registry-hf-meta b { color:color-mix(in srgb, var(--text) 76%, var(--muted)); font-weight:760; }
 @media (max-width: 900px) {
+  .registry-hf-hero-inner { grid-template-columns:1fr; }
+  .registry-hf-hero-story { max-width:520px; }
   .registry-hf-stats { justify-content:flex-start; }
 }
 @media (max-width: 760px) {
@@ -4348,6 +4383,7 @@ body { background: var(--bg); }
   .registry-card-trust-badge { left:16px; right:auto; top:14px; }
   .registry-hf-hero-inner { padding:36px 0 22px; gap:22px; }
   .registry-hf-hero h1 { font-size:clamp(42px,12vw,58px); }
+  .registry-hf-hero-story { max-width:none; border-radius:14px; }
   .hero-evolution-inline { gap:7px; font-size:12px; }
   .hero-evolution-inline i { width:18px; }
   .hero-proof-line strong { white-space:normal; }
