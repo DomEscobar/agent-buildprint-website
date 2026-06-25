@@ -110,13 +110,21 @@ const readmeHtml = markdown.render(readmeText || description);
     <section class="artifact-hero readme-detail-hero">
       <div class="container readme-detail-top">
         <a class="artifact-back" href="/buildprints/">← Explore</a>
-        <div class="readme-title-row">
-          <div class="registry-hf-avatar readme-type-mark" title={bp.category} aria-label={`${bp.category} type`} set:html={typeIcon} />
-          <div>
-            <p class="artifact-path"><span>@{ownerHandle}</span><span>/</span><strong>{bp.slug}</strong></p>
-            <h1>{bp.title}</h1>
-            <p class="artifact-summary">{description}</p>
+        <div class="readme-hero-body">
+          <div class="readme-title-row">
+            <div class="registry-hf-avatar readme-type-mark" title={bp.category} aria-label={`${bp.category} type`} set:html={typeIcon} />
+            <div>
+              <p class="artifact-path"><span>@{ownerHandle}</span><span>/</span><strong>{bp.slug}</strong></p>
+              <h1>{bp.title}</h1>
+              <p class="artifact-summary">{description}</p>
+            </div>
           </div>
+          {bp.visualRun?.image && (
+            <a class="readme-hero-preview" href={bp.visualRun.image} data-visual-lightbox data-visual-title={`${bp.title} hero preview`} aria-label={`Open ${bp.title} hero preview`}>
+              <img src={bp.visualRun.image} alt={bp.visualRun.alt} loading="lazy" decoding="async" />
+              <span>{bp.visualRun.caption ?? 'Preview'}</span>
+            </a>
+          )}
         </div>
         <div class="readme-hero-meta" data-detail-engagement data-slug={bp.slug}>
           <span class="readme-meta-chip">
