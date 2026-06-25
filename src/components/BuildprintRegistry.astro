@@ -65,11 +65,22 @@ const curatedPicks = curatedPickSlugs
         </div>
         <div class="registry-curated-grid">
           {curatedPicks.map(({ bp, context, type, trust, signals, pick }) => (
-            <a
+            <article
               class={`registry-curated-card registry-curated-card-${bp.slug}`}
-              href={`/buildprints/${bp.slug}/`}
-              aria-label={`Open ${bp.title}`}
             >
+              <a class="registry-curated-main-link" href={`/buildprints/${bp.slug}/`} aria-label={`Open ${bp.title}`}></a>
+              {bp.visualRun?.image && (
+                <a
+                  class="registry-curated-preview"
+                  href={bp.visualRun.image}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`Open ${bp.title} visual preview`}
+                >
+                  <img src={bp.visualRun.image} alt={bp.visualRun.alt} loading="lazy" decoding="async" />
+                  <span>Preview</span>
+                </a>
+              )}
               <div class="registry-curated-topline">
                 <span>{pick.label}</span>
                 <b>{type}</b>
@@ -90,7 +101,7 @@ const curatedPicks = curatedPickSlugs
                 <span>{bp.files.length} files</span>
                 {signals.slice(0, 2).map((signal) => <span>{signal}</span>)}
               </div>
-            </a>
+            </article>
           ))}
         </div>
       </section>
