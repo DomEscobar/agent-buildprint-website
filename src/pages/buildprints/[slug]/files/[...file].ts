@@ -4,11 +4,19 @@ import { buildprints, getBuildprint } from '@/lib/buildprints';
 
 const buildprintsRoot = process.env.BUILDPRINTS_SOURCE || path.resolve(process.cwd(), '../agent-buildprint/buildprints');
 const sourceRawRoot = process.env.BUILDPRINTS_RAW_SOURCE || 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/main/buildprints';
+const nestedIndexSuffix = '/index.source';
 
 export function getStaticPaths() {
   const paths: { params: { slug: string; file: string } }[] = [];
   for (const bp of buildprints) {
-    for (const file of bp.files) paths.push({ params: { slug: bp.slug, file: file.path } });
+    for (const file of bp.files) {
+      // A static endpoint cannot emit `dir/index.html`: Astro canonicalizes it
+      // to `dir/`, which collides with the directory containing sibling files.
+      const routeFile = file.path.endsWith('/index.html')
+        ? `${file.path.slice(0, -'/index.html'.length)}${nestedIndexSuffix}`
+        : file.path;
+      paths.push({ params: { slug: bp.slug, file: routeFile } });
+    }
   }
   return paths;
 }
@@ -60,8 +68,14 @@ async function readRawFile(slug: string, file: string) {
 export async function GET({ params }: { params: { slug: string; file: string } }) {
   const bp = getBuildprint(params.slug);
   if (!bp) return new Response('not found\n', { status: 404 });
-  const file = safeFilePath(params.file);
-  if (!file || !bp.files.some((item) => item.path === file)) return new Response('not found\n', { status: 404 });
+  const routeFile = safeFilePath(params.file);
+  if (!routeFile) return new Response('not found\n', { status: 404 });
+  const file = bp.files.some((item) => item.path === routeFile)
+    ? routeFile
+    : routeFile.endsWith(nestedIndexSuffix)
+      ? `${routeFile.slice(0, -nestedIndexSuffix.length)}/index.html`
+      : routeFile;
+  if (!bp.files.some((item) => item.path === file)) return new Response('not found\n', { status: 404 });
 
   const body = await readRawFile(bp.slug, file);
   if (body === null) return new Response('not found\n', { status: 404 });

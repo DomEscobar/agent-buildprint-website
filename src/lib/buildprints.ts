@@ -471,6 +471,12 @@ export const tiers = ['All', 'basic', 'strong', 'agent-grade'] as const;
 export const getBuildprint = (slug: string) => buildprints.find((item) => item.slug === slug);
 export const liveBuildprints = buildprints;
 
+function publicFilePath(filePath: string) {
+  return filePath.endsWith('/index.html')
+    ? `${filePath.slice(0, -'/index.html'.length)}/index.source`
+    : filePath;
+}
+
 export async function buildprintFileText(slug: string, filePath: string) {
   const localPath = path.join(buildprintsRoot, slug, normalizePath(filePath));
   if (fs.existsSync(localPath)) return fs.readFileSync(localPath, 'utf8');
@@ -525,7 +531,7 @@ export function packageManifest(bp: Buildprint) {
       snapshotMode: 'download_exact',
       rule: 'Do not write, summarize, or regenerate snapshot files manually. Use agb start to download exact files from this manifest.',
     },
-    files: bp.files.map((file) => ({ ...file, rawUrl: `${bp.rawBaseUrl}/${file.path}` })),
+    files: bp.files.map((file) => ({ ...file, rawUrl: `${bp.rawBaseUrl}/${publicFilePath(file.path)}` })),
     instructions: {
       canonicalStart,
       readOrder,
