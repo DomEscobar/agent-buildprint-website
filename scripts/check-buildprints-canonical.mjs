@@ -94,7 +94,8 @@ for (const bp of items) {
   }
   const pkgFilePaths = (pkg.files || []).map((file) => file.path);
   for (const file of pkg.files || []) {
-    const filePath = path.join(dist, 'buildprints', slug, 'files', ...file.path.split('/'));
+    const rawPath = file.rawUrl ? new URL(file.rawUrl).pathname : `/buildprints/${slug}/files/${file.path}`;
+    const filePath = path.join(dist, ...rawPath.split('/').filter(Boolean));
     if (!fs.existsSync(filePath)) errors.push(`${slug}: manifest file missing from canonical generated route: ${file.path}`);
   }
 
