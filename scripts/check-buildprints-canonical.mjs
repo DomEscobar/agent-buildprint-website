@@ -38,11 +38,6 @@ function walkFiles(dir, base = dir) {
 }
 
 function trackedSourceFiles(slug) {
-  const bundledRoot = path.join(root, 'buildprints');
-  if (fs.existsSync(path.join(bundledRoot, slug, 'publication.json'))) {
-    const publication = JSON.parse(fs.readFileSync(path.join(bundledRoot, slug, 'publication.json'), 'utf8'));
-    return walkFiles(path.join(bundledRoot, slug)).filter((file) => !(publication.fileExcludes ?? []).includes(file)).sort((a, b) => a.localeCompare(b));
-  }
   if (!sourceBuildprints) return null;
   const slugDir = path.join(sourceBuildprints, slug);
   if (!fs.existsSync(slugDir)) return null;
@@ -62,8 +57,6 @@ function trackedSourceFiles(slug) {
 }
 
 function sourcePublication(slug) {
-  const bundled = path.join(root, 'buildprints', slug, 'publication.json');
-  if (fs.existsSync(bundled)) return JSON.parse(fs.readFileSync(bundled, 'utf8'));
   if (!sourceBuildprints) return null;
   const publicationPath = path.join(sourceBuildprints, slug, 'publication.json');
   if (!fs.existsSync(publicationPath)) return null;

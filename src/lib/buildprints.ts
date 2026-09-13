@@ -47,7 +47,7 @@ export type BuildprintPublication = {
   howToUse?: Array<{ title: string; detail: string }>;
   resultChecklist?: string[];
   copyPrompt?: string;
-  packageGithubUrl?: string;
+  sourceCli?: { repository: string; commit: string; npmVersion: string; npmSupportsRuntime: boolean; claim: string };
   originGithubUrl?: string;
   originLabel?: string;
   publish?: boolean;
@@ -70,11 +70,6 @@ const defaultLocalBuildprintsRoot = [
   '/root/blueprint/buildprints',
 ].find((candidate) => fs.existsSync(candidate)) ?? path.resolve(process.cwd(), '../agent-buildprint/buildprints');
 const buildprintsRoot = process.env.BUILDPRINTS_SOURCE || defaultLocalBuildprintsRoot;
-// Website-owned publication snapshots use the same importer, schema and routes.
-const websiteBuildprintsRoot = path.resolve(process.cwd(), 'buildprints');
-export function buildprintLocalRoot(slug: string) {
-  return fs.existsSync(path.join(websiteBuildprintsRoot, slug, 'publication.json')) ? websiteBuildprintsRoot : buildprintsRoot;
-}
 const rawSourceRoot = process.env.BUILDPRINTS_RAW_SOURCE || 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/main/buildprints';
 const githubApiRoot = process.env.BUILDPRINTS_GITHUB_API || 'https://api.github.com/repos/DomEscobar/agent-buildprint/git/trees/main?recursive=1';
 const githubCommitsApiRoot = process.env.BUILDPRINTS_GITHUB_COMMITS_API || 'https://api.github.com/repos/DomEscobar/agent-buildprint/commits';
@@ -140,13 +135,13 @@ function isOptional(file: string) {
 
 function localBuildprintSlugs() {
   if (!fs.existsSync(buildprintsRoot)) return null;
-  return [...new Set([buildprintsRoot, websiteBuildprintsRoot].flatMap((root) => fs.existsSync(root) ? fs.readdirSync(root, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && fs.existsSync(path.join(root, entry.name, 'BUILDPRINT.md')))
-    .map((entry) => entry.name) : []))].sort();
+  return fs.readdirSync(buildprintsRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && fs.existsSync(path.join(buildprintsRoot, entry.name, 'BUILDPRINT.md')))
+    .map((entry) => entry.name)
+    .sort();
 }
 
 function localTrackedFiles(slug: string) {
-  const buildprintsRoot = buildprintLocalRoot(slug);
   const root = path.resolve(buildprintsRoot, '..');
   try {
     const prefix = `buildprints/${slug}/`;
@@ -175,7 +170,6 @@ function localTrackedFiles(slug: string) {
 }
 
 function localUpdatedAt(slug: string) {
-  const buildprintsRoot = buildprintLocalRoot(slug);
   if (!fs.existsSync(buildprintsRoot)) return undefined;
   const root = path.resolve(buildprintsRoot, '..');
   try {
@@ -218,7 +212,7 @@ async function fetchOptionalText(url: string): Promise<string> {
 }
 
 function localText(slug: string, file: string) {
-  const localPath = path.join(buildprintLocalRoot(slug), slug, normalizePath(file));
+  const localPath = path.join(buildprintsRoot, slug, normalizePath(file));
   return fs.existsSync(localPath) ? fs.readFileSync(localPath, 'utf8') : '';
 }
 
@@ -360,7 +354,7 @@ If the Buildprint requires it, finish with a chat handover summarizing outcome, 
 }
 
 async function loadPublication(slug: string): Promise<Partial<BuildprintPublication> | null> {
-  const localPath = path.join(buildprintLocalRoot(slug), slug, 'publication.json');
+  const localPath = path.join(buildprintsRoot, slug, 'publication.json');
   if (fs.existsSync(localPath)) return JSON.parse(fs.readFileSync(localPath, 'utf8'));
   return fetchOptionalJson<BuildprintPublication>(`${rawSourceRoot}/${slug}/publication.json`);
 }
@@ -392,18 +386,16 @@ async function loadSourceRecords(): Promise<SourceRecord[]> {
     .map((file) => file.match(/^buildprints\/([^/]+)\/BUILDPRINT\.md$/)?.[1])
     .filter(Boolean) as string[])]
     .sort();
-  const websiteSlugs = fs.existsSync(websiteBuildprintsRoot) ? fs.readdirSync(websiteBuildprintsRoot).filter((slug) => fs.existsSync(path.join(websiteBuildprintsRoot, slug, 'publication.json'))) : [];
-  for (const slug of websiteSlugs) if (!slugs.includes(slug)) slugs.push(slug);
   return Promise.all(slugs.map(async (slug) => ({
     slug,
     publication: await loadPublication(slug),
-    files: websiteSlugs.includes(slug) ? localTrackedFiles(slug) : treeFiles
+    files: treeFiles
       .filter((file) => file.startsWith(`buildprints/${slug}/`))
       .map((file) => file.slice(`buildprints/${slug}/`.length))
       .sort((a, b) => a.localeCompare(b)),
-    readme: websiteSlugs.includes(slug) ? localText(slug, 'README.md') : await fetchOptionalText(`${rawSourceRoot}/${slug}/README.md`),
-    buildprint: websiteSlugs.includes(slug) ? localText(slug, 'BUILDPRINT.md') : await fetchOptionalText(`${rawSourceRoot}/${slug}/BUILDPRINT.md`),
-    blueprint: websiteSlugs.includes(slug) ? localText(slug, 'blueprint.yaml') : await fetchOptionalText(`${rawSourceRoot}/${slug}/blueprint.yaml`),
+    readme: await fetchOptionalText(`${rawSourceRoot}/${slug}/README.md`),
+    buildprint: await fetchOptionalText(`${rawSourceRoot}/${slug}/BUILDPRINT.md`),
+    blueprint: await fetchOptionalText(`${rawSourceRoot}/${slug}/blueprint.yaml`),
   })));
 }
 
@@ -454,7 +446,8 @@ function normalizePublication(record: SourceRecord): Buildprint | null {
     originGithubUrl,
     originLabel: publication.originLabel ?? labelFromGithub(originGithubUrl),
     files,
-    githubUrl: publication.packageGithubUrl ?? `${repoUrl}/tree/main/buildprints/${record.slug}`,
+    githubUrl: `${repoUrl}/tree/main/buildprints/${record.slug}`,
+    sourceCli: publication.sourceCli,
     rawBaseUrl: `${siteBase}/buildprints/${record.slug}/files`,
     copyPrompt: publication.copyPrompt?.trim() || '',
   };
@@ -462,7 +455,7 @@ function normalizePublication(record: SourceRecord): Buildprint | null {
   const sourceManifest = sourceManifestText ? JSON.parse(sourceManifestText) : undefined;
   if (sourceManifest?.runtime?.schema === 'agb/runtime/v2') {
     normalized.sourceManifest = sourceManifest;
-    normalized.payloadDigests = Object.fromEntries(files.map((file) => [file.path, createHash('sha256').update(fs.readFileSync(path.join(buildprintLocalRoot(record.slug), record.slug, file.path))).digest('hex')]));
+    normalized.payloadDigests = Object.fromEntries(files.map((file) => [file.path, createHash('sha256').update(fs.readFileSync(path.join(buildprintsRoot, record.slug, file.path))).digest('hex')]));
   }
   normalized.copyPrompt ||= uniformAgentPrompt(normalized);
   return normalized;
@@ -496,7 +489,7 @@ function publicFilePath(filePath: string) {
 }
 
 export async function buildprintFileText(slug: string, filePath: string) {
-  const localPath = path.join(buildprintLocalRoot(slug), slug, normalizePath(filePath));
+  const localPath = path.join(buildprintsRoot, slug, normalizePath(filePath));
   if (fs.existsSync(localPath)) return fs.readFileSync(localPath, 'utf8');
   const response = await fetch(`${rawSourceRoot}/${slug}/${normalizePath(filePath)}`);
   if (!response.ok) return '';
@@ -531,7 +524,7 @@ export function packageManifest(bp: Buildprint) {
     visualRun: bp.visualRun,
     proofUrl: bp.proofUrl,
     runtime: sourceOnly ? bp.sourceManifest!.runtime : bp.runtime,
-    ...(sourceOnly ? { runtimeLabels: bp.runtime, executionMode: bp.sourceManifest!.executionMode, compatibility: { mode: 'direct-reading', publicCliVersion: '0.0.17', publicCliSupported: false, runtimeStatus: 'unreleased-untested', manifestDigestUrl: `${siteBase}/buildprints/${bp.slug}/package.sha256` } } : {}),
+    ...(sourceOnly ? { runtimeLabels: bp.runtime, executionMode: bp.sourceManifest!.executionMode, compatibility: { mode: 'pinned-source-or-direct-reading', publicCliVersion: '0.0.17', publicCliSupported: false, sourceCli: bp.sourceCli, runtimeStatus: 'source-available-game-unverified', manifestDigestUrl: `${siteBase}/buildprints/${bp.slug}/package.sha256` } } : {}),
     stack: bp.stack,
     canonicalStart,
     readOrder,
@@ -547,8 +540,10 @@ export function packageManifest(bp: Buildprint) {
       rawBase: bp.rawBaseUrl,
     },
     bootstrap: sourceOnly ? {
-      command: null, fallbackCommand: null, stateDir: null, snapshotMode: 'direct-reading',
-      rule: 'Read the rawUrl payloads in instructions.readOrder. Public agent-buildprint@0.0.17 has no v2 runtime. Automated bootstrap/progression requires separately supplied unreleased source; see README.md. Do not fabricate state, approvals or evidence.',
+      command: `node agb-runtime-v2/bin/agb.js start agb-runtime-v2/buildprints/${bp.slug}/package.json ./my-isometric-game`,
+      fallbackCommand: null, stateDir: '.buildprint', snapshotMode: 'pinned-source-or-direct-reading',
+      sourceSetup: `git clone https://github.com/DomEscobar/agent-buildprint.git agb-runtime-v2 && git -C agb-runtime-v2 checkout --detach ${bp.sourceCli?.commit}`,
+      rule: 'Use the pinned source checkout in a NEW directory, not npm agb@0.0.17. The command loads that revision’s local packet; remote v2 additionally needs --manifest-sha256 from a separately trusted channel. Read README.md for setup and direct-reading alternatives. No game scaffold or acceptance is implied.',
     } : {
       command: `agb start ${siteBase}/buildprints/${bp.slug}/package.json`,
       fallbackCommand: `git clone https://github.com/DomEscobar/agent-buildprint && node agent-buildprint/bin/agb.js start ${siteBase}/buildprints/${bp.slug}/package.json`,
@@ -560,7 +555,7 @@ export function packageManifest(bp: Buildprint) {
     instructions: {
       canonicalStart,
       readOrder,
-      rule: sourceOnly ? `${instructionRule} Direct reading is available now; v2 automation is unreleased and untested. Read README.md and references/cli-integration.md before executing commands. No public installed agb support is claimed. All original visual/gameplay acceptance requirements remain mandatory.` : instructionRule,
+      rule: sourceOnly ? `${instructionRule} Direct reading and pinned source CLI are available; npm v2 is unreleased and full runtime/game acceptance remains unverified. Read README.md and references/cli-integration.md before executing commands. No public installed agb support is claimed. All original visual/gameplay acceptance requirements remain mandatory.` : instructionRule,
     },
   };
 }

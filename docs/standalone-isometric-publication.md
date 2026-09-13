@@ -1,41 +1,15 @@
-# Standalone isometric website publication
+# Integrated standalone isometric publication
 
-## Ownership and source
+Canonical packet: `DomEscobar/agent-buildprint`, `buildprints/standalone-isometric-game`. The complete formerly dirty CLI/runtime/docs/test sources are versioned there, alongside the two previously local guided-game commits. The website reads that canonical publication through its existing importer/routes; the temporary website-owned duplicate from commit 785976b is removed in favor of one source of truth.
 
-- Website repository: `DomEscobar/agent-buildprint-website`, local `/root/AGB-website`.
-- Authored input: `/root/agent-buildprint/buildprints/standalone-isometric-game`, all 32 files copied into this website's `buildprints/standalone-isometric-game`.
-- Input source HEAD: `1fb21c4376b6e36404be3fc64fc76df8e0b37a8b`; packet and v2 runtime were uncommitted. This SHA alone does **not** identify the uncommitted packet or runtime.
-- Website snapshot modifications are limited to publication metadata, manifest category/status, and distribution/compatibility instructions. The original six loops, runtime definition, framework lock, evidence/contract/UX templates, asset policy, review and handover are preserved byte-for-byte.
-- The original CLI worktree, including dirty README/bin/package files and untracked runtime/docs/tests/packet, is not modified, committed, published to npm or deployed by this website change.
-- The existing importer merges website-owned publication snapshots by slug; there is no parallel registry, download server or custom archive service. Future changes to this snapshot must be explicit, not silently overwritten by upstream sync.
+Source CLI pin: `35f2623b0d72a1b09d39c1a7f14a0eaf6bf4a409`. Clone into a new directory and detach at that commit, then invoke `node bin/agb.js` as documented by the packet. npm remains `agent-buildprint@0.0.17` without v2; no npm publish/tag/release is part of this deployment. Source availability and deployment bootstrap smoke do not prove full runtime regressions, pinned-framework scaffolding, crash behavior, gameplay, visual quality or reviewer independence.
 
-## Public contract
+The framework is source-pinned at `7542ff68de04ca6ea6736974b54ec5b5dde1cc33`. No npm framework archive exists or is fabricated. Follow its real local build/scaffold instructions with separate execution authority; build:package includes prerequisite checks.
 
-Expected routes:
+The existing catalog/detail/copy-prompt layout is retained. Mobile hierarchy remains scope → explicit source/npm compatibility → start guide → README and package/digest links. All six loops, original acceptance criteria, runtime definition, framework lock and evidence/UX templates remain unchanged. WaveSpeed + (RetroDiffusion OR Media4Agents), exact Seedream edit and Bria requirements remain mandatory subject to real capability/budget approval.
 
-- `/buildprints/standalone-isometric-game/`
-- `/buildprints/standalone-isometric-game/agent.md`
-- `/buildprints/standalone-isometric-game/prompt.txt`
-- `/buildprints/standalone-isometric-game/package.json`
-- `/buildprints/standalone-isometric-game/package.sha256`
-- `/buildprints/standalone-isometric-game/files/{path}`
+Generated `/buildprints/standalone-isometric-game/package.json` carries the original v2 runtime descriptor/read order and SHA-256 for every payload. `package.sha256` hashes exactly its JSON bytes and is not an independent trusted channel. The deployment smoke derives its expected digest from the clean local build, separately from public bytes. `files/package.json` remains the local loader manifest, not the generated remote manifest.
 
-The generated package carries the original `agb/runtime/v2` descriptor, explicit read order and SHA-256 for every hosted payload. The digest sidecar hashes exactly the package endpoint's JSON serialization. It is byte identity, not independent provenance, signatures, verified CLI transport behavior or game acceptance. `files/package.json` is the local loader manifest payload, not the generated remote manifest.
+The full established deployment path remains `scripts/deploy-production.sh`: clean source and website gates, fast-forward synchronization, mandatory source/backend gates, canonical build checks, full Docker Compose build/up and live health/read-order/bootstrap checks. No website-only workaround or gate bypass. Both standalone v2 and legacy agentic-chat bootstrap are checked; legacy runtime string labels remain descriptive metadata rather than v2 opt-in. Retain rollback images and a consistent SQLite backup; server source/package hashes match the previous running API, so this task introduces no database migration. Final deployed commits/images/HTTP evidence are recorded in the deployment receipt, not inferred from historical logs.
 
-## Compatibility observed read-only on 2026-09-13
-
-- npm `agent-buildprint` latest: `0.0.17`; tarball gitHead `acce05c1e45d7501d170dfe825b4f11540b52eba`; distributed tarball contains no `src/runtime/` modules. No runtime execution was used to inspect it.
-- The local v2 overhaul is unreleased and untested; no automatic CLI install/start prompt is offered for this packet. Direct reading supports alignment/planning now. V2 automated state/bootstrap/progression requires separately supplied overhaul source and remains unverified; absent source is a blocker, not permission to simulate state.
-- npm `isometric-framework` latest endpoint returned 404. Public GitHub commit `7542ff68de04ca6ea6736974b54ec5b5dde1cc33` returned 200 with tree `5363d058a3e15e6025a5a66bda09da343ca5215e`; local checkout is clean at that pin.
-- Use the pinned framework's real `docs/CREATE_GAME.md` source-build/scaffold path. `build:package` includes prerequisite checks requiring separate authorization. No prebuilt/fake framework archive or archive digest is included.
-- Website publication grants no game execution, provider spend or game deployment authorization. WaveSpeed + (RetroDiffusion OR Media4Agents), exact Seedream edit and Bria requirements, real captures/reviews and full-scope acceptance are unchanged.
-
-## Mobile-first presentation
-
-Purpose: determine the packet's scope/compatibility and hand it to an agent. Hierarchy: title/scope → explicit published-packet/runtime-untested status → direct-reading start guide → full README → existing copy-prompt and manifest/digest utilities. Existing responsive cards, links and utility panel are reused; no new layout, gesture, hidden mobile-only action or visual-proof claim. Copy behavior is unchanged. Rendered/browser QA is not run.
-
-## Deployment boundary
-
-The production `scripts/deploy-production.sh` currently requires clean tracked source and website trees, pulls both repos, runs source/runtime smoke gates and rebuilds both web and API. The source worktree is dirty and local source HEAD is ahead of remote main. Do not run it against an old clean clone, alter/clean/push that CLI work merely to satisfy deployment, silently skip mandatory gates, or rebuild the API for this static publication.
-
-A required website build and canonical generated-route/content/digest checks are publication evidence only, not CLI/regression/game/browser acceptance. A prepared build or pushed branch is not a public deployment. Final deployment state and public HTTP evidence must be reported separately.
+The preexisting untracked deployment notifier is unrelated and excluded from Git and image payloads. Optional full v2 regressions, framework scaffold tests, browser QA and independent review are not deployment completion claims.

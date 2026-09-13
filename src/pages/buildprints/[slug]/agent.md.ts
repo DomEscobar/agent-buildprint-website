@@ -22,7 +22,7 @@ Do not scrape the human UI. Use this agent guide, the package manifest, and raw 
 2. Read order: ${formattedReadOrder}.
 3. ${manifest.instructions.rule}
 4. Follow the Buildprint's alignment/question rules before implementation.
-5. ${bp.sourceManifest?.runtime ? 'Direct reading is available now. Public agent-buildprint@0.0.17 lacks v2; do not substitute installed agb or invent state. Execute game checks/captures/reviews only when explicitly authorized; unavailable evidence remains unverified and cannot satisfy acceptance.' : 'Run required validation and write requested validation evidence plus the final chat handover.'}
+5. ${bp.sourceManifest?.runtime ? 'Direct reading and the pinned source CLI in README.md are available. Public agent-buildprint@0.0.17 lacks v2; do not substitute installed agb or invent state. Execute game checks/captures/reviews only when explicitly authorized; unavailable evidence remains unverified and cannot satisfy acceptance.' : 'Run required validation and write requested validation evidence plus the final chat handover.'}
 
 ## Metadata
 

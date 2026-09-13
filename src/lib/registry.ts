@@ -41,7 +41,7 @@ export const signalFor = (bp: Buildprint, bootstrapReady: boolean, hasRuns: bool
   const text = `${bp.slug} ${bp.title} ${bp.summary} ${bp.runtime.join(' ')} ${bp.stack.join(' ')}`.toLowerCase();
   const signals = new Set<string>();
   if (bp.sourceManifest?.runtime?.schema === 'agb/runtime/v2') {
-    return ['Read directly', 'Runtime untested'];
+    return ['Source CLI available', 'Game unverified'];
   }
   if (bootstrapReady) signals.add('Buildprint-ready');
   if (hasRuns || names.has('package.json') || names.has('buildprint.json')) signals.add('Runnable');
