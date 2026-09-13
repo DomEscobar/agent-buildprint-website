@@ -1,0 +1,49 @@
+{
+  "schema": "agent-buildprint/publication.v1",
+  "publish": true,
+  "slug": "standalone-isometric-game",
+  "title": "Full Standalone Isometric Game",
+  "creator": "Agent Buildprint",
+  "category": "Product OS",
+  "tier": "agent-grade",
+  "status": "dry-run-needed",
+  "runtime": [
+    "Standalone browser game",
+    "Isometric Framework"
+  ],
+  "stack": [
+    "TypeScript",
+    "Vite",
+    "PixiJS",
+    "Pinned Isometric Framework"
+  ],
+  "summary": "Full original isometric game workflow with one approved contract, mobile-first UX and evidence-bound acceptance. Read directly now; v2 CLI automation is unreleased and untested.",
+  "promise": "Guides the entire agreed game without shrinking it to calibration or copying framework demos.",
+  "includes": [
+    "Kernel packet and six full-game loops",
+    "One PROJECT_CONTRACT.md outline with preserved approvals",
+    "Pinned upstream skill routing and v3 visual acceptance reuse",
+    "Exact asset-stack policy and capability gaps",
+    "Local package manifest and scaffold-first bootstrap instructions",
+    "Provenance, spending and capture templates"
+  ],
+  "risks": [
+    "Public agent-buildprint@0.0.17 lacks the v2 runtime; do not use installed agb or an ordinary main-branch clone for these new commands.",
+    "Framework is not on npm; pinned local build:package includes prerequisite checks and requires separate execution authorization.",
+    "Bria and Media4Agents routes require separately verified authorized integrations and budget approval.",
+    "Actual game captures and genuine review capability remain required; unavailable evidence is unverified, not accepted."
+  ],
+  "checks": [
+    "Static source/diff inspection only during authoring",
+    "Future game acceptance requires explicit user authorization",
+    "Do not claim visual/motion/gameplay acceptance from structural checks"
+  ],
+  "publicStatus": {
+    "label": "Published packet \u00b7 runtime untested",
+    "explanation": "Website publication only. Public agent-buildprint@0.0.17 does not include the v2 runtime. Use direct reading for alignment and planning; v2 automated state/bootstrap requires separately obtained unreleased source. No game or visual acceptance is claimed."
+  },
+  "difficulty": "Advanced",
+  "updatedAt": "2026-09-13T10:20:00Z",
+  "packageGithubUrl": "https://github.com/DomEscobar/agent-buildprint-website/tree/main/buildprints/standalone-isometric-game",
+  "copyPrompt": "Use the Full Standalone Isometric Game Buildprint at https://agent-buildprint.com/buildprints/standalone-isometric-game/agent.md.\nFetch https://agent-buildprint.com/buildprints/standalone-isometric-game/package.json and read its instructions.readOrder from the listed rawUrl payloads. Start with BUILDPRINT.md and 00-goal.md, then 01-setup.md and references/cli-integration.md. Read README.md for compatibility before executing any command.\nThis is a published instruction packet, not a released or tested v2 CLI. Public agent-buildprint@0.0.17 lacks agb/runtime/v2. Do NOT run installed agb start/bootstrap/state/loop/evidence for this packet or assume cloning public main supplies the overhaul. Direct reading supports alignment and planning without CLI execution or fabricated .buildprint state. Preserve one PROJECT_CONTRACT.md and prior approvals; ask at most three unresolved questions per batch.\nFor an actual game, follow the exact pinned framework source preparation in 01-setup.md; no registry framework archive is supplied. Its local build includes checks and needs explicit authorization. V2 automated progression additionally needs the separately supplied unreleased source described in references/cli-integration.md; if unavailable, report that automation blocker instead of simulating approvals or acceptance.\nKeep all six loops and the full agreed game scope. Preferred assets are WaveSpeed + (RetroDiffusion OR Media4Agents), including bytedance/seedream-v5.0-pro/edit and bria/remove-background, subject to real access/budget approval. Do not weaken visual, motion, gameplay, independent-review or evidence constraints. Publication does not authorize game execution, tests, paid generation or deployment. Missing capability stays unverified.\nManifest SHA-256 is available at https://agent-buildprint.com/buildprints/standalone-isometric-game/package.sha256; payload SHA-256 values identify exact hosted bytes, not publisher authentication or a separately trusted manifest digest. Do not scrape UI cards or fabricate remote integrity. Finish with an honest evidence/blocker handover."
+}

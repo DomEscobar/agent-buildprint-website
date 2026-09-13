@@ -1,0 +1,60 @@
+{
+  "slug": "standalone-isometric-game",
+  "title": "Full Standalone Isometric Game",
+  "category": "Product OS",
+  "tier": "agent-grade",
+  "status": "dry-run-needed",
+  "executionMode": "kernel-loop",
+  "files": [
+    "00-goal.md",
+    "01-setup.md",
+    "02-identity.md",
+    "AUTHORING_REPORT.md",
+    "BUILDPRINT.md",
+    "HANDOVER.md",
+    "README.md",
+    "blueprint.yaml",
+    "framework-lock.json",
+    "loops/01-world-plan.md",
+    "loops/02-playable-calibration.md",
+    "loops/03-complete-world.md",
+    "loops/04-gameplay-motion.md",
+    "loops/05-visual-gameplay-acceptance.md",
+    "loops/06-local-handover.md",
+    "loops/loop-flow.md",
+    "loops/loop-index.yaml",
+    "publication.json",
+    "references/assets.md",
+    "references/cli-integration.md",
+    "references/framework.md",
+    "references/visual-acceptance.md",
+    "review.md",
+    "templates/PROJECT_CONTRACT.md",
+    "templates/acceptance-plan-routing.md",
+    "templates/asset-provenance.md",
+    "templates/capture-receipt.md",
+    "templates/generation-ledger.md",
+    "templates/setup-receipt.md",
+    "templates/ux-intent.md",
+    "runtime.json"
+  ],
+  "instructions": {
+    "readOrder": [
+      "BUILDPRINT.md",
+      "00-goal.md",
+      "01-setup.md",
+      "02-identity.md",
+      "blueprint.yaml",
+      "loops/loop-index.yaml",
+      "loops/loop-flow.md",
+      "review.md",
+      "README.md",
+      "HANDOVER.md",
+      "runtime.json"
+    ]
+  },
+  "runtime": {
+    "schema": "agb/runtime/v2",
+    "definition": "runtime.json"
+  }
+}

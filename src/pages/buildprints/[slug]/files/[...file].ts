@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { buildprints, getBuildprint } from '@/lib/buildprints';
+import { buildprints, getBuildprint, buildprintLocalRoot } from '@/lib/buildprints';
 
 const buildprintsRoot = process.env.BUILDPRINTS_SOURCE || path.resolve(process.cwd(), '../agent-buildprint/buildprints');
 const sourceRawRoot = process.env.BUILDPRINTS_RAW_SOURCE || 'https://raw.githubusercontent.com/DomEscobar/agent-buildprint/main/buildprints';
@@ -53,7 +53,7 @@ function contentTypeFor(file: string) {
 }
 
 async function readRawFile(slug: string, file: string) {
-  const root = path.resolve(buildprintsRoot, slug);
+  const root = path.resolve(buildprintLocalRoot(slug), slug);
   const requested = path.resolve(root, ...file.split('/'));
   if (requested.startsWith(root + path.sep) && fs.existsSync(requested) && fs.statSync(requested).isFile()) {
     return fs.readFileSync(requested);

@@ -40,6 +40,9 @@ export const signalFor = (bp: Buildprint, bootstrapReady: boolean, hasRuns: bool
   const names = new Set(bp.files.map((file) => file.path.toLowerCase()));
   const text = `${bp.slug} ${bp.title} ${bp.summary} ${bp.runtime.join(' ')} ${bp.stack.join(' ')}`.toLowerCase();
   const signals = new Set<string>();
+  if (bp.sourceManifest?.runtime?.schema === 'agb/runtime/v2') {
+    return ['Read directly', 'Runtime untested'];
+  }
   if (bootstrapReady) signals.add('Buildprint-ready');
   if (hasRuns || names.has('package.json') || names.has('buildprint.json')) signals.add('Runnable');
   if (names.has('license') || names.has('license.md') || names.has('license.txt')) signals.add('Has license');
@@ -70,7 +73,7 @@ export const buildRegistryModel = async (items: readonly Buildprint[]) => {
     const source = sourceParts(bp.githubUrl);
     const entrypoint = bp.files.find((file) => file.path === 'BUILDPRINT.md')?.path ?? bp.files[0]?.path ?? 'BUILDPRINT.md';
     const hasRuns = Boolean(bp.proofUrl || bp.visualRun?.demoUrl);
-    const bootstrapReady = bp.files.some((file) => file.path === entrypoint) && Boolean(bp.copyPrompt);
+    const bootstrapReady = !bp.sourceManifest?.runtime && bp.files.some((file) => file.path === entrypoint) && Boolean(bp.copyPrompt);
     const context = await contextEstimateFor(bp);
     const type = useCaseType(bp);
     const trust = 'Official';

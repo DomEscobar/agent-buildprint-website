@@ -1,0 +1,85 @@
+schema_version: buildprint/kernel/v1
+execution_start: BUILDPRINT.md
+machine_contract: blueprint.yaml
+title: Full Standalone Isometric Game
+type: product
+claim_status: packet_authored_runtime_unproven
+qualification_label: full_agreed_game_requires_authorized_runtime_visual_acceptance
+deployment_posture:
+  current: trusted_local
+  allowed_values: [trusted_local, private_demo, public_web]
+  claim_ceiling: Local delivery only; no public or physical-device claim without separately authorized evidence.
+kernel:
+  flow: goal → bare_agentic_loop → optional_independent_fan_out → contract_review
+  bare_agentic_loop: think → act → observe until done or genuinely blocked
+  independent_fan_out: Disjoint input and file ownership; one integration owner and one spend owner.
+  contract_review: Fresh-context actual evidence review; self-review is never labeled independent.
+maturity_upgrades:
+  rule: Production infrastructure is an optional upgrade, not the floor; the full approved game scope and quality cannot shrink.
+packet_shape:
+  style: kernel_loop
+  principle: YAML routes; markdown teaches and builds.
+  required_files:
+    - BUILDPRINT.md
+    - 00-goal.md
+    - 01-setup.md
+    - 02-identity.md
+    - blueprint.yaml
+    - loops/loop-index.yaml
+    - loops/loop-flow.md
+    - review.md
+    - README.md
+    - HANDOVER.md
+  forbidden_shapes: [slices/, gates/, 03-phases/, evidence-ledger, claim-gates.json, generated/agent-prompt.md]
+central_output_contract:
+  central_output: A full original standalone isometric game with every approved region, action, system, state and device outcome implemented and honestly accepted.
+  output_primitives: [PROJECT_CONTRACT, host_scene, host_rules, runtime_asset_manifest, semantic_layout, input_ui, upstream_production_receipts, actual_capture_evidence]
+  quality_signals:
+    - The player understands the world and completes the normal game loop using the intended inputs.
+    - Grounded original art, coherent pixel scale, material transitions and actor contacts hold across the full world.
+    - Required actor and environment motion stays coherent through cycles, joins, actions and pause.
+    - Mobile-first hierarchy, next action and touch presentation remain usable at protected viewports.
+  unacceptable_generic_substitutes:
+    - Framework demo reskin, copied example art/map, or tiny calibration called the full game.
+    - Mockup, static screenshot, frame counter or build success called gameplay and motion acceptance.
+    - A separate passing scene/asset manifest not bound to the actual running host.
+    - Weakened targets, scope cuts, placeholder substitutions or fake independent review.
+    - Silent free-art downgrade or custom SVG called equivalent to the preferred asset stack.
+  reviewer_acceptance_questions:
+    - Is every approved requirement covered beyond the playable calibration?
+    - Do actual current captures and observed interactions match the pinned candidate, loaded art/scenes and protected viewports?
+    - Are motion, gameplay, visuals, performance and independence judged separately and honestly?
+    - Are access, spending, rights, fallback quality and unsupported devices explicit?
+  claim_gates:
+    - Implementation and paid generation require applicable PROJECT_CONTRACT approval; preserve existing decisions.
+    - Future visual/gameplay acceptance requires explicit user request; missing capability or authorization means unverified.
+    - Calibration qualifies the approach, never reduces the full agreed scope.
+    - Final acceptance uses the pinned visual-loop version 3 plan, valid production receipts and fresh whole-candidate comparisons.
+    - Implemented, functionally verified and visually accepted remain separate; local proof is not deployment proof.
+proven_implementation_requirements:
+  rule: Reuse proven libraries, proven packages and proven tools; the existing framework scaffold and selected pinned skills are the solution.
+  framework_lock: framework-lock.json
+  selection: Use public package exports; host owns original maps, assets, UI and rules; report real API gaps without engine reinvention.
+harness:
+  provider: agents
+  default_profile: default
+  profiles:
+    default: Reuse available project-local core skills; no global or duplicate framework skill installation.
+    webapp: Optional authorized browser and responsive verification support.
+routes:
+  framework: references/framework.md
+  cli: references/cli-integration.md
+  assets: references/assets.md
+  visual_acceptance: references/visual-acceptance.md
+  contract: templates/PROJECT_CONTRACT.md
+  ux_intent: templates/ux-intent.md
+  setup_receipt: templates/setup-receipt.md
+  plan_routing: templates/acceptance-plan-routing.md
+  provenance: templates/asset-provenance.md
+  spending: templates/generation-ledger.md
+  captures: templates/capture-receipt.md
+evidence:
+  docs_inspected: 2026-09-13
+  source_notes: AUTHORING_REPORT.md
+  runtime_proven: false
+  authoring_checks: Static source and diff inspection only; no tests, benchmark, browser QA or independent review runs.

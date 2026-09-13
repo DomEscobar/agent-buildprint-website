@@ -117,6 +117,7 @@ const readmeHtml = markdown.render(readmeText || description);
               <p class="artifact-path"><span>@{ownerHandle}</span><span>/</span><strong>{bp.slug}</strong></p>
               <h1>{bp.title}</h1>
               <p class="artifact-summary">{description}</p>
+              {bp.sourceManifest?.runtime && <p><strong>{bp.publicStatus?.label}</strong> — Read directly; public CLI v2 automation unavailable. <a href={manifest.entrypoints.agent}>Start with the agent guide →</a></p>}
             </div>
           </div>
           {bp.visualRun?.image && (
@@ -153,6 +154,7 @@ const readmeHtml = markdown.render(readmeText || description);
       <aside class="readme-side-panel" aria-label="Buildprint utility panel">
         <div class="readme-side-card readme-agent-card">
           <span class="side-label">Use this Buildprint</span>
+          {bp.sourceManifest?.runtime && <><p>{bp.publicStatus?.explanation}</p><p><a href={manifest.entrypoints.manifest}>Package manifest</a> · <a href={`${siteBase}/buildprints/${bp.slug}/package.sha256`}>SHA-256</a></p></>}
           <button class="artifact-primary copy-btn readme-copy-primary" data-copy={agentPrompt}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8.2V5.6c0-.9.7-1.6 1.6-1.6h8.1c.9 0 1.6.7 1.6 1.6v8.1c0 .9-.7 1.6-1.6 1.6h-2.6"/><path d="M4.7 8.7h8.1c.9 0 1.6.7 1.6 1.6v8.1c0 .9-.7 1.6-1.6 1.6H4.7c-.9 0-1.6-.7-1.6-1.6v-8.1c0-.9.7-1.6 1.6-1.6Z"/></svg>
             <span>Copy Agent Prompt</span>

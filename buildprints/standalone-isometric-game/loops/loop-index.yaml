@@ -1,0 +1,27 @@
+schema_version: buildprint/loop-index/v1
+active_loop: loops/01-world-plan.md
+loops:
+  - loop_id: 01-world-plan
+    file: loops/01-world-plan.md
+    status: included
+    depends_on: []
+  - loop_id: 02-playable-calibration
+    file: loops/02-playable-calibration.md
+    status: included
+    depends_on: [01-world-plan]
+  - loop_id: 03-complete-world
+    file: loops/03-complete-world.md
+    status: included
+    depends_on: [02-playable-calibration]
+  - loop_id: 04-gameplay-motion
+    file: loops/04-gameplay-motion.md
+    status: included
+    depends_on: [03-complete-world]
+  - loop_id: 05-visual-gameplay-acceptance
+    file: loops/05-visual-gameplay-acceptance.md
+    status: included
+    depends_on: [04-gameplay-motion]
+  - loop_id: 06-local-handover
+    file: loops/06-local-handover.md
+    status: included
+    depends_on: [05-visual-gameplay-acceptance]
