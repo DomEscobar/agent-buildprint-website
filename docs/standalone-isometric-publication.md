@@ -2,7 +2,7 @@
 
 Canonical packet: `DomEscobar/agent-buildprint`, `buildprints/standalone-isometric-game`. The complete formerly dirty CLI/runtime/docs/test sources are versioned there, alongside the two previously local guided-game commits. The website reads that canonical publication through its existing importer/routes; the temporary website-owned duplicate from commit 785976b is removed in favor of one source of truth.
 
-Package version `0.1.0` contains the initial v2 runtime and bundled standalone packet; registry availability is checked separately from these website bytes. The current source route uses one fresh `DomEscobar/agent-buildprint` checkout for both CLI and local packet, records `git rev-parse HEAD`, and keeps that checkout unchanged for the run. Source availability and deployment bootstrap smoke do not prove gameplay, visual quality, or reviewer independence.
+The `v0.1.0` source tag contains the initial v2 runtime and bundled standalone packet, but npm `agent-buildprint@0.1.0` is not published; public `0.0.17` lacks v2. The current supported route uses one fresh `DomEscobar/agent-buildprint` checkout for both CLI and local packet, records `git rev-parse HEAD`, and keeps that checkout unchanged for the run. Source availability and deployment bootstrap smoke do not prove gameplay, visual quality, or reviewer independence.
 
 The framework is source-pinned at `7542ff68de04ca6ea6736974b54ec5b5dde1cc33`. No npm framework archive exists or is fabricated. Follow its real local build/scaffold instructions with separate execution authority; build:package includes prerequisite checks.
 

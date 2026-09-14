@@ -55,6 +55,7 @@ export type BuildprintPublication = {
     releaseTag?: string;
     npmVersion: string;
     npmSupportsRuntime: boolean;
+    npmPublished?: boolean;
     claim: string;
   };
   originGithubUrl?: string;
@@ -531,6 +532,10 @@ export function packageManifest(bp: Buildprint) {
   const versionedRuntime = bp.sourceManifest?.runtime?.schema === 'agb/runtime/v2';
   const sourceCli = bp.sourceCli;
   const npmRuntimeSupported = sourceCli?.npmSupportsRuntime === true;
+  const registryAvailability = sourceCli?.npmPublished === true
+    ? 'available'
+    : sourceCli?.npmPublished === false ? 'unavailable' : 'check-required';
+  const npmRouteAvailable = npmRuntimeSupported && registryAvailability === 'available';
   const npmVersion = sourceCli?.npmVersion;
   const sourceDirectory = 'agb-runtime-v2';
   const sourceSetup = sourceCli?.commit
@@ -556,12 +561,12 @@ export function packageManifest(bp: Buildprint) {
       runtimeLabels: bp.runtime,
       executionMode: bp.sourceManifest!.executionMode,
       compatibility: {
-        mode: npmRuntimeSupported ? 'npm-or-matching-source' : 'pinned-source-or-direct-reading',
+        mode: npmRouteAvailable ? 'npm-or-matching-source' : sourceCli?.commit ? 'pinned-source-or-direct-reading' : 'current-source-or-direct-reading',
         packageCliVersion: npmVersion ?? null,
         packageCliSupportsRuntime: npmRuntimeSupported,
-        registryAvailability: 'check-required',
+        registryAvailability,
         sourceCli,
-        runtimeStatus: npmRuntimeSupported ? 'npm-routing-and-source-policy-game-unverified' : 'source-available-game-unverified',
+        runtimeStatus: npmRouteAvailable ? 'npm-routing-and-source-policy-game-unverified' : 'source-available-game-unverified',
         manifestDigestUrl: `${siteBase}/buildprints/${bp.slug}/package.sha256`,
       },
     } : {}),
@@ -580,14 +585,14 @@ export function packageManifest(bp: Buildprint) {
       rawBase: bp.rawBaseUrl,
     },
     bootstrap: versionedRuntime ? {
-      command: npmRuntimeSupported && npmCommand ? npmCommand : sourceCommand,
-      fallbackCommand: npmRuntimeSupported ? sourceCommand : null,
+      command: npmRouteAvailable && npmCommand ? npmCommand : sourceCommand,
+      fallbackCommand: npmRouteAvailable ? sourceCommand : null,
       stateDir: '.buildprint',
-      snapshotMode: npmRuntimeSupported ? 'installed-package-or-matching-source' : 'pinned-source-or-direct-reading',
+      snapshotMode: npmRouteAvailable ? 'installed-package-or-matching-source' : sourceCli?.commit ? 'pinned-source-or-direct-reading' : 'current-source-or-direct-reading',
       sourceSetup,
-      rule: npmRuntimeSupported
-        ? `Version ${npmVersion} contains this runtime route; check registry availability before using the installed-package command. For newer source policy, use one fresh checkout's matching CLI and local packet, record its HEAD, and keep it unchanged for the run. Remote v2 additionally needs --manifest-sha256 from a separately trusted channel. No game scaffold or acceptance is implied.`
-        : 'Use the source checkout in a NEW directory and keep its CLI and local packet at the same recorded revision. Remote v2 additionally needs --manifest-sha256 from a separately trusted channel. Read README.md for direct-reading alternatives. No game scaffold or acceptance is implied.',
+      rule: npmRouteAvailable
+        ? `Published version ${npmVersion} contains this runtime route. For newer source policy, use one fresh checkout's matching CLI and local packet, record its HEAD, and keep it unchanged for the run. Remote v2 additionally needs --manifest-sha256 from a separately trusted channel. No game scaffold or acceptance is implied.`
+        : `${npmRuntimeSupported && registryAvailability === 'unavailable' ? `npm ${npmVersion} is not published; public npm versions cannot run this v2 packet. ` : registryAvailability === 'check-required' ? 'No npm publication is established. ' : 'No compatible npm package is declared. '}Use one fresh source checkout in a NEW directory, record its HEAD, and keep its CLI and local packet at that revision. Remote v2 additionally needs --manifest-sha256 from a separately trusted channel. Read README.md for direct-reading alternatives. No game scaffold or acceptance is implied.`,
     } : {
       command: `agb start ${siteBase}/buildprints/${bp.slug}/package.json`,
       fallbackCommand: `git clone https://github.com/DomEscobar/agent-buildprint && node agent-buildprint/bin/agb.js start ${siteBase}/buildprints/${bp.slug}/package.json`,
@@ -600,7 +605,7 @@ export function packageManifest(bp: Buildprint) {
       canonicalStart,
       readOrder,
       rule: versionedRuntime
-        ? `${instructionRule} Direct reading and a matching source checkout are available. ${npmRuntimeSupported ? `Package version ${npmVersion} contains the initial installed runtime route; check registry availability before using it.` : 'No compatible installed package is declared.'} Read README.md and references/cli-integration.md before commands. Runtime routing does not prove full game or visual acceptance.`
+        ? `${instructionRule} Direct reading and a matching source checkout are available. ${npmRouteAvailable ? `Published package ${npmVersion} contains the initial installed runtime route.` : npmRuntimeSupported && registryAvailability === 'unavailable' ? `npm ${npmVersion} is not published; do not substitute a public version that lacks v2.` : 'No compatible published package is established.'} Read README.md and references/cli-integration.md before commands. Runtime routing does not prove full game or visual acceptance.`
         : instructionRule,
     },
   };

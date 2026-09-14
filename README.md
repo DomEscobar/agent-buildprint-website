@@ -33,7 +33,7 @@ Buildprint files are served from the canonical Agent Buildprint repository (`BUI
 
 ## Agent bootstrap UX
 
-For legacy packets, the Buildprint prompt recommends `agb start <package-manifest-url>` when AGB is available. Versioned `agb/runtime/v2` packets derive installed-package support from their publication metadata instead of a website-wide version assumption. When a compatible npm version is declared, the website shows its bundled local manifest route and tells users to check registry availability; for newer source policy it provides one fresh checkout's matching CLI and packet and records that checkout's HEAD. Both paths create `.buildprint/` state before implementation. Direct reading remains available. `package.sha256` matches generated manifest bytes but is not an independently trusted channel, and runtime records are not game or visual acceptance.
+For legacy packets, the Buildprint prompt recommends `agb start <package-manifest-url>` when AGB is available. Versioned `agb/runtime/v2` packets derive installed-package support and publication availability from their source metadata instead of a website-wide version assumption. The website emits an npm command only when a compatible version is explicitly marked published. Otherwise it uses one fresh checkout's matching CLI and packet, records that checkout's HEAD, and keeps direct reading available. Both routes create `.buildprint/` state before implementation. `package.sha256` matches generated manifest bytes but is not an independently trusted channel, and runtime records are not game or visual acceptance.
 
 ## Production Docker
 
