@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
+import { assertPromptReadOrder, normalizeCopyPrompt, resolveReadOrder, formatReadOrder } from '../src/lib/read-order.mjs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
@@ -108,13 +109,26 @@ for (const bp of items) {
   }
 
   const publication = sourcePublication(slug);
-  if (publication?.copyPrompt) {
-    const promptPath = path.join(dist, 'buildprints', slug, 'prompt.txt');
-    const promptText = fs.existsSync(promptPath) ? fs.readFileSync(promptPath, 'utf8').trim() : '';
-    const expectedPrompt = publication.copyPrompt.trim();
-    if (promptText !== expectedPrompt) {
-      errors.push(`${slug}: dist prompt.txt does not match source publication.json copyPrompt`);
+  const promptPath = path.join(dist, 'buildprints', slug, 'prompt.txt');
+  const promptText = fs.existsSync(promptPath) ? fs.readFileSync(promptPath, 'utf8').trim() : '';
+  try {
+    const order = resolveReadOrder(pkg.instructions?.readOrder, undefined, pkgFilePaths);
+    if (!sameList(pkg.readOrder ?? [], order)) throw new Error('top-level readOrder differs from instructions');
+    const sourceManifestPath = sourceBuildprints && path.join(sourceBuildprints, slug, 'package.json');
+    if (sourceManifestPath && fs.existsSync(sourceManifestPath)) {
+      const sourceOrder = JSON.parse(fs.readFileSync(sourceManifestPath, 'utf8')).instructions?.readOrder;
+      if (sourceOrder !== undefined && !sameList(resolveReadOrder(sourceOrder, undefined, pkgFilePaths), order)) {
+        throw new Error('generated readOrder differs from source manifest');
+      }
     }
+    assertPromptReadOrder(promptText, order);
+    const agent = fs.readFileSync(path.join(dist, 'buildprints', slug, 'agent.md'), 'utf8');
+    if (!agent.includes(`2. ${formatReadOrder(order)}`) || !agent.includes(promptText)) throw new Error('agent guide differs from canonical order/prompt');
+    if (publication?.copyPrompt && promptText !== normalizeCopyPrompt(publication.copyPrompt, order)) {
+      throw new Error('dist prompt.txt does not match normalized source publication.json copyPrompt');
+    }
+  } catch (error) {
+    errors.push(`${slug}: ${error.message}`);
   }
 
   if (liveSmoke) {

@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { formatReadOrder, normalizeCopyPrompt, resolveReadOrder } from './read-order.mjs';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -47,7 +48,7 @@ export type BuildprintPublication = {
   howToUse?: Array<{ title: string; detail: string }>;
   resultChecklist?: string[];
   copyPrompt?: string;
-  sourceCli?: { repository: string; commit: string; npmVersion: string; npmSupportsRuntime: boolean; claim: string };
+  sourceCli?: { repository: string; commit?: string; releaseTag?: string; npmVersion: string; npmSupportsRuntime: boolean; claim: string };
   originGithubUrl?: string;
   originLabel?: string;
   publish?: boolean;
@@ -59,6 +60,7 @@ export type Buildprint = Omit<BuildprintPublication, 'schema' | 'publish' | 'fil
   rawBaseUrl: string;
   copyPrompt: string;
   sourceManifest?: { runtime?: { schema: string; definition: string }; executionMode?: string; instructions?: { readOrder?: string[] } };
+  publicationReadOrder: string[];
   payloadDigests?: Record<string, string>;
 };
 
@@ -331,17 +333,17 @@ function packetShape(files: string[]) {
   return { isCapabilityPacket: isLegacyCapabilityPacket || isCapabilityBuildprint, isExecutableBlueprint, canonicalStart, readOrder, instructionRule };
 }
 
-function uniformAgentPrompt(bp: Pick<Buildprint, 'slug' | 'title' | 'files'>) {
+function uniformAgentPrompt(bp: Pick<Buildprint, 'slug' | 'title' | 'files' | 'publicationReadOrder'>) {
   const urls = {
     agent: `${siteBase}/buildprints/${bp.slug}/agent.md`,
     manifest: `${siteBase}/buildprints/${bp.slug}/package.json`,
   };
   const shape = packetShape(bp.files.map((file) => file.path));
-  const formattedReadOrder = shape.readOrder.map((file) => `\`${file}\``).join(' -> ');
+  const formattedReadOrder = formatReadOrder(bp.publicationReadOrder);
   return `Use the Agent Buildprint at ${urls.agent}.
 
 Fetch ${urls.manifest}.
-Read order: ${formattedReadOrder}.
+${formattedReadOrder}
 ${shape.instructionRule}
 Follow alignment/question rules before implementation.
 Do not scrape human UI cards.
@@ -366,6 +368,7 @@ type SourceRecord = {
   readme: string;
   buildprint: string;
   blueprint: string;
+  manifest: string;
 };
 
 async function loadSourceRecords(): Promise<SourceRecord[]> {
@@ -378,6 +381,7 @@ async function loadSourceRecords(): Promise<SourceRecord[]> {
       readme: localText(slug, 'README.md'),
       buildprint: localText(slug, 'BUILDPRINT.md'),
       blueprint: localText(slug, 'blueprint.yaml'),
+      manifest: localText(slug, 'package.json'),
     })));
   }
 
@@ -396,6 +400,7 @@ async function loadSourceRecords(): Promise<SourceRecord[]> {
     readme: await fetchOptionalText(`${rawSourceRoot}/${slug}/README.md`),
     buildprint: await fetchOptionalText(`${rawSourceRoot}/${slug}/BUILDPRINT.md`),
     blueprint: await fetchOptionalText(`${rawSourceRoot}/${slug}/blueprint.yaml`),
+    manifest: treeFiles.includes(`buildprints/${slug}/package.json`) ? await fetchOptionalText(`${rawSourceRoot}/${slug}/package.json`) : '',
   })));
 }
 
@@ -450,14 +455,18 @@ function normalizePublication(record: SourceRecord): Buildprint | null {
     sourceCli: publication.sourceCli,
     rawBaseUrl: `${siteBase}/buildprints/${record.slug}/files`,
     copyPrompt: publication.copyPrompt?.trim() || '',
+    publicationReadOrder: [],
   };
-  const sourceManifestText = localText(record.slug, 'package.json');
+  if (record.files.includes('package.json') && !record.manifest) throw new Error(`${record.slug}: source manifest unavailable; refusing inferred read order`);
+  const sourceManifestText = record.manifest;
   const sourceManifest = sourceManifestText ? JSON.parse(sourceManifestText) : undefined;
+  normalized.publicationReadOrder = resolveReadOrder(sourceManifest?.instructions?.readOrder, packetShape(fileList).readOrder, fileList);
   if (sourceManifest?.runtime?.schema === 'agb/runtime/v2') {
+    if (!fs.existsSync(path.join(buildprintsRoot, record.slug, 'package.json'))) throw new Error(`${record.slug}: v2 publication requires a local source checkout for payload digests; set BUILDPRINTS_SOURCE`);
     normalized.sourceManifest = sourceManifest;
     normalized.payloadDigests = Object.fromEntries(files.map((file) => [file.path, createHash('sha256').update(fs.readFileSync(path.join(buildprintsRoot, record.slug, file.path))).digest('hex')]));
   }
-  normalized.copyPrompt ||= uniformAgentPrompt(normalized);
+  normalized.copyPrompt = normalizeCopyPrompt(normalized.copyPrompt || uniformAgentPrompt(normalized), normalized.publicationReadOrder);
   return normalized;
 }
 
@@ -510,7 +519,7 @@ export function packageManifest(bp: Buildprint) {
   const urls = buildprintUrls(bp);
   const shape = packetShape(bp.files.map((item) => item.path));
   const { canonicalStart, instructionRule } = shape;
-  const readOrder = bp.sourceManifest?.instructions?.readOrder ?? shape.readOrder;
+  const readOrder = bp.publicationReadOrder;
   const sourceOnly = bp.sourceManifest?.runtime?.schema === 'agb/runtime/v2';
   return {
     schema: `${siteBase}/schemas/buildprint-package.v1.json`,
@@ -524,7 +533,7 @@ export function packageManifest(bp: Buildprint) {
     visualRun: bp.visualRun,
     proofUrl: bp.proofUrl,
     runtime: sourceOnly ? bp.sourceManifest!.runtime : bp.runtime,
-    ...(sourceOnly ? { runtimeLabels: bp.runtime, executionMode: bp.sourceManifest!.executionMode, compatibility: { mode: 'pinned-source-or-direct-reading', publicCliVersion: '0.0.17', publicCliSupported: false, sourceCli: bp.sourceCli, runtimeStatus: 'source-available-game-unverified', manifestDigestUrl: `${siteBase}/buildprints/${bp.slug}/package.sha256` } } : {}),
+    ...(sourceOnly ? { runtimeLabels: bp.runtime, executionMode: bp.sourceManifest!.executionMode, compatibility: { mode: 'pinned-source-or-direct-reading', publicCliVersion: bp.sourceCli?.npmVersion ?? null, publicCliSupported: bp.sourceCli?.npmSupportsRuntime ?? false, sourceCli: bp.sourceCli, runtimeStatus: 'source-available-game-unverified', manifestDigestUrl: `${siteBase}/buildprints/${bp.slug}/package.sha256` } } : {}),
     stack: bp.stack,
     canonicalStart,
     readOrder,
@@ -542,8 +551,8 @@ export function packageManifest(bp: Buildprint) {
     bootstrap: sourceOnly ? {
       command: `node agb-runtime-v2/bin/agb.js start agb-runtime-v2/buildprints/${bp.slug}/package.json ./my-isometric-game`,
       fallbackCommand: null, stateDir: '.buildprint', snapshotMode: 'pinned-source-or-direct-reading',
-      sourceSetup: `git clone https://github.com/DomEscobar/agent-buildprint.git agb-runtime-v2 && git -C agb-runtime-v2 checkout --detach ${bp.sourceCli?.commit}`,
-      rule: 'Use the pinned source checkout in a NEW directory, not npm agb@0.0.17. The command loads that revision’s local packet; remote v2 additionally needs --manifest-sha256 from a separately trusted channel. Read README.md for setup and direct-reading alternatives. No game scaffold or acceptance is implied.',
+      sourceSetup: `git clone https://github.com/DomEscobar/agent-buildprint.git agb-runtime-v2${bp.sourceCli?.commit ? ` && git -C agb-runtime-v2 checkout --detach ${bp.sourceCli.commit}` : ' && git -C agb-runtime-v2 rev-parse HEAD'}`,
+      rule: `${bp.sourceCli?.claim ?? 'Use the matching source CLI and local packet.'} Use a NEW checkout and keep it unchanged for the run. Remote v2 additionally needs --manifest-sha256 from a separately trusted channel. Read README.md for setup and direct-reading alternatives. No game scaffold or acceptance is implied.`,
     } : {
       command: `agb start ${siteBase}/buildprints/${bp.slug}/package.json`,
       fallbackCommand: `git clone https://github.com/DomEscobar/agent-buildprint && node agent-buildprint/bin/agb.js start ${siteBase}/buildprints/${bp.slug}/package.json`,
@@ -555,7 +564,7 @@ export function packageManifest(bp: Buildprint) {
     instructions: {
       canonicalStart,
       readOrder,
-      rule: sourceOnly ? `${instructionRule} Direct reading and pinned source CLI are available; npm v2 is unreleased and full runtime/game acceptance remains unverified. Read README.md and references/cli-integration.md before executing commands. No public installed agb support is claimed. All original visual/gameplay acceptance requirements remain mandatory.` : instructionRule,
+      rule: sourceOnly ? `${instructionRule} ${bp.sourceCli?.claim ?? 'Use the matching source CLI and local packet.'} Full runtime/game acceptance remains unverified. Read README.md and references/cli-integration.md before executing commands. All original visual/gameplay acceptance requirements remain mandatory.` : instructionRule,
     },
   };
 }

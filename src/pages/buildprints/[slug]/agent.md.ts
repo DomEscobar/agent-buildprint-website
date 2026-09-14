@@ -1,3 +1,4 @@
+import { formatReadOrder } from '@/lib/read-order.mjs';
 import { buildprints, getBuildprint, packageManifest } from '@/lib/buildprints';
 
 export function getStaticPaths() {
@@ -8,8 +9,7 @@ export function GET({ params }: { params: { slug: string } }) {
   const bp = getBuildprint(params.slug);
   if (!bp) return new Response('# Not found\n', { status: 404, headers: { 'content-type': 'text/markdown; charset=utf-8' } });
   const manifest = packageManifest(bp);
-  const readOrder = manifest.instructions.readOrder.length ? manifest.instructions.readOrder : bp.files.map((file) => file.path);
-  const formattedReadOrder = readOrder.map((file) => `\`${file}\``).join(' -> ');
+  const formattedReadOrder = formatReadOrder(manifest.instructions.readOrder);
   const md = `# ${bp.title} - Agent Guide
 
 ${bp.summary}
@@ -19,10 +19,10 @@ ${bp.summary}
 Do not scrape the human UI. Use this agent guide, the package manifest, and raw Buildprint files.
 
 1. Fetch package manifest: \`${manifest.entrypoints.manifest}\`
-2. Read order: ${formattedReadOrder}.
+2. ${formattedReadOrder}
 3. ${manifest.instructions.rule}
 4. Follow the Buildprint's alignment/question rules before implementation.
-5. ${bp.sourceManifest?.runtime ? 'Direct reading and the pinned source CLI in README.md are available. Public agent-buildprint@0.0.17 lacks v2; do not substitute installed agb or invent state. Execute game checks/captures/reviews only when explicitly authorized; unavailable evidence remains unverified and cannot satisfy acceptance.' : 'Run required validation and write requested validation evidence plus the final chat handover.'}
+5. ${bp.sourceManifest?.runtime ? `${manifest.bootstrap.rule} Loading a packet does not authorize provider spending, uploads, publication or deployment. Authorized implementation includes routine build, test and contract-required acceptance work unless explicitly restricted; unavailable evidence remains unverified.` : 'Run required validation and write requested validation evidence plus the final chat handover.'}
 
 ## Metadata
 
