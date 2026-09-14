@@ -48,7 +48,15 @@ export type BuildprintPublication = {
   howToUse?: Array<{ title: string; detail: string }>;
   resultChecklist?: string[];
   copyPrompt?: string;
-  sourceCli?: { repository: string; commit?: string; releaseTag?: string; npmVersion: string; npmSupportsRuntime: boolean; claim: string };
+  sourceCli?: {
+    repository: string;
+    commit?: string;
+    sourceRef?: string;
+    releaseTag?: string;
+    npmVersion: string;
+    npmSupportsRuntime: boolean;
+    claim: string;
+  };
   originGithubUrl?: string;
   originLabel?: string;
   publish?: boolean;
@@ -520,7 +528,18 @@ export function packageManifest(bp: Buildprint) {
   const shape = packetShape(bp.files.map((item) => item.path));
   const { canonicalStart, instructionRule } = shape;
   const readOrder = bp.publicationReadOrder;
-  const sourceOnly = bp.sourceManifest?.runtime?.schema === 'agb/runtime/v2';
+  const versionedRuntime = bp.sourceManifest?.runtime?.schema === 'agb/runtime/v2';
+  const sourceCli = bp.sourceCli;
+  const npmRuntimeSupported = sourceCli?.npmSupportsRuntime === true;
+  const npmVersion = sourceCli?.npmVersion;
+  const sourceDirectory = 'agb-runtime-v2';
+  const sourceSetup = sourceCli?.commit
+    ? `git clone ${sourceCli.repository} ${sourceDirectory} && git -C ${sourceDirectory} checkout --detach ${sourceCli.commit}`
+    : `git clone ${sourceCli?.repository ?? repoUrl} ${sourceDirectory} && git -C ${sourceDirectory} rev-parse HEAD`;
+  const sourceCommand = `node ${sourceDirectory}/bin/agb.js start ${sourceDirectory}/buildprints/${bp.slug}/package.json ./my-isometric-game`;
+  const npmCommand = npmVersion
+    ? `npm install --save-dev agent-buildprint@${npmVersion} && npx --no-install agb start ./node_modules/agent-buildprint/buildprints/${bp.slug}/package.json .`
+    : null;
   return {
     schema: `${siteBase}/schemas/buildprint-package.v1.json`,
     slug: bp.slug,
@@ -532,8 +551,20 @@ export function packageManifest(bp: Buildprint) {
     updatedAt: bp.updatedAt,
     visualRun: bp.visualRun,
     proofUrl: bp.proofUrl,
-    runtime: sourceOnly ? bp.sourceManifest!.runtime : bp.runtime,
-    ...(sourceOnly ? { runtimeLabels: bp.runtime, executionMode: bp.sourceManifest!.executionMode, compatibility: { mode: 'pinned-source-or-direct-reading', publicCliVersion: bp.sourceCli?.npmVersion ?? null, publicCliSupported: bp.sourceCli?.npmSupportsRuntime ?? false, sourceCli: bp.sourceCli, runtimeStatus: 'source-available-game-unverified', manifestDigestUrl: `${siteBase}/buildprints/${bp.slug}/package.sha256` } } : {}),
+    runtime: versionedRuntime ? bp.sourceManifest!.runtime : bp.runtime,
+    ...(versionedRuntime ? {
+      runtimeLabels: bp.runtime,
+      executionMode: bp.sourceManifest!.executionMode,
+      compatibility: {
+        mode: npmRuntimeSupported ? 'npm-or-matching-source' : 'pinned-source-or-direct-reading',
+        packageCliVersion: npmVersion ?? null,
+        packageCliSupportsRuntime: npmRuntimeSupported,
+        registryAvailability: 'check-required',
+        sourceCli,
+        runtimeStatus: npmRuntimeSupported ? 'npm-routing-and-source-policy-game-unverified' : 'source-available-game-unverified',
+        manifestDigestUrl: `${siteBase}/buildprints/${bp.slug}/package.sha256`,
+      },
+    } : {}),
     stack: bp.stack,
     canonicalStart,
     readOrder,
@@ -548,11 +579,15 @@ export function packageManifest(bp: Buildprint) {
       visualDemo: bp.visualRun?.demoUrl,
       rawBase: bp.rawBaseUrl,
     },
-    bootstrap: sourceOnly ? {
-      command: `node agb-runtime-v2/bin/agb.js start agb-runtime-v2/buildprints/${bp.slug}/package.json ./my-isometric-game`,
-      fallbackCommand: null, stateDir: '.buildprint', snapshotMode: 'pinned-source-or-direct-reading',
-      sourceSetup: `git clone https://github.com/DomEscobar/agent-buildprint.git agb-runtime-v2${bp.sourceCli?.commit ? ` && git -C agb-runtime-v2 checkout --detach ${bp.sourceCli.commit}` : ' && git -C agb-runtime-v2 rev-parse HEAD'}`,
-      rule: `${bp.sourceCli?.claim ?? 'Use the matching source CLI and local packet.'} Use a NEW checkout and keep it unchanged for the run. Remote v2 additionally needs --manifest-sha256 from a separately trusted channel. Read README.md for setup and direct-reading alternatives. No game scaffold or acceptance is implied.`,
+    bootstrap: versionedRuntime ? {
+      command: npmRuntimeSupported && npmCommand ? npmCommand : sourceCommand,
+      fallbackCommand: npmRuntimeSupported ? sourceCommand : null,
+      stateDir: '.buildprint',
+      snapshotMode: npmRuntimeSupported ? 'installed-package-or-matching-source' : 'pinned-source-or-direct-reading',
+      sourceSetup,
+      rule: npmRuntimeSupported
+        ? `Version ${npmVersion} contains this runtime route; check registry availability before using the installed-package command. For newer source policy, use one fresh checkout's matching CLI and local packet, record its HEAD, and keep it unchanged for the run. Remote v2 additionally needs --manifest-sha256 from a separately trusted channel. No game scaffold or acceptance is implied.`
+        : 'Use the source checkout in a NEW directory and keep its CLI and local packet at the same recorded revision. Remote v2 additionally needs --manifest-sha256 from a separately trusted channel. Read README.md for direct-reading alternatives. No game scaffold or acceptance is implied.',
     } : {
       command: `agb start ${siteBase}/buildprints/${bp.slug}/package.json`,
       fallbackCommand: `git clone https://github.com/DomEscobar/agent-buildprint && node agent-buildprint/bin/agb.js start ${siteBase}/buildprints/${bp.slug}/package.json`,
@@ -564,7 +599,9 @@ export function packageManifest(bp: Buildprint) {
     instructions: {
       canonicalStart,
       readOrder,
-      rule: sourceOnly ? `${instructionRule} ${bp.sourceCli?.claim ?? 'Use the matching source CLI and local packet.'} Full runtime/game acceptance remains unverified. Read README.md and references/cli-integration.md before executing commands. All original visual/gameplay acceptance requirements remain mandatory.` : instructionRule,
+      rule: versionedRuntime
+        ? `${instructionRule} Direct reading and a matching source checkout are available. ${npmRuntimeSupported ? `Package version ${npmVersion} contains the initial installed runtime route; check registry availability before using it.` : 'No compatible installed package is declared.'} Read README.md and references/cli-integration.md before commands. Runtime routing does not prove full game or visual acceptance.`
+        : instructionRule,
     },
   };
 }

@@ -89,6 +89,28 @@ for (const bp of items) {
     continue;
   }
   const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+  if (pkg.runtime?.schema === 'agb/runtime/v2') {
+    const compatibility = pkg.compatibility;
+    const sourceCli = compatibility?.sourceCli;
+    const serialized = JSON.stringify(pkg);
+    if (serialized.includes('undefined')) errors.push(`${slug}: generated v2 package contains an undefined command or value`);
+    if (!sourceCli) {
+      errors.push(`${slug}: v2 package is missing sourceCli compatibility metadata`);
+    } else {
+      if (compatibility.packageCliVersion !== sourceCli.npmVersion) errors.push(`${slug}: package CLI version disagrees with source publication metadata`);
+      if (compatibility.packageCliSupportsRuntime !== sourceCli.npmSupportsRuntime) errors.push(`${slug}: package CLI support disagrees with source publication metadata`);
+      if (compatibility.registryAvailability !== 'check-required') errors.push(`${slug}: generated metadata overclaims live npm registry availability`);
+      if (sourceCli.npmSupportsRuntime) {
+        if (!pkg.bootstrap?.command?.includes(`agent-buildprint@${sourceCli.npmVersion}`)) errors.push(`${slug}: npm-supported v2 package does not install its declared CLI version`);
+        if (!pkg.bootstrap?.command?.includes(`node_modules/agent-buildprint/buildprints/${slug}/package.json`)) errors.push(`${slug}: npm-supported v2 package does not use its bundled local manifest`);
+      }
+      if (!sourceCli.commit && !pkg.bootstrap?.sourceSetup?.includes('rev-parse HEAD')) errors.push(`${slug}: unpinned current-source setup does not record its checkout HEAD`);
+    }
+    if (/npm v2 is (not released|unreleased)|agent-buildprint@0\.0\.17/.test(serialized)) errors.push(`${slug}: generated v2 compatibility text contains obsolete global npm assumptions`);
+    const agentPath = path.join(dist, 'buildprints', slug, 'agent.md');
+    const agentText = fs.existsSync(agentPath) ? fs.readFileSync(agentPath, 'utf8') : '';
+    if (!agentText || /checkout --detach undefined|npm v2 is (not released|unreleased)|agent-buildprint@0\.0\.17/.test(agentText)) errors.push(`${slug}: generated agent guide has broken or obsolete v2 routing`);
+  }
   const expectedRawBase = `https://agent-buildprint.com/buildprints/${slug}/files`;
   if (pkg.entrypoints?.rawBase !== expectedRawBase) {
     errors.push(`${slug}: rawBase is ${pkg.entrypoints?.rawBase}, expected ${expectedRawBase}`);

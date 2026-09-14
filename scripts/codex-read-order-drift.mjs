@@ -51,11 +51,13 @@ const isCapabilityPacket = hasManifestFile('START_HERE.md') && hasManifestFile('
 const isExecutableBlueprint = hasManifestFile('01-questions.md') && hasManifestFile('02-project-setup.md') && hasManifestFile('blueprint.yaml') && hasManifestFile('03-phases/phase-index.yaml');
 const expectedCanonicalStart = isCapabilityPacket ? 'START_HERE.md' : 'BUILDPRINT.md';
 const expectedReadOrder = manifest.instructions?.readOrder || (isCapabilityPacket ? ['BUILDPRINT.md', 'START_HERE.md', 'blueprint.yaml'] : ['BUILDPRINT.md']);
+const formattedReadOrder = expectedReadOrder.map((file) => `\`${file}\``).join(' -> ');
+const conciseReadOrder = `Read ${expectedReadOrder.join(', then ')}.`;
 
 assert(!prompt.includes('Read the package files in the manifest order'), 'prompt does not instruct manifest-order reading');
 assert(!agent.includes('Read files in order:'), 'agent guide does not render a competing legacy read-order list');
-assert(prompt.includes(`Read order: ${expectedReadOrder.map((file) => `\`${file}\``).join(' -> ')}`), 'prompt renders expected package read order', { expectedReadOrder });
-assert(agent.includes(`Read order: ${expectedReadOrder.map((file) => `\`${file}\``).join(' -> ')}`), 'agent guide renders expected package read order', { expectedReadOrder });
+assert(prompt.includes(`Read order: ${formattedReadOrder}`) || prompt.includes(conciseReadOrder), 'prompt renders expected package read order', { expectedReadOrder });
+assert(agent.includes(`Read order: ${formattedReadOrder}`), 'agent guide renders expected package read order', { expectedReadOrder });
 assert(manifest.instructions?.canonicalStart === expectedCanonicalStart, 'manifest canonicalStart matches packet type', { canonicalStart: manifest.instructions?.canonicalStart, expectedCanonicalStart });
 assert(Array.isArray(manifest.instructions?.readOrder) && JSON.stringify(manifest.instructions.readOrder) === JSON.stringify(expectedReadOrder), 'manifest readOrder is explicit and stable', { readOrder: manifest.instructions?.readOrder, expectedReadOrder });
 assert(manifest.files?.some((file) => file.path === 'BUILDPRINT.md'), 'manifest files include BUILDPRINT.md compatibility bootstrap');
